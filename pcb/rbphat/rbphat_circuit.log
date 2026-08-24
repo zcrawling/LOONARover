@@ -1,0 +1,24 @@
+WARNING: KICAD10_SYMBOL_DIR environment variable is missing, so the default KiCad symbol libraries won't be searched. @ [\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\<frozen importlib._bootstrap_external>:999=>\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\<frozen importlib._bootstrap>:488]
+WARNING: KICAD_SYMBOL_DIR environment variable is missing, so the default KiCad symbol libraries won't be searched. @ [\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\<frozen importlib._bootstrap_external>:999=>\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\<frozen importlib._bootstrap>:488]
+WARNING: KICAD6_SYMBOL_DIR environment variable is missing, so the default KiCad symbol libraries won't be searched. @ [\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\<frozen importlib._bootstrap_external>:999=>\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\<frozen importlib._bootstrap>:488]
+WARNING: KICAD7_SYMBOL_DIR environment variable is missing, so the default KiCad symbol libraries won't be searched. @ [\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\<frozen importlib._bootstrap_external>:999=>\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\<frozen importlib._bootstrap>:488]
+WARNING: KICAD8_SYMBOL_DIR environment variable is missing, so the default KiCad symbol libraries won't be searched. @ [\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\<frozen importlib._bootstrap_external>:999=>\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\<frozen importlib._bootstrap>:488]
+WARNING: fp-lib-table file was not found. Component footprints are not available.
+WARNING: fp-lib-table file was not found. Component footprints are not available.
+WARNING: fp-lib-table file was not found. Component footprints are not available.
+WARNING: fp-lib-table file was not found. Component footprints are not available.
+WARNING: fp-lib-table file was not found. Component footprints are not available.
+INFO:   [auto_stub] power: GND(35), +3V3_PI(17) @ [\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:333=>\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:320]
+INFO:   [auto_stub] deferred fanout>=5: MAX1_VCC(5), CTRL_RX_P(5), MAX2_VCC(5), CTRL_RX_N(5), BAT_DIV(5), PAYLOAD_RX_P(5), PAYLOAD_RX_N(5), __NOCONNECT(33) @ [\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:333=>\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:320]
+INFO:   [auto_stub_large_groups] Group of 25 parts, 8 chain nets, splitting... @ [\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:333=>\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:320]
+INFO:   [auto_stub_large_groups] Stubbed 3 nets @ [\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:333=>\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:320]
+INFO:   [auto_stub_large_groups] Group of 25 parts, 8 chain nets, splitting... @ [\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:333=>\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:320]
+INFO:   [auto_stub_large_groups] Stubbed 3 nets @ [\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:333=>\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:320]
+INFO:   [deferred_stub] rs422_channel1: 3 deferred nets stubbed @ [\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:333=>\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:320]
+INFO:   [deferred_stub] rs422_channel2: 3 deferred nets stubbed @ [\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:333=>\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:320]
+INFO:   [deferred_stub] battery_sense1: 1 deferred nets stubbed @ [\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:333=>\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:320]
+INFO:   [selective_routing] Stubbed 16 complex/distant nets after placement @ [\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:333=>\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:320]
+INFO: Schematic written to \\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat.kicad_sch @ [\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:333=>\\wsl.localhost\Ubuntu-26.04\home\sb\laptop\LOONAR\pcb\rbphat\rbphat_circuit.py:320]
+INFO: 5 warnings found while generating schematic.
+INFO: 0 errors found while generating schematic.
+

@@ -1,0 +1,1123 @@
+EESchema Schematic File Version 4
+LIBS:rbphat-cache
+EELAYER 29 0
+EELAYER END
+$Descr A3 16535 11693
+Sheet 1 1
+Title "RBPHAT Rev.A"
+Date "2026-08-24"
+Rev "A"
+Comp "LOONAR"
+Comment1 "MAX3490E + SN74LVC2G34 dual RS-422; TMUX1511 battery isolation"
+Comment2 "Release gate: datasheet / symbol / footprint pin audit"
+Comment3 "Rev.A fault test: Teensy ON + Pi 3V3 OFF"
+Comment4 "MAX3490E pins: 1 VCC, 2 RO, 3 DI, 4 GND, 5 Y, 6 Z, 7 B, 8 A"
+$EndDescr
+Text Notes 600 450 0    110   ~ 16
+RBPHAT Rev.A — VERIFIED PINOUT / POWER-OFF TESTABLE
+Text Notes 600 650 0    65   ~ 16
+Pi reboot with 3V3 alive is normal; framing recovery is firmware responsibility
+$Comp
+L CONN_2X20 J1
+U 1 1 68000001
+P 1300 2800
+F 0 "J1" H 1300 2650 50  0000 C CNN
+F 1 "Raspberry_Pi_2x20" H 1300 2950 50  0000 C CNN
+F 2 "Connector_PinSocket_2.54mm:PinSocket_2x20_P2.54mm_Vertical" H 1300 2800 50  0001 C CNN
+F 3 "" H 1300 2800 50  0001 C CNN
+	1    1300 2800
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	900 3750 800 3750
+Text Label 800 3750 0    40   ~ 0
++3V3_PI
+Wire Wire Line
+	900 3650 800 3650
+Text Label 800 3650 0    40   ~ 0
+I2C_SDA
+Wire Wire Line
+	900 3550 800 3550
+Text Label 800 3550 0    40   ~ 0
+I2C_SCL
+Wire Wire Line
+	900 3450 800 3450
+Text Label 800 3450 0    40   ~ 0
+UART2_TX
+Wire Wire Line
+	900 3350 800 3350
+Text Label 800 3350 0    40   ~ 0
+GND
+NoConn ~ 900 3250
+NoConn ~ 900 3150
+NoConn ~ 900 3050
+Wire Wire Line
+	900 2950 800 2950
+Text Label 800 2950 0    40   ~ 0
++3V3_PI
+NoConn ~ 900 2850
+NoConn ~ 900 2750
+NoConn ~ 900 2650
+Wire Wire Line
+	900 2550 800 2550
+Text Label 800 2550 0    40   ~ 0
+GND
+NoConn ~ 900 2450
+Wire Wire Line
+	900 2350 800 2350
+Text Label 800 2350 0    40   ~ 0
+UART2_RX
+NoConn ~ 900 2250
+Wire Wire Line
+	900 2150 800 2150
+Text Label 800 2150 0    40   ~ 0
+UART4_RX
+NoConn ~ 900 2050
+NoConn ~ 900 1950
+Wire Wire Line
+	900 1850 800 1850
+Text Label 800 1850 0    40   ~ 0
+GND
+NoConn ~ 1700 3750
+NoConn ~ 1700 3650
+Wire Wire Line
+	1700 3550 1800 3550
+Text Label 1800 3550 0    40   ~ 0
+GND
+NoConn ~ 1700 3450
+NoConn ~ 1700 3350
+NoConn ~ 1700 3250
+Wire Wire Line
+	1700 3150 1800 3150
+Text Label 1800 3150 0    40   ~ 0
+GND
+NoConn ~ 1700 3050
+NoConn ~ 1700 2950
+Wire Wire Line
+	1700 2850 1800 2850
+Text Label 1800 2850 0    40   ~ 0
+GND
+NoConn ~ 1700 2750
+NoConn ~ 1700 2650
+NoConn ~ 1700 2550
+NoConn ~ 1700 2450
+Wire Wire Line
+	1700 2350 1800 2350
+Text Label 1800 2350 0    40   ~ 0
+GND
+Wire Wire Line
+	1700 2250 1800 2250
+Text Label 1800 2250 0    40   ~ 0
+UART4_TX
+Wire Wire Line
+	1700 2150 1800 2150
+Text Label 1800 2150 0    40   ~ 0
+GND
+NoConn ~ 1700 2050
+NoConn ~ 1700 1950
+NoConn ~ 1700 1850
+$Comp
+L PWR_FLAG #FLG01
+U 1 1 68000002
+P 900 650
+F 0 "#FLG01" H 900 500 50  0000 C CNN
+F 1 "PWR_FLAG" H 900 800 50  0000 C CNN
+F 2 "" H 900 650 50  0001 C CNN
+F 3 "" H 900 650 50  0001 C CNN
+	1    900 650
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	900 450 900 350
+Text Label 900 350 0    40   ~ 0
++3V3_PI
+$Comp
+L PWR_FLAG #FLG02
+U 1 1 68000003
+P 1300 650
+F 0 "#FLG02" H 1300 500 50  0000 C CNN
+F 1 "PWR_FLAG" H 1300 800 50  0000 C CNN
+F 2 "" H 1300 650 50  0001 C CNN
+F 3 "" H 1300 650 50  0001 C CNN
+	1    1300 650
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	1300 450 1300 350
+Text Label 1300 350 0    40   ~ 0
+GND
+$Comp
+L TESTPOINT TP1
+U 1 1 68000004
+P 1900 650
+F 0 "TP1" H 1900 500 50  0000 C CNN
+F 1 "+3V3_PI" H 1900 800 50  0000 C CNN
+F 2 "TestPoint:TestPoint_Plated_Hole_D2.0mm" H 1900 650 50  0001 C CNN
+F 3 "" H 1900 650 50  0001 C CNN
+	1    1900 650
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	1700 650 1600 650
+Text Label 1600 650 0    40   ~ 0
++3V3_PI
+$Comp
+L TESTPOINT TP2
+U 1 1 68000005
+P 2400 650
+F 0 "TP2" H 2400 500 50  0000 C CNN
+F 1 "GND" H 2400 800 50  0000 C CNN
+F 2 "TestPoint:TestPoint_Plated_Hole_D2.0mm" H 2400 650 50  0001 C CNN
+F 3 "" H 2400 650 50  0001 C CNN
+	1    2400 650
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	2200 650 2100 650
+Text Label 2100 650 0    40   ~ 0
+GND
+Text Notes 3300 1000 0    80   ~ 16
+UART2 / CTRL RS-422
+$Comp
+L SN74LVC2G34 U2
+U 1 1 68000006
+P 4200 1900
+F 0 "U2" H 4200 1750 50  0000 C CNN
+F 1 "SN74LVC2G34DBVR" H 4200 2050 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23-6" H 4200 1900 50  0001 C CNN
+F 3 "https://www.ti.com/lit/ds/symlink/sn74lvc2g34.pdf" H 4200 1900 50  0001 C CNN
+	1    4200 1900
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	3700 2100 3600 2100
+Text Label 3600 2100 0    40   ~ 0
+UART2_TX
+Wire Wire Line
+	4200 1350 4200 1250
+Text Label 4200 1250 0    40   ~ 0
+GND
+Wire Wire Line
+	3700 1700 3600 1700
+Text Label 3600 1700 0    40   ~ 0
+MAX1_RO
+Wire Wire Line
+	4700 1700 4800 1700
+Text Label 4800 1700 0    40   ~ 0
+BUF1_RX
+Wire Wire Line
+	4200 2450 4200 2550
+Text Label 4200 2550 0    40   ~ 0
++3V3_PI
+Wire Wire Line
+	4700 2100 4800 2100
+Text Label 4800 2100 0    40   ~ 0
+BUF1_TX
+$Comp
+L MAX3490E U1
+U 1 1 68000007
+P 6800 1900
+F 0 "U1" H 6800 1750 50  0000 C CNN
+F 1 "MAX3490EESA+" H 6800 2050 50  0000 C CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 6800 1900 50  0001 C CNN
+F 3 "https://www.analog.com/media/en/technical-documentation/data-sheets/MAX3483E-MAX3491E.pdf" H 6800 1900 50  0001 C CNN
+	1    6800 1900
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	6800 2500 6800 2600
+Text Label 6800 2600 0    40   ~ 0
+MAX1_VCC
+Wire Wire Line
+	6300 2100 6200 2100
+Text Label 6200 2100 0    40   ~ 0
+MAX1_RO
+Wire Wire Line
+	6300 1700 6200 1700
+Text Label 6200 1700 0    40   ~ 0
+MAX1_DI
+Wire Wire Line
+	6800 1300 6800 1200
+Text Label 6800 1200 0    40   ~ 0
+GND
+Wire Wire Line
+	7300 1600 7400 1600
+Text Label 7400 1600 0    40   ~ 0
+CTRL_TX_P
+Wire Wire Line
+	7300 1800 7400 1800
+Text Label 7400 1800 0    40   ~ 0
+CTRL_TX_N
+Wire Wire Line
+	7300 2000 7400 2000
+Text Label 7400 2000 0    40   ~ 0
+CTRL_RX_N
+Wire Wire Line
+	7300 2200 7400 2200
+Text Label 7400 2200 0    40   ~ 0
+CTRL_RX_P
+$Comp
+L R R100
+U 1 1 68000008
+P 6000 1250
+F 0 "R100" H 6000 1100 50  0000 C CNN
+F 1 "0R" H 6000 1400 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 6000 1250 50  0001 C CNN
+F 3 "" H 6000 1250 50  0001 C CNN
+	1    6000 1250
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	5800 1250 5700 1250
+Text Label 5700 1250 0    40   ~ 0
++3V3_PI
+Wire Wire Line
+	6200 1250 6300 1250
+Text Label 6300 1250 0    40   ~ 0
+MAX1_VCC
+$Comp
+L R R101
+U 1 1 68000009
+P 3600 1350
+F 0 "R101" H 3600 1200 50  0000 C CNN
+F 1 "47k" H 3600 1500 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 3600 1350 50  0001 C CNN
+F 3 "" H 3600 1350 50  0001 C CNN
+	1    3600 1350
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	3400 1350 3300 1350
+Text Label 3300 1350 0    40   ~ 0
++3V3_PI
+Wire Wire Line
+	3800 1350 3900 1350
+Text Label 3900 1350 0    40   ~ 0
+UART2_TX
+$Comp
+L R R102
+U 1 1 6800000A
+P 5400 1700
+F 0 "R102" H 5400 1550 50  0000 C CNN
+F 1 "47R" H 5400 1850 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 5400 1700 50  0001 C CNN
+F 3 "" H 5400 1700 50  0001 C CNN
+	1    5400 1700
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	5200 1700 5100 1700
+Text Label 5100 1700 0    40   ~ 0
+BUF1_TX
+Wire Wire Line
+	5600 1700 5700 1700
+Text Label 5700 1700 0    40   ~ 0
+MAX1_DI
+$Comp
+L R R103
+U 1 1 6800000B
+P 5400 2150
+F 0 "R103" H 5400 2000 50  0000 C CNN
+F 1 "47R" H 5400 2300 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 5400 2150 50  0001 C CNN
+F 3 "" H 5400 2150 50  0001 C CNN
+	1    5400 2150
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	5200 2150 5100 2150
+Text Label 5100 2150 0    40   ~ 0
+BUF1_RX
+Wire Wire Line
+	5600 2150 5700 2150
+Text Label 5700 2150 0    40   ~ 0
+UART2_RX
+$Comp
+L C C100
+U 1 1 6800000C
+P 7400 1250
+F 0 "C100" H 7400 1100 50  0000 C CNN
+F 1 "100n" H 7400 1400 50  0000 C CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 7400 1250 50  0001 C CNN
+F 3 "" H 7400 1250 50  0001 C CNN
+	1    7400 1250
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	7200 1250 7100 1250
+Text Label 7100 1250 0    40   ~ 0
+MAX1_VCC
+Wire Wire Line
+	7600 1250 7700 1250
+Text Label 7700 1250 0    40   ~ 0
+GND
+$Comp
+L R R104
+U 1 1 6800000D
+P 8200 1900
+F 0 "R104" H 8200 1750 50  0000 C CNN
+F 1 "120R" H 8200 2050 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 8200 1900 50  0001 C CNN
+F 3 "" H 8200 1900 50  0001 C CNN
+	1    8200 1900
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	8000 1900 7900 1900
+Text Label 7900 1900 0    40   ~ 0
+CTRL_RX_P
+Wire Wire Line
+	8400 1900 8500 1900
+Text Label 8500 1900 0    40   ~ 0
+CTRL_RX_N
+$Comp
+L R R105
+U 1 1 6800000E
+P 8200 1450
+F 0 "R105" H 8200 1300 50  0000 C CNN
+F 1 "680R DNP" H 8200 1600 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 8200 1450 50  0001 C CNN
+F 3 "" H 8200 1450 50  0001 C CNN
+F 4 "DNP" H 8200 1450 50  0001 C CNN "DNP"
+	1    8200 1450
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	8000 1450 7900 1450
+Text Label 7900 1450 0    40   ~ 0
++3V3_PI
+Wire Wire Line
+	8400 1450 8500 1450
+Text Label 8500 1450 0    40   ~ 0
+CTRL_RX_P
+$Comp
+L R R106
+U 1 1 6800000F
+P 8200 2350
+F 0 "R106" H 8200 2200 50  0000 C CNN
+F 1 "680R DNP" H 8200 2500 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 8200 2350 50  0001 C CNN
+F 3 "" H 8200 2350 50  0001 C CNN
+F 4 "DNP" H 8200 2350 50  0001 C CNN "DNP"
+	1    8200 2350
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	8000 2350 7900 2350
+Text Label 7900 2350 0    40   ~ 0
+CTRL_RX_N
+Wire Wire Line
+	8400 2350 8500 2350
+Text Label 8500 2350 0    40   ~ 0
+GND
+$Comp
+L TESTPOINT TP101
+U 1 1 68000010
+P 7400 1550
+F 0 "TP101" H 7400 1400 50  0000 C CNN
+F 1 "MAX1_VCC" H 7400 1700 50  0000 C CNN
+F 2 "TestPoint:TestPoint_Plated_Hole_D2.0mm" H 7400 1550 50  0001 C CNN
+F 3 "" H 7400 1550 50  0001 C CNN
+	1    7400 1550
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	7200 1550 7100 1550
+Text Label 7100 1550 0    40   ~ 0
+MAX1_VCC
+$Comp
+L SM712 D101
+U 1 1 68000011
+P 9100 1650
+F 0 "D101" H 9100 1500 50  0000 C CNN
+F 1 "SM712" H 9100 1800 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 9100 1650 50  0001 C CNN
+F 3 "" H 9100 1650 50  0001 C CNN
+	1    9100 1650
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	8800 1650 8700 1650
+Text Label 8700 1650 0    40   ~ 0
+CTRL_TX_P
+Wire Wire Line
+	9400 1650 9500 1650
+Text Label 9500 1650 0    40   ~ 0
+CTRL_TX_N
+Wire Wire Line
+	9100 1350 9100 1250
+Text Label 9100 1250 0    40   ~ 0
+GND
+$Comp
+L SM712 D102
+U 1 1 68000012
+P 9100 2150
+F 0 "D102" H 9100 2000 50  0000 C CNN
+F 1 "SM712" H 9100 2300 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 9100 2150 50  0001 C CNN
+F 3 "" H 9100 2150 50  0001 C CNN
+	1    9100 2150
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	8800 2150 8700 2150
+Text Label 8700 2150 0    40   ~ 0
+CTRL_RX_P
+Wire Wire Line
+	9400 2150 9500 2150
+Text Label 9500 2150 0    40   ~ 0
+CTRL_RX_N
+Wire Wire Line
+	9100 1850 9100 1750
+Text Label 9100 1750 0    40   ~ 0
+GND
+$Comp
+L CONN_1X05 J2
+U 1 1 68000013
+P 10500 1900
+F 0 "J2" H 10500 1750 50  0000 C CNN
+F 1 "CTRL_RS422" H 10500 2050 50  0000 C CNN
+F 2 "Connector_JST:JST_GH_SM05B-GHS-TB_1x05-1MP_P1.25mm_Horizontal" H 10500 1900 50  0001 C CNN
+F 3 "" H 10500 1900 50  0001 C CNN
+	1    10500 1900
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	10150 2100 10050 2100
+Text Label 10050 2100 0    40   ~ 0
+CTRL_TX_P
+Wire Wire Line
+	10150 2000 10050 2000
+Text Label 10050 2000 0    40   ~ 0
+CTRL_TX_N
+Wire Wire Line
+	10150 1900 10050 1900
+Text Label 10050 1900 0    40   ~ 0
+GND
+Wire Wire Line
+	10150 1800 10050 1800
+Text Label 10050 1800 0    40   ~ 0
+CTRL_RX_P
+Wire Wire Line
+	10150 1700 10050 1700
+Text Label 10050 1700 0    40   ~ 0
+CTRL_RX_N
+Text Notes 3300 4000 0    80   ~ 16
+UART4 / PAYLOAD RS-422
+$Comp
+L SN74LVC2G34 U4
+U 1 1 68000014
+P 4200 4900
+F 0 "U4" H 4200 4750 50  0000 C CNN
+F 1 "SN74LVC2G34DBVR" H 4200 5050 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23-6" H 4200 4900 50  0001 C CNN
+F 3 "https://www.ti.com/lit/ds/symlink/sn74lvc2g34.pdf" H 4200 4900 50  0001 C CNN
+	1    4200 4900
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	3700 5100 3600 5100
+Text Label 3600 5100 0    40   ~ 0
+UART4_TX
+Wire Wire Line
+	4200 4350 4200 4250
+Text Label 4200 4250 0    40   ~ 0
+GND
+Wire Wire Line
+	3700 4700 3600 4700
+Text Label 3600 4700 0    40   ~ 0
+MAX2_RO
+Wire Wire Line
+	4700 4700 4800 4700
+Text Label 4800 4700 0    40   ~ 0
+BUF2_RX
+Wire Wire Line
+	4200 5450 4200 5550
+Text Label 4200 5550 0    40   ~ 0
++3V3_PI
+Wire Wire Line
+	4700 5100 4800 5100
+Text Label 4800 5100 0    40   ~ 0
+BUF2_TX
+$Comp
+L MAX3490E U3
+U 1 1 68000015
+P 6800 4900
+F 0 "U3" H 6800 4750 50  0000 C CNN
+F 1 "MAX3490EESA+" H 6800 5050 50  0000 C CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 6800 4900 50  0001 C CNN
+F 3 "https://www.analog.com/media/en/technical-documentation/data-sheets/MAX3483E-MAX3491E.pdf" H 6800 4900 50  0001 C CNN
+	1    6800 4900
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	6800 5500 6800 5600
+Text Label 6800 5600 0    40   ~ 0
+MAX2_VCC
+Wire Wire Line
+	6300 5100 6200 5100
+Text Label 6200 5100 0    40   ~ 0
+MAX2_RO
+Wire Wire Line
+	6300 4700 6200 4700
+Text Label 6200 4700 0    40   ~ 0
+MAX2_DI
+Wire Wire Line
+	6800 4300 6800 4200
+Text Label 6800 4200 0    40   ~ 0
+GND
+Wire Wire Line
+	7300 4600 7400 4600
+Text Label 7400 4600 0    40   ~ 0
+PAYLOAD_TX_P
+Wire Wire Line
+	7300 4800 7400 4800
+Text Label 7400 4800 0    40   ~ 0
+PAYLOAD_TX_N
+Wire Wire Line
+	7300 5000 7400 5000
+Text Label 7400 5000 0    40   ~ 0
+PAYLOAD_RX_N
+Wire Wire Line
+	7300 5200 7400 5200
+Text Label 7400 5200 0    40   ~ 0
+PAYLOAD_RX_P
+$Comp
+L R R200
+U 1 1 68000016
+P 6000 4250
+F 0 "R200" H 6000 4100 50  0000 C CNN
+F 1 "0R" H 6000 4400 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 6000 4250 50  0001 C CNN
+F 3 "" H 6000 4250 50  0001 C CNN
+	1    6000 4250
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	5800 4250 5700 4250
+Text Label 5700 4250 0    40   ~ 0
++3V3_PI
+Wire Wire Line
+	6200 4250 6300 4250
+Text Label 6300 4250 0    40   ~ 0
+MAX2_VCC
+$Comp
+L R R201
+U 1 1 68000017
+P 3600 4350
+F 0 "R201" H 3600 4200 50  0000 C CNN
+F 1 "47k" H 3600 4500 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 3600 4350 50  0001 C CNN
+F 3 "" H 3600 4350 50  0001 C CNN
+	1    3600 4350
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	3400 4350 3300 4350
+Text Label 3300 4350 0    40   ~ 0
++3V3_PI
+Wire Wire Line
+	3800 4350 3900 4350
+Text Label 3900 4350 0    40   ~ 0
+UART4_TX
+$Comp
+L R R202
+U 1 1 68000018
+P 5400 4700
+F 0 "R202" H 5400 4550 50  0000 C CNN
+F 1 "47R" H 5400 4850 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 5400 4700 50  0001 C CNN
+F 3 "" H 5400 4700 50  0001 C CNN
+	1    5400 4700
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	5200 4700 5100 4700
+Text Label 5100 4700 0    40   ~ 0
+BUF2_TX
+Wire Wire Line
+	5600 4700 5700 4700
+Text Label 5700 4700 0    40   ~ 0
+MAX2_DI
+$Comp
+L R R203
+U 1 1 68000019
+P 5400 5150
+F 0 "R203" H 5400 5000 50  0000 C CNN
+F 1 "47R" H 5400 5300 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 5400 5150 50  0001 C CNN
+F 3 "" H 5400 5150 50  0001 C CNN
+	1    5400 5150
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	5200 5150 5100 5150
+Text Label 5100 5150 0    40   ~ 0
+BUF2_RX
+Wire Wire Line
+	5600 5150 5700 5150
+Text Label 5700 5150 0    40   ~ 0
+UART4_RX
+$Comp
+L C C200
+U 1 1 6800001A
+P 7400 4250
+F 0 "C200" H 7400 4100 50  0000 C CNN
+F 1 "100n" H 7400 4400 50  0000 C CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 7400 4250 50  0001 C CNN
+F 3 "" H 7400 4250 50  0001 C CNN
+	1    7400 4250
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	7200 4250 7100 4250
+Text Label 7100 4250 0    40   ~ 0
+MAX2_VCC
+Wire Wire Line
+	7600 4250 7700 4250
+Text Label 7700 4250 0    40   ~ 0
+GND
+$Comp
+L R R204
+U 1 1 6800001B
+P 8200 4900
+F 0 "R204" H 8200 4750 50  0000 C CNN
+F 1 "120R" H 8200 5050 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 8200 4900 50  0001 C CNN
+F 3 "" H 8200 4900 50  0001 C CNN
+	1    8200 4900
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	8000 4900 7900 4900
+Text Label 7900 4900 0    40   ~ 0
+PAYLOAD_RX_P
+Wire Wire Line
+	8400 4900 8500 4900
+Text Label 8500 4900 0    40   ~ 0
+PAYLOAD_RX_N
+$Comp
+L R R205
+U 1 1 6800001C
+P 8200 4450
+F 0 "R205" H 8200 4300 50  0000 C CNN
+F 1 "680R DNP" H 8200 4600 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 8200 4450 50  0001 C CNN
+F 3 "" H 8200 4450 50  0001 C CNN
+F 4 "DNP" H 8200 4450 50  0001 C CNN "DNP"
+	1    8200 4450
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	8000 4450 7900 4450
+Text Label 7900 4450 0    40   ~ 0
++3V3_PI
+Wire Wire Line
+	8400 4450 8500 4450
+Text Label 8500 4450 0    40   ~ 0
+PAYLOAD_RX_P
+$Comp
+L R R206
+U 1 1 6800001D
+P 8200 5350
+F 0 "R206" H 8200 5200 50  0000 C CNN
+F 1 "680R DNP" H 8200 5500 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 8200 5350 50  0001 C CNN
+F 3 "" H 8200 5350 50  0001 C CNN
+F 4 "DNP" H 8200 5350 50  0001 C CNN "DNP"
+	1    8200 5350
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	8000 5350 7900 5350
+Text Label 7900 5350 0    40   ~ 0
+PAYLOAD_RX_N
+Wire Wire Line
+	8400 5350 8500 5350
+Text Label 8500 5350 0    40   ~ 0
+GND
+$Comp
+L TESTPOINT TP201
+U 1 1 6800001E
+P 7400 4550
+F 0 "TP201" H 7400 4400 50  0000 C CNN
+F 1 "MAX2_VCC" H 7400 4700 50  0000 C CNN
+F 2 "TestPoint:TestPoint_Plated_Hole_D2.0mm" H 7400 4550 50  0001 C CNN
+F 3 "" H 7400 4550 50  0001 C CNN
+	1    7400 4550
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	7200 4550 7100 4550
+Text Label 7100 4550 0    40   ~ 0
+MAX2_VCC
+$Comp
+L SM712 D201
+U 1 1 6800001F
+P 9100 4650
+F 0 "D201" H 9100 4500 50  0000 C CNN
+F 1 "SM712" H 9100 4800 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 9100 4650 50  0001 C CNN
+F 3 "" H 9100 4650 50  0001 C CNN
+	1    9100 4650
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	8800 4650 8700 4650
+Text Label 8700 4650 0    40   ~ 0
+PAYLOAD_TX_P
+Wire Wire Line
+	9400 4650 9500 4650
+Text Label 9500 4650 0    40   ~ 0
+PAYLOAD_TX_N
+Wire Wire Line
+	9100 4350 9100 4250
+Text Label 9100 4250 0    40   ~ 0
+GND
+$Comp
+L SM712 D202
+U 1 1 68000020
+P 9100 5150
+F 0 "D202" H 9100 5000 50  0000 C CNN
+F 1 "SM712" H 9100 5300 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 9100 5150 50  0001 C CNN
+F 3 "" H 9100 5150 50  0001 C CNN
+	1    9100 5150
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	8800 5150 8700 5150
+Text Label 8700 5150 0    40   ~ 0
+PAYLOAD_RX_P
+Wire Wire Line
+	9400 5150 9500 5150
+Text Label 9500 5150 0    40   ~ 0
+PAYLOAD_RX_N
+Wire Wire Line
+	9100 4850 9100 4750
+Text Label 9100 4750 0    40   ~ 0
+GND
+$Comp
+L CONN_1X05 J3
+U 1 1 68000021
+P 10500 4900
+F 0 "J3" H 10500 4750 50  0000 C CNN
+F 1 "PAYLOAD_RS422" H 10500 5050 50  0000 C CNN
+F 2 "Connector_JST:JST_GH_SM05B-GHS-TB_1x05-1MP_P1.25mm_Horizontal" H 10500 4900 50  0001 C CNN
+F 3 "" H 10500 4900 50  0001 C CNN
+	1    10500 4900
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	10150 5100 10050 5100
+Text Label 10050 5100 0    40   ~ 0
+PAYLOAD_TX_P
+Wire Wire Line
+	10150 5000 10050 5000
+Text Label 10050 5000 0    40   ~ 0
+PAYLOAD_TX_N
+Wire Wire Line
+	10150 4900 10050 4900
+Text Label 10050 4900 0    40   ~ 0
+GND
+Wire Wire Line
+	10150 4800 10050 4800
+Text Label 10050 4800 0    40   ~ 0
+PAYLOAD_RX_P
+Wire Wire Line
+	10150 4700 10050 4700
+Text Label 10050 4700 0    40   ~ 0
+PAYLOAD_RX_N
+Text Notes 3300 6900 0    85   ~ 16
+3S BATTERY SENSE / POWERED-OFF ISOLATION
+$Comp
+L CONN_1X02 J4
+U 1 1 68000022
+P 3700 7700
+F 0 "J4" H 3700 7550 50  0000 C CNN
+F 1 "BAT_SENSE" H 3700 7850 50  0000 C CNN
+F 2 "Connector_JST:JST_GH_SM02B-GHS-TB_1x02-1MP_P1.25mm_Horizontal" H 3700 7700 50  0001 C CNN
+F 3 "" H 3700 7700 50  0001 C CNN
+	1    3700 7700
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	3350 7750 3250 7750
+Text Label 3250 7750 0    40   ~ 0
+BAT_P
+Wire Wire Line
+	3350 7650 3250 7650
+Text Label 3250 7650 0    40   ~ 0
+GND
+$Comp
+L R R301
+U 1 1 68000023
+P 4700 7400
+F 0 "R301" H 4700 7250 50  0000 C CNN
+F 1 "47k 0.1%" H 4700 7550 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 4700 7400 50  0001 C CNN
+F 3 "" H 4700 7400 50  0001 C CNN
+	1    4700 7400
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	4500 7400 4400 7400
+Text Label 4400 7400 0    40   ~ 0
+BAT_P
+Wire Wire Line
+	4900 7400 5000 7400
+Text Label 5000 7400 0    40   ~ 0
+BAT_MID
+$Comp
+L R R302
+U 1 1 68000024
+P 5500 7400
+F 0 "R302" H 5500 7250 50  0000 C CNN
+F 1 "47k 0.1%" H 5500 7550 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 5500 7400 50  0001 C CNN
+F 3 "" H 5500 7400 50  0001 C CNN
+	1    5500 7400
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	5300 7400 5200 7400
+Text Label 5200 7400 0    40   ~ 0
+BAT_MID
+Wire Wire Line
+	5700 7400 5800 7400
+Text Label 5800 7400 0    40   ~ 0
+BAT_DIV
+$Comp
+L R R303
+U 1 1 68000025
+P 5500 7900
+F 0 "R303" H 5500 7750 50  0000 C CNN
+F 1 "18k 0.1%" H 5500 8050 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" H 5500 7900 50  0001 C CNN
+F 3 "" H 5500 7900 50  0001 C CNN
+	1    5500 7900
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	5300 7900 5200 7900
+Text Label 5200 7900 0    40   ~ 0
+BAT_DIV
+Wire Wire Line
+	5700 7900 5800 7900
+Text Label 5800 7900 0    40   ~ 0
+GND
+$Comp
+L C C302
+U 1 1 68000026
+P 5500 8300
+F 0 "C302" H 5500 8150 50  0000 C CNN
+F 1 "1uF" H 5500 8450 50  0000 C CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 5500 8300 50  0001 C CNN
+F 3 "" H 5500 8300 50  0001 C CNN
+	1    5500 8300
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	5300 8300 5200 8300
+Text Label 5200 8300 0    40   ~ 0
+BAT_DIV
+Wire Wire Line
+	5700 8300 5800 8300
+Text Label 5800 8300 0    40   ~ 0
+GND
+$Comp
+L TMUX1511 U5
+U 1 1 68000027
+P 7200 7700
+F 0 "U5" H 7200 7550 50  0000 C CNN
+F 1 "TMUX1511PWR" H 7200 7850 50  0000 C CNN
+F 2 "Package_SO:TSSOP-14_4.4x5mm_P0.65mm" H 7200 7700 50  0001 C CNN
+F 3 "https://www.ti.com/lit/ds/symlink/tmux1511.pdf" H 7200 7700 50  0001 C CNN
+	1    7200 7700
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	6600 8150 6500 8150
+Text Label 6500 8150 0    40   ~ 0
++3V3_PI
+Wire Wire Line
+	6600 7950 6500 7950
+Text Label 6500 7950 0    40   ~ 0
+BAT_DIV
+Wire Wire Line
+	7800 7950 7900 7950
+Text Label 7900 7950 0    40   ~ 0
+ADS_AIN0
+Wire Wire Line
+	6600 7750 6500 7750
+Text Label 6500 7750 0    40   ~ 0
+GND
+NoConn ~ 6600 7550
+NoConn ~ 7800 7550
+Wire Wire Line
+	7200 6900 7200 6800
+Text Label 7200 6800 0    40   ~ 0
+GND
+NoConn ~ 7800 7350
+NoConn ~ 6600 7350
+Wire Wire Line
+	6600 7150 6500 7150
+Text Label 6500 7150 0    40   ~ 0
+GND
+NoConn ~ 7800 7150
+NoConn ~ 7800 7650
+Wire Wire Line
+	7800 7750 7900 7750
+Text Label 7900 7750 0    40   ~ 0
+GND
+Wire Wire Line
+	7200 8500 7200 8600
+Text Label 7200 8600 0    40   ~ 0
++3V3_PI
+$Comp
+L C C300
+U 1 1 68000028
+P 7200 6800
+F 0 "C300" H 7200 6650 50  0000 C CNN
+F 1 "100n" H 7200 6950 50  0000 C CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 7200 6800 50  0001 C CNN
+F 3 "" H 7200 6800 50  0001 C CNN
+	1    7200 6800
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	7000 6800 6900 6800
+Text Label 6900 6800 0    40   ~ 0
++3V3_PI
+Wire Wire Line
+	7400 6800 7500 6800
+Text Label 7500 6800 0    40   ~ 0
+GND
+$Comp
+L ADS1115 U6
+U 1 1 68000029
+P 9400 7700
+F 0 "U6" H 9400 7550 50  0000 C CNN
+F 1 "ADS1115IDGSR" H 9400 7850 50  0000 C CNN
+F 2 "Package_SO:TSSOP-10_3x3mm_P0.5mm" H 9400 7700 50  0001 C CNN
+F 3 "https://www.ti.com/lit/ds/symlink/ads1115.pdf" H 9400 7700 50  0001 C CNN
+	1    9400 7700
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	10000 7350 10100 7350
+Text Label 10100 7350 0    40   ~ 0
+GND
+Wire Wire Line
+	10000 7550 10100 7550
+Text Label 10100 7550 0    40   ~ 0
+ADC_ALERT
+Wire Wire Line
+	9400 7000 9400 6900
+Text Label 9400 6900 0    40   ~ 0
+GND
+Wire Wire Line
+	8800 8000 8700 8000
+Text Label 8700 8000 0    40   ~ 0
+ADS_AIN0
+NoConn ~ 8800 7800
+NoConn ~ 8800 7600
+NoConn ~ 8800 7400
+Wire Wire Line
+	9400 8400 9400 8500
+Text Label 9400 8500 0    40   ~ 0
++3V3_PI
+Wire Wire Line
+	10000 7950 10100 7950
+Text Label 10100 7950 0    40   ~ 0
+I2C_SDA
+Wire Wire Line
+	10000 8150 10100 8150
+Text Label 10100 8150 0    40   ~ 0
+I2C_SCL
+$Comp
+L C C301
+U 1 1 6800002A
+P 9400 6800
+F 0 "C301" H 9400 6650 50  0000 C CNN
+F 1 "100n" H 9400 6950 50  0000 C CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 9400 6800 50  0001 C CNN
+F 3 "" H 9400 6800 50  0001 C CNN
+	1    9400 6800
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	9200 6800 9100 6800
+Text Label 9100 6800 0    40   ~ 0
++3V3_PI
+Wire Wire Line
+	9600 6800 9700 6800
+Text Label 9700 6800 0    40   ~ 0
+GND
+$Comp
+L TESTPOINT TP301
+U 1 1 6800002B
+P 4300 8600
+F 0 "TP301" H 4300 8450 50  0000 C CNN
+F 1 "BAT_P" H 4300 8750 50  0000 C CNN
+F 2 "TestPoint:TestPoint_Plated_Hole_D2.0mm" H 4300 8600 50  0001 C CNN
+F 3 "" H 4300 8600 50  0001 C CNN
+	1    4300 8600
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	4100 8600 4000 8600
+Text Label 4000 8600 0    40   ~ 0
+BAT_P
+$Comp
+L TESTPOINT TP302
+U 1 1 6800002C
+P 5600 8600
+F 0 "TP302" H 5600 8450 50  0000 C CNN
+F 1 "BAT_DIV" H 5600 8750 50  0000 C CNN
+F 2 "TestPoint:TestPoint_Plated_Hole_D2.0mm" H 5600 8600 50  0001 C CNN
+F 3 "" H 5600 8600 50  0001 C CNN
+	1    5600 8600
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	5400 8600 5300 8600
+Text Label 5300 8600 0    40   ~ 0
+BAT_DIV
+$Comp
+L TESTPOINT TP303
+U 1 1 6800002D
+P 7600 8600
+F 0 "TP303" H 7600 8450 50  0000 C CNN
+F 1 "ADS_AIN0" H 7600 8750 50  0000 C CNN
+F 2 "TestPoint:TestPoint_Plated_Hole_D2.0mm" H 7600 8600 50  0001 C CNN
+F 3 "" H 7600 8600 50  0001 C CNN
+	1    7600 8600
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	7400 8600 7300 8600
+Text Label 7300 8600 0    40   ~ 0
+ADS_AIN0
+$Comp
+L TESTPOINT TP304
+U 1 1 6800002E
+P 9900 8600
+F 0 "TP304" H 9900 8450 50  0000 C CNN
+F 1 "ADC_ALERT" H 9900 8750 50  0000 C CNN
+F 2 "TestPoint:TestPoint_Plated_Hole_D2.0mm" H 9900 8600 50  0001 C CNN
+F 3 "" H 9900 8600 50  0001 C CNN
+	1    9900 8600
+	1    0    0    -1
+$EndComp
+Wire Wire Line
+	9700 8600 9600 8600
+Text Label 9600 8600 0    40   ~ 0
+ADC_ALERT
+Text Notes 3300 9200 0    60   ~ 16
+Divider: 47k + 47k / 18k, 0.1%; 12.6V -> ~2.025V; VBAT = VADC x 6.222222
+Text Notes 3300 9400 0    60   ~ 16
+TMUX1511 SEL1=Pi3V3: ON while Pi powered, high-Z when Pi3V3=0
+Text Notes 3300 9600 0    60   ~ 16
+Test power: Pi USB-C 5V; Teensy separate PSU; GND common only; never tie positive rails
+$EndSCHEMATC

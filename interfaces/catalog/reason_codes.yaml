@@ -1,0 +1,34 @@
+{
+  "catalog": "reason_codes",
+  "constant_prefix": "LNR_REASON",
+  "width_bits": 16,
+  "reserved": [
+    {"start": "0x0102", "end": "0x0103"},
+    {"start": "0x0404", "end": "0x0404"}
+  ],
+  "entries": [
+    {"name": "NONE", "id": "0x0000", "description": "No error"},
+    {"name": "STALE", "id": "0x0101", "description": "Timestamp or TTL is stale"},
+    {"name": "TTL_INVALID", "id": "0x0104", "description": "TTL is zero or overflows"},
+    {"name": "WRONG_MODE", "id": "0x0201", "description": "Command is not valid in the current mode"},
+    {"name": "OLD_EPOCH", "id": "0x0202", "description": "Command authority epoch does not match"},
+    {"name": "NO_AUTHORITY", "id": "0x0203", "description": "Required command authority is absent"},
+    {"name": "DUPLICATE", "id": "0x0204", "description": "Command identity has already been applied"},
+    {"name": "OUT_OF_ORDER", "id": "0x0205", "description": "Source sequence moved backward"},
+    {"name": "INVALID_IDENTITY", "id": "0x0206", "description": "Reserved or missing command identity"},
+    {"name": "ODOM_INVALID", "id": "0x0301", "description": "Odometry is invalid"},
+    {"name": "NAV_FAILED", "id": "0x0302", "description": "Navigation failed"},
+    {"name": "LINK_LOST", "id": "0x0401", "description": "MCU or transport link is lost"},
+    {"name": "MCU_FAULT", "id": "0x0402", "description": "Local MCU hard fault"},
+    {"name": "HEARTBEAT_LOST", "id": "0x0403", "description": "MPU heartbeat expired"},
+    {"name": "SPEED_LIMITED", "id": "0x0501", "description": "Linear speed was limited"},
+    {"name": "YAW_RATE_LIMITED", "id": "0x0502", "description": "Yaw rate was limited"},
+    {"name": "BAD_SCHEMA", "id": "0xF001", "description": "Payload schema is invalid"},
+    {"name": "BAD_FLAGS", "id": "0xF002", "description": "Reserved or conflicting flags are set"},
+    {"name": "BAD_CRC", "id": "0xF003", "description": "CRC32C validation failed"},
+    {"name": "NONFINITE", "id": "0xF004", "description": "A floating-point input is NaN or infinity"},
+    {"name": "OUT_OF_RANGE", "id": "0xF005", "description": "A numeric input exceeds configured limits"},
+    {"name": "UNKNOWN_MODE", "id": "0xF006", "description": "An enum or mode value is unknown"},
+    {"name": "INTERNAL_ERROR", "id": "0xFFFF", "description": "Internal implementation error"}
+  ]
+}

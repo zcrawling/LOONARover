@@ -1,0 +1,5 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "rbphat")(type "KiCad")(uri "${KIPRJMOD}/rbphat.kicad_sym")(options "")(descr "RBPHAT audited project-local symbols"))
+)
+
