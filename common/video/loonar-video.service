@@ -1,0 +1,15 @@
+[Unit]
+Description=LOONAR camera UDP stream
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+Environment=LOONAR_VIDEO_CONFIG=/etc/loonar/video.env
+ExecStart=/usr/local/lib/loonar/loonar-video-stream
+Restart=on-failure
+RestartSec=2
+Nice=10
+
+[Install]
+WantedBy=multi-user.target

@@ -13,7 +13,7 @@ All endpoints are local `SOCK_SEQPACKET` sockets in
 | --- | --- | --- |
 | `cfs.sock` | cFS ground-station adapter or ground mock | `STOP`, `AUTO select`, `MANUAL(v,w)` |
 | `ros.sock` | ROS vehicle client | `AUTO(v,w)` |
-| `backend.sock` | LIMO or future LOONAR backend | receives selected motion |
+| `backend.sock` | LIMO or future LOONAR backend | receives selected motion; sends common `VehicleStatus` |
 
 ## Motion and selection
 
@@ -21,12 +21,19 @@ The shared motion fields are `linear_mps: float64` and
 `angular_radps: float64`.  NaN and Inf are malformed and ignored.  No other
 range or freshness rule exists in this process.
 
-The gateway status is exactly `STOP`, `MANUAL`, or `AUTO`.
+The gateway status is exactly `STOP`, `MANUAL`, `AUTO`, `PAYLOAD`, or
+`REACTION`. Payload and Reaction are cFS-selected operational states; their
+MCU-specific command paths remain outside the vehicle motion backend.
 
 1. A cFS `STOP` immediately sends `(0,0)` and records `STOP`.
 2. A cFS `MANUAL(v,w)` records `MANUAL` and immediately forwards `(v,w)`.
 3. A cFS `AUTO select` records `AUTO`; it does not replay an old ROS command.
 4. A ROS `AUTO(v,w)` forwards only while the recorded status is `AUTO`.
+
+`PAYLOAD` and `REACTION` selection do not replay a motion command. cFS sends an
+explicit `STOP` before selecting either state. The gateway then reports the
+selected state to cFS and ROS so an intentional non-moving payload/recovery
+operation is not diagnosed as autonomy loss.
 
 Thus a ROS packet cannot cancel manual driving or a stop.  The ground station
 performs a handoff explicitly: `STOP`, then `AUTO select`, then ROS supplies a
@@ -41,17 +48,22 @@ not inspect `/limo_status` before publishing.  Future LOONAR serial work must
 implement the same two-field backend input and map it to `MOTION_CMD`; that
 serial backend is intentionally not implemented in the LIMO phase.
 
-## Status telemetry (next implementation unit)
+## Status telemetry
 
-The backend will emit a common `VehicleStatus` envelope to both ROS and the
-cFS adapter.  The cFS adapter forwards the complete LOONAR MCU extension to
-the ground station: MCU uptime, board temperature, MCU state, inhibit flags,
-applied linear/angular command, RX error count, and available battery data.
-LIMO-specific fields remain separate: vehicle state, control/motion mode,
-battery voltage, and vendor error code.  Odom and IMU remain common ROS data.
+The backend emits a common 92-byte `VehicleStatus` envelope. Gateway validates
+its framing and relays it unchanged to the cFS peer; telemetry never rejects,
+clamps, or changes a command. The LIMO backend produces it once per second from
+`/limo_status`, `/wheel/odom`, and `/imu`. `valid_flags` identifies observed
+fields, so battery percentage remains invalid rather than being estimated from
+voltage.
+
+The final LOONAR backend must additionally publish MCU uptime, board
+temperature, MCU state, inhibit flags, applied linear/angular command, RX error
+count, and device connection states. Their cFS messages and GroundLink
+serialization exist; the final serial producer remains a porting task.
 
 ## Debugger
 
-`vehicle_gatewayctl monitor SOCKET` prints gateway status as it changes, for
-example `mode=MANUAL last=manual linear=0.4 angular=1.0`.  The next telemetry
-unit extends this output with the received hardware status.
+`vehicle_gatewayd` prints the current mode once per second and every received
+command. `vehicle_gatewayctl monitor SOCKET` prints status changes, for example
+`mode=MANUAL last=manual linear=0.4 angular=1.0`.

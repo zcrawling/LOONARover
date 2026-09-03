@@ -21,6 +21,8 @@ mission code must not depend on them.
 - Orbbec depth and UVC camera devices are present. No ROS nodes were active
   during the inventory, so live status rates and LIMO motion mode remain a
   start-up acceptance check.
+- `video/` records the inspected Orbbec-integrated RGB UVC identity and uses
+  the shared direct-camera software H.264/UDP sender without passing through ROS.
 
 `vehicle_gatewayd` must be the only project publisher to `/cmd_vel`. The vendor
 `limo_base` process remains the serial owner inside `LimoBackend`.
@@ -30,12 +32,12 @@ mission code must not depend on them.
 - `ros2/loonar_limo_backend` is the sole project-side `/cmd_vel` publisher.
   It receives only Gateway packets through the backend Unix socket, maps
   `linear_mps` and `angular_radps` to `Twist.linear.x` and `Twist.angular.z`,
-  and publishes zero on startup, Gateway disconnect, status timeout, command
-  expiry, and process shutdown.
-- It treats fresh `/limo_status` as the backend-health evidence. Until this is
-  present, the Gateway does not accept motion; `/wheel/odom` and `/imu` are
-  subscribed now to lock their platform contract, while their telemetry fanout
-  is deliberately deferred to the cFS adapter.
+  and forwards explicit STOP as a zero Twist. It does not clamp commands or
+  create disconnect/status-timeout/expiry behavior.
+- `/limo_status`, `/wheel/odom` and `/imu` are subscribed to lock their platform
+  contract. They are diagnostic inputs and never gate or rewrite motion. Once
+  per second the backend sends their observed battery-voltage, odometry and IMU
+  values as common `VehicleStatus`; unavailable fields remain invalid.
 - `systemd/` contains user-service templates. They use `%t` (the per-user
   runtime directory), not a machine-wide `/run` path, so sockets are private
   to the `wego` session.
@@ -49,16 +51,15 @@ cd /home/wego/loonar_ws
 colcon build --packages-select loonar_limo_backend --symlink-install
 ```
 
-The checked deployment starts with Gateway authority `NONE`; service startup
-cannot issue a non-zero command. Do not begin the G4 motion acceptance tests
-until the udev alias and operator safety boundary are verified.
+The Gateway starts in explicit `STOP` mode. LIMO's physical SWD/control mode
+still determines whether the manufacturer base driver will execute `/cmd_vel`.
 
 ## Live acceptance harness
 
 `scripts/live_gateway_test.sh` is the operator-facing G4 harness. It is
-non-moving by default and requires a fresh `/limo_status` before it declares a
-safe smoke pass. A non-zero test is opt-in with `--move`; its supplied command
-values are handed to the Gateway unchanged.
+non-moving by default and displays fresh `/limo_status` as a manufacturer-driver
+diagnostic. A non-zero test is opt-in with `--move`; its supplied command values
+are handed to the Gateway unchanged.
 
 `control_mode` is printed for diagnosis only. Its numerical mapping is
 firmware-specific and must not be used as a Gateway command gate. SWD selects

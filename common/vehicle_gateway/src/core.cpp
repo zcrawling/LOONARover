@@ -19,6 +19,18 @@ Action GatewayCore::select_auto() {
   return {.status = status_};
 }
 
+Action GatewayCore::select_payload() {
+  status_.mode = Mode::kPayload;
+  status_.reason = Reason::kOk;
+  return {.status = status_};
+}
+
+Action GatewayCore::select_reaction() {
+  status_.mode = Mode::kReaction;
+  status_.reason = Reason::kOk;
+  return {.status = status_};
+}
+
 Action GatewayCore::submit(const MotionCommand& command) {
   if (!std::isfinite(command.linear_mps) || !std::isfinite(command.angular_radps)) {
     status_.reason = Reason::kNonFinite;

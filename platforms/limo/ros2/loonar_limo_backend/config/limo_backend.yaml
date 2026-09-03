@@ -6,4 +6,3 @@ loonar_limo_backend:
     odom_topic: /wheel/odom
     imu_topic: /imu
     publish_rate_hz: 20.0
-    backend_status_timeout_ms: 500

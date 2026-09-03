@@ -38,6 +38,8 @@ endif()
 
 # This build validates retained final-rover firmware reference assets only.
 add_subdirectory(common/vehicle_gateway)
+add_subdirectory(common/ground_link)
+add_subdirectory(common/video)
 add_subdirectory(platforms/loonar/interfaces)
 add_subdirectory(platforms/loonar/libs/wire_c)
 add_subdirectory(platforms/loonar/firmware/control)

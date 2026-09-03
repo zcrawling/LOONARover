@@ -19,10 +19,10 @@ usage() {
   cat <<'EOF'
 Usage: live_gateway_test.sh [--start-base] [--move] [--linear MPS] [--angular RADPS] [--duration MS]
 
-Without --move, starts the Gateway and LIMO backend, proves the ROS graph and
-backend health, then exits without sending a non-zero command. With --move,
+Without --move, starts the Gateway and LIMO backend, confirms their connection
+and the live manufacturer status topic, then exits without sending a non-zero command. With --move,
 the supplied linear, angular, and duration values are passed to the Gateway
-unchanged (subject only to Gateway's configured validity limits).
+unchanged.
 
 --start-base starts the vendor limo_base launch process with port_name:=ttylimo.
 Omit it when the vendor driver is already running.
@@ -44,7 +44,6 @@ done
 
 cleanup() {
   set +e
-  # Closing the cFS peer makes the Gateway revoke MANUAL and issue zero first.
   [[ -n "$BACKEND_PID" ]] && kill -- "-$BACKEND_PID" 2>/dev/null
   [[ -n "$GATEWAY_PID" ]] && kill -- "-$GATEWAY_PID" 2>/dev/null
   [[ -n "$BASE_PID" ]] && kill -- "-$BASE_PID" 2>/dev/null
@@ -84,7 +83,7 @@ setsid ros2 run loonar_limo_backend loonar_limo_backend --ros-args \
   -p "gateway_socket:=$RUNTIME_DIR/backend.sock" >"$RUNTIME_DIR/limo_backend.log" 2>&1 &
 BACKEND_PID="$!"
 
-echo "Waiting for /limo_status (the only evidence that enables Gateway motion)..."
+echo "Waiting for /limo_status (manufacturer-driver connectivity diagnostic)..."
 LIMO_STATUS="$(timeout 10s ros2 topic echo --once /limo_status)" || {
   echo "No /limo_status. Check vendor driver, /dev/$PORT_NAME, and $RUNTIME_DIR/limo_base.log" >&2
   exit 1
@@ -94,7 +93,7 @@ if grep -q '^control_mode: 0$' <<<"$LIMO_STATUS"; then
   echo "WARNING: LIMO reports control_mode=0 (Standby). Gateway packets can be sent, but the chassis may ignore motion." >&2
 fi
 
-echo "SAFE SMOKE PASS: Gateway, backend, and live LIMO status are connected. No non-zero command was sent."
+echo "SMOKE PASS: Gateway, backend, and live LIMO status are connected. No non-zero command was sent."
 if (( ! MOVE )); then exit 0; fi
 
 echo "Sending MANUAL: linear=$LINEAR_MPS m/s angular=$ANGULAR_RADPS rad/s duration=$DURATION_MS ms."
@@ -102,4 +101,4 @@ echo "Sending MANUAL: linear=$LINEAR_MPS m/s angular=$ANGULAR_RADPS rad/s durati
 "$WORKSPACE/build/gateway/vehicle_gatewayctl" manual "$RUNTIME_DIR/cfs.sock" \
   "$LINEAR_MPS" "$ANGULAR_RADPS" "$DURATION_MS"
 "$WORKSPACE/build/gateway/vehicle_gatewayctl" stop "$RUNTIME_DIR/cfs.sock"
-echo "COMMAND_SENT: control peer disconnected and Gateway revoked MANUAL (zero command sent)."
+echo "COMMAND_SENT: explicit STOP was sent after the requested MANUAL interval."

@@ -1,79 +1,40 @@
 # vehicle_gatewayd Architecture
 
-## 1. Purpose
+## 목적
 
-`vehicle_gatewayd` is the single project-facing vehicle-control service. It
-accepts AUTO motion from ROS 2 and MANUAL motion from cFS, decides who has
-authority, then invokes exactly one active `VehicleBackend`.
-
-```text
-cFS MANUAL / authority ----> cfs.sock --+
-                                       |
-ROS autonomy motion -----> ros.sock ---+--> Gateway core --> LimoBackend --> /cmd_vel --> limo_base
-                                       |                                      |
-                                       +--> normalized status <---------------+-- /limo_status, /wheel/odom, /imu
-```
-
-The final-rover path replaces only the final box:
+`vehicle_gatewayd`는 ROS 2, cFS와 실제 차량 구현 사이의 단일 공통
+interface다. 차량 명령은 `linear`, `angular`로 통일하고 platform 차이는
+backend에만 둔다.
 
 ```text
-Gateway core --> TeensyRs485Backend --> MAX3490E / RS-485 --> Control MCU
+cFS STOP/MANUAL/mode ---> cfs.sock --+
+                                     +--> Gateway core --> backend.sock
+ROS AUTO v,w -----------> ros.sock --+                       |
+                                                             +--> LIMO ROS `/cmd_vel`
+                                                             +--> LOONAR serial (TBD)
 ```
 
-## 2. Ownership
+## 모드 처리
 
-| Resource | Owner |
-| --- | --- |
-| authority, epoch, sequence and command TTL | `vehicle_gatewayd` core |
-| AUTO command producer | `rover_vehicle_client` in ROS 2 |
-| MANUAL command producer | cFS Ground/Mission adapter |
-| LIMO `/cmd_vel` project publisher | `LimoBackend` only |
-| LIMO vendor serial | vendor `limo_base` process, encapsulated by `LimoBackend` |
-| final rover RS-485 | `TeensyRs485Backend` only |
-| motor PWM, PID and independent safety | final Control MCU |
+- `STOP`: 0 명령을 backend에 전달한다.
+- `MANUAL`: cFS가 보낸 속도를 그대로 전달한다.
+- `AUTO`: ROS가 보낸 속도를 그대로 전달한다.
+- `PAYLOAD`, `REACTION`: 먼저 0을 전달하고 모드를 유지한다. ROS 속도는 무시한다.
+- ROS AUTO가 MANUAL/STOP/PAYLOAD/REACTION을 해제할 수 없다.
 
-Nav2, teleop tools, cFS, and test programs must never publish directly to the
-LIMO driver's `/cmd_vel` while Gateway is enabled.
+이는 authority/lease/TTL 체계가 아니다. 명시적 명령 선택이며 Gateway는 속도
+상한이나 장치 상태 기반 거부를 하지 않는다.
 
-## 3. Authority state machine
+## 상태 처리
 
-`NONE`, `AUTO`, and `MANUAL` are Gateway states. Every accepted authority
-transition performs, in order:
+backend는 선택적으로 `VehicleStatus`를 Gateway에 보낸다. Gateway는 유효
+비트를 포함한 값을 변경하지 않고 cFS peer에 전달한다. LIMO backend는
+`/limo_status`, `/wheel/odom`, `/imu`를 사용하며 최종 LOONAR backend는 MCU
+telemetry를 추가 매핑한다.
 
-1. reject new motion during the transition;
-2. publish a backend zero command;
-3. increment `control_epoch`;
-4. clear all source command caches and sequence windows;
-5. set the new authority and emit status.
+## 로그
 
-Only `AUTONOMY` is accepted in `AUTO`; only `MANUAL` is accepted in `MANUAL`.
-`NONE` continuously requests zero motion.
+- 명령 수신 때 source와 command를 즉시 출력한다.
+- 현재 모드와 선택된 속도를 1초마다 출력한다.
 
-## 4. LIMO backend policy
-
-The inspected driver consumes `geometry_msgs/msg/Twist` on `/cmd_vel` and
-publishes `/wheel/odom`, `/imu`, and `limo_msgs/msg/LimoStatus`. `LimoBackend`
-embeds an isolated ROS 2 context, is the only project `/cmd_vel` publisher, and
-maps backend status into Gateway telemetry.
-
-This permits MANUAL operation when Nav2 or perception has failed, but not when
-the LIMO driver or DDS transport itself has failed; that failure must result in
-`NONE` and zero output.
-
-The vendor driver's own command watchdog is not yet verified. Therefore the
-first LIMO acceptance gate is: TTL expiry and an ungraceful Gateway stop both
-leave the vehicle stationary within the agreed limit. The final MCU path will
-add an independent command lease.
-
-## 5. Runtime
-
-- `vehicle_gatewayd.service`: native daemon, owns Unix-domain IPC and the active
-  backend.
-- `limo_base`: vendor process launched separately during development; service
-  readiness is observed through its ROS graph/status topic.
-- cFS and ROS may restart independently. Their disconnect clears only their
-  own command cache; Gateway retains safe `NONE` or zero output.
-
-The persistent LIMO serial alias is a platform prerequisite, not a Gateway
-implementation detail. It must use the verified USB path rather than the
-duplicated CP2102 serial identifier.
+정상 동작을 숨기는 자동 전환, disconnect stop, watchdog은 구현하지 않는다.

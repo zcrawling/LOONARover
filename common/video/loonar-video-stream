@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CONFIG_FILE="${LOONAR_VIDEO_CONFIG:-/etc/loonar/video.env}"
+[[ -r "$CONFIG_FILE" ]] || {
+  echo "video configuration is not readable: $CONFIG_FILE" >&2
+  exit 2
+}
+# shellcheck disable=SC1090
+source "$CONFIG_FILE"
+
+: "${GROUND_STATION_IP:?GROUND_STATION_IP is required}"
+: "${VIDEO_PORT:=5600}"
+: "${VIDEO_PROFILE:=medium}"
+: "${VIDEO_SOURCE:?VIDEO_SOURCE must be libcamera or v4l2}"
+: "${VIDEO_ENCODER_THREADS:=1}"
+
+case "$VIDEO_PROFILE" in
+  low)
+    WIDTH=640
+    HEIGHT=360
+    FPS=30
+    BITRATE_KBPS=1000
+    ;;
+  medium)
+    WIDTH=1280
+    HEIGHT=720
+    FPS=30
+    BITRATE_KBPS=3000
+    ;;
+  high)
+    WIDTH=1920
+    HEIGHT=1080
+    FPS=30
+    BITRATE_KBPS=5000
+    ;;
+  *)
+    echo "VIDEO_PROFILE must be low, medium, or high" >&2
+    exit 2
+    ;;
+esac
+
+SOURCE_PIPELINE=()
+case "$VIDEO_SOURCE" in
+  libcamera)
+    : "${LIBCAMERA_CAMERA_NAME:=}"
+    SOURCE_PIPELINE=(libcamerasrc)
+    if [[ -n "$LIBCAMERA_CAMERA_NAME" ]]; then
+      SOURCE_PIPELINE+=("camera-name=$LIBCAMERA_CAMERA_NAME")
+    fi
+    SOURCE_PIPELINE+=(
+      ! "video/x-raw,width=$WIDTH,height=$HEIGHT,framerate=$FPS/1,format=NV12"
+    )
+    REQUIRED_SOURCE_ELEMENTS=(libcamerasrc)
+    ;;
+  v4l2)
+    : "${VIDEO_DEVICE:?VIDEO_DEVICE is required for VIDEO_SOURCE=v4l2}"
+    : "${V4L2_INPUT_FORMAT:=mjpeg}"
+    case "$V4L2_INPUT_FORMAT" in
+      mjpeg)
+        CAPTURE_WIDTH="$WIDTH"
+        CAPTURE_HEIGHT="$HEIGHT"
+        SOURCE_PIPELINE=(
+          v4l2src "device=$VIDEO_DEVICE" io-mode=mmap
+          ! "image/jpeg,width=$CAPTURE_WIDTH,height=$CAPTURE_HEIGHT,framerate=$FPS/1"
+          ! jpegdec
+        )
+        # The inspected LIMO UVC camera has 640x480, not 640x360. Crop its low
+        # profile centrally instead of stretching the image.
+        if [[ "$VIDEO_PROFILE" == low ]]; then
+          CAPTURE_HEIGHT=480
+          SOURCE_PIPELINE=(
+            v4l2src "device=$VIDEO_DEVICE" io-mode=mmap
+            ! "image/jpeg,width=640,height=$CAPTURE_HEIGHT,framerate=$FPS/1"
+            ! jpegdec ! videocrop top=60 bottom=60
+          )
+        fi
+        REQUIRED_SOURCE_ELEMENTS=(v4l2src jpegdec)
+        ;;
+      yuy2)
+        SOURCE_PIPELINE=(
+          v4l2src "device=$VIDEO_DEVICE" io-mode=mmap
+          ! "video/x-raw,format=YUY2,width=$WIDTH,height=$HEIGHT,framerate=$FPS/1"
+        )
+        REQUIRED_SOURCE_ELEMENTS=(v4l2src)
+        ;;
+      *)
+        echo "V4L2_INPUT_FORMAT must be mjpeg or yuy2" >&2
+        exit 2
+        ;;
+    esac
+    ;;
+  *)
+    echo "VIDEO_SOURCE must be libcamera or v4l2" >&2
+    exit 2
+    ;;
+esac
+
+PIPELINE=(
+  "${SOURCE_PIPELINE[@]}"
+  ! queue max-size-buffers=2 leaky=downstream
+  ! videoconvert ! video/x-raw,format=I420
+  ! x264enc tune=zerolatency speed-preset=ultrafast
+    "threads=$VIDEO_ENCODER_THREADS" "bitrate=$BITRATE_KBPS"
+    "key-int-max=$FPS" bframes=0
+  ! h264parse config-interval=1
+  ! mpegtsmux alignment=7
+  ! udpsink "host=$GROUND_STATION_IP" "port=$VIDEO_PORT" buffer-size=2097152 sync=true async=false
+)
+
+if [[ "${LOONAR_VIDEO_DRY_RUN:-0}" == 1 ]]; then
+  printf '%q ' gst-launch-1.0 -e "${PIPELINE[@]}"
+  printf '\n'
+  exit 0
+fi
+
+command -v gst-launch-1.0 >/dev/null || {
+  echo "gst-launch-1.0 is required" >&2
+  exit 127
+}
+for element in "${REQUIRED_SOURCE_ELEMENTS[@]}" videoconvert x264enc h264parse mpegtsmux udpsink; do
+  gst-inspect-1.0 "$element" >/dev/null || {
+    echo "GStreamer element is required: $element" >&2
+    exit 127
+  }
+done
+if [[ "$VIDEO_SOURCE" == v4l2 && ! -e "$VIDEO_DEVICE" ]]; then
+  echo "video device does not exist: $VIDEO_DEVICE" >&2
+  exit 2
+fi
+
+echo "video source=$VIDEO_SOURCE profile=$VIDEO_PROFILE ${WIDTH}x${HEIGHT}@${FPS} bitrate=${BITRATE_KBPS}kbps destination=$GROUND_STATION_IP:$VIDEO_PORT"
+exec gst-launch-1.0 -e "${PIPELINE[@]}"

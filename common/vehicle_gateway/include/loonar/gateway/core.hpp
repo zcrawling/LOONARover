@@ -10,6 +10,8 @@ class GatewayCore {
   Action submit(const MotionCommand& command);
   Action stop();
   Action select_auto();
+  Action select_payload();
+  Action select_reaction();
 
  private:
   [[nodiscard]] Action ignored() const;

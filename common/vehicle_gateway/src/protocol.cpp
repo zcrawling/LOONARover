@@ -1,5 +1,6 @@
 #include "loonar/gateway/protocol.hpp"
 
+#include <array>
 #include <bit>
 #include <cstring>
 
@@ -82,7 +83,8 @@ std::vector<std::uint8_t> encode_status(const Status& status) {
 std::optional<Status> decode_status(const Packet& packet) {
   if (packet.type != Type::kStatus || packet.payload.size() != 19) return std::nullopt;
   const auto mode = static_cast<Mode>(packet.payload[0]);
-  if (mode != Mode::kAuto && mode != Mode::kManual && mode != Mode::kStop) return std::nullopt;
+  if (mode != Mode::kAuto && mode != Mode::kManual && mode != Mode::kStop &&
+      mode != Mode::kPayload && mode != Mode::kReaction) return std::nullopt;
   std::size_t at = 1; const auto raw_source = packet.payload[at++]; std::optional<MotionCommand> last;
   if (raw_source != 0U) {
     const auto parsed = static_cast<Source>(raw_source);
@@ -97,6 +99,40 @@ std::optional<Status> decode_status(const Packet& packet) {
   const auto reason = static_cast<Reason>(packet.payload[at++]);
   if (reason != Reason::kOk && reason != Reason::kNonFinite) return std::nullopt;
   return Status{mode, last, reason};
+}
+
+std::vector<std::uint8_t> encode_vehicle_status(const VehicleStatus& status) {
+  Packet packet{Type::kBackendStatus, {}};
+  auto& payload = packet.payload;
+  payload.reserve(92);
+  put64(payload, status.timestamp_ms);
+  put32(payload, status.valid_flags);
+  put_double(payload, status.battery_voltage);
+  put_double(payload, status.battery_percent);
+  put_double(payload, status.odom_x);
+  put_double(payload, status.odom_y);
+  put_double(payload, status.odom_yaw);
+  put_double(payload, status.linear_mps);
+  put_double(payload, status.angular_radps);
+  put_double(payload, status.imu_roll);
+  put_double(payload, status.imu_pitch);
+  put_double(payload, status.imu_yaw);
+  return encode(packet);
+}
+
+std::optional<VehicleStatus> decode_vehicle_status(const Packet& packet) {
+  if (packet.type != Type::kBackendStatus || packet.payload.size() != 92) return std::nullopt;
+  std::size_t at{};
+  const auto timestamp = get64(packet.payload, at);
+  const auto valid = get32(packet.payload, at);
+  std::array<double, 10> values{};
+  for (auto& value : values) {
+    const auto decoded = get_double(packet.payload, at);
+    if (!decoded) return std::nullopt;
+    value = *decoded;
+  }
+  return VehicleStatus{*timestamp, *valid, values[0], values[1], values[2], values[3], values[4],
+                       values[5], values[6], values[7], values[8], values[9]};
 }
 
 }  // namespace loonar::gateway::protocol

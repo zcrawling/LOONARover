@@ -16,7 +16,8 @@ constexpr std::size_t kMaxPacketSize = 256;
 
 enum class Type : std::uint16_t {
   kHello = 1, kMotion = 2, kStop = 3, kSelectAuto = 4,
-  kStatus = 5, kBackendMotion = 6
+  kSelectPayload = 5, kSelectReaction = 6, kStatus = 7,
+  kBackendMotion = 8, kBackendStatus = 9
 };
 
 struct Packet { Type type{}; std::vector<std::uint8_t> payload{}; };
@@ -27,5 +28,7 @@ std::vector<std::uint8_t> encode_motion(Type type, const MotionCommand& command)
 std::optional<MotionCommand> decode_motion(const Packet& packet);
 std::vector<std::uint8_t> encode_status(const Status& status);
 std::optional<Status> decode_status(const Packet& packet);
+std::vector<std::uint8_t> encode_vehicle_status(const VehicleStatus& status);
+std::optional<VehicleStatus> decode_vehicle_status(const Packet& packet);
 
 }  // namespace loonar::gateway::protocol

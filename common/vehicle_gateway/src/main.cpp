@@ -30,6 +30,41 @@ void signal_handler(int) { g_running = 0; }
 
 struct Peer { int fd{-1}; bool hello{false}; Source source{Source::kStop}; };
 
+const char* mode_name(loonar::gateway::Mode mode) {
+  switch (mode) {
+    case loonar::gateway::Mode::kAuto: return "AUTO";
+    case loonar::gateway::Mode::kManual: return "MANUAL";
+    case loonar::gateway::Mode::kStop: return "STOP";
+    case loonar::gateway::Mode::kPayload: return "PAYLOAD";
+    case loonar::gateway::Mode::kReaction: return "REACTION";
+  }
+  return "UNKNOWN";
+}
+
+const char* packet_name(protocol::Type type) {
+  switch (type) {
+    case protocol::Type::kHello: return "HELLO";
+    case protocol::Type::kMotion: return "MOTION";
+    case protocol::Type::kStop: return "STOP";
+    case protocol::Type::kSelectAuto: return "AUTO";
+    case protocol::Type::kSelectPayload: return "PAYLOAD";
+    case protocol::Type::kSelectReaction: return "REACTION";
+    case protocol::Type::kStatus: return "STATUS";
+    case protocol::Type::kBackendMotion: return "BACKEND_MOTION";
+    case protocol::Type::kBackendStatus: return "BACKEND_STATUS";
+  }
+  return "UNKNOWN";
+}
+
+void print_status(const loonar::gateway::Status& status) {
+  std::cout << "gateway mode=" << mode_name(status.mode);
+  if (status.last_received) {
+    std::cout << " last_linear=" << status.last_received->linear_mps
+              << " last_angular=" << status.last_received->angular_radps;
+  }
+  std::cout << '\n' << std::flush;
+}
+
 int listener(const std::string& path) {
   if (path.size() >= sizeof(sockaddr_un::sun_path)) return -1;
   const int fd = socket(AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC | SOCK_NONBLOCK, 0);
@@ -72,10 +107,6 @@ void accept_peer(int listener_fd, Peer& peer, Source source, GatewayCore& core) 
   sockaddr_un address{}; socklen_t size = sizeof(address);
   const int fd = accept4(listener_fd, reinterpret_cast<sockaddr*>(&address), &size, SOCK_CLOEXEC | SOCK_NONBLOCK);
   if (fd < 0) return;
-  ucred credentials{}; socklen_t credentials_size = sizeof(credentials);
-  if (getsockopt(fd, SOL_SOCKET, SO_PEERCRED, &credentials, &credentials_size) < 0 || credentials.uid != getuid()) {
-    close(fd); return;
-  }
   close_peer(peer); peer = {.fd = fd, .hello = false, .source = source};
   send_status(peer, core.status());
 }
@@ -86,23 +117,37 @@ void process_peer(Peer& peer, bool is_backend, GatewayCore& core, const Peer& cf
   if (received <= 0) {
     if (received == 0 || (errno != EAGAIN && errno != EWOULDBLOCK)) {
       close_peer(peer);
-      close_peer(peer);
     }
     return;
   }
   const auto packet = protocol::decode(std::span<const std::uint8_t>(buffer.data(), static_cast<std::size_t>(received)));
   if (!packet) { close_peer(peer); return; }
+  std::cout << "received source=" << (is_backend ? "backend" : peer.source == Source::kManual ? "cfs" : "ros")
+            << " command=" << packet_name(packet->type) << '\n' << std::flush;
   if (!peer.hello) {
     if (packet->type != protocol::Type::kHello || !packet->payload.empty()) { close_peer(peer); return; }
     peer.hello = true; send_status(peer, core.status()); return;
   }
-  if (is_backend) return;
+  if (is_backend) {
+    if (packet->type == protocol::Type::kBackendStatus && protocol::decode_vehicle_status(*packet) && cfs.hello) {
+      (void)send_bytes(cfs.fd, protocol::encode(*packet));
+    }
+    return;
+  }
   if (peer.source == Source::kManual && packet->type == protocol::Type::kStop && packet->payload.empty()) {
     distribute(cfs, ros, backend, core.stop());
     return;
   }
   if (peer.source == Source::kManual && packet->type == protocol::Type::kSelectAuto && packet->payload.empty()) {
     distribute(cfs, ros, backend, core.select_auto());
+    return;
+  }
+  if (peer.source == Source::kManual && packet->type == protocol::Type::kSelectPayload && packet->payload.empty()) {
+    distribute(cfs, ros, backend, core.select_payload());
+    return;
+  }
+  if (peer.source == Source::kManual && packet->type == protocol::Type::kSelectReaction && packet->payload.empty()) {
+    distribute(cfs, ros, backend, core.select_reaction());
     return;
   }
   const auto motion = protocol::decode_motion(*packet);
@@ -122,6 +167,7 @@ int main(int argc, char** argv) {
   if (cfs_listener < 0 || ros_listener < 0 || backend_listener < 0) { std::cerr << "failed to create gateway sockets\n"; return 1; }
   std::signal(SIGINT, signal_handler); std::signal(SIGTERM, signal_handler);
   GatewayCore core; Peer cfs{.source = Source::kManual}, ros{.source = Source::kAuto}, backend{.source = Source::kStop};
+  auto next_status = std::chrono::steady_clock::now();
   while (g_running != 0) {
     std::array<pollfd, 6> fds{{{cfs_listener, POLLIN, 0}, {ros_listener, POLLIN, 0}, {backend_listener, POLLIN, 0},
                                 {cfs.fd, POLLIN | POLLHUP, 0}, {ros.fd, POLLIN | POLLHUP, 0}, {backend.fd, POLLIN | POLLHUP, 0}}};
@@ -132,6 +178,11 @@ int main(int argc, char** argv) {
     if (cfs.fd >= 0 && fds[3].revents != 0) process_peer(cfs, false, core, cfs, ros, backend);
     if (ros.fd >= 0 && fds[4].revents != 0) process_peer(ros, false, core, cfs, ros, backend);
     if (backend.fd >= 0 && fds[5].revents != 0) process_peer(backend, true, core, cfs, ros, backend);
+    const auto now = std::chrono::steady_clock::now();
+    if (now >= next_status) {
+      print_status(core.status());
+      next_status = now + std::chrono::seconds(1);
+    }
   }
   close_peer(cfs); close_peer(ros); close_peer(backend); close(cfs_listener); close(ros_listener); close(backend_listener);
   unlink(cfs_path.c_str()); unlink(ros_path.c_str()); unlink(backend_path.c_str()); return 0;

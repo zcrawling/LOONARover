@@ -1,104 +1,55 @@
-# vehicle_gatewayd Implementation Plan
+# vehicle_gatewayd Implementation Status
 
-This document started as the Phase-2 review artifact. The G1-G3 minimum slice
-below is now implemented and build-verified locally and on the LIMO NUC; G4
-remains the separately controlled physical-motion acceptance gate.
+## 구현 완료
 
-## Slice G0 — Platform preflight
+### G1 — 공통 core와 codec
 
-Minimal deliverables:
+- 5모드: `STOP`, `MANUAL`, `AUTO`, `PAYLOAD`, `REACTION`
+- 명령: hello, motion, stop, mode select, backend status
+- 공통 `VehicleStatus` field-wise codec
+- non-finite motion 프레임 거부
+- mode/명령 선택 단위 테스트
 
-1. `platforms/limo/config/udev/99-loonar-limo.rules` using the verified
-   CP2102 USB **path**; create `/dev/ttylimo`.
-2. `platforms/limo/scripts/preflight.sh`, read-only checks for `/dev/ttylimo`,
-   `limo_base`, `/cmd_vel`, `/limo_status`, `/wheel/odom`, and `/imu`.
-3. A recorded table for LIMO motion mode, command/status rate, battery/error
-   semantics, and vendor command-timeout behavior.
+### G2 — Unix socket daemon
 
-Acceptance: restart/replug does not change the LIMO device identity; no other
-project publisher exists on `/cmd_vel`.
+- `cfs.sock`, `ros.sock`, `backend.sock`의 `SOCK_SEQPACKET` endpoint
+- cFS status fan-out과 backend motion 전달
+- 명령 수신 로그와 1초 상태 로그
+- daemon 통합 테스트
 
-## Slice G1 — Pure Gateway core
+### G3 — LIMO backend
 
-Implemented as `common/vehicle_gateway/` with no ROS, socket, serial, or
-systemd dependency in its core:
+- 공통 motion을 `geometry_msgs/Twist` `/cmd_vel`로 그대로 변환
+- `/limo_status`의 battery voltage 변환
+- `/wheel/odom`의 pose/yaw/twist 변환
+- `/imu` quaternion의 roll/pitch/yaw 변환
+- 유효한 필드만 표시하는 `VehicleStatus`를 1 Hz로 전송
 
-| File | Minimal responsibility |
-| --- | --- |
-| `types.hpp` | authority, source, command, telemetry and reason types |
-| `limits.hpp` | validated command TTL limits |
-| `authority.cpp` | transition -> zero barrier -> epoch increment |
-| `sequence_window.cpp` | duplicate/out-of-order protection per peer/source |
-| `command_cache.cpp` | latest accepted command and receive-time expiry |
-| `gateway_core.cpp` | one deterministic `tick(now)` decision |
+### G4 — cFS/Ground 연동
 
-Unit tests first: initial `NONE`, AUTO/MANUAL rejection, transition zero,
-old-epoch rejection, TTL expiry, duplicate sequence, reconnect cache clearing,
-and non-finite/range rejection.
+- GroundLink TCP codec 및 mock
+- cFS GroundLink 앱과 VehicleAdapter 앱
+- 다섯 지상 명령의 Software Bus route
+- GatewayStatus와 VehicleStatus의 지상 telemetry route
+- PAYLOAD/REACTION 전환 전 명시적 STOP
+- REACTION `NOT_IMPLEMENTED` 결과
 
-## Slice G2 — Local IPC daemon
+## 다음 최소 구현 단위
 
-Implemented in `common/vehicle_gateway/src/main.cpp`:
+1. LIMO NUC에서 ROS 2 package를 `colcon build`한다.
+2. 정지 상태에서 `/limo_status`, `/wheel/odom`, `/imu`가 Ground mock의
+   `VehicleStatus`까지 전달되는지 확인한다.
+3. MANUAL/AUTO/STOP 실제 주행 회귀 시험을 수행한다.
+4. ROS 2 주행 로직을 단위 node부터 추가한다.
+5. 최종 LOONAR 포팅 때 serial backend와 MCU telemetry producer를 구현한다.
+6. payload MCU 시퀀스와 reaction wheel actuator/복구 로직을 구현한다.
 
-| File | Minimal responsibility |
-| --- | --- |
-| `main.cpp` | process lifecycle, signal handling and safe shutdown |
-| `ipc_server.cpp` | two `SOCK_SEQPACKET` listeners and peer credentials |
-| `protocol.cpp` | field-wise codec; fixed maximum frame sizes |
-| `cfs_peer.cpp` | authority/MANUAL request mapping |
-| `ros_peer.cpp` | AUTO command/status mapping |
-| `status_publisher.cpp` | latest status fan-out and transition events |
+## 의도적으로 제외
 
-Use a single event loop plus monotonic timer. Periodic commands/status use
-latest-value slots; discrete authority requests use a bounded FIFO and
-`request_id` deduplication.
+- authority, epoch, TTL, command lease
+- Gateway 속도 제한과 clamp
+- backend health 기반 command gate
+- 연결 종료를 명령으로 해석하는 자동 정지
+- Gateway 내부 payload/reaction 하드웨어 로직
 
-Acceptance: a PTY/fake backend proves no direct peer can bypass core validation.
-
-## Slice G3 — LimoBackend
-
-Implemented as ROS 2 package `platforms/limo/ros2/loonar_limo_backend`:
-
-| File | Minimal responsibility |
-| --- | --- |
-| `limo_backend.cpp` | isolated rclcpp context, sole `/cmd_vel` publisher |
-| `limo_telemetry.cpp` | subscribe/map LIMO status, wheel odom and IMU |
-| `limo_config.yaml` | topic names, limits, rates and status timeout |
-| `limo_backend_test.cpp` | fake ROS graph/backend contract test |
-
-Start conservatively: publish zero at backend startup, after every transition,
-and for a bounded stop burst after TTL expiry. Do not let Nav2, teleop or a test
-node publish to `/cmd_vel` in the integrated configuration.
-
-## Slice G4 — Service and fault gates
-
-Add `vehicle_gatewayd.service`, runtime-directory ownership, resource limits,
-and an explicit dependency/readiness policy for the vendor `limo_base` process.
-
-LIMO acceptance tests, in this exact order:
-
-1. Gateway startup emits zero; no movement.
-2. MANUAL 0.05 m/s command moves only in `MANUAL`.
-3. MANUAL packet interruption expires TTL and stops.
-4. AUTO -> MANUAL transition stops before manual motion is accepted.
-5. Kill Nav2: MANUAL still works; AUTO stops.
-6. Kill Gateway: verify the vendor/base watchdog stops the vehicle. If it does
-   not, add a supervised LIMO watchdog solution before proceeding.
-7. Vendor driver/ROS graph loss: Gateway reports unhealthy and remains `NONE`.
-
-## Slice G5 — Final rover backend preparation
-
-Only after G1-G4 are accepted, implement `TeensyRs485Backend`. Preserve the
-Gateway core unchanged, introduce MCU wire v2 with independent command lease,
-then repeat the same authority/TTL/fault tests plus RS-485, motor, encoder and
-braking HIL gates.
-
-## Build evidence (2026-09-02)
-
-- Local Debug CTest: 12/12 passed.
-- Local ASAN/UBSAN CTest: 12/12 passed.
-- LIMO NUC12 (Ubuntu 22.04, GCC 11) standalone Gateway: 3/3 passed.
-- LIMO NUC12 ROS 2 Humble: `loonar_limo_backend` compiled against the existing
-  read-only AgileX `limo_msgs` overlay and its executable was registered.
-- NUC smoke test: Gateway created all three sockets and the ROS backend
-  connected, ran, and shut down without sending a non-zero motion command.
+최종 장치 보호와 MCU 자체 동작은 실제 하드웨어 요구사항 검수 후 별도 구현한다.
