@@ -1,0 +1,14 @@
+{
+  "catalog": "source_ids",
+  "constant_prefix": "LNR_SOURCE",
+  "width_bits": 16,
+  "reserved": [
+    {"start": "0x0000", "end": "0x0000"},
+    {"start": "0x8000", "end": "0xFFFF"}
+  ],
+  "entries": [
+    {"name": "AUTONOMY", "id": "0x0001", "description": "ROS 2 autonomous motion submitted to Vehicle Gateway"},
+    {"name": "MANUAL", "id": "0x0002", "description": "Ground manual motion forwarded by cFS to Vehicle Gateway"},
+    {"name": "TEST", "id": "0x7FFE", "description": "Explicit test motion source"}
+  ]
+}

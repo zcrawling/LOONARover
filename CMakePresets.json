@@ -1,61 +1,30 @@
 {
   "version": 6,
-  "cmakeMinimumRequired": {
-    "major": 3,
-    "minor": 22,
-    "patch": 0
-  },
   "configurePresets": [
     {
-      "name": "host-debug",
-      "displayName": "Host Debug",
+      "name": "loonar-hw-debug",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/host-debug",
+      "binaryDir": "${sourceDir}/build/loonar-hw-debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-        "LOONAR_WARNINGS_AS_ERRORS": "ON"
+        "BUILD_TESTING": "ON"
       }
     },
     {
-      "name": "host-asan",
-      "displayName": "Host Debug with ASan/UBSan",
-      "inherits": "host-debug",
-      "binaryDir": "${sourceDir}/build/host-asan",
+      "name": "loonar-hw-asan",
+      "inherits": "loonar-hw-debug",
+      "binaryDir": "${sourceDir}/build/loonar-hw-asan",
       "cacheVariables": {
         "LOONAR_ENABLE_SANITIZERS": "ON"
       }
     }
   ],
   "buildPresets": [
-    {
-      "name": "host-debug",
-      "configurePreset": "host-debug"
-    },
-    {
-      "name": "host-asan",
-      "configurePreset": "host-asan"
-    }
+    {"name": "loonar-hw-debug", "configurePreset": "loonar-hw-debug"},
+    {"name": "loonar-hw-asan", "configurePreset": "loonar-hw-asan"}
   ],
   "testPresets": [
-    {
-      "name": "host-debug",
-      "configurePreset": "host-debug",
-      "output": {
-        "outputOnFailure": true
-      }
-    },
-    {
-      "name": "host-asan",
-      "configurePreset": "host-asan",
-      "output": {
-        "outputOnFailure": true
-      },
-      "environment": {
-        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
-        "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
-      }
-    }
+    {"name": "loonar-hw-debug", "configurePreset": "loonar-hw-debug"},
+    {"name": "loonar-hw-asan", "configurePreset": "loonar-hw-asan"}
   ]
 }
-

@@ -1,0 +1,16 @@
+RBPHAT Rev.A SCHEMATIC AUDIT: PASS
+Generated: 2026-08-25T06:14:53+09:00
+KiCad ERC: 0 errors, 0 warnings
+Schematic: 1 flat A3 sheet.
+Components: 44
+Nets: 64
+All placed symbol pin-number sets equal their installed footprint pad-number sets.
+MAX3490E: 1=VCC, 2=RO, 3=DI, 4=GND, 5=Y, 6=Z, 7=B, 8=A.
+DNP only: R105, R106, R205, R206.
+Pi UART2: J1.7 GPIO4 TX / J1.29 GPIO5 RX.
+Pi UART4: J1.32 GPIO12 TX / J1.33 GPIO13 RX.
+MAX VCC measurement links: R100/R200 0R; test points: TP101/TP201.
+Receiver termination: R104/R204 120R fitted; 680R fail-safe pairs DNP.
+Battery divider: 12.6 V -> 2.025 V; VBAT/VADC = 6.222222.
+BAT_DIV reaches ADS1115 AIN0 only through TMUX1511 channel 1.
+Pi 5V is not used; external connector grounds are common and no external + rail is present.

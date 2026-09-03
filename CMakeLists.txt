@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(
-  loonar
-  VERSION 0.1.0
-  DESCRIPTION "LOONAR rover software"
-  LANGUAGES C CXX)
+project(loonar VERSION 0.2.0 DESCRIPTION "LOONAR rover platforms" LANGUAGES C CXX)
 
 include(CTest)
 
@@ -40,6 +36,8 @@ if(LOONAR_ENABLE_SANITIZERS)
   endif()
 endif()
 
-add_subdirectory(interfaces)
-add_subdirectory(libs/wire_c)
-add_subdirectory(firmware/control)
+# This build validates retained final-rover firmware reference assets only.
+add_subdirectory(common/vehicle_gateway)
+add_subdirectory(platforms/loonar/interfaces)
+add_subdirectory(platforms/loonar/libs/wire_c)
+add_subdirectory(platforms/loonar/firmware/control)

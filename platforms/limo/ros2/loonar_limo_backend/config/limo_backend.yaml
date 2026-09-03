@@ -1,0 +1,9 @@
+loonar_limo_backend:
+  ros__parameters:
+    gateway_socket: /run/loonar/vehicle-gateway/backend.sock
+    cmd_vel_topic: /cmd_vel
+    status_topic: /limo_status
+    odom_topic: /wheel/odom
+    imu_topic: /imu
+    publish_rate_hz: 20.0
+    backend_status_timeout_ms: 500

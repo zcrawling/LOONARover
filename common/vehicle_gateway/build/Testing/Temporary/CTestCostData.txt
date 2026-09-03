@@ -1,0 +1,4 @@
+gateway.gateway_core 2 0.00200444
+gateway.gateway_protocol 2 0.00152082
+gateway.gateway_daemon 2 0.00698311
+---

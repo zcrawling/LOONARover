@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/test_gateway_protocol.dir/link.d CMakeFiles/test_gateway_protocol.dir/tests/test_gateway_protocol.cpp.o -o test_gateway_protocol  libloonar_gateway_core.a

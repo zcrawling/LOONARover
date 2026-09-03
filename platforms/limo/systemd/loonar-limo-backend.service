@@ -1,0 +1,15 @@
+[Unit]
+Description=LOONAR LIMO Vehicle Gateway Backend
+After=vehicle_gatewayd.service
+Requires=vehicle_gatewayd.service
+
+[Service]
+Type=simple
+Environment=ROS_DOMAIN_ID=0
+ExecStart=/bin/bash -lc 'source /opt/ros/humble/setup.bash && source /home/wego/loonar_ws/install/setup.bash && ros2 run loonar_limo_backend loonar_limo_backend --ros-args --params-file /home/wego/loonar_ws/install/loonar_limo_backend/share/loonar_limo_backend/config/limo_backend.yaml -p gateway_socket:=%t/loonar/vehicle-gateway/backend.sock'
+Restart=on-failure
+RestartSec=1
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=default.target

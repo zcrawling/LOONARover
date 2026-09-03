@@ -1,0 +1,48 @@
+Start testing: Sep 02 21:46 KST
+----------------------------------------------------------
+1/3 Testing: gateway.gateway_core
+1/3 Test: gateway.gateway_core
+Command: "/home/sb/LOONAR/common/vehicle_gateway/build/test_gateway_core"
+Directory: /home/sb/LOONAR/common/vehicle_gateway/build
+"gateway.gateway_core" start time: Sep 02 21:46 KST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"gateway.gateway_core" end time: Sep 02 21:46 KST
+"gateway.gateway_core" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/3 Testing: gateway.gateway_protocol
+2/3 Test: gateway.gateway_protocol
+Command: "/home/sb/LOONAR/common/vehicle_gateway/build/test_gateway_protocol"
+Directory: /home/sb/LOONAR/common/vehicle_gateway/build
+"gateway.gateway_protocol" start time: Sep 02 21:46 KST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"gateway.gateway_protocol" end time: Sep 02 21:46 KST
+"gateway.gateway_protocol" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/3 Testing: gateway.gateway_daemon
+3/3 Test: gateway.gateway_daemon
+Command: "/home/sb/LOONAR/common/vehicle_gateway/build/test_gateway_daemon" "/home/sb/LOONAR/common/vehicle_gateway/build/vehicle_gatewayd"
+Directory: /home/sb/LOONAR/common/vehicle_gateway/build
+"gateway.gateway_daemon" start time: Sep 02 21:46 KST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"gateway.gateway_daemon" end time: Sep 02 21:46 KST
+"gateway.gateway_daemon" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Sep 02 21:46 KST

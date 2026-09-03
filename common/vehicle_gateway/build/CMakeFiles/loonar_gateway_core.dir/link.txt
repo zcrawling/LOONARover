@@ -1,0 +1,2 @@
+/usr/bin/ar qc libloonar_gateway_core.a CMakeFiles/loonar_gateway_core.dir/src/core.cpp.o CMakeFiles/loonar_gateway_core.dir/src/protocol.cpp.o
+/usr/bin/ranlib libloonar_gateway_core.a
