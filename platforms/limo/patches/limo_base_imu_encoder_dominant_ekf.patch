@@ -1,0 +1,14 @@
+diff -urN a/src/limo_driver.cpp b/src/limo_driver.cpp
+--- a/src/limo_driver.cpp
++++ b/src/limo_driver.cpp
+@@ -512,9 +512,9 @@
+     imu_msg.linear_acceleration_covariance[8] = 1.0f;
+ 
+-    imu_msg.angular_velocity_covariance[0] = 0.001;
+-    imu_msg.angular_velocity_covariance[4] = 0.001;
+-    imu_msg.angular_velocity_covariance[8] = 0.001;
++    imu_msg.angular_velocity_covariance[0] = 0.01;
++    imu_msg.angular_velocity_covariance[4] = 0.01;
++    imu_msg.angular_velocity_covariance[8] = 0.01;
+ 
+     imu_msg.orientation_covariance[0] = 1e-6;

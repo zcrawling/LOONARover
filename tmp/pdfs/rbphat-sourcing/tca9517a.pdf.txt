@@ -1,0 +1,1642 @@
+                                                                                                                              TCA9517A
+                                                                                     SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025
+
+                                 TCA9517A Level-Shifting I2C Bus Repeater
+1 Features                                                             3 Description
+•   Two-channel bidirectional buffer                                   The TCA9517A is a bidirectional buffer with level
+•   I2C Bus and SMBus compatible                                       shifting capabilities for I2C and SMBus systems.
+•   Operating supply voltage range of 0.9V to 5.5V on                  It provides bidirectional voltage-level translation (up-
+    A-side                                                             translation/down-translation) between low voltages
+•   Operating supply voltage range of 2.7V to 5.5V on                  (down to 0.9V) and higher voltages (2.7V to 5.5V)
+    B-side                                                             in mixed-mode applications. This device enables
+•   Voltage-level translation from 0.9V - 5.5V to 2.7V -               I2C and SMBus systems to be extended without
+     5.5V                                                              degradation of performance, even during level
+•   Footprint and functional replacement for                           shifting.
+    PCA9515B
+                                                                       The TCA9517A buffers both the serial data (SDA) and
+•   Active-high repeater-enable input
+                                                                       the serial clock (SCL) signals on the I2C bus, thus
+•   Open-drain I2C I/O
+                                                                       allowing two buses of up to 400pF bus capacitance to
+•   5.5V Tolerant I2C and enable input support mixed-
+                                                                       be connected in an I2C application.
+    mode signal operation
+•   Accommodates standard mode and fast mode I2C                       The TCA9517A has two types of drivers: A-side
+    devices and multiple controllers                                   drivers and B-side drivers. All inputs and I/Os are
+•   High-impedance I2C pins when powered-off                           over-voltage tolerant to 5.5V, even when the device
+•   Latch-up performance exceeds 100mA Per JESD                        is unpowered (VCCB and/or VCCA = 0V).
+    78, class II
+                                                                       The TCA9517A offers a higher contention level
+•   ESD Protection exceeds JESD 22
+                                                                       threshold, VILC, than the TCA9517, which allows
+    – 5500V Human-body model (A114-A)                                  connections to targets which have weaker pulldown
+    – 200V Machine model (A115-A)                                      ability.
+    – 1000V Charged-device model (C101)
+                                                                       The type of buffer design on the B-side prevents it
+2 Applications                                                         from being used in series with devices which use
+•   Servers                                                            static voltage offset. This is because these devices
+•   Routers (telecom switching equipment)                              do not recognize buffered low signals as a valid low
+•   Industrial equipment                                               and do not propagate it as a buffered low again.
+•   Products with many I2C targets and/or long PCB                     The B-side drivers operate from 2.7V to 5.5V.
+    traces                                                             The output low level for this internal buffer is
+                                                                       approximately 0.5V, but the input voltage must be
+                                                                       70mV or more below the output low level when the
+                                                                       output internally is driven low. The higher-voltage low
+                                                                       signal is called a buffered low. When the B-side I/O
+                                                                       is driven low internally, the low is not recognized as
+                                                                       a low by the input. This feature prevents a lockup
+                                                                       condition from occurring when the input low condition
+                                                                       is released.
+
+
+
+
+     An IMPORTANT NOTICE at the end of this data sheet addresses availability, warranty, changes, use in safety-critical applications,
+     intellectual property matters and other important disclaimers. PRODUCTION DATA.
+TCA9517A
+SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025                                                                                www.ti.com
+
+
+The A-side drivers operate from 0.9V to 5.5V and drive more current. They do not require the buffered low
+feature (or the static offset voltage). This means that a low signal on the B-side translates to a nearly 0V low
+on the A-side, which accommodates smaller voltage swings of lower-voltage logic. The output pulldown on the
+A-side drives a hard low, and the input level is set at 0.3 × VCCA to accommodate the need for a lower low level
+in systems where the low-voltage-side supply voltage is as low as 0.9V.
+The A-side of two or more TCA9517As can be connected together, allowing many topographies (See Figure
+8-2 and Figure 8-3), with the A-side as the common bus. Also, the A-side can be connected directly to any
+other buffer with static- or dynamic-offset voltage. Multiple TCA9517As can be connected in series, A-side to
+B-side, with no buildup in offset voltage and with only time-of-flight delays to consider. The TCA9517A cannot
+be connected B-side to B-side, because of the buffered low voltage from the B-side. The B-side cannot be
+connected to a device with rise time accelerators.
+VCCA is only used to provide the 0.3 × VCCA reference to the A-side input comparators and for the power-good-
+detect circuit. The TCA9517A logic and all I/Os are powered by the VCCB pin.
+As with the standard I2C system, pullup resistors are required to provide the logic-high levels on the buffered
+bus. The TCA9517A has standard open-drain configuration of the I2C bus. The size of these pullup resistors
+depends on the system, but each side of the repeater must have a pullup resistor. The device is designed to
+work with Standard mode and Fast mode I2C devices in addition to SMBus devices. Standard mode I2C devices
+only specify 3mA in a generic I2C system, where Standard mode devices and multiple controllers are possible.
+Under certain conditions, higher termination currents can be used.
+                                                     Package Information
+                         PART NUMBER              PACKAGE (1)                        PACKAGE SIZE(2)
+                TCA9517A                          VSSOP (8)                          3mm × 3mm
+
+               (1)   For more information, see Section 13.
+               (2)   The package size (length × width) is a nominal value and includes pins, where applicable.
+
+
+
+
+                                                         1                     8
+                                                      VCCA                   VCCB
+                                                  3 SDAA                     SDAB 6
+                 2
+                 I C or SMBus Controller
+                                                  2 SCLA       TCA9517A                             I2C Target Devices
+                     (e.g. Processor)
+
+                                                  5 EN                        SCLB 7
+                                                                  GND
+                                                                   4
+
+
+
+
+                                                     Simplified Schematic
+
+
+
+
+2     Submit Document Feedback                                                                Copyright © 2025 Texas Instruments Incorporated
+
+                                                   Product Folder Links: TCA9517A
+                                                                                                                                                                TCA9517A
+www.ti.com                                                                                                 SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025
+
+
+
+                                                                        Table of Contents
+1 Features............................................................................1   8 Application and Implementation.................................. 13
+2 Applications..................................................................... 1       8.1 Application Information............................................. 13
+3 Description.......................................................................1       8.2 Typical Application.................................................... 13
+4 Pin Configuration and Functions...................................4                     9 Power Supply Recommendations................................16
+5 Specifications.................................................................. 5      10 Layout...........................................................................16
+  5.1 Absolute Maximum Ratings........................................ 5                    10.1 Layout Guidelines................................................... 16
+  5.2 ESD Ratings............................................................... 5          10.2 Layout Example...................................................... 16
+  5.3 Recommended Operating Conditions.........................5                          11 Device and Documentation Support..........................18
+  5.4 Thermal Information....................................................6              11.1 Receiving Notification of Documentation Updates.. 18
+  5.5 Electrical Characteristics.............................................7              11.2 Support Resources................................................. 18
+  5.6 Timing Requirements.................................................. 7               11.3 Trademarks............................................................. 18
+  5.7 I2C Interface Switching Characteristics.......................8                       11.4 Electrostatic Discharge Caution.............................. 18
+  5.8 Typical Characteristics................................................ 9             11.5 Glossary.................................................................. 18
+6 Parameter Measurement Information.......................... 10                          12 Revision History.......................................................... 18
+7 Detailed Description...................................................... 11           13 Mechanical, Packaging, and Orderable
+  7.1 Overview................................................................... 11        Information.................................................................... 19
+  7.2 Functional Block Diagram......................................... 11                  13.1 Tape and Reel Information......................................20
+  7.3 Feature Description...................................................12              13.2 Mechanical Data..................................................... 22
+  7.4 Device Functional Modes..........................................12
+
+
+
+
+Copyright © 2025 Texas Instruments Incorporated                                                                                    Submit Document Feedback                    3
+                                                                     Product Folder Links: TCA9517A
+TCA9517A
+SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025                                                                                     www.ti.com
+
+4 Pin Configuration and Functions
+
+
+                                                VCCA         1                8          VCCB
+
+                                                SCLA         2                7          SCLB
+
+                                                SDAA         3                6          SDAB
+
+                                                GND          4                5          EN
+
+
+
+                                                           Not to scale
+
+                                           Figure 4-1. DGK Package, 8-Pin VSSOP
+                                                         (Top View)
+
+                                                       Table 4-1. Pin Functions
+           PIN
+                           TYPE                                                    DESCRIPTION
+    NO.       NAME
+    1         VCCA        Supply       A-side supply voltage (0.9V to 5.5V)
+                                       Serial clock bus, A-side. Connect to VCCA through a pull-up resistor. If unused, connect directly to
+    2            SCLA   Input/Output
+                                       ground.
+                                       Serial data bus, A-side. Connect to VCCA through a pull-up resistor. If unused, connect directly to
+    3         SDAA      Input/Output
+                                       ground.
+    4            GND      Ground       Ground
+    5            EN        Input       Active-high repeater enable input
+                                       Serial data bus, B-side. Connect to VCCB through a pull-up resistor. If unused, connect directly to
+    6         SDAB      Input/Output
+                                       ground.
+                                       Serial clock bus, B-side. Connect to VCCB through a pull-up resistor. If unused, connect directly to
+    7            SCLB   Input/Output
+                                       ground.
+    8         VCCB        Supply       B-side and device supply voltage (2.7V to 5.5V)
+
+
+
+
+4         Submit Document Feedback                                                                 Copyright © 2025 Texas Instruments Incorporated
+
+                                                       Product Folder Links: TCA9517A
+                                                                                                                                       TCA9517A
+www.ti.com                                                                                SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025
+
+
+5 Specifications
+5.1 Absolute Maximum Ratings
+over operating free-air temperature range (unless otherwise noted)(1)
+                                                                                                                  MIN        MAX           UNIT
+ VCCB        Supply voltage range                                                                                 –0.5           7           V
+ VCCA        Supply voltage range                                                                                 –0.5           7           V
+ VI          Enable input voltage range(2)                                                                        –0.5           7           V
+ VI/O        I2C bus voltage range(2)                                                                             –0.5           7           V
+ IIK         Input clamp current                                                 VI < 0                                       –50
+                                                                                                                                            mA
+ IOK         Output clamp current                                                VO < 0                                       –50
+             Continuous output current                                                                                        ±50           mA
+ IO
+             Continuous current through VCC or GND                                                                           ±100           mA
+ Tstg        Storage temperature range                                                                            –65         150           °C
+
+(1)     Stresses beyond those listed under Absolute Maximum Ratings may cause permanent damage to the device. These are stress
+        ratings only, which do not imply functional operation of the device at these or any other conditions beyond those indicated under
+        Recommended Operating Conditions. Exposure to absolute-maximum-rated conditions for extended periods may affect device
+        reliability.
+(2)     The input negative-voltage and output voltage ratings may be exceeded if the input and output current ratings are observed.
+
+
+5.2 ESD Ratings
+                                                                                                                          VALUE            UNIT
+                                             Human body model (HBM), per ANSI/ESDA/JEDEC JS-001(1)                        ±5500
+                                             Charged-device model (CDM), per JEDEC specification JESD22-
+ V(ESD)      Electrostatic discharge                                                                                      ±1000             V
+                                             C101(2)
+                                             Machine model (A115-A)                                                       ±200
+
+(1)     JEDEC document JEP155 states that 500V HBM allows safe manufacturing with a standard ESD control process.
+(2)     JEDEC document JEP157 states that 250V CDM allows safe manufacturing with a standard ESD control process.
+
+
+5.3 Recommended Operating Conditions
+                                                                                                                   MIN            MAX       UNIT
+ VCCA        Supply voltage, A-side bus                                                                          0.9(2)              5.5     V
+ VCCB        Supply voltage, B-side bus                                                                             2.7              5.5     V
+                                                                      SDAA, SCLA                            0.7 × VCCA               5.5
+ VIH         High-level input voltage                                 SDAB, SCLB                            0.7 × VCCB               5.5     V
+                                                                      EN                                    0.7 × VCCB               5.5
+                                                                      SDAA, SCLA                                           0.3 × VCCA
+ VIL         Low-level input voltage                                  SDAB, SCLB(1)                                        0.3 × VCCB        V
+                                                                      EN                                                   0.3 × VCCB
+ IOL         Low-level output current                                                                                                 6     mA
+ TA          Operating free-air temperature                                                                        –40               85      °C
+
+(1)     VIL specification is for the first low level seen by the SDAB and SCLB lines. VILc is for the second and subsequent low levels seen by
+        the SDAB and SCLB lines. See Section 8.2.2.2 for VILC application information
+(2)     Low-level supply voltage
+
+
+
+
+Copyright © 2025 Texas Instruments Incorporated                                                              Submit Document Feedback              5
+                                                        Product Folder Links: TCA9517A
+TCA9517A
+SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025                                                                                     www.ti.com
+
+
+5.4 Thermal Information
+                                                                                                             TCA9517A
+                                            THERMAL METRIC(1)                                               DGK (VSSOP)              UNIT
+                                                                                                                8 PINS
+    RθJA             Junction-to-ambient thermal resistance                                                     187.6                °C/W
+    RθJC(top)        Junction-to-case (top) thermal resistance                                                   59.3                °C/W
+    RθJB             Junction-to-board thermal resistance                                                       108.6                °C/W
+    ψJT              Junction-to-top characterization parameter                                                   3.4                °C/W
+    ψJB              Junction-to-board characterization parameter                                               106.9                °C/W
+
+(1)        For more information about traditional and new thermal metrics, see the Semiconductor and IC Package Thermal Metrics application
+           note.
+
+
+
+
+6          Submit Document Feedback                                                                Copyright © 2025 Texas Instruments Incorporated
+
+                                                            Product Folder Links: TCA9517A
+                                                                                                                                TCA9517A
+www.ti.com                                                                                  SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025
+
+
+
+5.5 Electrical Characteristics
+VCCB = 2.7V to 5.5V, GND = 0V, TA = –40°C to 85°C (unless otherwise noted)
+                       PARAMETER                               TEST CONDITIONS                VCCB          MIN     TYP       MAX    UNIT
+ VIK            Input clamp voltage                        II = –18mA                   2.7V to 5.5V                          –1.2     V
+                                                           IOL = 100μA or 6mA,
+                Low-level output           SDAB, SCLB                                                       0.45    0.52       0.6
+ VOL                                                       VILA = VILB = 0V             2.7V to 5.5V                                   V
+                voltage
+                                           SDAA, SCLA      IOL = 6mA                                                  0.1      0.2
+                Low-level input voltage
+ VOL – VILc     below low-level output SDAB, SCLB          ensured by design            2.7V to 5.5V                  70             mV
+                voltage
+                SDA and SCL low-level
+ VILC                                    SDAB, SCLB                                     2.7V to 5.5V                0.45               V
+                input voltage contention
+                                                           Both channels low,
+                                                           SDAA = SCLA = GND and
+ ICC            Quiescent supply current for VCCA          SDAB = SCLB = open, or                                                1   mA
+                                                           SDAA = SCLA = open and
+                                                           SDAB = SCLB = GND
+                                                           Both channels high,
+                                                           SDAA = SCLA = VCCA and
+                                                                                                                      1.5        5
+                                                           SDAB = SCLB = VCCB and
+                                                           EN = VCCB
+                                                           Both channels low,
+ ICC            Quiescent supply current                                                      5.5V                                   mA
+                                                           SDAA = SCLA = GND and                                      1.5        5
+                                                           SDAB = SCLB = open
+                                                           In contention,
+                                                           SDAA = SCLA = GND and                                          3      5
+                                                           SDAB = SCLB = GND
+                                                           VI = VCCB                                                            ±1
+                                           SDAB, SCLB
+                                                           VI = 0.2V                                                            10
+                                                           VI = VCCB                                                            ±1
+ II             Input leakage current      SDAA, SCLA                                   2.7V to 5.5V                                   μA
+                                                           VI = 0.2V                                                            10
+                                                           VI = VCCB                                                            ±1
+                                           EN
+                                                           VI = 0.2V                                                 –10       –30
+
+                High-level output          SDAB, SCLB                                                                           10
+ IOH                                                       VO = 3.6V                    2.7V to 5.5V                                   μA
+                leakage current            SDAA, SCLA                                                                           10
+                                           EN              VI = 3V or 0V                      3.3V                        6     10
+ CI             Input capacitance                                                             3.3V                        8     13     pF
+                                           SCLA, SCLB      VI = 3V or 0V
+                                                                                               0V                         7     11
+
+                Input/output                                                                  3.3V                        8     13
+ CIO                                       SDAA, SDAB      VI = 3V or 0V                                                               pF
+                capacitance                                                                    0V                         7     11
+
+
+
+5.6 Timing Requirements
+over recommended operating free-air temperature range (unless otherwise noted)
+                                                                                                                    MIN       MAX    UNIT
+ tsu          Setup time, EN high before Start condition(1)                                                         100               ns
+ th           Hold time, EN high after Stop condition(1)                                                            100               ns
+
+(1)     EN should change state only when the global bus and the repeater port are in an idle state.
+
+
+
+
+Copyright © 2025 Texas Instruments Incorporated                                                             Submit Document Feedback        7
+                                                           Product Folder Links: TCA9517A
+TCA9517A
+SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025                                                                                              www.ti.com
+
+
+5.7 I2C Interface Switching Characteristics
+VCCB = 2.7V to 5.5V, GND = 0V, TA = –40°C to 85°C (unless otherwise noted)(1) (4)
+                                                         FROM              TO
+                    PARAMETER                                                              TEST CONDITIONS                 MIN     TYP(5) MAX UNIT
+                                                        (INPUT)         (OUTPUT)
+                                                     SDAB, SCLB(3) SDAA, SCLA(3)
+                                                                                                                             80       141    350
+                                                     (see Figure 6-4) (see Figure 6-4)
+    tPLZ      Propagation delay                                                                                                                     ns
+                                                     SDAA, SCLA(2) SDAB, SCLB(2)
+                                                                                                                             25        74    110
+                                                     (see Figure 6-3) (see Figure 6-3)
+                                                                                         VCCA ≤ 2.7V (see Figure
+                                                                                                                             30      76(6)   110
+                                                                                         6-2)
+                                                      SDAB, SCLB       SDAA, SCLA
+                                                                                         VCCA ≥ 3V
+    tPZL      Propagation delay                                                                                              10        86    230    ns
+                                                                                         (see Figure 6-2)
+                                                     SDAA, SCLA(2) SDAB, SCLB(2)
+                                                                                                                             60       107    230
+                                                     (see Figure 6-3) (see Figure 6-3)
+                                                                                         VCCA ≤ 2.7V
+                                                                                                                             10        12     15
+                                                                                         (see Figure 6-3)
+                                  B-side to A side
+                                                                                         VCCA ≥ 3V
+    tTLH      Transition time                             80%              20%                                               40        42     45    ns
+                                                                                         (see Figure 6-3)
+                                  A side to B-side
+                                                                                                                            110       125    140
+                                  (see Figure 6-2)
+                                                                                         VCCA ≤ 2.7V
+                                                                                                                              1      52(6)   105
+                                                                                         (see Figure 6-3)
+                                  B-side to A side
+                                                                                         VCCA ≥ 3V
+    tTHL      Transition time                             80%              20%                                               20        67    175    ns
+                                                                                         (see Figure 6-3)
+                                  A side to B-side
+                                                                                                                             30        48     90
+                                  (see Figure 6-2)
+
+(1)        Times are specified with loads of 1.35kΩ pull-up resistance and 50pF load capacitance on the B-side and 167Ω pull-up and 57pF load
+           capacitance on the A side. Different load resistance and capacitance alter the RC time constant, thereby changing the propagation
+           delay and transition times.
+(2)        The proportional delay data from A to B-side is measured at 0.3VCCA on the A side to 1.5V on the B-side.
+(3)        The tPLH delay data from B to A side is measured at 0.4V on the B-side to 0.5VCCA on the A side when VCCA is less than 2 V, and 1.5 V
+           on the A side if VCCA is greater than 2 V.
+(4)        pull-up voltages are VCCA on the A side and VCCB on the B-side.
+(5)        Typical values were measured with VCCA = VCCB = 3.3V at TA = 25°C, unless otherwise noted.
+(6)        Typical value measured with VCCA = 2.7V at TA = 25°C
+
+
+
+
+8          Submit Document Feedback                                                                         Copyright © 2025 Texas Instruments Incorporated
+
+                                                            Product Folder Links: TCA9517A
+                                                                                                                                                      TCA9517A
+www.ti.com                                                                                                      SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025
+
+
+5.8 Typical Characteristics
+VCCA = 0.9V, VCCB = 2.7V
+
+                      0.15                                                                           0.54
+                                                                      -40C                                                                            -40C
+                                                                       25C                                                                             25C
+                                                                       85C                                                                             85C
+                     0.125
+                                                                                                     0.53
+
+
+                       0.1
+
+
+
+
+    Port A VOL (V)                                                                  Port B VOL (V)
+                                                                                                     0.52
+
+                     0.075
+
+                                                                                                     0.51
+                      0.05
+
+
+                                                                                                      0.5
+                     0.025
+
+
+
+                        0                                                                            0.49
+                             0   1       2          3        4    5          6                              0     1       2          3        4   5          6
+                                             Port A IOL (mA)                 D001                                             Port B IOL (mA)                D002
+                                 Figure 5-1. Port A VOL vs IOL                                                    Figure 5-2. Port B VOL vs IOL
+
+
+
+
+Copyright © 2025 Texas Instruments Incorporated                                                                                   Submit Document Feedback          9
+                                                                 Product Folder Links: TCA9517A
+TCA9517A
+SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025                                                                                                   www.ti.com
+
+6 Parameter Measurement Information
+                                                                    VCC
+
+
+                                                                                                                          RL                       VCC
+                            VIN                                                         VOUT
+                                                                                                                     (see Note A)        S1
+         PULSE
+                                                                    DUT                                                                            GND
+       GENERATOR
+                                           RT                                                              CL = 57 pF
+                                           (see Note B)                                                    (see Note C)
+
+
+
+
+                                                                 TEST                   S1
+                                                                tPLZ/tPZL              VCC
+
+
+                                                TEST CIRCUIT FOR OPEN-DRAIN OUTPUT
+                                                                                                       Copyright © 2017, Texas Instruments Incorporated
+
+A.    RL = 167Ω (0.9V to 2.7V) and RL = 450Ω (3.0V to 5.5V) on the A side and 1.35kΩ on the B-side
+B.    RT termination resistance should be equal to ZOUT of pulse generators.
+C.    CL includes probe and jig capacitance.
+D.    All input pulses are supplied by generators having the following characteristics: PRR ≤ 10 MHz, ZO = 50 Ω, slew rate ≥ 1 V/ns.
+E.    The outputs are measured one at a time, with one transition per measurement.
+F.    tPLH and tPHL are the same as tpd.
+G.    tPLZ and tPHZ are the same as tdis.
+H.    tPZL and tPZH are the same as ten.
+
+
+                                                          Figure 6-1. Test Circuit
+
+                                                               3V                        VCCA                                                     VCCA
+      INPUT              1.5 V                 1.5 V                                   INPUT                    0.3 VCCA              0.3 VCCA
+                                                               0.1 V
+                tPZL                               tPLZ                                             tPZL                                   tPLZ
+                                                                    1.2 V                                                                                3V
+                   80%                             80%                                                80%                                 80%
+     OUTPUT                0.6 V       0.6 V                                        OUTPUT                         1.5 V               1.5 V
+                             20%      20%                                                                  20%                       20%
+                                                                    VOL
+                tTHL                                    tTLH                       Figure 6-3. Waveform 2 – Propagation Delay and
+     Figure 6-2. Waveform 1 – Propagation Delay and                                     Transition Times for A-side to B-side
+          Transition Times for B-side to A-side
+
+                                            INPUT
+                                       SDAB, SCLB
+                                                       0.4 V
+
+
+                                          OUTPUT                            50% is VCCA is less than 2 V
+                                       SCLA, SDAA                           1.5 V if VCCA is greater than 2 V
+
+                                                                 tPLH
+
+
+                            Figure 6-4. Waveform 3 – Propagation Delay for B-side to A-side
+
+
+
+
+10     Submit Document Feedback                                                                                 Copyright © 2025 Texas Instruments Incorporated
+
+                                                         Product Folder Links: TCA9517A
+                                                                                                                              TCA9517A
+www.ti.com                                                                                SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025
+
+
+7 Detailed Description
+7.1 Overview
+The TCA9517A is a bidirectional buffer with level shifting capabilities for I2C and SMBus systems. It provides
+bidirectional voltage-level translation (up-translation/down-translation) between low voltages (down to 0.9V) and
+higher voltages (2.7V to 5.5V) in mixed-mode applications. This device enables I2C and SMBus systems to be
+extended without degradation of performance, even during level shifting.
+The TCA9517A buffers both the serial data (SDA) and the serial clock (SCL) signals on the I2C bus, thus
+allowing two buses of up to 400pF bus capacitance to be connected in an I2C application.
+The TCA9517A has two types of drivers: A-side drivers and B-side drivers. All inputs and I/Os are over-voltage
+tolerant to 5.5V, even when the device is unpowered (VCCB and/or VCCA = 0V).
+The TCA9517A offers a higher contention level threshold, VILC, than the TCA9517, which allows connections to
+targets which have weaker pull-down ability.
+7.2 Functional Block Diagram
+                                                                VCCA           VCCB
+
+                                                                    1            8
+
+
+
+
+                                  3                                                                            6
+                     SDAA                                                                                          SDAB
+
+
+
+
+                                  2                                                                            7
+                     SCLA                                                                                          SCLB
+
+
+
+
+                                                  VCCB
+
+                                                     Pullup
+                                                     Resistor
+                                  5
+                         EN
+
+
+                                                                           4
+                                                                        GND
+
+
+
+
+Copyright © 2025 Texas Instruments Incorporated                                                           Submit Document Feedback    11
+                                                         Product Folder Links: TCA9517A
+TCA9517A
+SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025                                                                            www.ti.com
+
+7.3 Feature Description
+7.3.1 Two-Channel Bidirectional Buffer
+The TCA9517A is a two-channel bidirectional buffer with level-shifting capabilities
+7.3.2 Active-High Repeater-Enable Input
+The TCA9517A has an active-high enable (EN) input with an internal pull-up to VCCB, which allows the user to
+select when the repeater is active. This can be used to isolate a badly behaved target on power-up reset. The
+EN input should change state only when the global bus and repeater port are in an idle state, to prevent system
+failures.
+7.3.3 VOL B-Side Offset Voltage
+The B-side drivers operate from 2.7V to 5.5V. The output low level for this internal buffer is approximately 0.5V,
+but the input voltage must be 70mV or more below the output low level when the output internally is driven low.
+The higher-voltage low signal is called a buffered low. When the B-side I/O is driven low internally, the low is
+not recognized as a low by the input. This feature prevents a lockup condition from occurring when the input low
+condition is released. This type of design prevents 2 B-side ports from being connected to each other.
+7.3.4 Standard Mode and Fast Mode Support
+The TCA9517A supports standard mode as well as fast mode I2C. The maximum system operating frequency
+will depend on system design and the delays added by the repeater.
+7.3.5 Clock Stretching Support
+The TCA9517A can support clock stretching, but care needs to be taken to minimize the overshoot voltage
+presented during the hand-off between the target and controller. This is best done by increasing the pull-up
+resistor value.
+7.4 Device Functional Modes
+                                              Table 7-1. Function Table
+                          INPUT
+                                                                          FUNCTION
+                            EN
+                            L                                          Outputs disabled
+                                                                        SDAA = SDAB
+                            H
+                                                                        SCLA = SCLB
+
+
+
+
+12    Submit Document Feedback                                                            Copyright © 2025 Texas Instruments Incorporated
+
+                                                  Product Folder Links: TCA9517A
+                                                                                                                                TCA9517A
+www.ti.com                                                                                  SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025
+
+
+8 Application and Implementation
+                                                                     Note
+       Information in the following applications sections is not part of the TI component specification, and
+       TI does not warrant its accuracy or completeness. TI’s customers are responsible for determining
+       suitability of components for their purposes. Customers should validate and test their design
+       implementation to confirm system functionality.
+
+8.1 Application Information
+A typical application is shown in Figure 8-1. In this example, the system controller is running on a 3.3V I2C bus,
+and the target is connected to a 1.2V I2C bus. Both buses run at 400kHz. Controller devices can be placed on
+either bus.
+The TCA9517A is 5V tolerant, so it does not require any additional circuitry to translate between 0.9V to 5.5V
+bus voltages and 2.7V to 5.5V bus voltages.
+When the A side of the TCA9517A is pulled low by a driver on the I2C bus, a comparator detects the falling
+edge when it goes below 0.3 × VCCA and causes the internal driver on the B-side to turn on, causing the B-side
+to pull down to about 0.5V. When the B-side of the TCA9517A falls, first a CMOS hysteresis-type input detects
+the falling edge and causes the internal driver on the A side to turn on and pull the A-side pin down to ground.
+In order to illustrate what would be seen in a typical application, refer to Figure 8-3 and Figure 8-4. If the bus
+controller in Figure 8-1 were to write to the target through the TCA9517A, waveforms shown in Figure 8-3 would
+be observed on the A bus. This looks like a normal I2C transmission, except that the high level may be as low as
+0.9V, and the turn on and turn off of the acknowledge signals are slightly delayed.
+On the B-side bus of the TCA9517A, the clock and data lines would have a positive offset from ground equal
+to the VOL of the TCA9517A. After the eighth clock pulse, the data line is pulled to the VOL of the target device,
+which is very close to ground in this example. At the end of the acknowledge, the level rises only to the low
+level set by the driver in the TCA9517A for a short delay, while the A-bus side rises above 0.3 × VCCA and then
+continues high.
+8.2 Typical Application
+                                                           3.3V                     1.2V
+
+
+
+
+                                                    10kW          10kW       10kW          10kW
+                                                                    VCCB   VCCA
+                                                   SDA             SDAB SDAA                 SDA
+
+                                                   SCL             SCLB SCLA                  SCL
+                                           BUS
+                                           CONTROLLER               TCA9517A
+                                                                                                  TARGET
+                                           400kHz                  EN                              400kHz
+
+
+                                                           BUS B                    BUS A
+
+                                              Figure 8-1. Typical Application Schematic
+
+8.2.1 Design Requirements
+For the level translating application, the following should be true:
+•    VCCA = 0.9V to 5.5V
+•    VCCB = 2.7V to 5.5V
+•    B-side ports must not be connected together
+
+
+
+
+Copyright © 2025 Texas Instruments Incorporated                                                             Submit Document Feedback    13
+                                                      Product Folder Links: TCA9517A
+TCA9517A
+SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025                                                                            www.ti.com
+
+8.2.2 Detailed Design Procedure
+8.2.2.1 Clock Stretching Support
+The TCA9517A can support clock stretching, but care needs to be taken to minimize the overshoot voltage
+presented during the hand-off between the target and controller. This is best done by increasing the pull-up
+resistor value.
+8.2.2.2 VILC and Pullup Resistor Sizing
+For the TCA9517A to function correctly, all devices on the B-side must be able to pull the B-side below the
+voltage input low contention level (VILC). This means that the VOL of any device on the B-side must be below
+0.45V.
+VOL of a device can be adjusted by changing the IOL through the device which is set by the pull-up resistance
+value. The pull-up resistance on the B-side must be carefully selected to ensure that logic levels will be
+transferred correctly to the A-side.
+                                             VCCA                                  VCCB
+
+
+
+
+                                      10kW            10kW                 10kW    10kW
+
+
+                             SDA                               SDAA SDAB              SDA
+
+                             SCL                               SCLA SCLB              SCL
+                                                                TCA9517A                  TARGET
+                        BUS                                                                400kHz
+                     CONTROLLER                                EN
+
+
+
+                                                                           10kW    10kW
+
+
+                                                               SDAA SDAB              SDA
+
+                                                               SCLA SCLB              SCL
+                                                                TCA9517A                  TARGET
+                                                               EN                          400kHz
+
+
+
+                                                                           10kW    10kW
+
+
+                                                               SDAA SDAB              SDA
+
+                                                               SCLA SCLB              SCL
+                                                                TCA9517A                  TARGET
+                                                                                           400kHz
+                                                               EN
+
+
+                                          Figure 8-2. Typical Star Application
+
+Multiple A sides of TCA9517As can be connected in a star configuration, allowing all nodes to communicate with
+each other.
+
+
+
+
+14    Submit Document Feedback                                                            Copyright © 2025 Texas Instruments Incorporated
+
+                                                  Product Folder Links: TCA9517A
+                                                                                                                                TCA9517A
+www.ti.com                                                                                 SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025
+
+                                                                  VCCB
+
+
+
+                       10kW         10kW           10kW         10kW           10kW        10kW            10kW    10kW
+
+                   SDA                  SDAA SDAB                  SDAA SDAB                   SDAA SDAB               SDA
+
+                   SCL                  SCLA SCLB                  SCLA SCLB                   SCLA SCLB               SCL
+             BUS                         TCA9517A                   TCA9517A                    TCA9517A                  TARGET
+          CONTROLLER                                                                                                       400kHz
+                                        EN                         EN                          EN
+
+
+
+
+                                                  Figure 8-3. Typical Series Application
+
+To further extend the I2C bus for long traces/cables, multiple TCA9517As can be connected in series as long as
+the A-side is connected to the B-side. I2C bus target devices can be connected to any of the bus segments. The
+number of devices that can be connected in series is limited by repeater delay/time-of-flight considerations on
+the maximum bus speed requirements.
+                              9th CLOCK PULSE — ACKNOWLEDGE
+
+    SCL
+
+
+
+
+   SDA
+
+
+
+
+                                           Figure 8-4. Bus A (0.9V to 5.5V Bus) Waveform
+
+                                     9th CLOCK PULSE — ACKNOWLEDGE
+
+
+    SCL
+
+
+
+
+   SDA
+
+                                                                                                       VOL OF TCA9517A
+
+
+                                                      VOL OF TARGET
+
+                                           Figure 8-5. Bus B (2.7V to 5.5V Bus) Waveform
+
+
+
+
+Copyright © 2025 Texas Instruments Incorporated                                                             Submit Document Feedback   15
+                                                          Product Folder Links: TCA9517A
+TCA9517A
+SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025                                                                     www.ti.com
+
+8.2.3 Application Curve
+                        3
+                                                                                                               Port A
+                                                                                                               Port B
+                       2.5
+
+
+                        2
+
+
+
+       Magnitude (V)
+                       1.5
+
+
+                        1
+
+
+                       0.5
+
+
+                        0
+
+                                                                                                                        D003
+
+
+                             Figure 8-6. Voltage Translation at 400kHz, VCCA = 0.9V, VCCB = 2.7V
+
+9 Power Supply Recommendations
+VCCB and VCCA can be applied in any sequence at power up. The TCA9517A includes a power-up circuit that
+keeps the output drivers turned off until VCCB is above 2.5V and the VCCA is above 0.8V. After power up and with
+the EN high, a low level on the A-side (below 0.3 × VCCA) turns the corresponding B-side driver (either SDA or
+SCL) on and drives the B-side down to approximately 0.5V. When the A-side rises above 0.3 × VCCA, the B-side
+pull-down driver is turned off and the external pull-up resistor pulls the pin high. When the B-side falls first and
+goes below 0.3 × VCCB, the A-side driver is turned on and the A-side pulls down to 0V. The B-side pull-down is
+not enabled unless the B-side voltage goes below 0.4V. If the B-side low voltage does not go below 0.5V, the
+A-side driver turns off when the B-side voltage is above 0.7 × VCCB. If the B-side low voltage goes below 0.4V,
+the B-side pull-down driver is enabled, and the B-side is able to rise to only 0.5V until the A-side rises above 0.3
+× VCCA.
+TI recommends using a decoupling capacitor and placing it close to the VCCA and VCCB pins of a value of
+about 100nF.
+10 Layout
+10.1 Layout Guidelines
+There are no special layout procedures required for the TCA9517A. It is recommended that the decoupling
+capacitors be placed as close to the VCC pins as possible.
+10.2 Layout Example
+Figure 10-1 shows an example layout of the DGK package.
+
+
+
+
+16    Submit Document Feedback                                                     Copyright © 2025 Texas Instruments Incorporated
+
+                                                  Product Folder Links: TCA9517A
+                                                                                                                                     TCA9517A
+www.ti.com                                                                                SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025
+
+
+                                                  = Via to GND Plane
+
+
+
+               0402 Cap                                                                                                   0402 Cap
+
+
+
+        To VCCA Plane             VCCA                                                                  VCCB         To VCCB Plane
+
+
+
+                                  SCLA                                                                   SCLB
+
+
+
+                                  SDAA                                                                  SDAB
+
+
+
+                                  GND                                                                     EN
+
+
+
+
+                                                  Figure 10-1. TCA9517A Layout Example
+
+
+
+
+Copyright © 2025 Texas Instruments Incorporated                                                           Submit Document Feedback         17
+                                                         Product Folder Links: TCA9517A
+TCA9517A
+SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025                                                                                                             www.ti.com
+
+11 Device and Documentation Support
+11.1 Receiving Notification of Documentation Updates
+To receive notification of documentation updates, navigate to the device product folder on ti.com. Click on
+Notifications to register and receive a weekly digest of any product information that has changed. For change
+details, review the revision history included in any revised document.
+11.2 Support Resources
+TI E2E™ support forums are an engineer's go-to source for fast, verified answers and design help — straight
+from the experts. Search existing answers or ask your own question to get the quick design help you need.
+Linked content is provided "AS IS" by the respective contributors. They do not constitute TI specifications and do
+not necessarily reflect TI's views; see TI's Terms of Use.
+11.3 Trademarks
+TI E2E™ is a trademark of Texas Instruments.
+All trademarks are the property of their respective owners.
+11.4 Electrostatic Discharge Caution
+                      This integrated circuit can be damaged by ESD. Texas Instruments recommends that all integrated circuits be handled
+                      with appropriate precautions. Failure to observe proper handling and installation procedures can cause damage.
+                      ESD damage can range from subtle performance degradation to complete device failure. Precision integrated circuits may
+                      be more susceptible to damage because very small parametric changes could cause the device not to meet its published
+                      specifications.
+
+
+11.5 Glossary
+ TI Glossary               This glossary lists and explains terms, acronyms, and definitions.
+
+12 Revision History
+NOTE: Page numbers for previous revisions may differ from page numbers in the current version.
+Changes from Revision D (September 2024) to Revision E (October 2025)                                                                           Page
+• Updated the Package Information table............................................................................................................. 1
+• Updated Tape and Reel Information................................................................................................................. 20
+
+
+
+Changes from Revision C (December 2018) to Revision D (September 2024)                                                                               Page
+• Updated Tape and Reel Information................................................................................................................. 20
+• Updated Mechanical Data................................................................................................................................ 22
+
+
+
+Changes from Revision B (June 2015) to Revision C (December 2018)                                                                   Page
+• Changed the appearance of the DGK pin out image......................................................................................... 4
+• Deleted VCCA < VCCB from the Design Requirements list ................................................................................13
+
+
+
+Changes from Revision A (April 2013) to Revision B (June 2015)                                                                                                     Page
+• Added Pin Configuration and Functions section, ESD Ratings table, Feature Description section, Device
+  Functional Modes, Application and Implementation section, Power Supply Recommendations section, Layout
+  section, Device and Documentation Support section, and Mechanical, Packaging, and Orderable Information
+  section ............................................................................................................................................................... 1
+
+
+
+
+18     Submit Document Feedback                                                                                       Copyright © 2025 Texas Instruments Incorporated
+
+                                                                 Product Folder Links: TCA9517A
+                                                                                                                       TCA9517A
+www.ti.com                                                                         SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025
+
+
+13 Mechanical, Packaging, and Orderable Information
+The following pages include mechanical, packaging, and orderable information. This information is the most
+current data available for the designated devices. This data is subject to change without notice and revision of
+this document. For browser-based versions of this data sheet, refer to the left-hand navigation.
+
+
+
+
+Copyright © 2025 Texas Instruments Incorporated                                                    Submit Document Feedback    19
+                                                  Product Folder Links: TCA9517A
+TCA9517A
+SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025                                                                                                www.ti.com
+
+13.1 Tape and Reel Information
+                 REEL DIMENSIONS                                                                  TAPE DIMENSIONS
+                                                                                            K0       P1
+
+
+
+                                                                                                                            B0 W
+                                                  Reel
+                                                Diameter
+                                                                                          Cavity            A0
+                                                                      A0   Dimension designed to accommodate the component width
+                                                                      B0   Dimension designed to accommodate the component length
+                                                                      K0   Dimension designed to accommodate the component thickness
+                                                                      W    Overall width of the carrier tape
+                                                                      P1   Pitch between successive cavity centers
+
+
+                                                 Reel Width (W1)
+                                      QUADRANT ASSIGNMENTS FOR PIN 1 ORIENTATION IN TAPE
+
+                                                                                                             Sprocket Holes
+
+
+                                                           Q1    Q2         Q1       Q2
+
+                                                           Q3    Q4         Q3       Q4               User Direction of Feed
+
+
+
+                                                                   Pocket Quadrants
+                                                                  Reel        Reel
+                     Package   Package                                                      A0         B0          K0          P1       W          Pin1
+        Device                           Pins      SPQ          Diameter    Width W1
+                      Type     Drawing                                                     (mm)       (mm)        (mm)        (mm)     (mm)      Quadrant
+                                                                  (mm)       (mm)
+     TCA9509MRVHR     X2QFN     RVH       8        5000          180.0        8.4           1.8       1.8          0.5        4.0       8.0         Q1
+     TCA9509RVHR      X2QFN     RVH       8        5000          180.0        8.4           1.8       1.8          0.5        4.0       8.0         Q3
+     TCA9509DGKR     VSSOP      DGK       8        2500          330.0        12.4          5.3       3.4          1.4        8.0      12.0         Q1
+
+
+
+
+20     Submit Document Feedback                                                                               Copyright © 2025 Texas Instruments Incorporated
+
+                                                          Product Folder Links: TCA9517A
+                                                                                                                                TCA9517A
+www.ti.com                                                                             SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025
+
+                               TAPE AND REEL BOX DIMENSIONS
+
+
+
+
+                                                                                                Width (mm)
+                                                                                                                H
+
+
+
+
+                                                  W                                        L
+
+
+
+
+              Device                 Package Type     Package Drawing    Pins    SPQ       Length (mm)          Width (mm)   Height (mm)
+        TCA9509MRVHR                     X2QFN             RVH            8      5000          183.0                183.0        20.0
+         TCA9509RVHR                     X2QFN             RVH            8      5000          202.0                201.0        28.0
+         TCA9509DGKR                     VSSOP             DGK            8      2500          364.0                364.0        27.0
+
+
+
+
+Copyright © 2025 Texas Instruments Incorporated                                                              Submit Document Feedback      21
+                                                      Product Folder Links: TCA9517A
+TCA9517A
+SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025                                                                                                                  www.ti.com
+
+13.2 Mechanical Data
+
+
+
+                                                                                                                     PACKAGE OUTLINE
+             DGK0008A                                                 SCALE 4.000
+                                                                                                             VSSOP - 1.1 mm max height
+                                                                                                                              SMALL OUTLINE PACKAGE
+
+
+
+
+                                                                                                                                C
+                                                       5.05
+                                                            TYP
+                       A                               4.75
+                                                                                                                            0.1 C
+                                                             PIN 1 INDEX AREA
+                                                                                                                                                   SEATING
+                                                                                                                                                   PLANE
+                                                                                                      6X 0.65
+                                                                                           8
+                             1
+
+
+                                                                                                         2X
+                     3.1
+                                                                                                        1.95
+                     2.9
+                    NOTE 3
+
+
+                             4
+                                                                                           5                 0.38
+                                                                                                        8X
+                                                                                                             0.25
+                                                          3.1                                                 0.13    C A B
+                                  B
+                                                          2.9
+                                                        NOTE 4
+
+
+
+
+                                                                                                      0.23
+                                                                                                      0.13
+
+
+
+
+                                                       SEE DETAIL A
+                                                                                                                0.25
+                                                                                                                GAGE PLANE
+
+                                                                                                                                                     1.1 MAX
+
+
+
+
+                                                                                                                      0.7                              0.15
+                                                                                               0 -8                   0.4                              0.05
+                                                                                                                                DETAIL A
+                                                                                                                                      A 20
+
+
+
+
+                                                                                                                                    TYPICAL
+
+                                                                                                                                             4214862/A 04/2023
+                                                                                                             PowerPAD is a trademark of Texas Instruments.
+             NOTES:
+
+             1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+                per ASME Y14.5M.
+             2. This drawing is subject to change without notice.
+             3. This dimension does not include mold flash, protrusions, or gate burrs. Mold flash, protrusions, or gate burrs shall not
+                exceed 0.15 mm per side.
+             4. This dimension does not include interlead flash. Interlead flash shall not exceed 0.25 mm per side.
+             5. Reference JEDEC registration MO-187.
+
+
+
+
+                                                                                    www.ti.com
+
+
+
+
+22    Submit Document Feedback                                                                                          Copyright © 2025 Texas Instruments Incorporated
+
+                                                             Product Folder Links: TCA9517A
+                                                                                                                                                                TCA9517A
+www.ti.com                                                                                                    SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025
+
+
+
+
+                                                                                                          EXAMPLE BOARD LAYOUT
+                 DGK0008A
+                                                                                                             TM
+                                                                                                                  VSSOP - 1.1 mm max height
+                                                                                                                                  SMALL OUTLINE PACKAGE
+
+
+
+
+                                                                                            SYMM
+                                                        8X (1.4)                                                                    (R0.05) TYP
+
+
+
+                                    8X (0.45)    1                                                                          8
+
+
+
+                                                                                                                                 SYMM
+
+
+
+                                       6X (0.65)
+                                                                                                                            5
+                                                   4
+
+
+                                                                                                                                SEE DETAILS
+
+                                                                                            (4.4)
+
+                                                                       LAND PATTERN EXAMPLE
+                                                                          EXPOSED METAL SHOWN
+                                                                               SCALE: 15X
+
+
+
+
+                                   SOLDER MASK                                                      METAL UNDER                   SOLDER MASK
+                                                                      METAL
+                                       OPENING                                                      SOLDER MASK                   OPENING
+
+
+                          EXPOSED METAL                                                                                                  EXPOSED METAL
+
+                                                        0.05 MAX                                                        0.05 MIN
+                                                        ALL AROUND                                                      ALL AROUND
+
+                                                NON-SOLDER MASK                                                    SOLDER MASK
+                                                    DEFINED                                                          DEFINED
+                                                  (PREFERRED)
+                                                                          SOLDER MASK DETAILS
+                                                                                   15.000
+
+
+
+
+                                                                                                                                            4214862/A 04/2023
+                NOTES: (continued)
+
+                 6. Publication IPC-7351 may have alternate designs.
+                 7. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+                 8. Vias are optional depending on application, refer to device data sheet. If any vias are implemented, refer to their locations shown
+                    on this view. It is recommended that vias under paste be filled, plugged or tented.
+                 9. Size of metal pad may vary due to creepage requirement.
+
+
+
+
+                                                                                             www.ti.com
+
+
+
+
+Copyright © 2025 Texas Instruments Incorporated                                                                                        Submit Document Feedback       23
+                                                                   Product Folder Links: TCA9517A
+TCA9517A
+SCPS245E – DECEMBER 2012 – REVISED OCTOBER 2025                                                                                                    www.ti.com
+
+
+
+
+                                                                                            EXAMPLE STENCIL DESIGN
+             DGK0008A
+                                                                                                  TM
+                                                                                                       VSSOP - 1.1 mm max height
+                                                                                                                      SMALL OUTLINE PACKAGE
+
+
+
+
+                                                                             SYMM
+
+                                                     8X (1.4)                                                             (R0.05) TYP
+
+
+                                  8X (0.45)      1                                                                8
+
+
+
+                                                                                                                      SYMM
+
+
+
+                                     6X (0.65)
+                                                                                                                  5
+                                                 4
+
+
+
+
+                                                                              (4.4)
+
+
+
+                                                                   SOLDER PASTE EXAMPLE
+                                                                           SCALE: 15X
+
+
+
+
+                                                                                                                               4214862/A 04/2023
+             NOTES: (continued)
+
+             11. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+                 design recommendations.
+             12. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                              www.ti.com
+
+
+
+
+24    Submit Document Feedback                                                                                   Copyright © 2025 Texas Instruments Incorporated
+
+                                                                Product Folder Links: TCA9517A
+                                                                                                                                                                      PACKAGE OPTION ADDENDUM
+
+       www.ti.com                                                                                                                                                                                                    15-Jul-2026
+
+
+
+
+PACKAGING INFORMATION
+
+       Orderable part number          Status     Material type      Package | Pins      Package qty | Carrier        RoHS             Lead finish/              MSL rating/               Op temp (°C)          Part marking
+                                        (1)            (2)                                                             (3)            Ball material             Peak reflow                                           (6)
+                                                                                                                                            (4)                      (5)
+
+          TCA9517ADGKR                Active      Production       VSSOP (DGK) | 8       2500 | LARGE T&R             Yes             NIPDAU | SN          Level-1-260C-UNLIM               -40 to 85                BSK
+                                                                                                                                      | NIPDAUAG
+         TCA9517ADGKR.B               Active      Production       VSSOP (DGK) | 8       2500 | LARGE T&R             Yes                NIPDAU            Level-1-260C-UNLIM               -40 to 85                BSK
+
+(1)
+      Status: For more details on status, see our product life cycle.
+
+(2)
+   Material type: When designated, preproduction parts are prototypes/experimental devices, and are not yet approved or released for full production. Testing and final process, including without limitation quality assurance,
+reliability performance testing, and/or process qualification, may not yet be complete, and this item is subject to further changes or possible discontinuation. If available for ordering, purchases will be subject to an additional
+waiver at checkout, and are intended for early internal evaluation purposes only. These items are sold without warranties of any kind.
+
+(3)
+      RoHS values: Yes, No, RoHS Exempt. See the TI RoHS Statement for additional information and value definition.
+
+(4)
+   Lead finish/Ball material: Parts may have multiple material finish options. Finish options are separated by a vertical ruled line. Lead finish/Ball material values may wrap to two lines if the finish value exceeds the maximum
+column width.
+
+(5)
+  MSL rating/Peak reflow: The moisture sensitivity level ratings and peak solder (reflow) temperatures. In the event that a part has multiple moisture sensitivity ratings, only the lowest level per JEDEC standards is shown.
+Refer to the shipping label for the actual reflow temperature that will be used to mount the part to the printed circuit board.
+
+(6)
+      Part marking: There may be an additional marking, which relates to the logo, the lot trace code information, or the environmental category of the part.
+
+Multiple part markings will be inside parentheses. Only one part marking contained in parentheses and separated by a "~" will appear on a part. If a line is indented then it is a continuation of the previous line and the two
+combined represent the entire part marking for that device.
+
+Important Information and Disclaimer:The information provided on this page represents TI's knowledge and belief as of the date that it is provided. TI bases its knowledge and belief on information provided by third parties, and
+makes no representation or warranty as to the accuracy of such information. Efforts are underway to better integrate information from third parties. TI has taken and continues to take reasonable steps to provide representative
+and accurate information but may not have conducted destructive testing or chemical analysis on incoming materials and chemicals. TI and TI suppliers consider certain information to be proprietary, and thus CAS numbers
+and other limited information may not be available for release.
+
+In no event shall TI's liability arising out of such information exceed the total purchase price of the TI part(s) at issue in this document sold by TI to Customer on an annual basis.
+
+
+
+
+                                                                                                          Addendum-Page 1
+                                                                              PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                                                      10-Jul-2026
+
+
+
+TAPE AND REEL INFORMATION
+
+       REEL DIMENSIONS                                                                     TAPE DIMENSIONS
+                                                                                      K0       P1
+
+
+
+                                                                                                                     B0 W
+                                        Reel
+                                      Diameter
+                                                                                   Cavity           A0
+                                                               A0   Dimension designed to accommodate the component width
+                                                               B0   Dimension designed to accommodate the component length
+                                                               K0   Dimension designed to accommodate the component thickness
+                                                               W    Overall width of the carrier tape
+                                                               P1   Pitch between successive cavity centers
+
+
+                                       Reel Width (W1)
+                              QUADRANT ASSIGNMENTS FOR PIN 1 ORIENTATION IN TAPE
+
+                                                                                                    Sprocket Holes
+
+
+                                                 Q1       Q2          Q1    Q2
+
+                                                 Q3       Q4          Q3    Q4                  User Direction of Feed
+
+
+
+                                                           Pocket Quadrants
+
+
+*All dimensions are nominal
+             Device           Package Package Pins             SPQ       Reel   Reel   A0                  B0         K0     P1     W     Pin1
+                               Type Drawing                            Diameter Width (mm)                (mm)       (mm)   (mm)   (mm) Quadrant
+                                                                         (mm) W1 (mm)
+     TCA9517ADGKR             VSSOP     DGK           8        2500        330.0        12.4        5.3    3.4       1.4    8.0    12.0    Q1
+
+
+
+
+                                                                     Pack Materials-Page 1
+                                                                PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                              10-Jul-2026
+
+
+
+ TAPE AND REEL BOX DIMENSIONS
+
+
+
+
+                                                               Width (mm)
+                                                                              H
+
+
+
+
+                      W                                   L
+
+
+
+
+*All dimensions are nominal
+             Device           Package Type   Package Drawing   Pins         SPQ    Length (mm)   Width (mm)   Height (mm)
+     TCA9517ADGKR               VSSOP             DGK           8           2500      353.0        353.0         32.0
+
+
+
+
+                                                        Pack Materials-Page 2
+                                                                                                        PACKAGE OUTLINE
+DGK0008A                                                 SCALE 4.000
+                                                                                                VSSOP - 1.1 mm max height
+                                                                                                                 SMALL OUTLINE PACKAGE
+
+
+
+
+                                                                                                                   C
+                                          5.05
+                                               TYP
+          A                               4.75
+                                                                                                               0.1 C
+                                               PIN 1 INDEX AREA
+                                                                                                                                      SEATING
+                                                                                                                                      PLANE
+                                                                                         6X 0.65
+                                                                              8
+                1
+
+
+                                                                                            2X
+        3.1
+                                                                                           1.95
+        2.9
+       NOTE 3
+
+
+                4
+                                                                              5                 0.38
+                                                                                           8X
+                                                                                                0.25
+                                            3.1                                                  0.13   C A B
+                     B
+                                            2.9
+                                           NOTE 4
+
+
+
+
+                                                                                         0.23
+                                                                                         0.13
+
+
+
+
+                                          SEE DETAIL A
+                                                                                                   0.25
+                                                                                                   GAGE PLANE
+
+                                                                                                                                        1.1 MAX
+
+
+
+
+                                                                                                         0.7                              0.15
+                                                                                  0 -8                   0.4                              0.05
+                                                                                                                   DETAIL A
+                                                                                                                         A 20
+
+
+
+
+                                                                                                                       TYPICAL
+
+                                                                                                                                4214862/A 04/2023
+                                                                                                PowerPAD is a trademark of Texas Instruments.
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. This dimension does not include mold flash, protrusions, or gate burrs. Mold flash, protrusions, or gate burrs shall not
+   exceed 0.15 mm per side.
+4. This dimension does not include interlead flash. Interlead flash shall not exceed 0.25 mm per side.
+5. Reference JEDEC registration MO-187.
+
+
+
+
+                                                                       www.ti.com
+                                                                                          EXAMPLE BOARD LAYOUT
+                                                                                             TM
+DGK0008A                                                                                          VSSOP - 1.1 mm max height
+                                                                                                                  SMALL OUTLINE PACKAGE
+
+
+
+
+                                                                            SYMM
+                                        8X (1.4)                                                                    (R0.05) TYP
+
+
+
+                    8X (0.45)    1                                                                          8
+
+
+
+                                                                                                                 SYMM
+
+
+
+                       6X (0.65)
+                                                                                                            5
+                                   4
+
+
+                                                                                                                SEE DETAILS
+
+                                                                            (4.4)
+
+                                                       LAND PATTERN EXAMPLE
+                                                          EXPOSED METAL SHOWN
+                                                               SCALE: 15X
+
+
+
+
+                   SOLDER MASK                                                      METAL UNDER                   SOLDER MASK
+                                                      METAL
+                       OPENING                                                      SOLDER MASK                   OPENING
+
+
+          EXPOSED METAL                                                                                                  EXPOSED METAL
+
+                                        0.05 MAX                                                        0.05 MIN
+                                        ALL AROUND                                                      ALL AROUND
+
+                                NON-SOLDER MASK                                                    SOLDER MASK
+                                    DEFINED                                                          DEFINED
+                                  (PREFERRED)
+                                                           SOLDER MASK DETAILS
+                                                                   15.000
+
+
+
+
+                                                                                                                            4214862/A 04/2023
+NOTES: (continued)
+
+ 6. Publication IPC-7351 may have alternate designs.
+ 7. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+ 8. Vias are optional depending on application, refer to device data sheet. If any vias are implemented, refer to their locations shown
+    on this view. It is recommended that vias under paste be filled, plugged or tented.
+ 9. Size of metal pad may vary due to creepage requirement.
+
+
+
+
+                                                                             www.ti.com
+                                                                              EXAMPLE STENCIL DESIGN
+                                                                                     TM
+DGK0008A                                                                                  VSSOP - 1.1 mm max height
+                                                                                                         SMALL OUTLINE PACKAGE
+
+
+
+
+                                                                SYMM
+
+                                        8X (1.4)                                                            (R0.05) TYP
+
+
+                     8X (0.45)      1                                                                8
+
+
+
+                                                                                                         SYMM
+
+
+
+                        6X (0.65)
+                                                                                                     5
+                                    4
+
+
+
+
+                                                                 (4.4)
+
+
+
+                                                   SOLDER PASTE EXAMPLE
+                                                              SCALE: 15X
+
+
+
+
+                                                                                                                  4214862/A 04/2023
+NOTES: (continued)
+
+11. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+    design recommendations.
+12. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                 www.ti.com
+                                         IMPORTANT NOTICE AND DISCLAIMER
+TI PROVIDES TECHNICAL AND RELIABILITY DATA (INCLUDING DATASHEETS), DESIGN RESOURCES (INCLUDING REFERENCE
+DESIGNS), APPLICATION OR OTHER DESIGN ADVICE, WEB TOOLS, SAFETY INFORMATION, AND OTHER RESOURCES “AS IS”
+AND WITH ALL FAULTS, AND DISCLAIMS ALL WARRANTIES, EXPRESS AND IMPLIED, INCLUDING WITHOUT LIMITATION ANY
+IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT OF THIRD
+PARTY INTELLECTUAL PROPERTY RIGHTS.
+These resources are intended for skilled developers designing with TI products. You are solely responsible for (1) selecting the appropriate
+TI products for your application, (2) designing, validating and testing your application, and (3) ensuring your application meets applicable
+standards, and any other safety, security, regulatory or other requirements.
+These resources are subject to change without notice. TI grants you permission to use these resources only for development of an
+application that uses the TI products described in the resource. Other reproduction and display of these resources is prohibited. No license
+is granted to any other TI intellectual property right or to any third party intellectual property right. TI disclaims responsibility for, and you fully
+indemnify TI and its representatives against any claims, damages, costs, losses, and liabilities arising out of your use of these resources.
+TI’s products are provided subject to TI’s Terms of Sale, TI’s General Quality Guidelines, or other applicable terms available either on
+ti.com or provided in conjunction with such TI products. TI’s provision of these resources does not expand or otherwise alter TI’s applicable
+warranties or warranty disclaimers for TI products. Unless TI explicitly designates a product as custom or customer-specified, TI products
+are standard, catalog, general purpose devices.
+TI objects to and rejects any additional or different terms you may propose.
+IMPORTANT NOTICE
+
+                                                Copyright © 2026, Texas Instruments Incorporated
+                                                                Last updated 10/2025
+

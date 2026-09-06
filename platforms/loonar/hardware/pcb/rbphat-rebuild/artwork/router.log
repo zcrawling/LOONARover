@@ -1,0 +1,54 @@
+2026-09-05 20:44:42.740 INFO   Freerouting v2.4.1 (build-date: 2026-09-03)
+2026-09-05 20:44:44.421 INFO   [CB3AF4\31799A] Loading board file 'router.dsn'...
+2026-09-05 20:44:44.602 INFO   Layer 'In1.Cu' has been automatically configured as a dedicated power plane because it contains a large conduction area covering >50% of the board.
+2026-09-05 20:44:44.603 INFO   Layer 'In2.Cu' has been automatically configured as a dedicated power plane because it contains a large conduction area covering >50% of the board.
+2026-09-05 20:44:44.713 INFO   [CB3AF4\31799A] Job 'CB3AF4\31799A' started at 2026-09-05T11:44:44.712667159Z.
+2026-09-05 20:44:45.187 INFO   [CB3AF4\31799A] Fanout stage started on board '58eee1db71de1c95aff7c0f033c4a70d' with 143 of 206 SMD pins needing fanout (57 already connected, 6 netless).
+2026-09-05 20:45:08.719 WARN   BasicBoard.normalizeTraces: reached 2000 iterations for net '+3V3_PI' — stopping to prevent hang. The board geometry for this net may be oscillating (split/combine cycle); traces are kept as-is and further normalization for this net is suppressed on this board candidate.
+2026-09-05 20:45:10.117 INFO   [CB3AF4\31799A] Fanout pass #1 on board 'e739e1b93bec180ca9e645a812eeb246' completed in 24.61 seconds with 72 SMD pins fanouted, 45 not routed, 0 insert errors, +0 extra vias (0 SMD pins still to check in pass, ripup costs=100).
+2026-09-05 20:45:13.108 INFO   [CB3AF4\31799A] Fanout pass #2 on board 'bf4b3b538bc7277f0bd7a30d0a13acf5' completed in 2.96 seconds with 9 SMD pins fanouted, 60 not routed, 0 insert errors, +0 extra vias (0 SMD pins still to check in pass, ripup costs=200).
+2026-09-05 20:45:16.023 INFO   [CB3AF4\31799A] Fanout pass #3 on board '9b95a2b0ba8474d8feb0789a7f32039f' completed in 2.89 seconds with 3 SMD pins fanouted, 59 not routed, 0 insert errors, +0 extra vias (0 SMD pins still to check in pass, ripup costs=300).
+2026-09-05 20:45:18.379 INFO   [CB3AF4\31799A] Fanout pass #4 on board 'f1ccd18987c9f4d6253e7b92ed813e87' completed in 2.34 seconds with 3 SMD pins fanouted, 59 not routed, 0 insert errors, +0 extra vias (0 SMD pins still to check in pass, ripup costs=400).
+2026-09-05 20:45:20.304 INFO   [CB3AF4\31799A] Fanout pass #5 on board 'c20cbad31e9af2e6c261a1c00b458f93' completed in 1.91 seconds with 3 SMD pins fanouted, 59 not routed, 0 insert errors, +0 extra vias (0 SMD pins still to check in pass, ripup costs=500).
+2026-09-05 20:45:22.301 INFO   [CB3AF4\31799A] Fanout pass #6 on board '4a959d8d071692b337ab048dd7632f79' completed in 1.98 seconds with 3 SMD pins fanouted, 59 not routed, 0 insert errors, +0 extra vias (0 SMD pins still to check in pass, ripup costs=600).
+2026-09-05 20:45:22.301 INFO   Fanout stopped after 6 passes: no progress for 3 consecutive passes.
+2026-09-05 20:45:22.600 INFO   [CB3AF4\31799A] Fanout stage completed: started with 200 total SMD pins, completed in 37.13 seconds, escaped pins: 164/200 (82.0%), using 36.69 total CPU seconds, 138.75 GB total allocated, and 471.6 MB peak heap usage.
+2026-09-05 20:45:22.621 INFO   [CB3AF4\31799A] Auto-routing stage started on board '4a959d8d071692b337ab048dd7632f79' for 29 unrouted items.
+2026-09-05 20:45:31.261 INFO   [CB3AF4\31799A] Auto-routing pass #1 on board '4a959d8d071692b337ab048dd7632f79' was completed in 7.88 seconds with score 896.93 (8 unrouted and 44 violations), using 44.78 CPU seconds and the job allocated 159.52 GB of memory so far.
+2026-09-05 20:45:34.220 INFO   [CB3AF4\31799A] Auto-routing pass #2 on board '1e368ef8cf8b4162624c5fc04cab1649' was completed in 2.21 seconds with score 896.93 (8 unrouted and 44 violations), using 47.74 CPU seconds and the job allocated 169.59 GB of memory so far.
+2026-09-05 20:45:38.722 INFO   [CB3AF4\31799A] Auto-routing pass #3 on board '382a4f66b8d93c1cdd1a58f45cc346d2' was completed in 3.81 seconds with score 903.06 (7 unrouted and 44 violations), using 51.66 CPU seconds and the job allocated 180.83 GB of memory so far.
+2026-09-05 20:45:41.156 INFO   [CB3AF4\31799A] Auto-routing pass #4 on board 'c20fd03f369e3ce35619d7110c572023' was completed in 1.70 seconds with score 896.93 (8 unrouted and 44 violations), using 54.59 CPU seconds and the job allocated 190.55 GB of memory so far.
+2026-09-05 20:45:45.015 INFO   [CB3AF4\31799A] Auto-routing pass #5 on board '6b8d670155be9e2ef587cce111a4ef8f' was completed in 3.10 seconds with score 903.06 (7 unrouted and 44 violations), using 58.52 CPU seconds and the job allocated 202.88 GB of memory so far.
+2026-09-05 20:45:48.642 INFO   [CB3AF4\31799A] Auto-routing pass #6 on board 'e1936454aeb525550eee0a52a56f8a1b' was completed in 2.94 seconds with score 903.06 (7 unrouted and 44 violations), using 61.46 CPU seconds and the job allocated 211.54 GB of memory so far.
+2026-09-05 20:45:52.057 INFO   [CB3AF4\31799A] Auto-routing pass #7 on board '8b452194b4639fbe2f8ce1085996215f' was completed in 2.73 seconds with score 903.06 (7 unrouted and 44 violations), using 65.37 CPU seconds and the job allocated 223.93 GB of memory so far.
+2026-09-05 20:45:55.582 INFO   [CB3AF4\31799A] Auto-routing pass #8 on board 'b348bd8e5aa655a66abfdb0b73377b8d' was completed in 2.74 seconds with score 903.06 (7 unrouted and 44 violations), using 68.31 CPU seconds and the job allocated 232.58 GB of memory so far.
+2026-09-05 20:45:58.932 INFO   [CB3AF4\31799A] Auto-routing pass #9 on board 'c277e31a98af793e30fb00c0460b8d71' was completed in 2.63 seconds with score 903.06 (7 unrouted and 44 violations), using 72.23 CPU seconds and the job allocated 245.26 GB of memory so far.
+2026-09-05 20:46:02.312 INFO   [CB3AF4\31799A] Auto-routing pass #10 on board '2ea79db80aaca8c66137470a091212ab' was completed in 2.62 seconds with score 903.06 (7 unrouted and 44 violations), using 75.17 CPU seconds and the job allocated 254.48 GB of memory so far.
+2026-09-05 20:46:05.736 INFO   [CB3AF4\31799A] Auto-routing pass #11 on board '521b1521eaae5f8f9bf490989bf70930' was completed in 2.70 seconds with score 903.06 (7 unrouted and 44 violations), using 78.09 CPU seconds and the job allocated 263.71 GB of memory so far.
+2026-09-05 20:46:09.606 INFO   [CB3AF4\31799A] Auto-routing pass #12 on board '16b5c33c7351ef4664edece0248601d7' was completed in 2.77 seconds with score 903.06 (7 unrouted and 44 violations), using 81.99 CPU seconds and the job allocated 275.76 GB of memory so far.
+2026-09-05 20:46:13.063 INFO   [CB3AF4\31799A] Auto-routing pass #13 on board '95970254e50511cf38c20b27bf03ac47' was completed in 2.69 seconds with score 903.06 (7 unrouted and 44 violations), using 85.90 CPU seconds and the job allocated 288.08 GB of memory so far.
+2026-09-05 20:46:16.528 INFO   [CB3AF4\31799A] Auto-routing pass #14 on board '35c029e2fc27b86ce9faeabedcf99301' was completed in 2.73 seconds with score 903.06 (7 unrouted and 44 violations), using 88.81 CPU seconds and the job allocated 297.05 GB of memory so far.
+2026-09-05 20:46:20.296 INFO   [CB3AF4\31799A] Auto-routing pass #15 on board '960d64ccd3b832ea95a9970d740fd668' was completed in 3.03 seconds with score 903.06 (7 unrouted and 44 violations), using 92.60 CPU seconds and the job allocated 308.36 GB of memory so far.
+2026-09-05 20:46:23.992 INFO   [CB3AF4\31799A] Auto-routing pass #16 on board '62112c8c0ed6523f7b0446ffac1a5932' was completed in 2.94 seconds with score 903.06 (7 unrouted and 44 violations), using 96.49 CPU seconds and the job allocated 319.92 GB of memory so far.
+2026-09-05 20:46:27.610 INFO   [CB3AF4\31799A] Auto-routing pass #17 on board 'ed2ba00e776a8af3dea73173b0b308ba' was completed in 2.82 seconds with score 903.06 (7 unrouted and 44 violations), using 99.43 CPU seconds and the job allocated 328.21 GB of memory so far.
+2026-09-05 20:46:30.957 INFO   [CB3AF4\31799A] Auto-routing pass #18 on board '2dda56862eb56e4a987adf3685fdfeab' was completed in 2.62 seconds with score 903.06 (7 unrouted and 44 violations), using 103.35 CPU seconds and the job allocated 340.99 GB of memory so far.
+2026-09-05 20:46:31.001 INFO   [CB3AF4\31799A] The router's best score (903.06) has not improved by more than 0.5 points since pass #8. Stopping the auto-router after 18 passes (7 items still unconnected).
+The following connections could not be routed -- please review your design (e.g. check pad clearances, trace width rules, and available routing space):
+  Net '+3V3_PI' (3 unrouted connections):
+    - U302-1  ->  C304-1
+    - R4-1  ->  U3-3
+    - R100-1  ->  C200-1
+  Net '+3V3_ANA' (4 unrouted connections):
+    - U2-6  ->  U2-3
+    - C305-1  ->  U301-8
+    - C303-1  ->  C302-1
+    - C303-1  ->  U301-8
+2026-09-05 20:46:31.693 INFO   [CB3AF4\31799A] Auto-routing stage completed: started with 99 unrouted nets, completed in 106.53 seconds, final score: 903.06 (7 unrouted and 44 violations), using 103.35 total CPU seconds, 340.99 GB total allocated, and 541.4 MB peak heap usage.
+2026-09-05 20:46:32.031 INFO   [CB3AF4\31799A] Optimization stage started on board '0fd3ae32c4e7f0be934a9d36b3c94ea7' with score 903.06 (7 unrouted and 44 violations).
+2026-09-05 20:47:07.491 INFO   [CB3AF4\31799A] Stopping optimization pass #1 early after 50 consecutive items could not be improved.
+2026-09-05 20:47:07.857 INFO   [CB3AF4\31799A] Optimizer pass #1 on board 'b646ca3dcb28d13e54507b30ec832bfb' was completed in 34.72 seconds with the score of 903.06 (7 unrouted and 44 violations).
+2026-09-05 20:47:08.184 INFO   [CB3AF4\31799A] Stopping optimizer because the improvement in this pass (0.0000%) is below the threshold (1.00%).
+2026-09-05 20:47:08.512 INFO   [CB3AF4\31799A] Optimization stage completed: started with score 903.06 (7 unrouted and 44 violations), completed in 36.16 seconds, final score: 903.06 (7 unrouted and 44 violations), using 35.35 total CPU seconds, 125.84 GB total allocated, and 538.8 MB peak heap usage.
+2026-09-05 20:47:08.527 INFO   [CB3AF4\31799A] Job 'CB3AF4\31799A' finished with state: COMPLETED (elapsed: 2 minutes 23.81 seconds, finished at UTC: 2026-09-05T11:47:08.526597317Z).
+2026-09-05 20:47:08.781 INFO   Saving output file '/home/sb/LOONAR/platforms/loonar/hardware/pcb/rbphat-rebuild/artwork/routed.ses' (SES)...
+2026-09-05 20:47:08.783 INFO   Successfully saved output file '/home/sb/LOONAR/platforms/loonar/hardware/pcb/rbphat-rebuild/artwork/routed.ses' (45491 bytes).

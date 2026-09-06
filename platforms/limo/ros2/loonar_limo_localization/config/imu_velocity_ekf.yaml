@@ -1,0 +1,41 @@
+# Physical LIMO estimator: no ToF, LiDAR, SLAM, map, or global correction.
+#
+# Initial LOONAR-equivalent local odometry configuration:
+# - /wheel/odom contributes forward velocity (vx) only.
+# - /imu contributes gyro z (wz) as the heading-rate measurement.
+# Wheel pose/yaw and IMU orientation are deliberately excluded. They are
+# integrated by the EKF instead of being double-fused as pose plus velocity.
+# Recorded 2026-09-05 runs show uncalibrated differential wheel yaw greatly
+# overstates physical turning (left curve: gyro ~190 deg, old EKF ~368 deg).
+# Do not use wheel yaw until left/right scales and effective track are measured.
+ekf_filter_node:
+  ros__parameters:
+    frequency: 50.0
+    sensor_timeout: 0.2
+    two_d_mode: true
+    publish_tf: true
+    print_diagnostics: true
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: odom
+
+    odom0: /wheel/odom
+    # x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az
+    odom0_config: [false, false, false,
+                   false, false, false,
+                   true,  false, false,
+                   false, false, false,
+                   false, false, false]
+    odom0_differential: false
+    odom0_relative: false
+    odom0_queue_size: 10
+
+    imu0: /imu
+    imu0_config: [false, false, false,
+                  false, false, false,
+                  false, false, false,
+                  false, false, true,
+                  false, false, false]
+    imu0_differential: false
+    imu0_relative: false
+    imu0_queue_size: 20

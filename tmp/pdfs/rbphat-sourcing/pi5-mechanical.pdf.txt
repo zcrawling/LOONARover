@@ -1,0 +1,56 @@
+                                                        85
+
+                                                        58
+
+                                                        29
+
+                                                        3.5               Ø3                6
+
+                                                                                                                            Note:
+
+                                                                                                                            All dimensions in mm
+
+                                                                                                                            All dimensions are approximate and for reference purposes only.
+                                                                                                                            The dimensions shown should not be used for producing
+                                                                                                                            production data
+
+                                                                                                                            The dimensions are subject to part and manufacturing tolerances
+
+                                                                                                                            Not all of the board components are shown. Please reference a
+               49                                                                                                           physical board for representation of componentry
+
+                                                                                                                            Dimensions may be subject to change
+
+
+                                                                                                           29.1   47   56
+
+
+
+
+                                 6
+                    18.4 13.3                                                                       10.2
+
+
+
+
+                                       11.2                                    Ø2.7             6
+
+                                                25.8
+
+                                                39.2
+
+
+
+
+                                0.45      4.1     3.2         3.4   4.4               4.1
+
+
+
+
+                                                                                                             3
+
+
+
+
+Raspberry Pi Ltd     Drawing: Raspberry Pi 5                                                                                                                                           Scale: 1:1 @A4
+

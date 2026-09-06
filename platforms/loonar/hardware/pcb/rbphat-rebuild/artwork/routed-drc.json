@@ -1,0 +1,784 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-09-05T20:49:28",
+    "ignored_checks": [
+        {
+            "description": "Footprint has no courtyard defined",
+            "key": "missing_courtyard"
+        },
+        {
+            "description": "Track endpoint not centered on via",
+            "key": "track_not_centered_on_via"
+        },
+        {
+            "description": "Tuning profile track geometries",
+            "key": "tuning_profile_track_geometries"
+        },
+        {
+            "description": "Footprint doesn't match symbol's footprint filters",
+            "key": "footprint_filters_mismatch"
+        },
+        {
+            "description": "Footprint component type doesn't match footprint pads",
+            "key": "footprint_type_mismatch"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning"
+    ],
+    "kicad_version": "10.0.4",
+    "schematic_parity": [],
+    "source": "rbphat.kicad_pcb",
+    "unconnected_items": [
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [+3V3_PI] on F.Cu, length 2.7250 mm",
+                    "pos": {
+                        "x": 111.775,
+                        "y": 126.0
+                    },
+                    "uuid": "ce8351fe-0429-4f82-9b62-5f4337256335"
+                },
+                {
+                    "description": "Track [+3V3_PI] on F.Cu, length 3.0759 mm",
+                    "pos": {
+                        "x": 107.175,
+                        "y": 122.5
+                    },
+                    "uuid": "213e1304-e351-4075-8ffd-a08d1828f000"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 1 [+3V3_PI] of U302 on F.Cu",
+                    "pos": {
+                        "x": 116.8,
+                        "y": 123.025
+                    },
+                    "uuid": "2d04fc7c-a096-4f83-98ac-2361e0e2ce0c"
+                },
+                {
+                    "description": "Track [+3V3_PI] on F.Cu, length 3.0000 mm",
+                    "pos": {
+                        "x": 115.0,
+                        "y": 125.775
+                    },
+                    "uuid": "e4663588-ba9b-4b6e-989f-f96f34f4076e"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [+3V3_PI] on F.Cu, length 0.7801 mm",
+                    "pos": {
+                        "x": 136.7766,
+                        "y": 120.0
+                    },
+                    "uuid": "61e3f053-45a8-4783-a28d-7700b30c3777"
+                },
+                {
+                    "description": "Track [+3V3_PI] on F.Cu, length 3.6622 mm",
+                    "pos": {
+                        "x": 135.1267,
+                        "y": 135.3017
+                    },
+                    "uuid": "b4231044-3b1d-4135-8ed1-6e2310842db7"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 8 [+3V3_ANA] of U301 on F.Cu",
+                    "pos": {
+                        "x": 120.8,
+                        "y": 131.0
+                    },
+                    "uuid": "0a3570f8-0290-4746-a793-ec07d4b75ab8"
+                },
+                {
+                    "description": "Track [+3V3_ANA] on F.Cu, length 2.3897 mm",
+                    "pos": {
+                        "x": 121.6835,
+                        "y": 127.0
+                    },
+                    "uuid": "310af0d6-9f50-417d-9fd3-09efad309cc4"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 8 [+3V3_ANA] of U301 on F.Cu",
+                    "pos": {
+                        "x": 120.8,
+                        "y": 131.0
+                    },
+                    "uuid": "0a3570f8-0290-4746-a793-ec07d4b75ab8"
+                },
+                {
+                    "description": "Pad 1 [+3V3_ANA] of C303 on F.Cu",
+                    "pos": {
+                        "x": 127.0,
+                        "y": 132.775
+                    },
+                    "uuid": "c00f9021-c7ee-48c3-a227-0098b5d50cb7"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 6 [+3V3_ANA] of U2 on F.Cu",
+                    "pos": {
+                        "x": 124.1,
+                        "y": 114.35
+                    },
+                    "uuid": "97dafa04-030e-453f-98d5-e755131dbeed"
+                },
+                {
+                    "description": "Track [+3V3_ANA] on F.Cu, length 0.0021 mm",
+                    "pos": {
+                        "x": 121.9,
+                        "y": 115.6521
+                    },
+                    "uuid": "c5c10070-dc93-4553-8639-f6496969dc55"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 1 [+3V3_ANA] of C303 on F.Cu",
+                    "pos": {
+                        "x": 127.0,
+                        "y": 132.775
+                    },
+                    "uuid": "c00f9021-c7ee-48c3-a227-0098b5d50cb7"
+                },
+                {
+                    "description": "Pad 1 [+3V3_ANA] of C302 on F.Cu",
+                    "pos": {
+                        "x": 129.0,
+                        "y": 138.775
+                    },
+                    "uuid": "aff46de9-63b7-4a69-9d33-cbbde0e0dc4d"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        }
+    ],
+    "violations": [
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/Battery sensing and I2C isolation/ADC_SDA] on F.Cu, length 0.0959 mm",
+                    "pos": {
+                        "x": 121.2,
+                        "y": 124.325
+                    },
+                    "uuid": "1a8d41c9-4fa0-413e-89dc-3d3aed79ea81"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/Battery sensing and I2C isolation/ADC_SDA] on F.Cu, length 0.2367 mm",
+                    "pos": {
+                        "x": 125.1576,
+                        "y": 124.3928
+                    },
+                    "uuid": "6b3ddd1e-889e-4df1-a031-cf3a22759e6d"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/Battery sensing and I2C isolation/ADC_SDA] on F.Cu, length 3.8898 mm",
+                    "pos": {
+                        "x": 121.2678,
+                        "y": 124.3928
+                    },
+                    "uuid": "b7546843-35c4-4f95-a285-dcc3fb8849d7"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/Battery sensing and I2C isolation/ADC_SCL] on F.Cu, length 0.9189 mm",
+                    "pos": {
+                        "x": 124.5,
+                        "y": 123.801
+                    },
+                    "uuid": "20ef65c9-4818-4114-ae12-79ed0174efcf"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/Battery sensing and I2C isolation/ADC_SCL] on F.Cu, length 0.0038 mm",
+                    "pos": {
+                        "x": 123.5811,
+                        "y": 123.801
+                    },
+                    "uuid": "269832ac-1063-4c15-864d-115bb3536b52"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/Battery sensing and I2C isolation/ADC_SCL] on F.Cu, length 1.3694 mm",
+                    "pos": {
+                        "x": 122.669,
+                        "y": 123.7746
+                    },
+                    "uuid": "820c5dc3-99bf-4190-aa58-ce34fd821163"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/Battery sensing and I2C isolation/ADC_SCL] on F.Cu, length 0.1409 mm",
+                    "pos": {
+                        "x": 121.2996,
+                        "y": 123.7746
+                    },
+                    "uuid": "a663f441-9c5b-44cb-93af-7250ff3d4783"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/Battery sensing and I2C isolation/ADC_SCL] on F.Cu, length 0.2800 mm",
+                    "pos": {
+                        "x": 122.949,
+                        "y": 123.7746
+                    },
+                    "uuid": "b38dc1c5-c31a-4920-86fe-b7a2ecfbbddb"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/PAY full-duplex RS-422/PAY_RX+] on F.Cu, length 1.1746 mm",
+                    "pos": {
+                        "x": 153.499,
+                        "y": 140.099
+                    },
+                    "uuid": "4dba8055-457f-4477-9912-a6eb0b240c9b"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/PAY full-duplex RS-422/PAY_RX+] on F.Cu, length 6.2248 mm",
+                    "pos": {
+                        "x": 155.101,
+                        "y": 140.6242
+                    },
+                    "uuid": "cdaf766c-6334-4d8d-9697-6258e618b2ac"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/PAY full-duplex RS-422/PAY_RX+] on F.Cu, length 0.8828 mm",
+                    "pos": {
+                        "x": 161.3258,
+                        "y": 140.6242
+                    },
+                    "uuid": "ebf84100-6630-451b-823e-58185d6e4a46"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/PAY full-duplex RS-422/PAY_RX+] on F.Cu, length 0.0693 mm",
+                    "pos": {
+                        "x": 152.3244,
+                        "y": 140.099
+                    },
+                    "uuid": "fbac5afb-0479-4480-a443-8b141ec0016d"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/PAY full-duplex RS-422/PAY_RX-] on F.Cu, length 1.1383 mm",
+                    "pos": {
+                        "x": 156.449,
+                        "y": 136.8373
+                    },
+                    "uuid": "91543b9d-05f9-4a27-8fe7-b58d36f71996"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/CTRL full-duplex RS-422/CTRL_RX+] on F.Cu, length 5.6895 mm",
+                    "pos": {
+                        "x": 155.6363,
+                        "y": 120.6242
+                    },
+                    "uuid": "221e862c-92af-4f97-bd96-b027f6fed962"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/CTRL full-duplex RS-422/CTRL_RX+] on F.Cu, length 0.8828 mm",
+                    "pos": {
+                        "x": 161.3258,
+                        "y": 120.6242
+                    },
+                    "uuid": "2908cc53-3dd8-444a-93dd-9f304b9eb790"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/CTRL full-duplex RS-422/CTRL_RX+] on F.Cu, length 1.8807 mm",
+                    "pos": {
+                        "x": 154.2051,
+                        "y": 120.099
+                    },
+                    "uuid": "4d04ca29-8025-4969-a939-6b8309810e68"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/CTRL full-duplex RS-422/CTRL_RX+] on F.Cu, length 0.0693 mm",
+                    "pos": {
+                        "x": 152.3244,
+                        "y": 120.099
+                    },
+                    "uuid": "9a537737-0ca4-46fd-a0b8-360fabe78ea2"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/CTRL full-duplex RS-422/CTRL_RX-] on F.Cu, length 0.6008 mm",
+                    "pos": {
+                        "x": 156.8738,
+                        "y": 116.1238
+                    },
+                    "uuid": "3c497ce9-f6ee-46a3-952a-0d22ac425337"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/CTRL full-duplex RS-422/CTRL_RX-] on F.Cu, length 0.7135 mm",
+                    "pos": {
+                        "x": 156.8738,
+                        "y": 116.8373
+                    },
+                    "uuid": "68713549-dc2b-4ad6-bdb3-8b16dc6b21b8"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/Battery sensing and I2C isolation/BAT_DIV] on F.Cu, length 0.1409 mm",
+                    "pos": {
+                        "x": 120.0004,
+                        "y": 139.7996
+                    },
+                    "uuid": "4650c23f-4c92-42f0-84b0-cf6ad41fc9c6"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/Battery sensing and I2C isolation/BAT_DIV] on F.Cu, length 1.0986 mm",
+                    "pos": {
+                        "x": 118.9018,
+                        "y": 139.7996
+                    },
+                    "uuid": "ce130cf5-0eec-4ec2-9d73-df8481fb9624"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/Battery sensing and I2C isolation/BAT_ADC] on F.Cu, length 0.7559 mm",
+                    "pos": {
+                        "x": 120.8559,
+                        "y": 140.35
+                    },
+                    "uuid": "6f845406-0cad-4f73-831a-7fbe7f6ca1b0"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/Battery sensing and I2C isolation/BAT_ADC] on F.Cu, length 1.6295 mm",
+                    "pos": {
+                        "x": 123.5459,
+                        "y": 130.5246
+                    },
+                    "uuid": "73161ee9-508b-4680-9906-2549c41add17"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/Battery sensing and I2C isolation/BAT_ADC] on F.Cu, length 1.3820 mm",
+                    "pos": {
+                        "x": 121.8331,
+                        "y": 139.3728
+                    },
+                    "uuid": "b56e1485-6652-412a-b2ab-6c04332bd45a"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/Battery sensing and I2C isolation/BAT_ADC] on F.Cu, length 0.0348 mm",
+                    "pos": {
+                        "x": 125.1754,
+                        "y": 130.5246
+                    },
+                    "uuid": "c96bd234-a80c-4960-959f-ac1ec36f2866"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/CTRL full-duplex RS-422/CTRL_TX-] on F.Cu, length 6.0258 mm",
+                    "pos": {
+                        "x": 155.3,
+                        "y": 121.8742
+                    },
+                    "uuid": "3b63a5db-ccba-44bf-825e-68361dd9236a"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/CTRL full-duplex RS-422/CTRL_TX-] on F.Cu, length 2.5518 mm",
+                    "pos": {
+                        "x": 152.225,
+                        "y": 121.351
+                    },
+                    "uuid": "ae5ff5d7-1bc6-49ca-b9b1-4fed2df1f2d4"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/CTRL full-duplex RS-422/CTRL_TX-] on F.Cu, length 0.7399 mm",
+                    "pos": {
+                        "x": 154.7768,
+                        "y": 121.351
+                    },
+                    "uuid": "c51758f1-807c-4e60-9c3e-e61062e49c63"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/CTRL full-duplex RS-422/CTRL_TX-] on F.Cu, length 0.8828 mm",
+                    "pos": {
+                        "x": 161.3258,
+                        "y": 121.8742
+                    },
+                    "uuid": "dd63c18a-d0e6-4e1a-8f82-26d72f02287f"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/CTRL full-duplex RS-422/CTRL_TX_BUF] on F.Cu, length 1.5504 mm",
+                    "pos": {
+                        "x": 139.175,
+                        "y": 119.3746
+                    },
+                    "uuid": "80f2eccc-a17e-40b9-ad63-b1160fcc1821"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/CTRL full-duplex RS-422/CTRL_TX_BUF] on F.Cu, length 0.4591 mm",
+                    "pos": {
+                        "x": 137.6246,
+                        "y": 119.3746
+                    },
+                    "uuid": "9ab11299-3026-48ec-b072-31d7364e7cbd"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/PAY full-duplex RS-422/PAY_TX-] on F.Cu, length 6.0258 mm",
+                    "pos": {
+                        "x": 155.3,
+                        "y": 141.8742
+                    },
+                    "uuid": "620cac7f-4214-48ac-a6ed-cfb15734eedd"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/PAY full-duplex RS-422/PAY_TX-] on F.Cu, length 0.7399 mm",
+                    "pos": {
+                        "x": 154.7768,
+                        "y": 141.351
+                    },
+                    "uuid": "6a2d6976-e698-4f10-b5ea-0a45710a5256"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/PAY full-duplex RS-422/PAY_TX-] on F.Cu, length 0.8828 mm",
+                    "pos": {
+                        "x": 161.3258,
+                        "y": 141.8742
+                    },
+                    "uuid": "861fd187-73af-4b85-82f8-aae73b16bb42"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/PAY full-duplex RS-422/PAY_TX-] on F.Cu, length 2.5518 mm",
+                    "pos": {
+                        "x": 152.225,
+                        "y": 141.351
+                    },
+                    "uuid": "a5232436-1592-4e00-b39e-7fdaedcc7288"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/RS_STATUS_UNUSED] on F.Cu, length 0.1762 mm",
+                    "pos": {
+                        "x": 128.2246,
+                        "y": 111.1246
+                    },
+                    "uuid": "72af63f8-143e-4ad9-8ede-f2901164378a"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/RS_STATUS_UNUSED] on F.Cu, length 0.9007 mm",
+                    "pos": {
+                        "x": 129.1253,
+                        "y": 111.1246
+                    },
+                    "uuid": "acb9659f-416e-46c6-b129-52c740340364"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/PAY full-duplex RS-422/PAY_TX_BUF] on F.Cu, length 1.5504 mm",
+                    "pos": {
+                        "x": 139.175,
+                        "y": 139.3746
+                    },
+                    "uuid": "01ce3fc0-4cc0-4416-9be2-1ce2c9075575"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        },
+        {
+            "description": "Track width (rule 'Track minimum' min width 0.2000 mm; actual 0.1874 mm)",
+            "items": [
+                {
+                    "description": "Track [/PAY full-duplex RS-422/PAY_TX_BUF] on F.Cu, length 0.4591 mm",
+                    "pos": {
+                        "x": 137.6246,
+                        "y": 139.3746
+                    },
+                    "uuid": "76065586-8c33-4a10-bde9-e8e93cb9b0b0"
+                }
+            ],
+            "severity": "error",
+            "type": "track_width"
+        }
+    ]
+}

@@ -1,0 +1,1034 @@
+[
+  {
+    "reference": "J1",
+    "value": "Pi 5 / H16 / gap19",
+    "mpn": "PRT-16763",
+    "footprint": "RBPHAT:GPIO_2x20_H16_Drill1.02",
+    "dnp": false,
+    "sheet": "rbphat",
+    "datasheet": "https://cdn.sparkfun.com/assets/0/b/8/5/2/DS-16763-2_X_20_Pin_Extended_GPIO_Header_-_Female_-_16mm_7.30mm.pdf",
+    "pins": {
+      "1": "+3V3_PI",
+      "2": null,
+      "3": "PI_SDA",
+      "4": null,
+      "5": "PI_SCL",
+      "6": "GND",
+      "7": "CTRL_TX",
+      "8": null,
+      "9": "GND",
+      "10": null,
+      "11": null,
+      "12": null,
+      "13": null,
+      "14": "GND",
+      "15": null,
+      "16": null,
+      "17": "+3V3_PI",
+      "18": null,
+      "19": null,
+      "20": "GND",
+      "21": null,
+      "22": null,
+      "23": null,
+      "24": null,
+      "25": "GND",
+      "26": null,
+      "27": null,
+      "28": null,
+      "29": "CTRL_RX",
+      "30": "GND",
+      "31": null,
+      "32": "PAY_TX",
+      "33": "PAY_RX",
+      "34": "GND",
+      "35": null,
+      "36": null,
+      "37": null,
+      "38": null,
+      "39": "GND",
+      "40": null
+    }
+  },
+  {
+    "reference": "U1",
+    "value": "LM66100DCKR",
+    "mpn": "LM66100DCKR",
+    "footprint": "RBPHAT:TI_DCK0006A",
+    "dnp": false,
+    "sheet": "rbphat",
+    "datasheet": "https://www.ti.com/lit/ds/symlink/lm66100.pdf",
+    "pins": {
+      "1": "+3V3_PI",
+      "2": "GND",
+      "3": "+3V3_RS",
+      "4": null,
+      "5": "RS_STATUS_UNUSED",
+      "6": "+3V3_RS"
+    }
+  },
+  {
+    "reference": "U2",
+    "value": "LM66100DCKR",
+    "mpn": "LM66100DCKR",
+    "footprint": "RBPHAT:TI_DCK0006A",
+    "dnp": false,
+    "sheet": "rbphat",
+    "datasheet": "https://www.ti.com/lit/ds/symlink/lm66100.pdf",
+    "pins": {
+      "1": "ANA_FEED",
+      "2": "GND",
+      "3": "+3V3_ANA",
+      "4": null,
+      "5": "ANA_STATUS_UNUSED",
+      "6": "+3V3_ANA"
+    }
+  },
+  {
+    "reference": "R7",
+    "value": "10k",
+    "mpn": "CRCW060310K0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "rbphat",
+    "datasheet": "https://www.vishay.com/docs/20035/dcrcwe3.pdf",
+    "pins": {
+      "1": "RS_STATUS_UNUSED",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "R8",
+    "value": "10k",
+    "mpn": "CRCW060310K0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "rbphat",
+    "datasheet": "https://www.vishay.com/docs/20035/dcrcwe3.pdf",
+    "pins": {
+      "1": "ANA_STATUS_UNUSED",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "R1",
+    "value": "22R pulse",
+    "mpn": "CRCW060322R0FKEAHP",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "rbphat",
+    "datasheet": "https://www.vishay.com/docs/20043/crcwhpe3.pdf",
+    "pins": {
+      "1": "+3V3_PI",
+      "2": "ANA_FEED"
+    }
+  },
+  {
+    "reference": "C1",
+    "value": "1u / 25V / X7R",
+    "mpn": "GRM188R71E105KA12D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "dnp": false,
+    "sheet": "rbphat",
+    "datasheet": "https://www.murata.com/products/productdetail?partno=GRM188R71E105KA12%23",
+    "pins": {
+      "1": "+3V3_PI",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "C2",
+    "value": "4.7u / 10V / X5R",
+    "mpn": "GRM188R61A475KE15D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "dnp": false,
+    "sheet": "rbphat",
+    "datasheet": "https://www.murata.com/products/productdetail?partno=GRM188R61A475KE15%23",
+    "pins": {
+      "1": "+3V3_RS",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "C3",
+    "value": "100u / 16V / 20%",
+    "mpn": "EEEFK1C101P",
+    "footprint": "RBPHAT:Panasonic_FK_D_6.3x5.8",
+    "dnp": false,
+    "sheet": "rbphat",
+    "datasheet": "https://api.pim.na.industrial.panasonic.com/file_stream/main/fileversion/3128",
+    "pins": {
+      "1": "+3V3_ANA",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "R2",
+    "value": "10k",
+    "mpn": "CRCW060310K0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "rbphat",
+    "datasheet": "https://www.vishay.com/docs/20035/dcrcwe3.pdf",
+    "pins": {
+      "1": "+3V3_RS",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "R3",
+    "value": "10k",
+    "mpn": "CRCW060310K0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "rbphat",
+    "datasheet": "https://www.vishay.com/docs/20035/dcrcwe3.pdf",
+    "pins": {
+      "1": "+3V3_ANA",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "U3",
+    "value": "TLV803ED29DBZR",
+    "mpn": "TLV803ED29DBZR",
+    "footprint": "RBPHAT:TI_DBZ0003A",
+    "dnp": false,
+    "sheet": "rbphat",
+    "datasheet": "https://www.ti.com/lit/ds/symlink/tlv803e.pdf",
+    "pins": {
+      "1": "GND",
+      "2": "POWER_GOOD",
+      "3": "+3V3_PI"
+    }
+  },
+  {
+    "reference": "R4",
+    "value": "10k",
+    "mpn": "CRCW060310K0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "rbphat",
+    "datasheet": "https://www.vishay.com/docs/20035/dcrcwe3.pdf",
+    "pins": {
+      "1": "+3V3_PI",
+      "2": "POWER_GOOD"
+    }
+  },
+  {
+    "reference": "R5",
+    "value": "100k",
+    "mpn": "CRCW0603100KFKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "rbphat",
+    "datasheet": "https://www.vishay.com/docs/20035/dcrcwe3.pdf",
+    "pins": {
+      "1": "POWER_GOOD",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "R6",
+    "value": "1k",
+    "mpn": "CRCW06031K00FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "rbphat",
+    "datasheet": "https://www.vishay.com/docs/20035/dcrcwe3.pdf",
+    "pins": {
+      "1": "+3V3_PI",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "C4",
+    "value": "100n / 16V / X7R",
+    "mpn": "GRM188R71C104KA01D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "dnp": false,
+    "sheet": "rbphat",
+    "datasheet": "https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23",
+    "pins": {
+      "1": "+3V3_PI",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "C5",
+    "value": "1u / 25V / X7R",
+    "mpn": "GRM188R71E105KA12D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "dnp": false,
+    "sheet": "rbphat",
+    "datasheet": "https://www.murata.com/products/productdetail?partno=GRM188R71E105KA12%23",
+    "pins": {
+      "1": "ANA_FEED",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "TP1",
+    "value": "ANA supply",
+    "mpn": "PCB feature - no purchased part",
+    "footprint": "RBPHAT:TestPoint_TestPoint_Pad_D1.5mm",
+    "dnp": false,
+    "sheet": "rbphat",
+    "datasheet": "",
+    "pins": {
+      "1": "+3V3_ANA"
+    }
+  },
+  {
+    "reference": "U100",
+    "value": "SN74LVC2G17DBVR",
+    "mpn": "SN74LVC2G17DBVR",
+    "footprint": "RBPHAT:TI_DBV0006A",
+    "dnp": false,
+    "sheet": "control",
+    "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc2g17.pdf",
+    "pins": {
+      "5": "+3V3_PI",
+      "1": "CTRL_TX",
+      "3": "CTRL_RO",
+      "2": "GND",
+      "6": "CTRL_TX_BUF",
+      "4": "CTRL_RX_BUF"
+    }
+  },
+  {
+    "reference": "U101",
+    "value": "THVD1451DR",
+    "mpn": "THVD1451DR",
+    "footprint": "RBPHAT:TI_D0008A",
+    "dnp": false,
+    "sheet": "control",
+    "datasheet": "https://www.ti.com/lit/ds/symlink/thvd1451.pdf",
+    "pins": {
+      "1": "CTRL_VCC",
+      "3": "CTRL_DI",
+      "2": "CTRL_RO",
+      "4": "GND",
+      "5": "CTRL_Y",
+      "6": "CTRL_Z",
+      "8": "CTRL_A",
+      "7": "CTRL_B"
+    }
+  },
+  {
+    "reference": "J2",
+    "value": "BM05B-GHS-TBT",
+    "mpn": "BM05B-GHS-TBT(LF)(SN)",
+    "footprint": "RBPHAT:Connector_JST_JST_GH_BM05B-GHS-TBT_1x05-1MP_P1.25mm_Vertical",
+    "dnp": false,
+    "sheet": "control",
+    "datasheet": "https://www.jst-mfg.com/product/pdf/eng/eGH.pdf",
+    "pins": {
+      "1": "CTRL_TX+",
+      "2": "CTRL_TX-",
+      "3": "CTRL_RX+",
+      "4": "CTRL_RX-",
+      "5": "GND"
+    }
+  },
+  {
+    "reference": "R108",
+    "value": "0R / rail link",
+    "mpn": "CRCW06030000Z0EA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "control",
+    "datasheet": "https://www.vishay.com/docs/20035/dcrcwe3.pdf",
+    "pins": {
+      "1": "+3V3_RS",
+      "2": "CTRL_VCC"
+    }
+  },
+  {
+    "reference": "TP100",
+    "value": "CTRL_VCC",
+    "mpn": "PCB feature - no purchased part",
+    "footprint": "RBPHAT:TestPoint_TestPoint_Pad_D1.5mm",
+    "dnp": false,
+    "sheet": "control",
+    "datasheet": "",
+    "pins": {
+      "1": "CTRL_VCC"
+    }
+  },
+  {
+    "reference": "R100",
+    "value": "10k",
+    "mpn": "CRCW060310K0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "control",
+    "datasheet": "https://www.vishay.com/docs/20035/dcrcwe3.pdf",
+    "pins": {
+      "1": "+3V3_PI",
+      "2": "CTRL_TX"
+    }
+  },
+  {
+    "reference": "R101",
+    "value": "47R",
+    "mpn": "CRCW060347R0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "control",
+    "datasheet": "https://www.vishay.com/docs/20035/dcrcwe3.pdf",
+    "pins": {
+      "1": "CTRL_TX_BUF",
+      "2": "CTRL_DI"
+    }
+  },
+  {
+    "reference": "R102",
+    "value": "47R",
+    "mpn": "CRCW060347R0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "control",
+    "datasheet": "https://www.vishay.com/docs/20035/dcrcwe3.pdf",
+    "pins": {
+      "1": "CTRL_RX_BUF",
+      "2": "CTRL_RX"
+    }
+  },
+  {
+    "reference": "R103",
+    "value": "10R pulse",
+    "mpn": "CRCW0603010RJNEAHP",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "control",
+    "datasheet": "https://www.vishay.com/docs/20043/crcwhpe3.pdf",
+    "pins": {
+      "1": "CTRL_Y",
+      "2": "CTRL_TX+"
+    }
+  },
+  {
+    "reference": "R104",
+    "value": "10R pulse",
+    "mpn": "CRCW0603010RJNEAHP",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "control",
+    "datasheet": "https://www.vishay.com/docs/20043/crcwhpe3.pdf",
+    "pins": {
+      "1": "CTRL_Z",
+      "2": "CTRL_TX-"
+    }
+  },
+  {
+    "reference": "R105",
+    "value": "10R pulse",
+    "mpn": "CRCW0603010RJNEAHP",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "control",
+    "datasheet": "https://www.vishay.com/docs/20043/crcwhpe3.pdf",
+    "pins": {
+      "1": "CTRL_A",
+      "2": "CTRL_RX+"
+    }
+  },
+  {
+    "reference": "R106",
+    "value": "10R pulse",
+    "mpn": "CRCW0603010RJNEAHP",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "control",
+    "datasheet": "https://www.vishay.com/docs/20043/crcwhpe3.pdf",
+    "pins": {
+      "1": "CTRL_B",
+      "2": "CTRL_RX-"
+    }
+  },
+  {
+    "reference": "R107",
+    "value": "120R / DNP",
+    "mpn": "CRCW0603120RFKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": true,
+    "sheet": "control",
+    "datasheet": "https://www.vishay.com/docs/20035/dcrcwe3.pdf",
+    "pins": {
+      "1": "CTRL_RX+",
+      "2": "CTRL_RX-"
+    }
+  },
+  {
+    "reference": "D100",
+    "value": "CDSOT23-SM712",
+    "mpn": "CDSOT23-SM712",
+    "footprint": "RBPHAT:Bourns_CDSOT23_SM712",
+    "dnp": false,
+    "sheet": "control",
+    "datasheet": "https://www.bourns.com/pdfs/CDSOT23-SM712.pdf",
+    "pins": {
+      "1": "CTRL_TX+",
+      "2": "CTRL_TX-",
+      "3": "GND"
+    }
+  },
+  {
+    "reference": "D101",
+    "value": "CDSOT23-SM712",
+    "mpn": "CDSOT23-SM712",
+    "footprint": "RBPHAT:Bourns_CDSOT23_SM712",
+    "dnp": false,
+    "sheet": "control",
+    "datasheet": "https://www.bourns.com/pdfs/CDSOT23-SM712.pdf",
+    "pins": {
+      "1": "CTRL_RX+",
+      "2": "CTRL_RX-",
+      "3": "GND"
+    }
+  },
+  {
+    "reference": "C100",
+    "value": "100n / 16V / X7R",
+    "mpn": "GRM188R71C104KA01D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "dnp": false,
+    "sheet": "control",
+    "datasheet": "https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23",
+    "pins": {
+      "1": "+3V3_PI",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "C101",
+    "value": "100n / 16V / X7R",
+    "mpn": "GRM188R71C104KA01D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "dnp": false,
+    "sheet": "control",
+    "datasheet": "https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23",
+    "pins": {
+      "1": "CTRL_VCC",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "U200",
+    "value": "SN74LVC2G17DBVR",
+    "mpn": "SN74LVC2G17DBVR",
+    "footprint": "RBPHAT:TI_DBV0006A",
+    "dnp": false,
+    "sheet": "payload",
+    "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc2g17.pdf",
+    "pins": {
+      "5": "+3V3_PI",
+      "1": "PAY_TX",
+      "3": "PAY_RO",
+      "2": "GND",
+      "6": "PAY_TX_BUF",
+      "4": "PAY_RX_BUF"
+    }
+  },
+  {
+    "reference": "U201",
+    "value": "THVD1451DR",
+    "mpn": "THVD1451DR",
+    "footprint": "RBPHAT:TI_D0008A",
+    "dnp": false,
+    "sheet": "payload",
+    "datasheet": "https://www.ti.com/lit/ds/symlink/thvd1451.pdf",
+    "pins": {
+      "1": "PAY_VCC",
+      "3": "PAY_DI",
+      "2": "PAY_RO",
+      "4": "GND",
+      "5": "PAY_Y",
+      "6": "PAY_Z",
+      "8": "PAY_A",
+      "7": "PAY_B"
+    }
+  },
+  {
+    "reference": "J3",
+    "value": "BM05B-GHS-TBT",
+    "mpn": "BM05B-GHS-TBT(LF)(SN)",
+    "footprint": "RBPHAT:Connector_JST_JST_GH_BM05B-GHS-TBT_1x05-1MP_P1.25mm_Vertical",
+    "dnp": false,
+    "sheet": "payload",
+    "datasheet": "https://www.jst-mfg.com/product/pdf/eng/eGH.pdf",
+    "pins": {
+      "1": "PAY_TX+",
+      "2": "PAY_TX-",
+      "3": "PAY_RX+",
+      "4": "PAY_RX-",
+      "5": "GND"
+    }
+  },
+  {
+    "reference": "R208",
+    "value": "0R / rail link",
+    "mpn": "CRCW06030000Z0EA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "payload",
+    "datasheet": "https://www.vishay.com/docs/20035/dcrcwe3.pdf",
+    "pins": {
+      "1": "+3V3_RS",
+      "2": "PAY_VCC"
+    }
+  },
+  {
+    "reference": "TP200",
+    "value": "PAY_VCC",
+    "mpn": "PCB feature - no purchased part",
+    "footprint": "RBPHAT:TestPoint_TestPoint_Pad_D1.5mm",
+    "dnp": false,
+    "sheet": "payload",
+    "datasheet": "",
+    "pins": {
+      "1": "PAY_VCC"
+    }
+  },
+  {
+    "reference": "R200",
+    "value": "10k",
+    "mpn": "CRCW060310K0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "payload",
+    "datasheet": "https://www.vishay.com/docs/20035/dcrcwe3.pdf",
+    "pins": {
+      "1": "+3V3_PI",
+      "2": "PAY_TX"
+    }
+  },
+  {
+    "reference": "R201",
+    "value": "47R",
+    "mpn": "CRCW060347R0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "payload",
+    "datasheet": "https://www.vishay.com/docs/20035/dcrcwe3.pdf",
+    "pins": {
+      "1": "PAY_TX_BUF",
+      "2": "PAY_DI"
+    }
+  },
+  {
+    "reference": "R202",
+    "value": "47R",
+    "mpn": "CRCW060347R0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "payload",
+    "datasheet": "https://www.vishay.com/docs/20035/dcrcwe3.pdf",
+    "pins": {
+      "1": "PAY_RX_BUF",
+      "2": "PAY_RX"
+    }
+  },
+  {
+    "reference": "R203",
+    "value": "10R pulse",
+    "mpn": "CRCW0603010RJNEAHP",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "payload",
+    "datasheet": "https://www.vishay.com/docs/20043/crcwhpe3.pdf",
+    "pins": {
+      "1": "PAY_Y",
+      "2": "PAY_TX+"
+    }
+  },
+  {
+    "reference": "R204",
+    "value": "10R pulse",
+    "mpn": "CRCW0603010RJNEAHP",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "payload",
+    "datasheet": "https://www.vishay.com/docs/20043/crcwhpe3.pdf",
+    "pins": {
+      "1": "PAY_Z",
+      "2": "PAY_TX-"
+    }
+  },
+  {
+    "reference": "R205",
+    "value": "10R pulse",
+    "mpn": "CRCW0603010RJNEAHP",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "payload",
+    "datasheet": "https://www.vishay.com/docs/20043/crcwhpe3.pdf",
+    "pins": {
+      "1": "PAY_A",
+      "2": "PAY_RX+"
+    }
+  },
+  {
+    "reference": "R206",
+    "value": "10R pulse",
+    "mpn": "CRCW0603010RJNEAHP",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "payload",
+    "datasheet": "https://www.vishay.com/docs/20043/crcwhpe3.pdf",
+    "pins": {
+      "1": "PAY_B",
+      "2": "PAY_RX-"
+    }
+  },
+  {
+    "reference": "R207",
+    "value": "120R / DNP",
+    "mpn": "CRCW0603120RFKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": true,
+    "sheet": "payload",
+    "datasheet": "https://www.vishay.com/docs/20035/dcrcwe3.pdf",
+    "pins": {
+      "1": "PAY_RX+",
+      "2": "PAY_RX-"
+    }
+  },
+  {
+    "reference": "D200",
+    "value": "CDSOT23-SM712",
+    "mpn": "CDSOT23-SM712",
+    "footprint": "RBPHAT:Bourns_CDSOT23_SM712",
+    "dnp": false,
+    "sheet": "payload",
+    "datasheet": "https://www.bourns.com/pdfs/CDSOT23-SM712.pdf",
+    "pins": {
+      "1": "PAY_TX+",
+      "2": "PAY_TX-",
+      "3": "GND"
+    }
+  },
+  {
+    "reference": "D201",
+    "value": "CDSOT23-SM712",
+    "mpn": "CDSOT23-SM712",
+    "footprint": "RBPHAT:Bourns_CDSOT23_SM712",
+    "dnp": false,
+    "sheet": "payload",
+    "datasheet": "https://www.bourns.com/pdfs/CDSOT23-SM712.pdf",
+    "pins": {
+      "1": "PAY_RX+",
+      "2": "PAY_RX-",
+      "3": "GND"
+    }
+  },
+  {
+    "reference": "C200",
+    "value": "100n / 16V / X7R",
+    "mpn": "GRM188R71C104KA01D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "dnp": false,
+    "sheet": "payload",
+    "datasheet": "https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23",
+    "pins": {
+      "1": "+3V3_PI",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "C201",
+    "value": "100n / 16V / X7R",
+    "mpn": "GRM188R71C104KA01D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "dnp": false,
+    "sheet": "payload",
+    "datasheet": "https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23",
+    "pins": {
+      "1": "PAY_VCC",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "J4",
+    "value": "Battery sense only",
+    "mpn": "BM02B-GHS-TBT(LF)(SN)",
+    "footprint": "RBPHAT:Connector_JST_JST_GH_BM02B-GHS-TBT_1x02-1MP_P1.25mm_Vertical",
+    "dnp": false,
+    "sheet": "battery",
+    "datasheet": "https://www.jst-mfg.com/product/pdf/eng/eGH.pdf",
+    "pins": {
+      "1": "BAT_RAW",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "R300",
+    "value": "47k / 0.1%",
+    "mpn": "TNPW060347K0BEEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "battery",
+    "datasheet": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "pins": {
+      "1": "BAT_RAW",
+      "2": "BAT_MID"
+    }
+  },
+  {
+    "reference": "R301",
+    "value": "47k / 0.1%",
+    "mpn": "TNPW060347K0BEEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "battery",
+    "datasheet": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "pins": {
+      "1": "BAT_MID",
+      "2": "BAT_DIV"
+    }
+  },
+  {
+    "reference": "R302",
+    "value": "18k / 0.1%",
+    "mpn": "TNPW060318K0BEEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "battery",
+    "datasheet": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "pins": {
+      "1": "BAT_DIV",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "C300",
+    "value": "1u / 25V / X7R",
+    "mpn": "GRM188R71E105KA12D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "dnp": false,
+    "sheet": "battery",
+    "datasheet": "https://www.murata.com/products/productdetail?partno=GRM188R71E105KA12%23",
+    "pins": {
+      "1": "BAT_DIV",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "U300",
+    "value": "TMUX1511PWR",
+    "mpn": "TMUX1511PWR",
+    "footprint": "RBPHAT:TI_PW0014A",
+    "dnp": false,
+    "sheet": "battery",
+    "datasheet": "https://www.ti.com/lit/ds/symlink/tmux1511.pdf",
+    "pins": {
+      "14": "+3V3_ANA",
+      "1": "POWER_GOOD",
+      "2": "BAT_DIV",
+      "3": "BAT_ADC",
+      "4": "GND",
+      "10": "GND",
+      "13": "GND",
+      "7": "GND",
+      "5": null,
+      "6": null,
+      "9": null,
+      "8": null,
+      "12": null,
+      "11": null
+    }
+  },
+  {
+    "reference": "U301",
+    "value": "ADS1115IDGSR",
+    "mpn": "ADS1115IDGSR",
+    "footprint": "RBPHAT:TI_DGS0010A",
+    "dnp": false,
+    "sheet": "battery",
+    "datasheet": "https://www.ti.com/lit/ds/symlink/ads1115.pdf",
+    "pins": {
+      "8": "+3V3_ANA",
+      "4": "BAT_ADC",
+      "5": "GND",
+      "6": "GND",
+      "7": "GND",
+      "3": "GND",
+      "10": "ADC_SCL",
+      "9": "ADC_SDA",
+      "1": "GND",
+      "2": null
+    }
+  },
+  {
+    "reference": "R303",
+    "value": "47k / 0.1%",
+    "mpn": "TNPW060347K0BEEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "battery",
+    "datasheet": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "pins": {
+      "1": "BAT_ADC",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "C301",
+    "value": "1n / 50V / C0G",
+    "mpn": "GRM1885C1H102JA01D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "dnp": false,
+    "sheet": "battery",
+    "datasheet": "https://www.murata.com/products/productdetail?partno=GRM1885C1H102JA01%23",
+    "pins": {
+      "1": "BAT_ADC",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "U302",
+    "value": "TCA9517ADGKR",
+    "mpn": "TCA9517ADGKR",
+    "footprint": "RBPHAT:TI_DGK0008A",
+    "dnp": false,
+    "sheet": "battery",
+    "datasheet": "https://www.ti.com/lit/ds/symlink/tca9517a.pdf",
+    "pins": {
+      "1": "+3V3_PI",
+      "2": "PI_SCL",
+      "3": "PI_SDA",
+      "4": "GND",
+      "8": "+3V3_ANA",
+      "7": "ADC_SCL",
+      "6": "ADC_SDA",
+      "5": "POWER_GOOD"
+    }
+  },
+  {
+    "reference": "R304",
+    "value": "4.7k",
+    "mpn": "CRCW06034K70FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "battery",
+    "datasheet": "https://www.vishay.com/docs/20035/dcrcwe3.pdf",
+    "pins": {
+      "1": "+3V3_ANA",
+      "2": "ADC_SCL"
+    }
+  },
+  {
+    "reference": "R305",
+    "value": "4.7k",
+    "mpn": "CRCW06034K70FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "dnp": false,
+    "sheet": "battery",
+    "datasheet": "https://www.vishay.com/docs/20035/dcrcwe3.pdf",
+    "pins": {
+      "1": "+3V3_ANA",
+      "2": "ADC_SDA"
+    }
+  },
+  {
+    "reference": "C302",
+    "value": "100n / 16V / X7R",
+    "mpn": "GRM188R71C104KA01D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "dnp": false,
+    "sheet": "battery",
+    "datasheet": "https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23",
+    "pins": {
+      "1": "+3V3_ANA",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "C303",
+    "value": "100n / 16V / X7R",
+    "mpn": "GRM188R71C104KA01D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "dnp": false,
+    "sheet": "battery",
+    "datasheet": "https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23",
+    "pins": {
+      "1": "+3V3_ANA",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "C304",
+    "value": "100n / 16V / X7R",
+    "mpn": "GRM188R71C104KA01D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "dnp": false,
+    "sheet": "battery",
+    "datasheet": "https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23",
+    "pins": {
+      "1": "+3V3_PI",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "C305",
+    "value": "100n / 16V / X7R",
+    "mpn": "GRM188R71C104KA01D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "dnp": false,
+    "sheet": "battery",
+    "datasheet": "https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23",
+    "pins": {
+      "1": "+3V3_ANA",
+      "2": "GND"
+    }
+  },
+  {
+    "reference": "TP300",
+    "value": "BAT_DIV",
+    "mpn": "PCB feature - no purchased part",
+    "footprint": "RBPHAT:TestPoint_TestPoint_Pad_D1.5mm",
+    "dnp": false,
+    "sheet": "battery",
+    "datasheet": "",
+    "pins": {
+      "1": "BAT_DIV"
+    }
+  },
+  {
+    "reference": "TP301",
+    "value": "BAT_ADC",
+    "mpn": "PCB feature - no purchased part",
+    "footprint": "RBPHAT:TestPoint_TestPoint_Pad_D1.5mm",
+    "dnp": false,
+    "sheet": "battery",
+    "datasheet": "",
+    "pins": {
+      "1": "BAT_ADC"
+    }
+  },
+  {
+    "reference": "TP302",
+    "value": "POWER_GOOD",
+    "mpn": "PCB feature - no purchased part",
+    "footprint": "RBPHAT:TestPoint_TestPoint_Pad_D1.5mm",
+    "dnp": false,
+    "sheet": "battery",
+    "datasheet": "",
+    "pins": {
+      "1": "POWER_GOOD"
+    }
+  },
+  {
+    "reference": "TP303",
+    "value": "GND",
+    "mpn": "PCB feature - no purchased part",
+    "footprint": "RBPHAT:TestPoint_TestPoint_Pad_D1.5mm",
+    "dnp": false,
+    "sheet": "battery",
+    "datasheet": "",
+    "pins": {
+      "1": "GND"
+    }
+  }
+]

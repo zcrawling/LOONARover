@@ -1,0 +1,425 @@
+                  GH CONNECTOR
+                  1.25 mm pitch/Wire-to-Board connectors/Crimp style and Mating style
+
+
+
+                                                     ■ Specifications
+                                                       Current rating: 1.0 A AC/DC（AWG #26）
+                                                       Voltage rating: 50 V AC/DC
+                                                       Temperature range: ‑40 ℃ to +105 ℃
+                                                                            (including temperature rise in
+                                                                             applying electrical current)
+                                                       Contact resistance: Initial value/ 30 mΩ max.
+                                                                            After test/ 50 mΩ max.
+                                                       Insulation resistance: 100 MΩ min.
+                                                       Withstanding voltage:
+                                                         There shall be no breakdown or flashover while
+                                                         applying 500 V AC for one minute.
+                                                       Applicable wire range:
+                                                               Conductor size/ AWG #30 to AWG #26
+                                                               Insulation O.D./ φ0.76 mm to φ1.0 mm
+The GH series is a 1.25 mm pitch, wire-to-
+                                                     * Please refer to the "Handling Precautions for Terminals
+board connector with a secure locking function.        and Connectors" on our website (listed in the "Technical
+It is suitable for internal connections in various     Documents" column on the Product Information page)
+electrical and electronic equipment for high           before use.
+density applications. Low insertion force            * RoHS2 compliance
+contacts allow for ease of mating with               * Dimensional unit: mm
+                                                     * Contact JST for details.
+a positive tactile clicking sensation, providing
+a highly reliable connection.
+                                                     ■ Standards
+ Secure lock mechanism                               For information on overseas standard registrations, please
+ Superior mating performance                         refer to the "List of Registered Overseas Standards" on
+                                                     our website (listed in the "Technical Documents" column
+ Large outer latch for positive lock
+                                                     on the Product Information page).
+ Structured to prevent contact deformation           * Specifications registered to overseas standards may
+ Housings are designed to prevent                       differ from the general specifications listed above.
+ incorrect mating
+
+
+
+
+                                                 ‑1‑
+                                                                                                                                   GH CONNECTOR
+
+PC board layout and Assembly layout
+
+   Top entry type                                                                                 Side entry type
+
+
+      0.6±0.05     1.25±0.05                 No. 1 circuit                                       No. 1 circuit        0.6±0.05                 1.25±0.05
+
+
+
+
+                                                                                 5.6±0.1                                                                                                          5.4±0.1
+                                                                       3.9±0.1                                                                                                          3.7±0.1
+                                                             2.8±0.1                                                                                                (0.25)    2.7±0.1
+                                                     (0.3)
+
+
+  Header outline                                                                                     Header outline                1.35±0.1                    (0.1)
+                         1.35±0.1                   (0.1)
+                                    1±0.1                                                                                                     1±0.1
+
+
+
+
+                        4.25
+
+
+
+
+                                                                                                                                 (7.15)
+
+
+
+
+                                            (7.3)
+                                                                                                                                                           (4.35)
+
+
+
+
+Note: 1. The PC board layout figure shown is viewed from the connector mounting surface.
+      2. Tolerance for the PCB pattern pitch shall be ± 0.05 and shall not accumulate.
+         The above dimensions are reference values. Please contact JST for details.
+
+
+
+
+Contact
+
+                                                                                                                                    Applicable wire range                                                   Qʼty/
+                                                                                                    Model No.
+                                                                                                                      Conductor size AWG (mm2) Insulation O.D.(mm)                                          reel
+                                                                                                 SSHL-002T-P0.2       #30 to #26（0.05 to 0.13）                               0.76 to 1.0                    35,000
+                       4.8                                                           0.8
+                                                                                                                      Material and Surface ﬁnish, etc.
+
+                                                     0.55                                                                 Copper alloy, tin-plated
+
+                                                                                             Note: 1. Please contact JST regarding gold-plated contacts.
+                                                                                                   2. Contact part number SSHL-003( )-P0.2 cannot be used
+                                                                                                      with GH connectors.
+
+
+                                                                                             Crimping machine
+                                                                                                                      Crimping
+                                                                                                      Contact                          Applicator           Crimp applicator with dies
+                                                                                                                      machine
+                                                                                                 SSHL-002T-P0.2       AP-K2N          MKS-L-10-3                      APLMK SSHL002-02
+                                                                                             Note: Contact JST for fully automatic crimping applicator.
+
+
+
+
+                                                                                           ‑2‑
+                                                                                                        GH CONNECTOR
+
+Housing
+
+                                                                     No. of                                         Dimensions (mm)
+                                                                                            Model No.                                             Q'ty/bag
+                                                                     circuits                                          A              B
+                                                                              2             GHR-02V-S                 1.25            3.75         9,000
+                                                                              3             GHR-03V-S                 2.50            5.00         9,000
+                                                     4.15                     4             GHR-04V-S                 3.75            6.25         6,000
+                                                                              5             GHR-05V-S                 5.00            7.50         6,000
+                                                                              6             GHR-06V-S                 6.25            8.75         6,000
+                                                                              7             GHR-07V-S                 7.50        10.00            6,000
+                                        5.7
+                                                                              8             GHR-08V-S                 8.75        11.25            4,500
+                                                                              9             GHR-09V-S                10.00        12.50            3,500
+                            No. 1                                         10                GHR-10V-S                11.25        13.75            3,500
+          1.25              circuit
+                                                                          11                GHR-11V-S                12.50        15.00            3,000
+                    A
+                                                                          12                GHR-12V-S                13.75        16.25            3,000
+                    B
+                                                                          13                GHR-13V-S                15.00        17.50            3,000
+                                                                          14                GHR-14V-S                16.25        18.75            3,000
+                                                                          15                GHR-15V-S                17.50        20.00            3,000
+
+                                                                                              Material and Surface ﬁnish, etc.
+
+                                                                                                    PBT, natural (white)
+
+                                                                     Note: For ﬂame retardant grade of resin material used, please refer to
+                                                                           the "List of Registered Overseas Standards" on our website (listed in
+                                                                           the "Technical Documents" column on the Product Information page).
+
+
+
+
+Header
+
+                                                                     No. of                    Model No.                     Dimensions (mm) Q'ty/
+   Top entry type                                                    circuits      Top entry type       Side entry type         A        B   reel
+
+                                                                         2        BM02B-GHS-TBT         SM02B-GHS-TB           1.25        5.75     2,500
+                                              4.25          0.7          3        BM03B-GHS-TBT         SM03B-GHS-TB           2.50        7.00     2,500
+                                                                         4        BM04B-GHS-TBT         SM04B-GHS-TB           3.75        8.25     2,500
+                                                                         5        BM05B-GHS-TBT         SM05B-GHS-TB           5.00        9.50     2,500
+                                                            4.05         6        BM06B-GHS-TBT         SM06B-GHS-TB           6.25       10.75     2,500
+                                                                         7        BM07B-GHS-TBT         SM07B-GHS-TB           7.50       12.00     2,500
+                                                                         8        BM08B-GHS-TBT         SM08B-GHS-TB           8.75       13.25     2,500
+                                                            0.15
+                 1.25         No. 1
+                              circuit                                    9        BM09B-GHS-TBT         SM09B-GHS-TB          10.00       14.50     2,500
+                        A
+                                                                         10       BM10B-GHS-TBT         SM10B-GHS-TB          11.25       15.75     2,500
+                        B
+                                                                         11       BM11B-GHS-TBT         SM11B-GHS-TB          12.50       17.00     2,500
+                                                                         12       BM12B-GHS-TBT         SM12B-GHS-TB          13.75       18.25     2,500
+
+   Side entry type                                                       13       BM13B-GHS-TBT         SM13B-GHS-TB          15.00       19.50     2,500
+                                                                         14       BM14B-GHS-TBT         SM14B-GHS-TB          16.25       20.75     2,500
+                                              4.05          0.8          15       BM15B-GHS-TBT         SM15B-GHS-TB          17.50       22.00     2,500
+
+                                                                                              Material and Surface ﬁnish, etc.
+
+                                                                                    Base contact: Copper alloy, tin-plated
+                                                            4.25
+                                                                                    Base housing: PA (Heat resistance) , natural (ivory)
+                                                                                    Reinforcement: Copper alloy, tin-plated
+
+                 1.25                                       0.1
+No. 1                                                                Note: 1. This product displays (LF)(SN) on a label.
+circuit
+                        A                                                  2. Please contact JST regarding gold-plated contacts.
+                        B                                                  3. For flame retardant grade of resin material used, please refer to
+                                                                              the "List of Registered Overseas Standards" on our website
+                                                                             (listed in the "Technical Documents" column on the Product
+                                                                              Information page).
+
+
+
+
+                                                                   ‑3‑
+                                                                                             GH CONNECTOR
+
+Housing（Keying pattern A）
+
+                                                            No. of                                          Dimensions (mm)
+                                                                                                                                       Q'ty/bag
+                                                            circuits                                          A             B
+                                           4.15                     2            GHR-02V-2P                 1.25           3.75         9,000
+                                                                    4            GHR-04V-2P                 3.75           6.25         6,000
+                                                                    5            GHR-05V-2P                 5.00           7.50         6,000
+
+                                    5.7                                             Material and Surface ﬁnish, etc.
+
+                                                                                              PBT, purple
+
+                    B                                       Note: For ﬂame retardant grade of resin material used, please refer to
+                                                                  the "List of Registered Overseas Standards" on our website (listed in
+                                                                  the "Technical Documents" column on the Product Information page).
+
+
+
+
+                   1.25   No. 1
+                          circuit
+                    A
+
+
+
+
+Header（Keying pattern A）
+
+                                                            No. of                   Model No.                     Dimensions (mm)       Q'ty/
+ Top entry type                                             circuits     Top entry type      Side entry type           A          B      reel
+                                                                2       BM02B-GHP-A-TBT             ―               1.25        5.75     2,500
+                     A                                          4       BM04B-GHP-A-TBT     SM04B-GHP-A-TB          3.75        8.25     2,500
+                          No. 1
+            1.25          circuit                               5       BM05B-GHP-A-TBT     SM05B-GHP-A-TB          5.00        9.50     2,500
+
+                                                                                    Material and Surface ﬁnish, etc.
+
+                                                                               Base contact: Copper alloy, tin-plated
+                                                                               Base housing: PA (Heat resistance) , purple
+                                                                               Reinforcement: Copper alloy, tin-plated
+
+                                                            Note: 1. This product displays (LF)(SN) on a label.
+                                          4.25    0.7             2. For flame retardant grade of resin material used, please refer to
+                                                                     the "List of Registered Overseas Standards" on our website
+                                                                     (listed in the "Technical Documents" column on the Product
+                                                                     Information page).
+                                                   4.05
+
+
+
+                     B                             0.15
+
+
+
+
+ Side entry type
+
+                                          4.05    0.8
+
+
+
+
+                                                  4.25
+
+
+
+                   1.25                           0.1
+  No. 1
+  circuit
+                     A
+                     B
+
+
+
+
+                                                          ‑4‑
+                                                                                                GH CONNECTOR
+
+Housing（Keying pattern B）
+
+                                                             No. of                                         Dimensions (mm)
+                                                                                    Model No.                                             Q'ty/bag
+                                                             circuits                                           A              B
+                                            4.15
+                                                                     2            GHR-02V-3HD                  1.25           3.75         9,000
+                                                                     4            GHR-04V-3HD                  3.75           6.25         6,000
+                                                                     5            GHR-05V-3HD                  5.00           7.50         6,000
+                                    5.7
+                                                                                      Material and Surface ﬁnish, etc.
+
+                                                                                              PBT, dark gray
+                    B
+                                                             Note: For ﬂame retardant grade of resin material used, please refer to
+                                                                   the "List of Registered Overseas Standards" on our website (listed in
+                                                                   the "Technical Documents" column on the Product Information page).
+
+
+
+
+                   1.25   No. 1
+                          circuit
+                    A
+
+
+
+
+Header（Keying pattern B）
+
+                                                             No. of                    Model No.                      Dimensions (mm)       Q'ty/
+ Top entry type                                              circuits      Top entry type       Side entry type          A           B      reel
+                                                                 2       BM02B-GHHD-B-TBT SM02B-GHHD-B-TB              1.25        5.75     2,500
+                    A                                            4       BM04B-GHHD-B-TBT SM04B-GHHD-B-TB              3.75        8.25     2,500
+                          No. 1
+            1.25          circuit                                5       BM05B-GHHD-B-TBT SM05B-GHHD-B-TB              5.00        9.50     2,500
+
+                                                                                      Material and Surface ﬁnish, etc.
+
+                                                                              Base contact: Copper alloy, tin-plated
+                                                                              Base housing: PA (Heat resistance), dark gray
+                                                                              Reinforcement: Copper alloy, tin-plated
+
+                                                             Note: 1. This product displays (LF)(SN) on a label.
+                                          4.25     0.7             2. For flame retardant grade of resin material used, please refer to
+                                                                      the "List of Registered Overseas Standards" on our website
+                                                                      (listed in the "Technical Documents" column on the Product
+                                                                      Information page).
+                                                    4.05
+
+
+
+                    B                               0.15
+
+
+
+
+ Side entry type
+
+                                          4.05     0.8
+
+
+
+
+                                                    4.25
+
+
+
+  No. 1            1.25                             0.1
+  circuit           A
+                    B
+
+
+
+
+                                                           ‑5‑
+                                                                                           GH CONNECTOR
+
+ Model number allocation
+
+Contact
+
+                                   S SHL - 002 T - P 0.2
+
+
+  Supply form: Strip form
+  Series name
+  Applicable wire range: AWG #30 to AWG #26
+  Surface ﬁnish: Tin-plated
+  Material: Copper alloy
+  Applicable contact size
+
+
+
+
+Housing                                                        Header
+
+                                           GH R - 04 V - S                                              BM 04 B - GH S -TB T
+
+                                                                   Header type:
+  Series name                                                       BM…SMT Top entry type
+  Type: For receptacle contact                                       SM…SMT Side entry type
+
+  No. of circuits                                                  No. of circuits
+
+  Sub model number                                                 Assembly product
+
+  Color: S…Natural (White), LE…Light blue, TR…Tomato red,          Series name
+         K…Black, E…Blue, O…Orange, L…Lemon yellow,                Color: S…Natural (Ivory), LE…Light blue,
+         MG…Moss green, DPK…Dark pink, DP…Dark purple                     TR…Tomato red, K…Black, E…Blue, O…Orange,
+                                                                          L…Lemon yellow, MG…Moss green,
+                                                                          DPK…Dark pink, DP…Dark purple
+                                                                   Packaging style: Embossed-taping
+                                                                   Suction tape: No indication…No, T…Yes
+
+
+
+
+Housing（With keying）                                           Header（With keying）
+
+                                       GH R - 04 V - 2 P                                          BM 04 B - GH P - A -TB T
+
+                                                                   Header type:
+  Series name                                                       BM…SMT Top entry type
+  Type: For receptacle contact                                       SM…SMT Side entry type
+
+  No. of circuits                                                  No. of circuits
+
+  Sub model number                                                 Assembly product
+
+  Keying pattern: 2…Keying pattern A                               Series name
+                  3…Keying pattern B                               Color: P…Purple (Keying pattern A)
+  Color: P…Purple (Keying pattern A)                                      HD…Dark gray (Keying pattern B)
+         HD…Dark gray (Keying pattern B)                           Keying pattern: A…Keying pattern A
+                                                                                   B…Keying pattern B
+                                                                   Packaging style: Embossed-taping
+                                                                   Suction tape: No indication…No, T…Yes
+
+
+
+
+                                                             ‑6‑
+

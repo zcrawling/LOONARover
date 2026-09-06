@@ -1,0 +1,48 @@
+{
+  "revision": "B2",
+  "status": "pre-layout checks passed; placement and routing not started",
+  "components": 72,
+  "purchased_fitted_parts": 63,
+  "optional_dnp_parts": 2,
+  "pcb_testpoints": 7,
+  "mounting_holes": 4,
+  "local_footprint_types": 15,
+  "referenced_model_files": 13,
+  "erc_errors": 0,
+  "erc_warnings": 0,
+  "drc_violations": 0,
+  "schematic_parity_issues": 0,
+  "unconnected_items": 161,
+  "tracks": 0,
+  "vias": 0,
+  "socket_body_mm": 16,
+  "nominal_board_gap_mm": 19,
+  "cooler": "Raspberry Pi official Active Cooler",
+  "drc_ignored_checks": [
+    {
+      "description": "Footprint has no courtyard defined",
+      "key": "missing_courtyard"
+    },
+    {
+      "description": "Track endpoint not centered on via",
+      "key": "track_not_centered_on_via"
+    },
+    {
+      "description": "Tuning profile track geometries",
+      "key": "tuning_profile_track_geometries"
+    },
+    {
+      "description": "Footprint doesn't match symbol's footprint filters",
+      "key": "footprint_filters_mismatch"
+    },
+    {
+      "description": "Footprint component type doesn't match footprint pads",
+      "key": "footprint_type_mismatch"
+    }
+  ],
+  "limitations": [
+    "DRC applies to an unplaced and unrouted board; it is not fabrication sign-off.",
+    "Mechanical dimensions are nominal; physical mating and cooling need assembly verification.",
+    "Electrical calculations do not establish transient, surge, or EMC qualification."
+  ]
+}

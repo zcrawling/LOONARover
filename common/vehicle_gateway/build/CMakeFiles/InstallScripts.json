@@ -1,7 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"/home/sb/LOONAR/common/vehicle_gateway/build/cmake_install.cmake"
-	],
-	"Parallel" : false
-}

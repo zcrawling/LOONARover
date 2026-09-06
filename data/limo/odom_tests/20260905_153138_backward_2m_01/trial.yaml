@@ -1,0 +1,12 @@
+name: backward_2m_01
+requested_linear_mps: -0.10
+requested_angular_radps: 0.0
+requested_duration_s: 20
+started_utc: 2026-09-05T07:31:41+00:00
+actual_distance_m: 1.87
+actual_lateral_offset_m: 0.01
+actual_heading_error_deg: calc
+surface:
+notes:
+command_start_utc: 2026-09-05T07:31:42+00:00
+command_stop_utc: 2026-09-05T07:32:03+00:00

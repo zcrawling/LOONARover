@@ -1,0 +1,73 @@
+reference,value,mpn,footprint,dnp,sheet,datasheet
+J1,Pi 5 / H16 / gap19,PRT-16763,RBPHAT:GPIO_2x20_H16_Drill1.02,False,rbphat,https://cdn.sparkfun.com/assets/0/b/8/5/2/DS-16763-2_X_20_Pin_Extended_GPIO_Header_-_Female_-_16mm_7.30mm.pdf
+U1,LM66100DCKR,LM66100DCKR,RBPHAT:TI_DCK0006A,False,rbphat,https://www.ti.com/lit/ds/symlink/lm66100.pdf
+U2,LM66100DCKR,LM66100DCKR,RBPHAT:TI_DCK0006A,False,rbphat,https://www.ti.com/lit/ds/symlink/lm66100.pdf
+R7,10k,CRCW060310K0FKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,rbphat,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+R8,10k,CRCW060310K0FKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,rbphat,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+R1,22R pulse,CRCW060322R0FKEAHP,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,rbphat,https://www.vishay.com/docs/20043/crcwhpe3.pdf
+C1,1u / 25V / X7R,GRM188R71E105KA12D,RBPHAT:Capacitor_SMD_C_0603_1608Metric,False,rbphat,https://www.murata.com/products/productdetail?partno=GRM188R71E105KA12%23
+C2,4.7u / 10V / X5R,GRM188R61A475KE15D,RBPHAT:Capacitor_SMD_C_0603_1608Metric,False,rbphat,https://www.murata.com/products/productdetail?partno=GRM188R61A475KE15%23
+C3,100u / 16V / 20%,EEEFK1C101P,RBPHAT:Panasonic_FK_D_6.3x5.8,False,rbphat,https://api.pim.na.industrial.panasonic.com/file_stream/main/fileversion/3128
+R2,10k,CRCW060310K0FKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,rbphat,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+R3,10k,CRCW060310K0FKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,rbphat,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+U3,TLV803ED29DBZR,TLV803ED29DBZR,RBPHAT:TI_DBZ0003A,False,rbphat,https://www.ti.com/lit/ds/symlink/tlv803e.pdf
+R4,10k,CRCW060310K0FKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,rbphat,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+R5,100k,CRCW0603100KFKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,rbphat,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+R6,1k,CRCW06031K00FKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,rbphat,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+C4,100n / 16V / X7R,GRM188R71C104KA01D,RBPHAT:Capacitor_SMD_C_0603_1608Metric,False,rbphat,https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23
+C5,1u / 25V / X7R,GRM188R71E105KA12D,RBPHAT:Capacitor_SMD_C_0603_1608Metric,False,rbphat,https://www.murata.com/products/productdetail?partno=GRM188R71E105KA12%23
+TP1,ANA supply,PCB feature - no purchased part,RBPHAT:TestPoint_TestPoint_Pad_D1.5mm,False,rbphat,
+U100,SN74LVC2G17DBVR,SN74LVC2G17DBVR,RBPHAT:TI_DBV0006A,False,control,https://www.ti.com/lit/ds/symlink/sn74lvc2g17.pdf
+U101,THVD1451DR,THVD1451DR,RBPHAT:TI_D0008A,False,control,https://www.ti.com/lit/ds/symlink/thvd1451.pdf
+J2,BM05B-GHS-TBT,BM05B-GHS-TBT(LF)(SN),RBPHAT:Connector_JST_JST_GH_BM05B-GHS-TBT_1x05-1MP_P1.25mm_Vertical,False,control,https://www.jst-mfg.com/product/pdf/eng/eGH.pdf
+R108,0R / rail link,CRCW06030000Z0EA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,control,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+TP100,CTRL_VCC,PCB feature - no purchased part,RBPHAT:TestPoint_TestPoint_Pad_D1.5mm,False,control,
+R100,10k,CRCW060310K0FKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,control,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+R101,47R,CRCW060347R0FKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,control,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+R102,47R,CRCW060347R0FKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,control,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+R103,10R pulse,CRCW0603010RJNEAHP,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,control,https://www.vishay.com/docs/20043/crcwhpe3.pdf
+R104,10R pulse,CRCW0603010RJNEAHP,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,control,https://www.vishay.com/docs/20043/crcwhpe3.pdf
+R105,10R pulse,CRCW0603010RJNEAHP,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,control,https://www.vishay.com/docs/20043/crcwhpe3.pdf
+R106,10R pulse,CRCW0603010RJNEAHP,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,control,https://www.vishay.com/docs/20043/crcwhpe3.pdf
+R107,120R / DNP,CRCW0603120RFKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,True,control,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+D100,CDSOT23-SM712,CDSOT23-SM712,RBPHAT:Bourns_CDSOT23_SM712,False,control,https://www.bourns.com/pdfs/CDSOT23-SM712.pdf
+D101,CDSOT23-SM712,CDSOT23-SM712,RBPHAT:Bourns_CDSOT23_SM712,False,control,https://www.bourns.com/pdfs/CDSOT23-SM712.pdf
+C100,100n / 16V / X7R,GRM188R71C104KA01D,RBPHAT:Capacitor_SMD_C_0603_1608Metric,False,control,https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23
+C101,100n / 16V / X7R,GRM188R71C104KA01D,RBPHAT:Capacitor_SMD_C_0603_1608Metric,False,control,https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23
+U200,SN74LVC2G17DBVR,SN74LVC2G17DBVR,RBPHAT:TI_DBV0006A,False,payload,https://www.ti.com/lit/ds/symlink/sn74lvc2g17.pdf
+U201,THVD1451DR,THVD1451DR,RBPHAT:TI_D0008A,False,payload,https://www.ti.com/lit/ds/symlink/thvd1451.pdf
+J3,BM05B-GHS-TBT,BM05B-GHS-TBT(LF)(SN),RBPHAT:Connector_JST_JST_GH_BM05B-GHS-TBT_1x05-1MP_P1.25mm_Vertical,False,payload,https://www.jst-mfg.com/product/pdf/eng/eGH.pdf
+R208,0R / rail link,CRCW06030000Z0EA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,payload,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+TP200,PAY_VCC,PCB feature - no purchased part,RBPHAT:TestPoint_TestPoint_Pad_D1.5mm,False,payload,
+R200,10k,CRCW060310K0FKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,payload,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+R201,47R,CRCW060347R0FKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,payload,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+R202,47R,CRCW060347R0FKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,payload,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+R203,10R pulse,CRCW0603010RJNEAHP,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,payload,https://www.vishay.com/docs/20043/crcwhpe3.pdf
+R204,10R pulse,CRCW0603010RJNEAHP,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,payload,https://www.vishay.com/docs/20043/crcwhpe3.pdf
+R205,10R pulse,CRCW0603010RJNEAHP,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,payload,https://www.vishay.com/docs/20043/crcwhpe3.pdf
+R206,10R pulse,CRCW0603010RJNEAHP,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,payload,https://www.vishay.com/docs/20043/crcwhpe3.pdf
+R207,120R / DNP,CRCW0603120RFKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,True,payload,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+D200,CDSOT23-SM712,CDSOT23-SM712,RBPHAT:Bourns_CDSOT23_SM712,False,payload,https://www.bourns.com/pdfs/CDSOT23-SM712.pdf
+D201,CDSOT23-SM712,CDSOT23-SM712,RBPHAT:Bourns_CDSOT23_SM712,False,payload,https://www.bourns.com/pdfs/CDSOT23-SM712.pdf
+C200,100n / 16V / X7R,GRM188R71C104KA01D,RBPHAT:Capacitor_SMD_C_0603_1608Metric,False,payload,https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23
+C201,100n / 16V / X7R,GRM188R71C104KA01D,RBPHAT:Capacitor_SMD_C_0603_1608Metric,False,payload,https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23
+J4,Battery sense only,BM02B-GHS-TBT(LF)(SN),RBPHAT:Connector_JST_JST_GH_BM02B-GHS-TBT_1x02-1MP_P1.25mm_Vertical,False,battery,https://www.jst-mfg.com/product/pdf/eng/eGH.pdf
+R300,47k / 0.1%,TNPW060347K0BEEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,battery,https://www.vishay.com/docs/28758/tnpw_e3.pdf
+R301,47k / 0.1%,TNPW060347K0BEEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,battery,https://www.vishay.com/docs/28758/tnpw_e3.pdf
+R302,18k / 0.1%,TNPW060318K0BEEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,battery,https://www.vishay.com/docs/28758/tnpw_e3.pdf
+C300,1u / 25V / X7R,GRM188R71E105KA12D,RBPHAT:Capacitor_SMD_C_0603_1608Metric,False,battery,https://www.murata.com/products/productdetail?partno=GRM188R71E105KA12%23
+U300,TMUX1511PWR,TMUX1511PWR,RBPHAT:TI_PW0014A,False,battery,https://www.ti.com/lit/ds/symlink/tmux1511.pdf
+U301,ADS1115IDGSR,ADS1115IDGSR,RBPHAT:TI_DGS0010A,False,battery,https://www.ti.com/lit/ds/symlink/ads1115.pdf
+R303,47k / 0.1%,TNPW060347K0BEEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,battery,https://www.vishay.com/docs/28758/tnpw_e3.pdf
+C301,1n / 50V / C0G,GRM1885C1H102JA01D,RBPHAT:Capacitor_SMD_C_0603_1608Metric,False,battery,https://www.murata.com/products/productdetail?partno=GRM1885C1H102JA01%23
+U302,TCA9517ADGKR,TCA9517ADGKR,RBPHAT:TI_DGK0008A,False,battery,https://www.ti.com/lit/ds/symlink/tca9517a.pdf
+R304,4.7k,CRCW06034K70FKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,battery,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+R305,4.7k,CRCW06034K70FKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,battery,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+C302,100n / 16V / X7R,GRM188R71C104KA01D,RBPHAT:Capacitor_SMD_C_0603_1608Metric,False,battery,https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23
+C303,100n / 16V / X7R,GRM188R71C104KA01D,RBPHAT:Capacitor_SMD_C_0603_1608Metric,False,battery,https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23
+C304,100n / 16V / X7R,GRM188R71C104KA01D,RBPHAT:Capacitor_SMD_C_0603_1608Metric,False,battery,https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23
+C305,100n / 16V / X7R,GRM188R71C104KA01D,RBPHAT:Capacitor_SMD_C_0603_1608Metric,False,battery,https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23
+TP300,BAT_DIV,PCB feature - no purchased part,RBPHAT:TestPoint_TestPoint_Pad_D1.5mm,False,battery,
+TP301,BAT_ADC,PCB feature - no purchased part,RBPHAT:TestPoint_TestPoint_Pad_D1.5mm,False,battery,
+TP302,POWER_GOOD,PCB feature - no purchased part,RBPHAT:TestPoint_TestPoint_Pad_D1.5mm,False,battery,
+TP303,GND,PCB feature - no purchased part,RBPHAT:TestPoint_TestPoint_Pad_D1.5mm,False,battery,

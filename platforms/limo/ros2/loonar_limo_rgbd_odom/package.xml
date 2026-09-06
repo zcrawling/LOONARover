@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>loonar_limo_rgbd_odom</name>
+  <version>0.1.0</version>
+  <description>Discardable RGB-D odometry experiment for the LIMO Orbbec DaBai.</description>
+  <maintainer email="noreply@example.invalid">LOONAR</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>diagnostic_msgs</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>loonar_limo_tof</exec_depend>
+  <exec_depend>orbbec_camera</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>rtabmap_odom</exec_depend>
+  <exec_depend>rtabmap_sync</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

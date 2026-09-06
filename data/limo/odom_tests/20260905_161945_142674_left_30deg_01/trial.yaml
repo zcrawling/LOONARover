@@ -1,0 +1,12 @@
+name: left_30deg_01
+requested_linear_mps: 0.0
+requested_angular_radps: 0.15
+requested_duration_s: 3.49
+actual_distance_m: null
+actual_heading_error_deg: "약 28도인데 측정오차가 큼"
+status: completed
+ros_domain_id: '0'
+command_start_ros_ns: 1788596388268826857
+command_stop_ros_ns: 1788596391759051945
+actual_command_duration_s: 3.490260358999876
+bag_exit_code: 0

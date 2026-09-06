@@ -1,0 +1,127 @@
+ REVISION A                         RECOMMENDED PCB LAYOUT FOR SSQ-1XX-XX-XX-X-XX-XXX-XX-XX
+6/4/2010   ECN-132443
+
+                                                                 No. OF POS. x .100[2.54] - .100[2.54]
+
+
+                                                    .100 2.54
+                                                                                                                                          .040 1.02 (TYP)
+                                                       (TYP)
+
+
+
+                        SINGLE (DOUBLE & TRIPLE)
+
+
+                                                                                                                                                 .100 2.54 (TYP)
+
+
+
+                               DOUBLE (TRIPLE)
+
+
+
+
+                                          TRIPLE
+
+
+
+
+                                                                                 FIG. 1
+                                                                       SSQ-1XX-XX-XX-X SHOWN
+
+
+
+
+                                                                No. OF POS. x .100[2.54] - .100[2.54]
+
+                                                                                                                                       .040 1.02 (TYP)
+                                                   .100 2.54
+                                                      (TYP)
+
+
+
+
+                                                                                                                                          .200 5.08
+
+
+
+
+                                                                                                                                        PROPRIETARY NOTE
+                                                                               FIG. 2                                           THIS DOCUMENT CONTAINS INFORMATION
+                                                                                                                                CONFIDENTIAL AND PROPRIETARY TO
+                                                                     SSQ-1XX-XX-XX-Q SHOWN                                      SAMTEC, INC. AND SHALL NOT BE REPRODUCED
+                                                                                                                                OR TRANSFERRED TO OTHER DOCUMENTS OR
+                                                                                                                                DISCLOSED TO OTHERS OR USED FOR ANY
+                                                                                                                                                                           520 PARK EAST BLVD, NEW ALBANY, IN 47150
+                                                                                                                                PURPOSE OTHER THAN THAT WHICH IT WAS
+                                                                                                                                OBTAINED WITHOUT THE EXPRESSED WRITTEN
+                                                                                                                                                                           PHONE: 812-944-6733      FAX: 812-948-5047
+                                                      F:\dwg\MISC\Mktg\Footprnt\SSQ-1XX-XX-XX-X-XX-XXX-XX-XX-FOOTPRINT.SLDDRW   CONSENT OF SAMTEC, INC.                    e-Ma il info @SAMTEC.c o m     c o d e 55322
+                                                                                                                                                                                                              SHEET 1 OF 2
+REVISION A           RECOMMENDED PCB LAYOUT FOR SSQ-1XX-XX-XX-X-XX-XXX-XX-XX
+
+                                                                                                                            EDGE OF PCB
+
+
+
+
+              CONNECTOR OUTLINE             No. OF POS. x .100[2.54] - .100[2.54]
+                                                                                                        .040 1.02 (TYP)
+                            .100 2.54
+                               (TYP)
+                                                                                                     .060 1.52
+             SINGLE (DOUBLE & TRIPLE)
+
+                                                                                                  .100 2.54 (TYP)
+
+                    DOUBLE (TRIPLE)
+
+
+
+                               TRIPLE
+
+
+
+                                                                FIG. 3
+                                                    SSQ-1XX-XX-XX-X-RA SHOWN
+
+
+
+
+                                                                                                                            EDGE OF PCB
+
+
+
+                CONNECTOR OUTLINE
+
+
+
+
+                                             No. OF POS. x .100[2.54] - .100[2.54]
+                                                                                                           .040 1.02 (TYP)
+
+
+
+
+                                .100 2.54
+                                   (TYP)
+                                                                                                      .200 5.08
+
+
+
+
+                                                                                                                              PROPRIETARY NOTE
+                                                                                                                      THIS DOCUMENT CONTAINS INFORMATION
+
+                                                             FIG. 4                                                   CONFIDENTIAL AND PROPRIETARY TO
+                                                                                                                      SAMTEC, INC. AND SHALL NOT BE REPRODUCED
+                                                 SSQ-1XX-XX-XX-Q-RA SHOWN                                             OR TRANSFERRED TO OTHER DOCUMENTS OR
+                                                                                                                      DISCLOSED TO OTHERS OR USED FOR ANY
+                                                                                                                                                                 520 PARK EAST BLVD, NEW ALBANY, IN 47150
+                                                                                                                      PURPOSE OTHER THAN THAT WHICH IT WAS
+                                                                                                                      OBTAINED WITHOUT THE EXPRESSED WRITTEN
+                                                                                                                                                                 PHONE: 812-944-6733      FAX: 812-948-5047
+                                            F:\dwg\MISC\Mktg\Footprnt\SSQ-1XX-XX-XX-X-XX-XXX-XX-XX-FOOTPRINT.SLDDRW   CONSENT OF SAMTEC, INC.                    e-Ma il info @SAMTEC.c o m     c o d e 55322
+                                                                                                                                                                                                    SHEET 2 OF 2
+

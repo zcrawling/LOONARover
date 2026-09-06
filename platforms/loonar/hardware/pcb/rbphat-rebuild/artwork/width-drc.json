@@ -1,0 +1,198 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-09-05T20:49:54",
+    "ignored_checks": [
+        {
+            "description": "Footprint has no courtyard defined",
+            "key": "missing_courtyard"
+        },
+        {
+            "description": "Track endpoint not centered on via",
+            "key": "track_not_centered_on_via"
+        },
+        {
+            "description": "Tuning profile track geometries",
+            "key": "tuning_profile_track_geometries"
+        },
+        {
+            "description": "Footprint doesn't match symbol's footprint filters",
+            "key": "footprint_filters_mismatch"
+        },
+        {
+            "description": "Footprint component type doesn't match footprint pads",
+            "key": "footprint_type_mismatch"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning"
+    ],
+    "kicad_version": "10.0.4",
+    "schematic_parity": [],
+    "source": "rbphat.kicad_pcb",
+    "unconnected_items": [
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [+3V3_PI] on F.Cu, length 2.7250 mm",
+                    "pos": {
+                        "x": 111.775,
+                        "y": 126.0
+                    },
+                    "uuid": "ce8351fe-0429-4f82-9b62-5f4337256335"
+                },
+                {
+                    "description": "Track [+3V3_PI] on F.Cu, length 3.0759 mm",
+                    "pos": {
+                        "x": 107.175,
+                        "y": 122.5
+                    },
+                    "uuid": "213e1304-e351-4075-8ffd-a08d1828f000"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 1 [+3V3_PI] of U302 on F.Cu",
+                    "pos": {
+                        "x": 116.8,
+                        "y": 123.025
+                    },
+                    "uuid": "2d04fc7c-a096-4f83-98ac-2361e0e2ce0c"
+                },
+                {
+                    "description": "Track [+3V3_PI] on F.Cu, length 3.0000 mm",
+                    "pos": {
+                        "x": 115.0,
+                        "y": 125.775
+                    },
+                    "uuid": "e4663588-ba9b-4b6e-989f-f96f34f4076e"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [+3V3_PI] on F.Cu, length 0.7801 mm",
+                    "pos": {
+                        "x": 136.7766,
+                        "y": 120.0
+                    },
+                    "uuid": "61e3f053-45a8-4783-a28d-7700b30c3777"
+                },
+                {
+                    "description": "Track [+3V3_PI] on F.Cu, length 3.6622 mm",
+                    "pos": {
+                        "x": 135.1267,
+                        "y": 135.3017
+                    },
+                    "uuid": "b4231044-3b1d-4135-8ed1-6e2310842db7"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 8 [+3V3_ANA] of U301 on F.Cu",
+                    "pos": {
+                        "x": 120.8,
+                        "y": 131.0
+                    },
+                    "uuid": "0a3570f8-0290-4746-a793-ec07d4b75ab8"
+                },
+                {
+                    "description": "Track [+3V3_ANA] on F.Cu, length 2.3897 mm",
+                    "pos": {
+                        "x": 121.6835,
+                        "y": 127.0
+                    },
+                    "uuid": "310af0d6-9f50-417d-9fd3-09efad309cc4"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 8 [+3V3_ANA] of U301 on F.Cu",
+                    "pos": {
+                        "x": 120.8,
+                        "y": 131.0
+                    },
+                    "uuid": "0a3570f8-0290-4746-a793-ec07d4b75ab8"
+                },
+                {
+                    "description": "Pad 1 [+3V3_ANA] of C303 on F.Cu",
+                    "pos": {
+                        "x": 127.0,
+                        "y": 132.775
+                    },
+                    "uuid": "c00f9021-c7ee-48c3-a227-0098b5d50cb7"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 6 [+3V3_ANA] of U2 on F.Cu",
+                    "pos": {
+                        "x": 124.1,
+                        "y": 114.35
+                    },
+                    "uuid": "97dafa04-030e-453f-98d5-e755131dbeed"
+                },
+                {
+                    "description": "Track [+3V3_ANA] on F.Cu, length 0.0021 mm",
+                    "pos": {
+                        "x": 121.9,
+                        "y": 115.6521
+                    },
+                    "uuid": "c5c10070-dc93-4553-8639-f6496969dc55"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 1 [+3V3_ANA] of C303 on F.Cu",
+                    "pos": {
+                        "x": 127.0,
+                        "y": 132.775
+                    },
+                    "uuid": "c00f9021-c7ee-48c3-a227-0098b5d50cb7"
+                },
+                {
+                    "description": "Track [+3V3_ANA] on F.Cu, length 0.3889 mm",
+                    "pos": {
+                        "x": 129.0,
+                        "y": 138.775
+                    },
+                    "uuid": "dbdacd87-96d7-4fe4-9ce8-c23356bb57fa"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        }
+    ],
+    "violations": []
+}

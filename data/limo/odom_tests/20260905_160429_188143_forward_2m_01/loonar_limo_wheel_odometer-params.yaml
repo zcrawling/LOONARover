@@ -1,0 +1,16 @@
+/loonar_limo_wheel_odometer:
+  ros__parameters:
+    base_frame: base_link
+    input_topic: /wheel/odometer
+    odom_frame: odom
+    output_topic: /wheel/odom
+    qos_overrides:
+      /parameter_events:
+        publisher:
+          depth: 1000
+          durability: volatile
+          history: keep_last
+          reliability: reliable
+    track_m: 0.172
+    use_sim_time: false
+
