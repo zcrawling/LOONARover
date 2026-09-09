@@ -1,5 +1,14 @@
-/build/
+**/build/
+**/install/
+**/log/
+**/node_modules/
 /.cache/
 **/__pycache__/
 *.pyc
-
+/.venv*/
+/tmp/
+/data/apriltag_gt/*
+/data/imu_vibration/*
+# Data manifests and documentation are versioned; recordings stay local.
+!/data/apriltag_gt/README.md
+!/data/imu_vibration/README.md

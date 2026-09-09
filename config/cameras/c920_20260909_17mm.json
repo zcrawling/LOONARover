@@ -1,0 +1,70 @@
+{
+  "width": 1920,
+  "height": 1080,
+  "K": [
+    [
+      1408.0063489828922,
+      0.0,
+      981.1452058161069
+    ],
+    [
+      0.0,
+      1410.7827240372824,
+      519.9745889887824
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "D": [
+    [
+      0.052430308596387115,
+      -0.19244533944546235,
+      -0.0018545747464561275,
+      0.0031782721885046604,
+      0.22907481381777264
+    ]
+  ],
+  "rms_px": 0.6713220635256034,
+  "view_errors_px": [
+    1.0844508409500122,
+    0.5661248564720154,
+    0.61643385887146,
+    0.33760762214660645,
+    0.46054330468177795,
+    0.47371187806129456,
+    0.5721072554588318,
+    0.5056519508361816,
+    0.5250568985939026,
+    1.0515313148498535,
+    0.6630340218544006,
+    0.4883064329624176,
+    0.3842431902885437,
+    0.9148703813552856,
+    0.8402639627456665
+  ],
+  "views": 15,
+  "square_size_m": 0.017,
+  "inner_cols": 9,
+  "inner_rows": 6,
+  "source_images": [
+    "/home/sb/Pictures/Camera/Photo from 2026-09-09 15-29-52.985070.jpeg",
+    "/home/sb/Pictures/Camera/Photo from 2026-09-09 15-30-04.351726.jpeg",
+    "/home/sb/Pictures/Camera/Photo from 2026-09-09 15-30-20.430813.jpeg",
+    "/home/sb/Pictures/Camera/Photo from 2026-09-09 15-30-29.989061.jpeg",
+    "/home/sb/Pictures/Camera/Photo from 2026-09-09 15-30-33.307678.jpeg",
+    "/home/sb/Pictures/Camera/Photo from 2026-09-09 15-31-00.579837.jpeg",
+    "/home/sb/Pictures/Camera/Photo from 2026-09-09 15-31-03.223002.jpeg",
+    "/home/sb/Pictures/Camera/Photo from 2026-09-09 15-31-11.541478.jpeg",
+    "/home/sb/Pictures/Camera/Photo from 2026-09-09 15-31-19.293329.jpeg",
+    "/home/sb/Pictures/Camera/Photo from 2026-09-09 15-31-39.214874.jpeg",
+    "/home/sb/Pictures/Camera/Photo from 2026-09-09 15-31-42.088251.jpeg",
+    "/home/sb/Pictures/Camera/Photo from 2026-09-09 15-31-59.005301.jpeg",
+    "/home/sb/Pictures/Camera/Photo from 2026-09-09 15-32-07.090768.jpeg",
+    "/home/sb/Pictures/Camera/Photo from 2026-09-09 15-32-12.513565.jpeg",
+    "/home/sb/Pictures/Camera/Photo from 2026-09-09 15-32-15.975462.jpeg"
+  ],
+  "rejected_images": []
+}

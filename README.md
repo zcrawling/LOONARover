@@ -2,7 +2,7 @@
 
 LOONAR is developed against two first-class vehicle platforms:
 
-- `platforms/limo/`: the current NUC11, Ubuntu 22.04, ROS 2 Humble integration platform.
+- `platforms/limo/`: the current NUC12, Ubuntu 22.04, ROS 2 Humble integration platform.
 - `platforms/loonar/`: the final rover hardware platform: Raspberry Pi, Teensy, RS-485, sensors, camera, and PCB assets.
 
 The architecture source of truth is [project.md](project.md). cFS owns mission and
@@ -15,3 +15,8 @@ hardware reference. It is not an active vehicle control path until its protocol
 is revised to satisfy the Gateway and MCU command-lease contracts.
 
 See [docs/README.md](docs/README.md) for the new document hierarchy.
+
+See [repository layout](docs/repository-layout.md) for source, configuration,
+test-tool and recording locations. The [AprilTag tool](tools/apriltag_gt/README.md)
+owns the external-camera distance test; its remote test runner is a separate
+direct `/cmd_vel` path from the operational Gateway stack.

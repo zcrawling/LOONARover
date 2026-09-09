@@ -8,11 +8,16 @@ import os
 import signal
 import subprocess
 import time
+import sys
+import threading
 from pathlib import Path
 
 import rclpy
 from rclpy.signals import SignalHandlerOptions
 from geometry_msgs.msg import Twist
+from sensor_msgs.msg import Imu, JointState
+from nav_msgs.msg import Odometry
+from rclpy.qos import qos_profile_sensor_data
 import yaml
 
 
@@ -28,6 +33,7 @@ def main():
     parser.add_argument('--linear', type=finite, required=True)
     parser.add_argument('--angular', type=finite, required=True)
     parser.add_argument('--duration', type=finite, required=True)
+    parser.add_argument('--external-stop', action='store_true', help='Run until SIGINT from the integrated AprilTag distance test')
     parser.add_argument('--name', default='motion')
     args = parser.parse_args()
     if args.duration <= 0:
@@ -39,11 +45,24 @@ def main():
     metadata = dict(name=args.name, requested_linear_mps=args.linear,
                     requested_angular_radps=args.angular, requested_duration_s=args.duration,
                     actual_distance_m=None, actual_heading_error_deg=None,
-                    status='preparing', ros_domain_id=os.environ.get('ROS_DOMAIN_ID', '0'))
+                    external_stop=args.external_stop, status='preparing', ros_domain_id=os.environ.get('ROS_DOMAIN_ID', '0'))
     def save():
         (trial / 'trial.yaml').write_text(yaml.safe_dump(metadata, sort_keys=False))
     save()
     interrupted = False
+    paused = args.external_stop
+    def external_commands():
+        nonlocal paused, interrupted
+        for line in sys.stdin:
+            command = line.strip()
+            if command == 'PAUSE': paused = True
+            elif command == 'RESUME': paused = False
+            elif command == 'STOP':
+                interrupted = True
+                return
+        interrupted = True
+    if args.external_stop:
+        threading.Thread(target=external_commands,daemon=True).start()
     def interrupt(signum, frame):
         nonlocal interrupted
         interrupted = True
@@ -55,6 +74,13 @@ def main():
     bag = None
     started = None
     events = (trial / 'command-events.jsonl').open('w', buffering=1)
+    wheel_samples = (trial / 'wheel-samples.csv').open('w', buffering=1)
+    wheel_samples.write('t,vx,wz\n')
+    def receive(msg, topic):
+        received.add(topic)
+        if topic == '/wheel/odom':
+            stamp = msg.header.stamp.sec + msg.header.stamp.nanosec / 1e9
+            wheel_samples.write(f'{stamp:.9f},{msg.twist.twist.linear.x},{msg.twist.twist.angular.z}\n')
     log = (trial / 'rosbag.log').open('w')
     def publish(linear, angular, kind):
         msg = Twist()
@@ -64,6 +90,21 @@ def main():
                                      ros_stamp_ns=node.get_clock().now().nanoseconds,
                                      linear_mps=linear, angular_radps=angular)) + '\n')
     try:
+        received = set()
+        subscriptions = []
+        for topic, message in [('/imu',Imu),('/wheel/odometer',JointState),
+                               ('/wheel/odom',Odometry),('/odometry/filtered',Odometry)]:
+            subscriptions.append(node.create_subscription(message,topic,
+                lambda msg, topic=topic: receive(msg,topic),qos_profile_sensor_data))
+        deadline = time.monotonic()+10
+        while time.monotonic()<deadline:
+            rclpy.spin_once(node,timeout_sec=.1)
+            driver = any(s.node_name=='limo_base_node' for s in node.get_subscriptions_info_by_topic('/cmd_vel'))
+            if driver and len(received)==4:break
+            if interrupted:return
+        else:
+            raise RuntimeError(f'LIMO driver/sensor inputs not ready; received={sorted(received)}, driver_subscribed={driver}. No motion started.')
+        print('READY: LIMO driver, IMU, wheel encoder and EKF data received.',flush=True)
         for name in ('loonar_limo_wheel_odometer', 'ekf_filter_node'):
             with (trial / (name + '-params.yaml')).open('w') as output:
                 try:
@@ -98,13 +139,15 @@ def main():
             return
         print(f'Running: linear={args.linear} m/s angular={args.angular} rad/s duration={args.duration} s', flush=True)
         started = time.monotonic()
-        deadline = started + args.duration
+        deadline = float('inf') if args.external_stop else started + args.duration
         next_tick = started
         metadata['command_start_ros_ns'] = node.get_clock().now().nanoseconds
         while not interrupted and time.monotonic() < deadline:
+            rclpy.spin_once(node, timeout_sec=0)
             now = time.monotonic()
             if now >= next_tick:
-                publish(args.linear, args.angular, 'motion')
+                publish(0.0 if paused else args.linear, 0.0 if paused else args.angular,
+                        'tracking_pause' if paused else 'motion')
                 next_tick = now + 0.05
             time.sleep(max(0, min(0.005, deadline - time.monotonic())))
         metadata['status'] = 'interrupted' if interrupted else 'completed'
@@ -130,6 +173,7 @@ def main():
             metadata['bag_exit_code'] = bag.returncode
         save()
         events.close()
+        wheel_samples.close()
         log.close()
         node.destroy_node()
         rclpy.shutdown()
