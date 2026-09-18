@@ -1,0 +1,28 @@
+[
+  {
+    "file": "sm712.pdf",
+    "url": "https://www.semtech.com/uploads/documents/sm712.pdf",
+    "error": "not PDF"
+  },
+  {
+    "file": "pi5-mechanical.pdf",
+    "url": "https://pip-assets.raspberrypi.com/categories/892-raspberry-pi-5/documents/RP-008347-DS-1-raspberry-pi-5-mechanical-drawing.pdf",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "file": "samtec-ssq-drawing.pdf",
+    "url": "https://suddendocs.samtec.com/prints/ssq-1xx-xx-xxx-x-xx-xxx-xx-x-mkt.pdf",
+    "resolved_url": "https://suddendocs.samtec.com/prints/ssq-1xx-xx-xxx-x-xx-xxx-xx-x-mkt.pdf",
+    "sha256": "3609be190ef021cc260abf423296449d797dd474fe1618dcf0fec719e2a05141",
+    "bytes": 368190,
+    "retrieved": "2026-09-05"
+  },
+  {
+    "file": "samtec-ssq-footprint.pdf",
+    "url": "https://suddendocs.samtec.com/prints/ssq-1xx-xx-xx-x-xx-xxx-xx-xx.pdf",
+    "resolved_url": "https://suddendocs.samtec.com/prints/ssq-1xx-xx-xx-x-xx-xxx-xx-xx.pdf",
+    "sha256": "22412225a71a963f7337ba8057011971d161901832198f98770636aa7912b19c",
+    "bytes": 25534,
+    "retrieved": "2026-09-05"
+  }
+]

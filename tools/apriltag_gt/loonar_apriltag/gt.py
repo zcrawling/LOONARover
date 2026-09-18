@@ -7,6 +7,7 @@ import time
 
 import cv2 as cv
 import numpy as np
+from .tracking import TagDetector, LatestCapture
 
 
 def dictionary():
@@ -63,6 +64,14 @@ def camera(a):
     cap.set(cv.CAP_PROP_BUFFERSIZE, 1)
     if not cap.isOpened():
         raise ValueError('Cannot open camera')
+    focus = getattr(a, 'focus', None)
+    if focus is not None:
+        if not cap.set(cv.CAP_PROP_AUTOFOCUS, 0) or not cap.set(cv.CAP_PROP_FOCUS, focus):
+            cap.release()
+            raise ValueError('Camera rejected manual focus; check C920 controls')
+    elif getattr(a, 'focus_mode', 'keep') == 'lock':
+        if not cap.set(cv.CAP_PROP_AUTOFOCUS, 1):
+            print('Autofocus control unavailable; retaining camera focus.', flush=True)
     actual = dict(device=a.camera,width=int(cap.get(cv.CAP_PROP_FRAME_WIDTH)),
                   height=int(cap.get(cv.CAP_PROP_FRAME_HEIGHT)),fps=cap.get(cv.CAP_PROP_FPS),
                   focus=cap.get(cv.CAP_PROP_FOCUS),autofocus=cap.get(cv.CAP_PROP_AUTOFOCUS),
@@ -86,7 +95,7 @@ def show_preview(title, frame):
 def inspect_camera(a):
     """Camera/tag diagnosis only: no pose calibration needed and no rover connection."""
     cap = camera(a)
-    detector = cv.aruco.ArucoDetector(dictionary(),cv.aruco.DetectorParameters())
+    detector = TagDetector(getattr(a, "tag_id", 0))
     print('Camera-only inspection. q exits; no driving or ROS commands.',flush=True)
     try:
         while True:
@@ -177,14 +186,17 @@ def save_calibration(a,points,images,size,accepted=None,rejected=None):
 def track(a):
     calibration = json.loads(Path(a.calibration).read_text())
     k,d = np.array(calibration['K']),np.array(calibration['D'])
-    detector = cv.aruco.ArucoDetector(dictionary(),cv.aruco.DetectorParameters())
+    detector = TagDetector(getattr(a, "tag_id", 0))
     out = Path(a.output)
     out.mkdir(parents=True,exist_ok=False)
     meta = vars(a).copy()
     meta.pop('func')
     meta.update(timestamp='host receipt epoch + measured offset; NOT hardware exposure time',
-                gt_definition='signed projection on configured initial tag axis; straight runs only',
-                verified_for_training=False, calibration=calibration)
+                gt_definition=('full camera-to-tag rotation/translation; s_m is initial-axis projection, not path distance' if getattr(a,'free_motion',False) else 'signed projection on configured initial tag axis; straight runs only'),
+                verified_for_training=False, calibration=calibration,
+                detector=dict(backend='pupil-apriltags',family='tag36h11',quad_decimate=1,
+                              max_hamming=1,min_decision_margin=30,roi_full_resolution=True,
+                              sharpen_retry=True))
     (out/'capture.json').write_text(json.dumps(meta,indent=2))
     cap = camera(a)
     origin = axis = rotation0 = previous_rotation = None
@@ -193,24 +205,23 @@ def track(a):
         ('fps',cv.CAP_PROP_FPS),('autofocus',cv.CAP_PROP_AUTOFOCUS),
         ('focus',cv.CAP_PROP_FOCUS),('auto_exposure',cv.CAP_PROP_AUTO_EXPOSURE),
         ('exposure',cv.CAP_PROP_EXPOSURE)]}
-    meta['camera_readback_note'] = 'Backend readback only; unsupported properties may return zero. No focus or exposure settings changed.'
+    meta['camera_readback_note'] = 'Backend readback only; unsupported properties may return zero. Focus policy recorded in focus_mode/focus; exposure retained. Automatic focus locks after continuous tag decoding.'
     (out/'capture.json').write_text(json.dumps(meta,indent=2))
+    focus_since = None
+    last_focus = None
+    focus_locked = getattr(a, "focus", None) is not None or getattr(a, "focus_mode", "keep") == "keep"
+    capture = LatestCapture(cap)
     last_s = 0.
     writer_video = None
     began = time.monotonic()
-    epoch = time.time()
     try:
         with (out/'gt.csv').open('w') as f, (out/'frames.csv').open('w') as log:
             gt = csv.writer(f); gt.writerow(['t','s_m'])
-            rows = csv.writer(log); rows.writerow(['frame','t','valid','reason','x','y','z','s_m','reprojection_px','heading_change_deg','read_started_epoch','read_completed_epoch','detection_completed_epoch'])
+            rows = csv.writer(log); rows.writerow(['frame','t','valid','reason','x','y','z','s_m','reprojection_px','heading_change_deg','read_started_epoch','read_completed_epoch','detection_completed_epoch','skipped_capture_frames','decision_margin','hamming',*[f'r{i}{j}' for i in range(3) for j in range(3)]])
             index = 0
             while not a.duration or time.monotonic()-began < a.duration:
-                read_started = time.time()
-                ok, frame = cap.read()
-                read_completed = time.time()
-                timestamp = epoch+(time.monotonic()-began)+a.time_offset_s
-                if not ok:
-                    raise ValueError('Camera read failed')
+                frame, read_started, read_completed, skipped = capture.read()
+                timestamp = read_completed+a.time_offset_s
                 if frame.shape[:2] != (calibration['height'],calibration['width']):
                     raise ValueError('Capture resolution differs from calibration; recalibrate at this resolution')
                 if writer_video is None:
@@ -231,8 +242,10 @@ def track(a):
                     cv.aruco.drawDetectedMarkers(frame,corners,ids)
                 valid = False
                 values = ['']*6
+                rotation_values = ['']*9
                 if result is not None:
                     rotation, position, error = result
+                    rotation_values = rotation.ravel().tolist()
                     reason = 'reprojection_error'
                     if error <= a.max_reprojection_px:
                         if origin is None:
@@ -243,24 +256,47 @@ def track(a):
                         angle = float(np.degrees(np.arccos(np.clip((np.trace(rotation0.T@rotation)-1)/2,-1,1))))
                         s = float((position-origin)@axis)
                         lateral = float(np.linalg.norm(position-origin-s*axis))
-                        valid = angle <= a.max_rotation_deg and lateral <= a.max_lateral_m
+                        valid = getattr(a,'free_motion',False) or (angle <= a.max_rotation_deg and lateral <= a.max_lateral_m)
                         reason = 'ok' if valid else 'outside_straight_run_assumption'
                         values = [*position,s,error,angle]
                         if valid:
                             previous_rotation = rotation.copy()
-                            gt.writerow([f'{timestamp:.9f}',s]); f.flush()
+                            if focus_locked:
+                                gt.writerow([f'{timestamp:.9f}',s]); f.flush()
                             last_s = s
-                rows.writerow([index,f'{timestamp:.9f}',int(valid),reason,*values,read_started,read_completed,time.time()]); log.flush()
+                if not focus_locked:
+                    current_focus = cap.get(cv.CAP_PROP_FOCUS)
+                    if last_focus is not None and current_focus != last_focus:
+                        focus_since = None
+                    last_focus = current_focus
+                    if valid:
+                        if focus_since is None: focus_since = time.monotonic()
+                        if time.monotonic()-focus_since >= 1.:
+                            focus_locked = bool(cap.set(cv.CAP_PROP_AUTOFOCUS, 0))
+                            meta['focus_lock'] = dict(success=focus_locked, epoch=time.time(),
+                                focus=cap.get(cv.CAP_PROP_FOCUS), autofocus=cap.get(cv.CAP_PROP_AUTOFOCUS))
+                            (out/'capture.json').write_text(json.dumps(meta,indent=2))
+                            print('Focus lock: '+json.dumps(meta['focus_lock']),flush=True)
+                            if not focus_locked:
+                                raise ValueError('Camera rejected autofocus lock; use --focus-mode keep to retain current controls')
+                    else:
+                        focus_since = None
+                    # Establish the distance origin only after optics have settled.
+                    origin = axis = rotation0 = previous_rotation = None
+                    valid = False
+                    reason = 'focus_settling'
+                rows.writerow([index,f'{timestamp:.9f}',int(valid),reason,*values,read_started,read_completed,time.time(),skipped,detector.margin,detector.hamming,*rotation_values]); log.flush()
                 index += 1
                 if not a.no_preview:
                     cv.putText(frame,f'{reason} | signed distance {last_s:.3f} m',(10,30),cv.FONT_HERSHEY_SIMPLEX,.6,(0,255,0),2)
-                    cv.putText(frame,f'{frame.shape[1]}x{frame.shape[0]} | IDs={[] if ids is None else ids.ravel().tolist()} | candidates={len(rejected)}',(10,65),cv.FONT_HERSHEY_SIMPLEX,.6,(0,255,0),2)
+                    cv.putText(frame,f'{frame.shape[1]}x{frame.shape[0]} | IDs={[] if ids is None else ids.ravel().tolist()} | margin={detector.margin} | bit corrections={detector.hamming}',(10,65),cv.FONT_HERSHEY_SIMPLEX,.6,(0,255,0),2)
                     show_preview('AprilTag GT - q to finish',frame)
                     if cv.waitKey(1)&255 == ord('q'):
                         break
     except KeyboardInterrupt:
         pass
     finally:
+        capture.close()
         cap.release()
         if writer_video is not None:
             writer_video.release()
@@ -285,6 +321,8 @@ def main():
         q.add_argument('--width',type=int,default=1280)
         q.add_argument('--height',type=int,default=720)
         q.add_argument('--fps',type=float,default=30)
+        q.add_argument('--focus-mode',choices=['lock','keep'],default='keep',help='In track mode: auto-focus while stationary, then lock after one second of valid tag detection')
+        q.add_argument('--focus',type=int,help='Explicit fixed C920 focus control, 0..250; overrides focus-mode')
     q = sub.add_parser('print'); tag(q); board(q)
     q.add_argument('--output',default='apriltag_prints'); q.set_defaults(func=prints)
     q = sub.add_parser('calibrate'); board(q); cam(q)
@@ -298,11 +336,12 @@ def main():
     q.add_argument('--time-offset-s',type=float,required=True,help='Measured ROS sensor epoch minus camera receipt epoch, including capture latency')
     q.add_argument('--duration',type=float,default=0,help='Seconds; 0 until Ctrl+C or q')
     q.add_argument('--max-reprojection-px',type=float,default=2)
+    q.add_argument('--free-motion',action='store_true',help='Record full pose without straight-run rotation/lateral gate; GT only')
     q.add_argument('--max-rotation-deg',type=float,default=10)
     q.add_argument('--max-lateral-m',type=float,default=.1)
     q.add_argument('--nominal-speed',type=float,default=.05,help='Metadata only, never a motion command')
     q.add_argument('--no-preview',action='store_true')
-    q.set_defaults(func=track)
+    q.set_defaults(func=track,focus_mode="lock")
     a = p.parse_args()
     if getattr(a,'square_size_mm',None) is not None:
         a.square_size = a.square_size_mm/1000.
@@ -318,6 +357,8 @@ def main():
             p.error(name+' must be positive')
     if hasattr(a,'duration') and (not np.isfinite(a.duration) or a.duration<0):
         p.error('duration must be finite and nonnegative')
+    if hasattr(a,'focus') and a.focus is not None and not 0<=a.focus<=250:
+        p.error('focus must be 0..250')
     a.func(a)
 
 

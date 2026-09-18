@@ -1,0 +1,48 @@
+[
+  {
+    "file": "tnpw-e3.pdf",
+    "url": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "status": "downloaded",
+    "resolved_url": "https://www.vishay.com/docs/28758/tnpw_e3.pdf"
+  },
+  {
+    "file": "crcw-e3.pdf",
+    "url": "https://www.vishay.com/docs/20035/dcrcwe3.pdf",
+    "status": "downloaded",
+    "resolved_url": "https://www.vishay.com/docs/20035/dcrcwe3.pdf"
+  },
+  {
+    "file": "murata-100n.pdf",
+    "url": "https://search.murata.co.jp/Ceramy/image/img/A01X/G101/ENG/GRM188R71C104KA01-01.pdf",
+    "status": "downloaded",
+    "resolved_url": "https://pim.murata.com/asset/pim4/ceramicCapacitorSMD/GRM188R71C104KA01-01-EN_PDF_CERAMICCAPACITORSMD"
+  },
+  {
+    "file": "murata-1n.pdf",
+    "url": "https://search.murata.co.jp/Ceramy/image/img/A01X/G101/ENG/GRM1885C1H102JA01-01A.pdf",
+    "status": "downloaded",
+    "resolved_url": "https://pim.murata.com/asset/pim4/ceramicCapacitorSMD/GRM1885C1H102JA01-01A-EN_PDF_CERAMICCAPACITORSMD"
+  },
+  {
+    "file": "murata-1u.pdf",
+    "url": "https://search.murata.co.jp/Ceramy/image/img/A01X/G101/ENG/GRM188R71E105KA12-01.pdf",
+    "status": "HTTP Error 404: Not Found"
+  },
+  {
+    "file": "murata-4u7.pdf",
+    "url": "https://search.murata.co.jp/Ceramy/image/img/A01X/G101/ENG/GRM188R61A475KE15-01.pdf",
+    "status": "downloaded",
+    "resolved_url": "https://pim.murata.com/asset/pim4/ceramicCapacitorSMD/GRM188R61A475KE15-01-EN_PDF_CERAMICCAPACITORSMD"
+  },
+  {
+    "file": "active-cooler.pdf",
+    "url": "https://datasheets.raspberrypi.com/cooling/raspberry-pi-active-cooler-mechanical-drawing.pdf?download=1",
+    "status": "HTTP Error 403: Forbidden"
+  },
+  {
+    "file": "hat-mechanical.pdf",
+    "url": "https://raw.githubusercontent.com/raspberrypi/hats/master/hat-board-mechanical.pdf",
+    "status": "downloaded",
+    "resolved_url": "https://raw.githubusercontent.com/raspberrypi/hats/master/hat-board-mechanical.pdf"
+  }
+]

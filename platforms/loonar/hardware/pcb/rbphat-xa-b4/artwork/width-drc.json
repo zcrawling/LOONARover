@@ -1,0 +1,283 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-09-11T16:37:27",
+    "ignored_checks": [
+        {
+            "description": "Footprint has no courtyard defined",
+            "key": "missing_courtyard"
+        },
+        {
+            "description": "Track endpoint not centered on via",
+            "key": "track_not_centered_on_via"
+        },
+        {
+            "description": "Tuning profile track geometries",
+            "key": "tuning_profile_track_geometries"
+        },
+        {
+            "description": "Footprint doesn't match symbol's footprint filters",
+            "key": "footprint_filters_mismatch"
+        },
+        {
+            "description": "Footprint component type doesn't match footprint pads",
+            "key": "footprint_type_mismatch"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning"
+    ],
+    "kicad_version": "10.0.4",
+    "schematic_parity": [
+        {
+            "description": "Footprint attributes don't match symbol: 'Exclude from bill of materials' settings differ",
+            "items": [
+                {
+                    "description": "Footprint SH1",
+                    "pos": {
+                        "x": 132.0,
+                        "y": 151.0
+                    },
+                    "uuid": "60598257-b888-4423-8ad6-5fb05c83daa1"
+                }
+            ],
+            "severity": "warning",
+            "type": "footprint_symbol_mismatch"
+        }
+    ],
+    "source": "rbphat.kicad_pcb",
+    "unconnected_items": [
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [+3V3_ANA] on F.Cu, length 0.3499 mm",
+                    "pos": {
+                        "x": 121.9,
+                        "y": 115.9999
+                    },
+                    "uuid": "3c58c28a-2010-43d8-81da-940fafca8168"
+                },
+                {
+                    "description": "Pad 6 [+3V3_ANA] of U2 on F.Cu",
+                    "pos": {
+                        "x": 124.1,
+                        "y": 114.35
+                    },
+                    "uuid": "28b7ec9d-b262-43fb-988a-f79e4d70f358"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [+3V3_ANA] on B.Cu, length 3.3547 mm",
+                    "pos": {
+                        "x": 124.2927,
+                        "y": 128.1758
+                    },
+                    "uuid": "85f04ed6-72ee-4fde-8814-8ce4e54f87a7"
+                },
+                {
+                    "description": "Pad 8 [+3V3_ANA] of U301 on F.Cu",
+                    "pos": {
+                        "x": 120.8,
+                        "y": 131.0
+                    },
+                    "uuid": "195db0e6-3867-4e5e-ba88-8e6f97ca7195"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [+3V3_PI] on F.Cu, length 3.0759 mm",
+                    "pos": {
+                        "x": 107.175,
+                        "y": 122.5
+                    },
+                    "uuid": "cdb9fea5-85cf-41ab-81d8-6026c05a70d2"
+                },
+                {
+                    "description": "Track [+3V3_PI] on F.Cu, length 2.7250 mm",
+                    "pos": {
+                        "x": 111.775,
+                        "y": 126.0
+                    },
+                    "uuid": "fc62cd07-7a43-45dd-a607-849512fe2228"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [+3V3_PI] on F.Cu, length 2.8250 mm",
+                    "pos": {
+                        "x": 123.075,
+                        "y": 110.35
+                    },
+                    "uuid": "9aaa3335-d197-4e06-95f5-4df44c1adb4e"
+                },
+                {
+                    "description": "Track [+3V3_PI] on F.Cu, length 3.7089 mm",
+                    "pos": {
+                        "x": 126.4128,
+                        "y": 115.2967
+                    },
+                    "uuid": "ad8850e3-c2d3-4d32-934c-bfe9d694c033"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Track [+3V3_RS] on F.Cu, length 1.2750 mm",
+                    "pos": {
+                        "x": 129.375,
+                        "y": 110.35
+                    },
+                    "uuid": "bb6c4850-deb2-4861-9702-ab3338bde0b7"
+                },
+                {
+                    "description": "Pad 3 [+3V3_RS] of U1 on F.Cu",
+                    "pos": {
+                        "x": 125.9,
+                        "y": 111.65
+                    },
+                    "uuid": "44d5f595-7ddd-4d40-9c07-cf76d94756ff"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        }
+    ],
+    "violations": [
+        {
+            "description": "Clearance violation (rule 'Copper clearance' clearance 0.2000 mm; actual 0.1967 mm)",
+            "items": [
+                {
+                    "description": "Track [/Battery sensing and I2C isolation/ADC_SCL] on F.Cu, length 0.0412 mm",
+                    "pos": {
+                        "x": 122.9781,
+                        "y": 123.8037
+                    },
+                    "uuid": "902cea49-098f-45e4-b844-c957e06b3a0a"
+                },
+                {
+                    "description": "Track [/Battery sensing and I2C isolation/ADC_SDA] on F.Cu, length 2.7837 mm",
+                    "pos": {
+                        "x": 122.5221,
+                        "y": 124.2254
+                    },
+                    "uuid": "cafb56ea-3c34-4da6-802a-482a337af0ba"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'Copper clearance' clearance 0.2000 mm; actual 0.1967 mm)",
+            "items": [
+                {
+                    "description": "Track [/Battery sensing and I2C isolation/ADC_SCL] on F.Cu, length 0.6003 mm",
+                    "pos": {
+                        "x": 123.5784,
+                        "y": 123.8037
+                    },
+                    "uuid": "5effc86b-e106-4ae4-8478-2030d53252ab"
+                },
+                {
+                    "description": "Track [/Battery sensing and I2C isolation/ADC_SDA] on F.Cu, length 2.7837 mm",
+                    "pos": {
+                        "x": 122.5221,
+                        "y": 124.2254
+                    },
+                    "uuid": "cafb56ea-3c34-4da6-802a-482a337af0ba"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Clearance violation (rule 'Copper clearance' clearance 0.2000 mm; actual 0.1994 mm)",
+            "items": [
+                {
+                    "description": "Track [/Battery sensing and I2C isolation/ADC_SCL] on F.Cu, length 1.2942 mm",
+                    "pos": {
+                        "x": 124.5,
+                        "y": 122.5068
+                    },
+                    "uuid": "6ddb6159-c39b-4e8a-8699-fd95734f65c5"
+                },
+                {
+                    "description": "Track [/Battery sensing and I2C isolation/ADC_SDA] on F.Cu, length 2.7837 mm",
+                    "pos": {
+                        "x": 122.5221,
+                        "y": 124.2254
+                    },
+                    "uuid": "cafb56ea-3c34-4da6-802a-482a337af0ba"
+                }
+            ],
+            "severity": "error",
+            "type": "clearance"
+        },
+        {
+            "description": "Footprint 'XA_S06B_Horizontal' does not match copy in library 'RBPHAT'",
+            "items": [
+                {
+                    "description": "Footprint J3",
+                    "pos": {
+                        "x": 155.8,
+                        "y": 145.0
+                    },
+                    "uuid": "4ed25d9f-c612-4143-978e-441b32164c79"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'XA_S02B_Horizontal' does not match copy in library 'RBPHAT'",
+            "items": [
+                {
+                    "description": "Footprint J4",
+                    "pos": {
+                        "x": 109.2,
+                        "y": 141.0
+                    },
+                    "uuid": "9926bfc4-b99d-41c5-aca6-694ab1ff6d60"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        },
+        {
+            "description": "Footprint 'XA_S06B_Horizontal' does not match copy in library 'RBPHAT'",
+            "items": [
+                {
+                    "description": "Footprint J2",
+                    "pos": {
+                        "x": 155.8,
+                        "y": 124.0
+                    },
+                    "uuid": "d4394e2f-e47f-4a50-8b0f-eed3c5831848"
+                }
+            ],
+            "severity": "warning",
+            "type": "lib_footprint_mismatch"
+        }
+    ]
+}

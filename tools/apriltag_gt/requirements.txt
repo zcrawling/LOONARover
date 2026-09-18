@@ -1,2 +1,6 @@
 opencv-contrib-python>=4.10,<5
 numpy>=2,<3
+
+pupil-apriltags>=1.0.4,<2
+rosbags>=0.10,<0.12
+matplotlib>=3.9,<4

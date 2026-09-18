@@ -16,6 +16,14 @@ LIMO 전용 코드는 `platforms/limo/`, 최종 로버의 하드웨어·MCU·센
 포팅 항목은 `platforms/loonar/`에 둔다. 최종 로버 자료는 레거시가 아니라
 계속 참고해야 하는 이식 기준이다.
 
+## Odometry / localization 기준
+
+[기준 아키텍처](docs/odometry-localization.md)를 따른다(2026-09-11).
+LIMO 4WD skid-steer에서 V1 encoder vx + gyro yaw를 유지하고, primitive prior,
+stationary/ZUPT, slip/contact confidence, STOP-to-STOP ToF correction 순서로 확장한다.
+continuous `odom → base_link`와 외부 보정 `map → odom`을 분리한다.
+이 설계 확정은 runtime 구현·배포 완료를 의미하지 않으며 현재 상태는 기준 문서에 기록한다.
+
 ## 2. 데이터 경로
 
 ```text

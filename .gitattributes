@@ -1,0 +1,9 @@
+# Preserve supplier documents and release archives byte-for-byte.
+*.pdf binary
+*.zip binary
+*.png binary
+*.tar.gz binary
+# Keep CAD interchange exports in their original formatting.
+*.step -text -whitespace
+*.dsn -text -whitespace
+*.ses -text -whitespace

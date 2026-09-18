@@ -1,0 +1,75 @@
+{
+  "divider": {
+    "ratio": 0.16071428571428573,
+    "conversion": 6.222222222222221,
+    "adc_at_12v6": 2.025,
+    "current_ua": 112.5,
+    "top_each_mw": 0.59484375,
+    "bottom_mw": 0.2278125,
+    "thevenin_ohm": 15107.142857142857,
+    "ratio_error_percent_min": -0.167743317034863,
+    "ratio_error_percent_max": 0.16797112326218944
+  },
+  "rc": {
+    "capacitance_nominal_f": 1e-06,
+    "tau_ms": 15.107142857142858,
+    "cutoff_hz": 10.535078975350046,
+    "settle_to_0p1pct_ms": 104.35644582176586
+  },
+  "adc": {
+    "lsb_v_at_4v096": 0.000125,
+    "battery_lsb_mv": 0.7777777777777777,
+    "typical_loading_only": [
+      {
+        "battery_v": 9.0,
+        "ideal_adc_v": 1.4464285714285716,
+        "typical_loaded_adc_v": 1.4431041293725333,
+        "inferred_battery_error_mv": -20.685417237571002
+      },
+      {
+        "battery_v": 11.1,
+        "ideal_adc_v": 1.7839285714285715,
+        "typical_loaded_adc_v": 1.7794186207902856,
+        "inferred_battery_error_mv": -28.06191508266842
+      },
+      {
+        "battery_v": 12.6,
+        "ideal_adc_v": 2.025,
+        "typical_loaded_adc_v": 2.0196432575172514,
+        "inferred_battery_error_mv": -33.330842114880355
+      }
+    ],
+    "tmux_50na_equivalent_battery_error_mv": 4.699999999999999,
+    "adc_absmax_violation_example": {
+      "vdd": 1.5,
+      "input_v": 2.025,
+      "maximum_allowed_v": 1.8
+    },
+    "poweroff_tmux_leakage_max_ua_datasheet_conditions": 2
+  },
+  "bias": [
+    {
+      "resistor_ohm": 680.0,
+      "nominal_idle_v": 0.26756756756756755,
+      "min_idle_v_assuming_1pct_3v_12kohm_receiver": 0.23665360016526976,
+      "margin_above_200mv": 0.03665360016526975,
+      "off_rail_current_at_a_3v3_ma": 4.852941176470588
+    },
+    {
+      "resistor_ohm": 560.0,
+      "nominal_idle_v": 0.3193548387096774,
+      "min_idle_v_assuming_1pct_3v_12kohm_receiver": 0.28258826236826345,
+      "margin_above_200mv": 0.08258826236826344,
+      "off_rail_current_at_a_3v3_ma": 5.892857142857142
+    }
+  ],
+  "uart": {
+    "bit_time_ns_at_2mbps": 500,
+    "series_47ohm_20pf_10to90_ns": 2.068,
+    "pullup_47kohm_20pf_10to90_ns": 2068.0000000000005
+  },
+  "load_estimate": {
+    "two_120ohm_loads_at_3v6_ma": 60.00000000000001,
+    "note": "Ideal line-load estimate, not guaranteed total supply current; excludes faults"
+  }
+}

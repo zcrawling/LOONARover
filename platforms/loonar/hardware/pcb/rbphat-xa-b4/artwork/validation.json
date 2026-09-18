@@ -1,0 +1,107 @@
+{
+  "pcb_sha256": "770eb437496c072737c87d44b5bfd90c3ae719ff76c87c9c30c7b5cb35d619f3",
+  "revision": "B4",
+  "schematic_pin_assignments_checked": 243,
+  "erc_errors": 0,
+  "erc_warnings": 0,
+  "drc_violations": 0,
+  "unconnected_items": 0,
+  "schematic_parity_issues": 0,
+  "circuit_items": 73,
+  "mounting_holes": 4,
+  "fitted_smd_parts": 61,
+  "fitted_top_pth_connectors": 3,
+  "fitted_bottom_pth_socket": 1,
+  "dnp_parts": [],
+  "testpoints": 7,
+  "track_segments": 480,
+  "through_vias": 71,
+  "trace_width_mm": [
+    0.2,
+    0.5
+  ],
+  "routing_layer_length_mm": {
+    "F.Cu": 631.7701664170743,
+    "B.Cu": 244.06070123395102
+  },
+  "net_copper_length_mm": {
+    "+3V3_ANA": 72.9652,
+    "+3V3_PI": 114.82,
+    "+3V3_RS": 46.4824,
+    "/ANA_FEED": 6.3377,
+    "/ANA_STATUS_UNUSED": 8.9689,
+    "/Battery sensing and I2C isolation/ADC_SCL": 20.8213,
+    "/Battery sensing and I2C isolation/ADC_SDA": 16.2812,
+    "/Battery sensing and I2C isolation/BAT_ADC": 22.9492,
+    "/Battery sensing and I2C isolation/BAT_DIV": 17.1207,
+    "/Battery sensing and I2C isolation/BAT_MID": 9.5202,
+    "/Battery sensing and I2C isolation/BAT_RAW": 9.8607,
+    "/CTRL full-duplex RS-422/CTRL_A": 2.1215,
+    "/CTRL full-duplex RS-422/CTRL_B": 1.9433,
+    "/CTRL full-duplex RS-422/CTRL_DI": 2.6262,
+    "/CTRL full-duplex RS-422/CTRL_RO": 9.9066,
+    "/CTRL full-duplex RS-422/CTRL_RX+": 17.1107,
+    "/CTRL full-duplex RS-422/CTRL_RX-": 12.3719,
+    "/CTRL full-duplex RS-422/CTRL_RX_BUF": 4.8444,
+    "/CTRL full-duplex RS-422/CTRL_TX+": 11.5112,
+    "/CTRL full-duplex RS-422/CTRL_TX-": 12.5045,
+    "/CTRL full-duplex RS-422/CTRL_TX_BUF": 3.6349,
+    "/CTRL full-duplex RS-422/CTRL_VCC": 11.3824,
+    "/CTRL full-duplex RS-422/CTRL_Y": 2.1629,
+    "/CTRL full-duplex RS-422/CTRL_Z": 1.9848,
+    "/PAY full-duplex RS-422/PAY_A": 2.1215,
+    "/PAY full-duplex RS-422/PAY_B": 1.9433,
+    "/PAY full-duplex RS-422/PAY_DI": 2.6262,
+    "/PAY full-duplex RS-422/PAY_RO": 9.2565,
+    "/PAY full-duplex RS-422/PAY_RX+": 16.0072,
+    "/PAY full-duplex RS-422/PAY_RX-": 12.5023,
+    "/PAY full-duplex RS-422/PAY_RX_BUF": 4.516,
+    "/PAY full-duplex RS-422/PAY_TX+": 10.4652,
+    "/PAY full-duplex RS-422/PAY_TX-": 9.6934,
+    "/PAY full-duplex RS-422/PAY_TX_BUF": 3.6349,
+    "/PAY full-duplex RS-422/PAY_VCC": 11.3824,
+    "/PAY full-duplex RS-422/PAY_Y": 2.1629,
+    "/PAY full-duplex RS-422/PAY_Z": 1.9848,
+    "/RS_STATUS_UNUSED": 4.1396,
+    "CHASSIS": 55.2735,
+    "CTRL_RX": 29.1262,
+    "CTRL_TX": 22.0956,
+    "GND": 49.0842,
+    "PAY_RX": 53.6337,
+    "PAY_TX": 45.1132,
+    "PI_SCL": 22.0921,
+    "PI_SDA": 27.0935,
+    "POWER_GOOD": 39.6499
+  },
+  "ground_planes": {
+    "In1.Cu": "single connected filled island",
+    "In2.Cu": "single connected filled island"
+  },
+  "drc_ignored_checks": [
+    {
+      "description": "Footprint has no courtyard defined",
+      "key": "missing_courtyard"
+    },
+    {
+      "description": "Track endpoint not centered on via",
+      "key": "track_not_centered_on_via"
+    },
+    {
+      "description": "Tuning profile track geometries",
+      "key": "tuning_profile_track_geometries"
+    },
+    {
+      "description": "Footprint doesn't match symbol's footprint filters",
+      "key": "footprint_filters_mismatch"
+    },
+    {
+      "description": "Footprint component type doesn't match footprint pads",
+      "key": "footprint_type_mismatch"
+    }
+  ],
+  "limitations": [
+    "CAD checks establish no detected layout/connectivity violations; no physical prototype or EMC testing performed.",
+    "2 Mbps target; no controlled-impedance fabrication requirement or 50 Mbps qualification claimed.",
+    "Nominal 19 mm mechanical stack needs first-article fit verification."
+  ]
+}

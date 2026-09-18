@@ -12,6 +12,11 @@ control integration. It does not vendor or fork NASA cFS.
 The TCP connection carries no video and no ROS 2 data. Reconnecting the TCP
 client does not change the selected vehicle mode.
 
+For a one-command PC integration test without ROS, use
+[`tools/run_gcs_test.sh`](../tools/gcs_test/README.md). It builds an isolated
+NASA cFS runtime, starts the gateway and both LOONAR apps, and optionally sends
+test-pattern or V4L2 video to a GCS IP supplied on the command line.
+
 ## Add to a cFS mission
 
 Make these application directories visible in the mission's `apps/` directory:

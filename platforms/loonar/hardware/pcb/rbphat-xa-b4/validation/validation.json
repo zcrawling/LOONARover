@@ -1,0 +1,697 @@
+{
+  "kicad_version": "10.0.4",
+  "sheets": 4,
+  "components": 73,
+  "pin_connections_checked": 243,
+  "erc_errors": 0,
+  "erc_warnings": 0,
+  "explicit_erc_exclusions": 0,
+  "default_ignored_checks": "- Global label only appears once in the schematic\n    - Four connection points are joined together\n    - SPICE model issue\n    - Assigned footprint doesn't match footprint filters",
+  "footprint_pad_number_checks": [
+    {
+      "reference": "J1",
+      "footprint": "RBPHAT:GPIO_2x20_H16_Drill1.02",
+      "numbered_pads": [
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "3",
+        "30",
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36",
+        "37",
+        "38",
+        "39",
+        "4",
+        "40",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ]
+    },
+    {
+      "reference": "U1",
+      "footprint": "RBPHAT:TI_DCK0006A",
+      "numbered_pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    },
+    {
+      "reference": "U2",
+      "footprint": "RBPHAT:TI_DCK0006A",
+      "numbered_pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    },
+    {
+      "reference": "R7",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R8",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R1",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "C1",
+      "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "C2",
+      "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "C3",
+      "footprint": "RBPHAT:Panasonic_FK_D_6.3x5.8",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R2",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R3",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "U3",
+      "footprint": "RBPHAT:TI_DBZ0003A",
+      "numbered_pads": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "reference": "R4",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R5",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R6",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "C4",
+      "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "C5",
+      "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "SH1",
+      "footprint": "RBPHAT:Chassis_M3_Plated",
+      "numbered_pads": [
+        "1"
+      ]
+    },
+    {
+      "reference": "TP1",
+      "footprint": "RBPHAT:TestPoint_TestPoint_Pad_D1.5mm",
+      "numbered_pads": [
+        "1"
+      ]
+    },
+    {
+      "reference": "U100",
+      "footprint": "RBPHAT:TI_DBV0006A",
+      "numbered_pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    },
+    {
+      "reference": "U101",
+      "footprint": "RBPHAT:TI_D0008A",
+      "numbered_pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+      ]
+    },
+    {
+      "reference": "J2",
+      "footprint": "RBPHAT:XA_S06B_Horizontal",
+      "numbered_pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    },
+    {
+      "reference": "R108",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "TP100",
+      "footprint": "RBPHAT:TestPoint_TestPoint_Pad_D1.5mm",
+      "numbered_pads": [
+        "1"
+      ]
+    },
+    {
+      "reference": "R100",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R101",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R102",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R103",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R104",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R105",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R106",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R107",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "D100",
+      "footprint": "RBPHAT:Bourns_CDSOT23_SM712",
+      "numbered_pads": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "reference": "D101",
+      "footprint": "RBPHAT:Bourns_CDSOT23_SM712",
+      "numbered_pads": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "reference": "C100",
+      "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "C101",
+      "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "U200",
+      "footprint": "RBPHAT:TI_DBV0006A",
+      "numbered_pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    },
+    {
+      "reference": "U201",
+      "footprint": "RBPHAT:TI_D0008A",
+      "numbered_pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+      ]
+    },
+    {
+      "reference": "J3",
+      "footprint": "RBPHAT:XA_S06B_Horizontal",
+      "numbered_pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    },
+    {
+      "reference": "R208",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "TP200",
+      "footprint": "RBPHAT:TestPoint_TestPoint_Pad_D1.5mm",
+      "numbered_pads": [
+        "1"
+      ]
+    },
+    {
+      "reference": "R200",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R201",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R202",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R203",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R204",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R205",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R206",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R207",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "D200",
+      "footprint": "RBPHAT:Bourns_CDSOT23_SM712",
+      "numbered_pads": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "reference": "D201",
+      "footprint": "RBPHAT:Bourns_CDSOT23_SM712",
+      "numbered_pads": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "reference": "C200",
+      "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "C201",
+      "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "J4",
+      "footprint": "RBPHAT:XA_S02B_Horizontal",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R300",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R301",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R302",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "C300",
+      "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "U300",
+      "footprint": "RBPHAT:TI_PW0014A",
+      "numbered_pads": [
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ]
+    },
+    {
+      "reference": "U301",
+      "footprint": "RBPHAT:TI_DGS0010A",
+      "numbered_pads": [
+        "1",
+        "10",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ]
+    },
+    {
+      "reference": "R303",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "C301",
+      "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "U302",
+      "footprint": "RBPHAT:TI_DGK0008A",
+      "numbered_pads": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+      ]
+    },
+    {
+      "reference": "R304",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "R305",
+      "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "C302",
+      "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "C303",
+      "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "C304",
+      "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "C305",
+      "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+      "numbered_pads": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "reference": "TP300",
+      "footprint": "RBPHAT:TestPoint_TestPoint_Pad_D1.5mm",
+      "numbered_pads": [
+        "1"
+      ]
+    },
+    {
+      "reference": "TP301",
+      "footprint": "RBPHAT:TestPoint_TestPoint_Pad_D1.5mm",
+      "numbered_pads": [
+        "1"
+      ]
+    },
+    {
+      "reference": "TP302",
+      "footprint": "RBPHAT:TestPoint_TestPoint_Pad_D1.5mm",
+      "numbered_pads": [
+        "1"
+      ]
+    },
+    {
+      "reference": "TP303",
+      "footprint": "RBPHAT:TestPoint_TestPoint_Pad_D1.5mm",
+      "numbered_pads": [
+        "1"
+      ]
+    }
+  ],
+  "limits": [
+    "ERC and connectivity are not transient simulation or physical hardware tests.",
+    "Pad-number coverage does not establish land-pattern dimensions or 3D mechanical clearance."
+  ]
+}

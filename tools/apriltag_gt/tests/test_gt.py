@@ -56,6 +56,10 @@ class GTTests(unittest.TestCase):
         detected = ([c.reshape(1,4,2).astype(np.float32)],np.array([[0]],np.int32),[])
         detector = MagicMock()
         detector.detectMarkers.side_effect = [detected,([],None,[]),detected]
+        detector.margin = 50.
+        detector.hamming = 0
+        capture = MagicMock()
+        capture.read.side_effect = [(np.zeros((720,1280,3),np.uint8),1.,1.01,0) for _ in range(3)]
         cap = MagicMock()
         cap.get.return_value = 0.0
         cap.read.side_effect = [(True,np.zeros((720,1280,3),np.uint8)) for _ in range(3)]
@@ -65,7 +69,7 @@ class GTTests(unittest.TestCase):
             a = SimpleNamespace(calibration=str(calibration),output=str(Path(tmp)/'run'),
                 func=track,fps=30,duration=0,time_offset_s=0.,tag_size=.15,tag_id=0,
                 max_reprojection_px=2,max_rotation_deg=10,max_lateral_m=.1,no_preview=False)
-            with patch('loonar_apriltag.gt.camera',return_value=cap), patch('loonar_apriltag.gt.cv.aruco.ArucoDetector',return_value=detector), patch('loonar_apriltag.gt.cv.VideoWriter'), patch('loonar_apriltag.gt.show_preview'), patch('loonar_apriltag.gt.cv.waitKey',side_effect=[0,0,ord('q')]), patch('loonar_apriltag.gt.cv.destroyAllWindows'):
+            with patch('loonar_apriltag.gt.camera',return_value=cap), patch('loonar_apriltag.gt.TagDetector',return_value=detector), patch('loonar_apriltag.gt.LatestCapture',return_value=capture), patch('loonar_apriltag.gt.cv.VideoWriter'), patch('loonar_apriltag.gt.show_preview'), patch('loonar_apriltag.gt.cv.waitKey',side_effect=[0,0,ord('q')]), patch('loonar_apriltag.gt.cv.destroyAllWindows'):
                 track(a)
             with (Path(a.output)/'gt.csv').open() as f:
                 rows=list(csv.DictReader(f))
@@ -76,6 +80,34 @@ class GTTests(unittest.TestCase):
             self.assertEqual([x['valid'] for x in frames],['1','0','1'])
             self.assertEqual(frames[1]['reason'],'tag_missing')
             cap.release.assert_called_once()
+
+    def test_focus_settling_does_not_start_distance_measurement(self):
+        import itertools
+        k = np.array([[1000.,0,640],[0,1000,360],[0,0,1.]])
+        c,_ = cv.projectPoints(objects(.15),np.array([2.9,.1,.05]),np.array([0.,0.,2.]),k,np.zeros(5))
+        detector = MagicMock()
+        detector.detectMarkers.return_value = ([c.reshape(1,4,2).astype(np.float32)],np.array([[0]],np.int32),[])
+        detector.margin,detector.hamming = 60.,0
+        cap = MagicMock()
+        cap.get.return_value = 10.
+        cap.set.return_value = True
+        capture = MagicMock()
+        capture.read.return_value = (np.zeros((720,1280,3),np.uint8),1.,1.1,0)
+        with tempfile.TemporaryDirectory() as tmp:
+            cal = Path(tmp)/'cal.json'
+            cal.write_text(json.dumps(dict(K=k.tolist(),D=[0.]*5,width=1280,height=720)))
+            a = SimpleNamespace(calibration=str(cal),output=str(Path(tmp)/'run'),func=track,
+                fps=30,duration=0,time_offset_s=0.,tag_size=.15,tag_id=0,
+                max_reprojection_px=2,max_rotation_deg=10,max_lateral_m=.1,no_preview=False,
+                focus_mode='lock',focus=None)
+            with patch('loonar_apriltag.gt.camera',return_value=cap), patch('loonar_apriltag.gt.TagDetector',return_value=detector), patch('loonar_apriltag.gt.LatestCapture',return_value=capture), patch('loonar_apriltag.gt.cv.VideoWriter'), patch('loonar_apriltag.gt.show_preview'), patch('loonar_apriltag.gt.cv.destroyAllWindows'), patch('loonar_apriltag.gt.cv.waitKey',side_effect=[0,0,0,ord('q')]), patch('loonar_apriltag.gt.time.monotonic',side_effect=itertools.count(0,.6)):
+                track(a)
+            rows = list(csv.DictReader((Path(a.output)/'frames.csv').read_text().splitlines()))
+            self.assertEqual([r['valid'] for r in rows],['0','0','1','1'])
+            self.assertEqual(rows[0]['reason'],'focus_settling')
+            gt = list(csv.DictReader((Path(a.output)/'gt.csv').read_text().splitlines()))
+            self.assertEqual(len(gt),2)
+            cap.set.assert_called_once_with(cv.CAP_PROP_AUTOFOCUS,0)
 
 
 if __name__=='__main__':unittest.main()

@@ -1,0 +1,46 @@
+[
+  {
+    "file": "sm712-legacy.pdf",
+    "url": "https://www.semtech.com/images/datasheet/sm712.pdf",
+    "error": "AssertionError('not PDF')"
+  },
+  {
+    "file": "max3490e.pdf",
+    "url": "https://www.analog.com/media/en/technical-documentation/data-sheets/max3483e-max3491e.pdf?download=1",
+    "error": "TimeoutError('The read operation timed out')"
+  },
+  {
+    "file": "maxim-soic-outline.pdf",
+    "url": "https://www.analog.com/media/en/package-pcb-resources/package/21-0041.pdf",
+    "error": "TimeoutError('The read operation timed out')"
+  },
+  {
+    "file": "maxim-soic-land.pdf",
+    "url": "https://www.analog.com/media/en/package-pcb-resources/land-pattern/90-0096.pdf",
+    "error": "TimeoutError('The read operation timed out')"
+  },
+  {
+    "file": "hat-plus-specification.pdf",
+    "url": "https://datasheets.raspberrypi.com/hat/hat-plus-specification.pdf?download=1",
+    "resolved_url": "https://pip-assets.raspberrypi.com/categories/1215-raspberry-pi-hat/documents/RP-008281-DS-1-hat-plus-specification.pdf",
+    "sha256": "3a0932253767147038383162ac9f4b5aac3adb048c30bd1f9177a462a054ca1e",
+    "bytes": 1210200,
+    "retrieved": "2026-09-05"
+  },
+  {
+    "file": "rp1-peripherals.pdf",
+    "url": "https://datasheets.raspberrypi.com/rp1/rp1-peripherals.pdf?download=1",
+    "resolved_url": "https://pip-assets.raspberrypi.com/categories/892-raspberry-pi-5/documents/RP-008370-DS-1-rp1-peripherals.pdf",
+    "sha256": "87fb7b24e8d9add075b849d095a107827610c0409ea194785af624c1ea986c3d",
+    "bytes": 3513008,
+    "retrieved": "2026-09-05"
+  },
+  {
+    "file": "pi5-mechanical.pdf",
+    "url": "https://datasheets.raspberrypi.com/rpi5/raspberry-pi-5-mechanical-drawing.pdf",
+    "resolved_url": "https://pip-assets.raspberrypi.com/categories/892-raspberry-pi-5/documents/RP-008347-DS-1-raspberry-pi-5-mechanical-drawing.pdf",
+    "sha256": "5dd680d6c1f5e7aa9c7b020695e315d04aac862df82ff01d4e9041cd0668d7f2",
+    "bytes": 174949,
+    "retrieved": "2026-09-05"
+  }
+]

@@ -1,0 +1,2694 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export version="E">
+  <design>
+    <source>/home/sb/LOONAR/platforms/loonar/hardware/pcb/rbphat-xa-b4/rbphat.kicad_sch</source>
+    <date>2026-09-11T16:47:56</date>
+    <tool>Eeschema 10.0.4-10.0.4~ubuntu26.04.1</tool>
+    <sheet number="1" name="/" tstamps="/">
+      <title_block>
+        <title>Pi 5 interface and protected power</title>
+        <company>LOONAR</company>
+        <rev>B4</rev>
+        <date>2026-09-11</date>
+        <source>rbphat.kicad_sch</source>
+        <comment number="1" value="H16 socket / gap19 / Active Cooler; common ground; prototype / B4 XA horizontal"/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+        <comment number="5" value=""/>
+        <comment number="6" value=""/>
+        <comment number="7" value=""/>
+        <comment number="8" value=""/>
+        <comment number="9" value=""/>
+      </title_block>
+    </sheet>
+    <sheet number="2" name="/CTRL full-duplex RS-422/" tstamps="/4902c090-5bfa-5004-8c47-d2c84db843ae/">
+      <title_block>
+        <title>CTRL full-duplex RS-422</title>
+        <company>LOONAR</company>
+        <rev>B4</rev>
+        <date>2026-09-11</date>
+        <source>control.kicad_sch</source>
+        <comment number="1" value="H16 socket / gap19 / Active Cooler; common ground; prototype / B4 XA horizontal"/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+        <comment number="5" value=""/>
+        <comment number="6" value=""/>
+        <comment number="7" value=""/>
+        <comment number="8" value=""/>
+        <comment number="9" value=""/>
+      </title_block>
+    </sheet>
+    <sheet number="3" name="/PAY full-duplex RS-422/" tstamps="/f231571d-34d8-52bc-8c2f-7470425d7a6f/">
+      <title_block>
+        <title>PAY full-duplex RS-422</title>
+        <company>LOONAR</company>
+        <rev>B4</rev>
+        <date>2026-09-11</date>
+        <source>payload.kicad_sch</source>
+        <comment number="1" value="H16 socket / gap19 / Active Cooler; common ground; prototype / B4 XA horizontal"/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+        <comment number="5" value=""/>
+        <comment number="6" value=""/>
+        <comment number="7" value=""/>
+        <comment number="8" value=""/>
+        <comment number="9" value=""/>
+      </title_block>
+    </sheet>
+    <sheet number="4" name="/Battery sensing and I2C isolation/" tstamps="/6f318647-fd72-5e69-9a33-a41682075ae9/">
+      <title_block>
+        <title>Battery sensing and I2C isolation</title>
+        <company>LOONAR</company>
+        <rev>B4</rev>
+        <date>2026-09-11</date>
+        <source>battery.kicad_sch</source>
+        <comment number="1" value="H16 socket / gap19 / Active Cooler; common ground; prototype / B4 XA horizontal"/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+        <comment number="5" value=""/>
+        <comment number="6" value=""/>
+        <comment number="7" value=""/>
+        <comment number="8" value=""/>
+        <comment number="9" value=""/>
+      </title_block>
+    </sheet>
+  </design>
+  <components>
+    <comp ref="C1">
+      <value>1u / 25V / X7R</value>
+      <footprint>RBPHAT:Capacitor_SMD_C_0603_1608Metric</footprint>
+      <datasheet>https://www.murata.com/products/productdetail?partno=GRM188R71E105KA12%23</datasheet>
+      <fields>
+        <field name="MPN">GRM188R71E105KA12D</field>
+        <field name="Footprint">RBPHAT:Capacitor_SMD_C_0603_1608Metric</field>
+        <field name="Datasheet">https://www.murata.com/products/productdetail?partno=GRM188R71E105KA12%23</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="C" description=""/>
+      <property name="MPN" value="GRM188R71E105KA12D"/>
+      <property name="Sheetname" value="rbphat"/>
+      <property name="Sheetfile" value="rbphat.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>fb0a5e24-e49d-552c-974a-2edeb9265991</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C2">
+      <value>4.7u / 10V / X5R</value>
+      <footprint>RBPHAT:Capacitor_SMD_C_0603_1608Metric</footprint>
+      <datasheet>https://www.murata.com/products/productdetail?partno=GRM188R61A475KE15%23</datasheet>
+      <fields>
+        <field name="MPN">GRM188R61A475KE15D</field>
+        <field name="Footprint">RBPHAT:Capacitor_SMD_C_0603_1608Metric</field>
+        <field name="Datasheet">https://www.murata.com/products/productdetail?partno=GRM188R61A475KE15%23</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="C" description=""/>
+      <property name="MPN" value="GRM188R61A475KE15D"/>
+      <property name="Sheetname" value="rbphat"/>
+      <property name="Sheetfile" value="rbphat.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>ad6442cc-2db2-5802-b045-f5e7d0a86cc5</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C3">
+      <value>100u / 16V / 20%</value>
+      <footprint>RBPHAT:Panasonic_FK_D_6.3x5.8</footprint>
+      <datasheet>https://api.pim.na.industrial.panasonic.com/file_stream/main/fileversion/3128</datasheet>
+      <fields>
+        <field name="MPN">EEEFK1C101P</field>
+        <field name="Footprint">RBPHAT:Panasonic_FK_D_6.3x5.8</field>
+        <field name="Datasheet">https://api.pim.na.industrial.panasonic.com/file_stream/main/fileversion/3128</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="CP" description=""/>
+      <property name="MPN" value="EEEFK1C101P"/>
+      <property name="Sheetname" value="rbphat"/>
+      <property name="Sheetfile" value="rbphat.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>4b19ba91-c3bb-5f3c-bab4-97e32de0ce81</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C4">
+      <value>100n / 16V / X7R</value>
+      <footprint>RBPHAT:Capacitor_SMD_C_0603_1608Metric</footprint>
+      <datasheet>https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23</datasheet>
+      <fields>
+        <field name="MPN">GRM188R71C104KA01D</field>
+        <field name="Footprint">RBPHAT:Capacitor_SMD_C_0603_1608Metric</field>
+        <field name="Datasheet">https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="C" description=""/>
+      <property name="MPN" value="GRM188R71C104KA01D"/>
+      <property name="Sheetname" value="rbphat"/>
+      <property name="Sheetfile" value="rbphat.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>14faccab-4706-55d0-9a1b-6f7a20ba76e2</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C5">
+      <value>1u / 25V / X7R</value>
+      <footprint>RBPHAT:Capacitor_SMD_C_0603_1608Metric</footprint>
+      <datasheet>https://www.murata.com/products/productdetail?partno=GRM188R71E105KA12%23</datasheet>
+      <fields>
+        <field name="MPN">GRM188R71E105KA12D</field>
+        <field name="Footprint">RBPHAT:Capacitor_SMD_C_0603_1608Metric</field>
+        <field name="Datasheet">https://www.murata.com/products/productdetail?partno=GRM188R71E105KA12%23</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="C" description=""/>
+      <property name="MPN" value="GRM188R71E105KA12D"/>
+      <property name="Sheetname" value="rbphat"/>
+      <property name="Sheetfile" value="rbphat.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>3140bfd1-c7f6-591f-87c1-af8ffae3c71b</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="J1">
+      <value>Pi 5 / H16 / gap19</value>
+      <footprint>RBPHAT:GPIO_2x20_H16_Drill1.02</footprint>
+      <datasheet>https://cdn.sparkfun.com/assets/0/b/8/5/2/DS-16763-2_X_20_Pin_Extended_GPIO_Header_-_Female_-_16mm_7.30mm.pdf</datasheet>
+      <fields>
+        <field name="MPN">PRT-16763</field>
+        <field name="Footprint">RBPHAT:GPIO_2x20_H16_Drill1.02</field>
+        <field name="Datasheet">https://cdn.sparkfun.com/assets/0/b/8/5/2/DS-16763-2_X_20_Pin_Extended_GPIO_Header_-_Female_-_16mm_7.30mm.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="PI40" description=""/>
+      <property name="MPN" value="PRT-16763"/>
+      <property name="Sheetname" value="rbphat"/>
+      <property name="Sheetfile" value="rbphat.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>4d89576f-f50d-5725-b39e-413f1dedaa84</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="3"/>
+            <pin num="5"/>
+            <pin num="7"/>
+            <pin num="9"/>
+            <pin num="11"/>
+            <pin num="13"/>
+            <pin num="15"/>
+            <pin num="17"/>
+            <pin num="19"/>
+            <pin num="21"/>
+            <pin num="23"/>
+            <pin num="25"/>
+            <pin num="27"/>
+            <pin num="29"/>
+            <pin num="31"/>
+            <pin num="33"/>
+            <pin num="35"/>
+            <pin num="37"/>
+            <pin num="39"/>
+            <pin num="2"/>
+            <pin num="4"/>
+            <pin num="6"/>
+            <pin num="8"/>
+            <pin num="10"/>
+            <pin num="12"/>
+            <pin num="14"/>
+            <pin num="16"/>
+            <pin num="18"/>
+            <pin num="20"/>
+            <pin num="22"/>
+            <pin num="24"/>
+            <pin num="26"/>
+            <pin num="28"/>
+            <pin num="30"/>
+            <pin num="32"/>
+            <pin num="34"/>
+            <pin num="36"/>
+            <pin num="38"/>
+            <pin num="40"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R1">
+      <value>22R pulse</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20043/crcwhpe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW060322R0FKEAHP</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20043/crcwhpe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW060322R0FKEAHP"/>
+      <property name="Sheetname" value="rbphat"/>
+      <property name="Sheetfile" value="rbphat.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>4334f100-6e1c-5132-aea6-18e0a6dbb781</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R2">
+      <value>10k</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20035/dcrcwe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW060310K0FKEA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20035/dcrcwe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW060310K0FKEA"/>
+      <property name="Sheetname" value="rbphat"/>
+      <property name="Sheetfile" value="rbphat.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>852f0f76-dd84-52f8-9bff-e77a461c60fa</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R3">
+      <value>10k</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20035/dcrcwe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW060310K0FKEA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20035/dcrcwe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW060310K0FKEA"/>
+      <property name="Sheetname" value="rbphat"/>
+      <property name="Sheetfile" value="rbphat.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>b79f5308-17b9-5d50-a5a5-07cee5901307</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R4">
+      <value>10k</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20035/dcrcwe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW060310K0FKEA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20035/dcrcwe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW060310K0FKEA"/>
+      <property name="Sheetname" value="rbphat"/>
+      <property name="Sheetfile" value="rbphat.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>061731d7-5452-5161-9b83-3f6fcc522ac2</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R5">
+      <value>100k</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20035/dcrcwe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW0603100KFKEA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20035/dcrcwe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW0603100KFKEA"/>
+      <property name="Sheetname" value="rbphat"/>
+      <property name="Sheetfile" value="rbphat.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>d3fe227f-9ca1-5b7e-8225-5adfc73f7e82</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R6">
+      <value>1k</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20035/dcrcwe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW06031K00FKEA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20035/dcrcwe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW06031K00FKEA"/>
+      <property name="Sheetname" value="rbphat"/>
+      <property name="Sheetfile" value="rbphat.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>d9eed1b4-5ee2-5d9d-831a-358d404a67fc</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R7">
+      <value>10k</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20035/dcrcwe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW060310K0FKEA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20035/dcrcwe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW060310K0FKEA"/>
+      <property name="Sheetname" value="rbphat"/>
+      <property name="Sheetfile" value="rbphat.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>24dd6574-efe7-50b5-83ca-1da2cf322e29</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R8">
+      <value>10k</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20035/dcrcwe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW060310K0FKEA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20035/dcrcwe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW060310K0FKEA"/>
+      <property name="Sheetname" value="rbphat"/>
+      <property name="Sheetfile" value="rbphat.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>eb35a001-aeae-5025-9b42-f0cac8ed1cec</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="SH1">
+      <value>CHASSIS / M3 ring terminal</value>
+      <footprint>RBPHAT:Chassis_M3_Plated</footprint>
+      <fields>
+        <field name="MPN">PCB chassis lug / M3 hardware</field>
+        <field name="Footprint">RBPHAT:Chassis_M3_Plated</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="TP" description=""/>
+      <property name="MPN" value="PCB chassis lug / M3 hardware"/>
+      <property name="Sheetname" value="rbphat"/>
+      <property name="Sheetfile" value="rbphat.kicad_sch"/>
+      <property name="exclude_from_bom"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>47abcf37-3aa3-525b-b906-84520deed34c</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="TP1">
+      <value>ANA supply</value>
+      <footprint>RBPHAT:TestPoint_TestPoint_Pad_D1.5mm</footprint>
+      <fields>
+        <field name="MPN">PCB feature - no purchased part</field>
+        <field name="Footprint">RBPHAT:TestPoint_TestPoint_Pad_D1.5mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="TP" description=""/>
+      <property name="MPN" value="PCB feature - no purchased part"/>
+      <property name="Sheetname" value="rbphat"/>
+      <property name="Sheetfile" value="rbphat.kicad_sch"/>
+      <property name="exclude_from_bom"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>bc9ae3ad-4a6a-5021-bffb-93dc17b107a8</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U1">
+      <value>LM66100DCKR</value>
+      <footprint>RBPHAT:TI_DCK0006A</footprint>
+      <datasheet>https://www.ti.com/lit/ds/symlink/lm66100.pdf</datasheet>
+      <fields>
+        <field name="MPN">LM66100DCKR</field>
+        <field name="Footprint">RBPHAT:TI_DCK0006A</field>
+        <field name="Datasheet">https://www.ti.com/lit/ds/symlink/lm66100.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="LM66100" description=""/>
+      <property name="MPN" value="LM66100DCKR"/>
+      <property name="Sheetname" value="rbphat"/>
+      <property name="Sheetfile" value="rbphat.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>51ef06a4-afa4-5305-a579-a4cf80ffe3f9</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+            <pin num="3"/>
+            <pin num="6"/>
+            <pin num="5"/>
+            <pin num="4"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U2">
+      <value>LM66100DCKR</value>
+      <footprint>RBPHAT:TI_DCK0006A</footprint>
+      <datasheet>https://www.ti.com/lit/ds/symlink/lm66100.pdf</datasheet>
+      <fields>
+        <field name="MPN">LM66100DCKR</field>
+        <field name="Footprint">RBPHAT:TI_DCK0006A</field>
+        <field name="Datasheet">https://www.ti.com/lit/ds/symlink/lm66100.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="LM66100" description=""/>
+      <property name="MPN" value="LM66100DCKR"/>
+      <property name="Sheetname" value="rbphat"/>
+      <property name="Sheetfile" value="rbphat.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>8a6b3915-2d3b-5326-b181-d30087430907</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+            <pin num="3"/>
+            <pin num="6"/>
+            <pin num="5"/>
+            <pin num="4"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U3">
+      <value>TLV803ED29DBZR</value>
+      <footprint>RBPHAT:TI_DBZ0003A</footprint>
+      <datasheet>https://www.ti.com/lit/ds/symlink/tlv803e.pdf</datasheet>
+      <fields>
+        <field name="MPN">TLV803ED29DBZR</field>
+        <field name="Footprint">RBPHAT:TI_DBZ0003A</field>
+        <field name="Datasheet">https://www.ti.com/lit/ds/symlink/tlv803e.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="TLV803E" description=""/>
+      <property name="MPN" value="TLV803ED29DBZR"/>
+      <property name="Sheetname" value="rbphat"/>
+      <property name="Sheetfile" value="rbphat.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>ee95b253-67bb-505d-a539-196cda1a9d41</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="3"/>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C100">
+      <value>100n / 16V / X7R</value>
+      <footprint>RBPHAT:Capacitor_SMD_C_0603_1608Metric</footprint>
+      <datasheet>https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23</datasheet>
+      <fields>
+        <field name="MPN">GRM188R71C104KA01D</field>
+        <field name="Footprint">RBPHAT:Capacitor_SMD_C_0603_1608Metric</field>
+        <field name="Datasheet">https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="C" description=""/>
+      <property name="MPN" value="GRM188R71C104KA01D"/>
+      <property name="Sheetname" value="CTRL full-duplex RS-422"/>
+      <property name="Sheetfile" value="control.kicad_sch"/>
+      <sheetpath names="/CTRL full-duplex RS-422/" tstamps="/4902c090-5bfa-5004-8c47-d2c84db843ae/"/>
+      <tstamps>df9b6871-30f4-53db-9d30-69ff470c4ef7</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C101">
+      <value>100n / 16V / X7R</value>
+      <footprint>RBPHAT:Capacitor_SMD_C_0603_1608Metric</footprint>
+      <datasheet>https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23</datasheet>
+      <fields>
+        <field name="MPN">GRM188R71C104KA01D</field>
+        <field name="Footprint">RBPHAT:Capacitor_SMD_C_0603_1608Metric</field>
+        <field name="Datasheet">https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="C" description=""/>
+      <property name="MPN" value="GRM188R71C104KA01D"/>
+      <property name="Sheetname" value="CTRL full-duplex RS-422"/>
+      <property name="Sheetfile" value="control.kicad_sch"/>
+      <sheetpath names="/CTRL full-duplex RS-422/" tstamps="/4902c090-5bfa-5004-8c47-d2c84db843ae/"/>
+      <tstamps>c3082562-5635-5912-b7c2-718c0518b0cd</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="D100">
+      <value>CDSOT23-SM712</value>
+      <footprint>RBPHAT:Bourns_CDSOT23_SM712</footprint>
+      <datasheet>https://www.bourns.com/pdfs/CDSOT23-SM712.pdf</datasheet>
+      <fields>
+        <field name="MPN">CDSOT23-SM712</field>
+        <field name="Footprint">RBPHAT:Bourns_CDSOT23_SM712</field>
+        <field name="Datasheet">https://www.bourns.com/pdfs/CDSOT23-SM712.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="SM712" description=""/>
+      <property name="MPN" value="CDSOT23-SM712"/>
+      <property name="Sheetname" value="CTRL full-duplex RS-422"/>
+      <property name="Sheetfile" value="control.kicad_sch"/>
+      <sheetpath names="/CTRL full-duplex RS-422/" tstamps="/4902c090-5bfa-5004-8c47-d2c84db843ae/"/>
+      <tstamps>cfafe2ca-c6e3-5326-8099-668853aad8b6</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="D101">
+      <value>CDSOT23-SM712</value>
+      <footprint>RBPHAT:Bourns_CDSOT23_SM712</footprint>
+      <datasheet>https://www.bourns.com/pdfs/CDSOT23-SM712.pdf</datasheet>
+      <fields>
+        <field name="MPN">CDSOT23-SM712</field>
+        <field name="Footprint">RBPHAT:Bourns_CDSOT23_SM712</field>
+        <field name="Datasheet">https://www.bourns.com/pdfs/CDSOT23-SM712.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="SM712" description=""/>
+      <property name="MPN" value="CDSOT23-SM712"/>
+      <property name="Sheetname" value="CTRL full-duplex RS-422"/>
+      <property name="Sheetfile" value="control.kicad_sch"/>
+      <sheetpath names="/CTRL full-duplex RS-422/" tstamps="/4902c090-5bfa-5004-8c47-d2c84db843ae/"/>
+      <tstamps>f3a07d89-38f3-5c9f-b8e4-55feb92801e7</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="J2">
+      <value>S06B-XASK-1</value>
+      <footprint>RBPHAT:XA_S06B_Horizontal</footprint>
+      <datasheet>https://www.jst-mfg.com/product/pdf/eng/eXA-WB.pdf</datasheet>
+      <fields>
+        <field name="MPN">S06B-XASK-1(LF)(SN)</field>
+        <field name="Footprint">RBPHAT:XA_S06B_Horizontal</field>
+        <field name="Datasheet">https://www.jst-mfg.com/product/pdf/eng/eXA-WB.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="XA6" description=""/>
+      <property name="MPN" value="S06B-XASK-1(LF)(SN)"/>
+      <property name="Sheetname" value="CTRL full-duplex RS-422"/>
+      <property name="Sheetfile" value="control.kicad_sch"/>
+      <sheetpath names="/CTRL full-duplex RS-422/" tstamps="/4902c090-5bfa-5004-8c47-d2c84db843ae/"/>
+      <tstamps>bc34d26a-c70d-5042-853a-a08943b97c6a</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+            <pin num="3"/>
+            <pin num="4"/>
+            <pin num="5"/>
+            <pin num="6"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R100">
+      <value>10k</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20035/dcrcwe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW060310K0FKEA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20035/dcrcwe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW060310K0FKEA"/>
+      <property name="Sheetname" value="CTRL full-duplex RS-422"/>
+      <property name="Sheetfile" value="control.kicad_sch"/>
+      <sheetpath names="/CTRL full-duplex RS-422/" tstamps="/4902c090-5bfa-5004-8c47-d2c84db843ae/"/>
+      <tstamps>43a799af-1b05-5fd3-b307-267102fd5703</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R101">
+      <value>47R</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20035/dcrcwe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW060347R0FKEA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20035/dcrcwe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW060347R0FKEA"/>
+      <property name="Sheetname" value="CTRL full-duplex RS-422"/>
+      <property name="Sheetfile" value="control.kicad_sch"/>
+      <sheetpath names="/CTRL full-duplex RS-422/" tstamps="/4902c090-5bfa-5004-8c47-d2c84db843ae/"/>
+      <tstamps>5751bdcd-e5ba-56ac-804f-83c9a99676a4</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R102">
+      <value>47R</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20035/dcrcwe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW060347R0FKEA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20035/dcrcwe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW060347R0FKEA"/>
+      <property name="Sheetname" value="CTRL full-duplex RS-422"/>
+      <property name="Sheetfile" value="control.kicad_sch"/>
+      <sheetpath names="/CTRL full-duplex RS-422/" tstamps="/4902c090-5bfa-5004-8c47-d2c84db843ae/"/>
+      <tstamps>d35bf50a-31fb-5136-bb03-fd0e7536db19</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R103">
+      <value>10R pulse</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20043/crcwhpe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW0603010RJNEAHP</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20043/crcwhpe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW0603010RJNEAHP"/>
+      <property name="Sheetname" value="CTRL full-duplex RS-422"/>
+      <property name="Sheetfile" value="control.kicad_sch"/>
+      <sheetpath names="/CTRL full-duplex RS-422/" tstamps="/4902c090-5bfa-5004-8c47-d2c84db843ae/"/>
+      <tstamps>00197580-4bbe-5f15-b99f-e127baea17f8</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R104">
+      <value>10R pulse</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20043/crcwhpe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW0603010RJNEAHP</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20043/crcwhpe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW0603010RJNEAHP"/>
+      <property name="Sheetname" value="CTRL full-duplex RS-422"/>
+      <property name="Sheetfile" value="control.kicad_sch"/>
+      <sheetpath names="/CTRL full-duplex RS-422/" tstamps="/4902c090-5bfa-5004-8c47-d2c84db843ae/"/>
+      <tstamps>d3babb22-8946-5812-8ca0-093a37d9576d</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R105">
+      <value>10R pulse</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20043/crcwhpe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW0603010RJNEAHP</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20043/crcwhpe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW0603010RJNEAHP"/>
+      <property name="Sheetname" value="CTRL full-duplex RS-422"/>
+      <property name="Sheetfile" value="control.kicad_sch"/>
+      <sheetpath names="/CTRL full-duplex RS-422/" tstamps="/4902c090-5bfa-5004-8c47-d2c84db843ae/"/>
+      <tstamps>a3d74f06-b55d-582f-b9b1-2d39e4ef82be</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R106">
+      <value>10R pulse</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20043/crcwhpe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW0603010RJNEAHP</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20043/crcwhpe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW0603010RJNEAHP"/>
+      <property name="Sheetname" value="CTRL full-duplex RS-422"/>
+      <property name="Sheetfile" value="control.kicad_sch"/>
+      <sheetpath names="/CTRL full-duplex RS-422/" tstamps="/4902c090-5bfa-5004-8c47-d2c84db843ae/"/>
+      <tstamps>b42f69b2-4ef9-52ca-a41b-10f557f13fb3</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R107">
+      <value>120R / fitted</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20035/dcrcwe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW0603120RFKEA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20035/dcrcwe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW0603120RFKEA"/>
+      <property name="Sheetname" value="CTRL full-duplex RS-422"/>
+      <property name="Sheetfile" value="control.kicad_sch"/>
+      <sheetpath names="/CTRL full-duplex RS-422/" tstamps="/4902c090-5bfa-5004-8c47-d2c84db843ae/"/>
+      <tstamps>5c7b7801-0710-5374-995b-2617c43259ab</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R108">
+      <value>0R / rail link</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20035/dcrcwe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW06030000Z0EA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20035/dcrcwe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW06030000Z0EA"/>
+      <property name="Sheetname" value="CTRL full-duplex RS-422"/>
+      <property name="Sheetfile" value="control.kicad_sch"/>
+      <sheetpath names="/CTRL full-duplex RS-422/" tstamps="/4902c090-5bfa-5004-8c47-d2c84db843ae/"/>
+      <tstamps>c515475c-ad9f-5956-8fd0-0b4e6437dbfb</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="TP100">
+      <value>CTRL_VCC</value>
+      <footprint>RBPHAT:TestPoint_TestPoint_Pad_D1.5mm</footprint>
+      <fields>
+        <field name="MPN">PCB feature - no purchased part</field>
+        <field name="Footprint">RBPHAT:TestPoint_TestPoint_Pad_D1.5mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="TP" description=""/>
+      <property name="MPN" value="PCB feature - no purchased part"/>
+      <property name="Sheetname" value="CTRL full-duplex RS-422"/>
+      <property name="Sheetfile" value="control.kicad_sch"/>
+      <property name="exclude_from_bom"/>
+      <sheetpath names="/CTRL full-duplex RS-422/" tstamps="/4902c090-5bfa-5004-8c47-d2c84db843ae/"/>
+      <tstamps>a8faa871-1b4a-5a7d-9ddd-94949d5c7672</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U100">
+      <value>SN74LVC2G17DBVR</value>
+      <footprint>RBPHAT:TI_DBV0006A</footprint>
+      <datasheet>https://www.ti.com/lit/ds/symlink/sn74lvc2g17.pdf</datasheet>
+      <fields>
+        <field name="MPN">SN74LVC2G17DBVR</field>
+        <field name="Footprint">RBPHAT:TI_DBV0006A</field>
+        <field name="Datasheet">https://www.ti.com/lit/ds/symlink/sn74lvc2g17.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="LVC2G17" description=""/>
+      <property name="MPN" value="SN74LVC2G17DBVR"/>
+      <property name="Sheetname" value="CTRL full-duplex RS-422"/>
+      <property name="Sheetfile" value="control.kicad_sch"/>
+      <sheetpath names="/CTRL full-duplex RS-422/" tstamps="/4902c090-5bfa-5004-8c47-d2c84db843ae/"/>
+      <tstamps>e9b5821d-0caa-5d03-be4c-7bc69e8db83a</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="5"/>
+            <pin num="1"/>
+            <pin num="3"/>
+            <pin num="2"/>
+            <pin num="6"/>
+            <pin num="4"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U101">
+      <value>THVD1451DR</value>
+      <footprint>RBPHAT:TI_D0008A</footprint>
+      <datasheet>https://www.ti.com/lit/ds/symlink/thvd1451.pdf</datasheet>
+      <fields>
+        <field name="MPN">THVD1451DR</field>
+        <field name="Footprint">RBPHAT:TI_D0008A</field>
+        <field name="Datasheet">https://www.ti.com/lit/ds/symlink/thvd1451.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="THVD1451" description=""/>
+      <property name="MPN" value="THVD1451DR"/>
+      <property name="Sheetname" value="CTRL full-duplex RS-422"/>
+      <property name="Sheetfile" value="control.kicad_sch"/>
+      <sheetpath names="/CTRL full-duplex RS-422/" tstamps="/4902c090-5bfa-5004-8c47-d2c84db843ae/"/>
+      <tstamps>8d5e5e10-e22d-5830-adff-0da0ca0e3eb7</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="3"/>
+            <pin num="2"/>
+            <pin num="4"/>
+            <pin num="5"/>
+            <pin num="6"/>
+            <pin num="8"/>
+            <pin num="7"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C200">
+      <value>100n / 16V / X7R</value>
+      <footprint>RBPHAT:Capacitor_SMD_C_0603_1608Metric</footprint>
+      <datasheet>https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23</datasheet>
+      <fields>
+        <field name="MPN">GRM188R71C104KA01D</field>
+        <field name="Footprint">RBPHAT:Capacitor_SMD_C_0603_1608Metric</field>
+        <field name="Datasheet">https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="C" description=""/>
+      <property name="MPN" value="GRM188R71C104KA01D"/>
+      <property name="Sheetname" value="PAY full-duplex RS-422"/>
+      <property name="Sheetfile" value="payload.kicad_sch"/>
+      <sheetpath names="/PAY full-duplex RS-422/" tstamps="/f231571d-34d8-52bc-8c2f-7470425d7a6f/"/>
+      <tstamps>5e05250c-67b8-565e-8abb-8076ee1b19ee</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C201">
+      <value>100n / 16V / X7R</value>
+      <footprint>RBPHAT:Capacitor_SMD_C_0603_1608Metric</footprint>
+      <datasheet>https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23</datasheet>
+      <fields>
+        <field name="MPN">GRM188R71C104KA01D</field>
+        <field name="Footprint">RBPHAT:Capacitor_SMD_C_0603_1608Metric</field>
+        <field name="Datasheet">https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="C" description=""/>
+      <property name="MPN" value="GRM188R71C104KA01D"/>
+      <property name="Sheetname" value="PAY full-duplex RS-422"/>
+      <property name="Sheetfile" value="payload.kicad_sch"/>
+      <sheetpath names="/PAY full-duplex RS-422/" tstamps="/f231571d-34d8-52bc-8c2f-7470425d7a6f/"/>
+      <tstamps>e4264603-b663-5eb1-bd58-8d2bb257b642</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="D200">
+      <value>CDSOT23-SM712</value>
+      <footprint>RBPHAT:Bourns_CDSOT23_SM712</footprint>
+      <datasheet>https://www.bourns.com/pdfs/CDSOT23-SM712.pdf</datasheet>
+      <fields>
+        <field name="MPN">CDSOT23-SM712</field>
+        <field name="Footprint">RBPHAT:Bourns_CDSOT23_SM712</field>
+        <field name="Datasheet">https://www.bourns.com/pdfs/CDSOT23-SM712.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="SM712" description=""/>
+      <property name="MPN" value="CDSOT23-SM712"/>
+      <property name="Sheetname" value="PAY full-duplex RS-422"/>
+      <property name="Sheetfile" value="payload.kicad_sch"/>
+      <sheetpath names="/PAY full-duplex RS-422/" tstamps="/f231571d-34d8-52bc-8c2f-7470425d7a6f/"/>
+      <tstamps>d70c7f1e-bbc4-52f3-a6e1-03cb350b1733</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="D201">
+      <value>CDSOT23-SM712</value>
+      <footprint>RBPHAT:Bourns_CDSOT23_SM712</footprint>
+      <datasheet>https://www.bourns.com/pdfs/CDSOT23-SM712.pdf</datasheet>
+      <fields>
+        <field name="MPN">CDSOT23-SM712</field>
+        <field name="Footprint">RBPHAT:Bourns_CDSOT23_SM712</field>
+        <field name="Datasheet">https://www.bourns.com/pdfs/CDSOT23-SM712.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="SM712" description=""/>
+      <property name="MPN" value="CDSOT23-SM712"/>
+      <property name="Sheetname" value="PAY full-duplex RS-422"/>
+      <property name="Sheetfile" value="payload.kicad_sch"/>
+      <sheetpath names="/PAY full-duplex RS-422/" tstamps="/f231571d-34d8-52bc-8c2f-7470425d7a6f/"/>
+      <tstamps>6c658cc2-9b49-56fa-bd65-049ee4bc1938</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="J3">
+      <value>S06B-XASK-1</value>
+      <footprint>RBPHAT:XA_S06B_Horizontal</footprint>
+      <datasheet>https://www.jst-mfg.com/product/pdf/eng/eXA-WB.pdf</datasheet>
+      <fields>
+        <field name="MPN">S06B-XASK-1(LF)(SN)</field>
+        <field name="Footprint">RBPHAT:XA_S06B_Horizontal</field>
+        <field name="Datasheet">https://www.jst-mfg.com/product/pdf/eng/eXA-WB.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="XA6" description=""/>
+      <property name="MPN" value="S06B-XASK-1(LF)(SN)"/>
+      <property name="Sheetname" value="PAY full-duplex RS-422"/>
+      <property name="Sheetfile" value="payload.kicad_sch"/>
+      <sheetpath names="/PAY full-duplex RS-422/" tstamps="/f231571d-34d8-52bc-8c2f-7470425d7a6f/"/>
+      <tstamps>93c94ba4-b0cb-581c-9865-f8f654c43fa9</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+            <pin num="3"/>
+            <pin num="4"/>
+            <pin num="5"/>
+            <pin num="6"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R200">
+      <value>10k</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20035/dcrcwe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW060310K0FKEA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20035/dcrcwe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW060310K0FKEA"/>
+      <property name="Sheetname" value="PAY full-duplex RS-422"/>
+      <property name="Sheetfile" value="payload.kicad_sch"/>
+      <sheetpath names="/PAY full-duplex RS-422/" tstamps="/f231571d-34d8-52bc-8c2f-7470425d7a6f/"/>
+      <tstamps>5f8bd744-d2b1-5977-9138-95cec37d83bb</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R201">
+      <value>47R</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20035/dcrcwe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW060347R0FKEA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20035/dcrcwe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW060347R0FKEA"/>
+      <property name="Sheetname" value="PAY full-duplex RS-422"/>
+      <property name="Sheetfile" value="payload.kicad_sch"/>
+      <sheetpath names="/PAY full-duplex RS-422/" tstamps="/f231571d-34d8-52bc-8c2f-7470425d7a6f/"/>
+      <tstamps>df25d1eb-da53-5805-bb37-a3c849169120</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R202">
+      <value>47R</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20035/dcrcwe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW060347R0FKEA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20035/dcrcwe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW060347R0FKEA"/>
+      <property name="Sheetname" value="PAY full-duplex RS-422"/>
+      <property name="Sheetfile" value="payload.kicad_sch"/>
+      <sheetpath names="/PAY full-duplex RS-422/" tstamps="/f231571d-34d8-52bc-8c2f-7470425d7a6f/"/>
+      <tstamps>a0d616a9-6ab4-51fa-bd2e-a03f5b5daadf</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R203">
+      <value>10R pulse</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20043/crcwhpe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW0603010RJNEAHP</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20043/crcwhpe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW0603010RJNEAHP"/>
+      <property name="Sheetname" value="PAY full-duplex RS-422"/>
+      <property name="Sheetfile" value="payload.kicad_sch"/>
+      <sheetpath names="/PAY full-duplex RS-422/" tstamps="/f231571d-34d8-52bc-8c2f-7470425d7a6f/"/>
+      <tstamps>62d1dd63-6bb7-517e-8fd2-f36ef8e27862</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R204">
+      <value>10R pulse</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20043/crcwhpe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW0603010RJNEAHP</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20043/crcwhpe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW0603010RJNEAHP"/>
+      <property name="Sheetname" value="PAY full-duplex RS-422"/>
+      <property name="Sheetfile" value="payload.kicad_sch"/>
+      <sheetpath names="/PAY full-duplex RS-422/" tstamps="/f231571d-34d8-52bc-8c2f-7470425d7a6f/"/>
+      <tstamps>e3617f7e-72bc-5245-b14e-cfb554e8e0b5</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R205">
+      <value>10R pulse</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20043/crcwhpe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW0603010RJNEAHP</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20043/crcwhpe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW0603010RJNEAHP"/>
+      <property name="Sheetname" value="PAY full-duplex RS-422"/>
+      <property name="Sheetfile" value="payload.kicad_sch"/>
+      <sheetpath names="/PAY full-duplex RS-422/" tstamps="/f231571d-34d8-52bc-8c2f-7470425d7a6f/"/>
+      <tstamps>7e6c4cc5-cde5-5c91-b5d7-c51edca7c250</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R206">
+      <value>10R pulse</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20043/crcwhpe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW0603010RJNEAHP</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20043/crcwhpe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW0603010RJNEAHP"/>
+      <property name="Sheetname" value="PAY full-duplex RS-422"/>
+      <property name="Sheetfile" value="payload.kicad_sch"/>
+      <sheetpath names="/PAY full-duplex RS-422/" tstamps="/f231571d-34d8-52bc-8c2f-7470425d7a6f/"/>
+      <tstamps>caf0abc7-c349-5e9e-83ca-df007e0b8767</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R207">
+      <value>120R / fitted</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20035/dcrcwe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW0603120RFKEA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20035/dcrcwe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW0603120RFKEA"/>
+      <property name="Sheetname" value="PAY full-duplex RS-422"/>
+      <property name="Sheetfile" value="payload.kicad_sch"/>
+      <sheetpath names="/PAY full-duplex RS-422/" tstamps="/f231571d-34d8-52bc-8c2f-7470425d7a6f/"/>
+      <tstamps>dd6db60c-bfce-5231-9de2-3e9adcc0259e</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R208">
+      <value>0R / rail link</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20035/dcrcwe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW06030000Z0EA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20035/dcrcwe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW06030000Z0EA"/>
+      <property name="Sheetname" value="PAY full-duplex RS-422"/>
+      <property name="Sheetfile" value="payload.kicad_sch"/>
+      <sheetpath names="/PAY full-duplex RS-422/" tstamps="/f231571d-34d8-52bc-8c2f-7470425d7a6f/"/>
+      <tstamps>2e83028f-9140-5554-a536-af59b1ff6a20</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="TP200">
+      <value>PAY_VCC</value>
+      <footprint>RBPHAT:TestPoint_TestPoint_Pad_D1.5mm</footprint>
+      <fields>
+        <field name="MPN">PCB feature - no purchased part</field>
+        <field name="Footprint">RBPHAT:TestPoint_TestPoint_Pad_D1.5mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="TP" description=""/>
+      <property name="MPN" value="PCB feature - no purchased part"/>
+      <property name="Sheetname" value="PAY full-duplex RS-422"/>
+      <property name="Sheetfile" value="payload.kicad_sch"/>
+      <property name="exclude_from_bom"/>
+      <sheetpath names="/PAY full-duplex RS-422/" tstamps="/f231571d-34d8-52bc-8c2f-7470425d7a6f/"/>
+      <tstamps>73128ea0-11a4-5640-9080-5e9cf10300ba</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U200">
+      <value>SN74LVC2G17DBVR</value>
+      <footprint>RBPHAT:TI_DBV0006A</footprint>
+      <datasheet>https://www.ti.com/lit/ds/symlink/sn74lvc2g17.pdf</datasheet>
+      <fields>
+        <field name="MPN">SN74LVC2G17DBVR</field>
+        <field name="Footprint">RBPHAT:TI_DBV0006A</field>
+        <field name="Datasheet">https://www.ti.com/lit/ds/symlink/sn74lvc2g17.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="LVC2G17" description=""/>
+      <property name="MPN" value="SN74LVC2G17DBVR"/>
+      <property name="Sheetname" value="PAY full-duplex RS-422"/>
+      <property name="Sheetfile" value="payload.kicad_sch"/>
+      <sheetpath names="/PAY full-duplex RS-422/" tstamps="/f231571d-34d8-52bc-8c2f-7470425d7a6f/"/>
+      <tstamps>8ebf29b8-a588-575a-86e0-82510c34fc7b</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="5"/>
+            <pin num="1"/>
+            <pin num="3"/>
+            <pin num="2"/>
+            <pin num="6"/>
+            <pin num="4"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U201">
+      <value>THVD1451DR</value>
+      <footprint>RBPHAT:TI_D0008A</footprint>
+      <datasheet>https://www.ti.com/lit/ds/symlink/thvd1451.pdf</datasheet>
+      <fields>
+        <field name="MPN">THVD1451DR</field>
+        <field name="Footprint">RBPHAT:TI_D0008A</field>
+        <field name="Datasheet">https://www.ti.com/lit/ds/symlink/thvd1451.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="THVD1451" description=""/>
+      <property name="MPN" value="THVD1451DR"/>
+      <property name="Sheetname" value="PAY full-duplex RS-422"/>
+      <property name="Sheetfile" value="payload.kicad_sch"/>
+      <sheetpath names="/PAY full-duplex RS-422/" tstamps="/f231571d-34d8-52bc-8c2f-7470425d7a6f/"/>
+      <tstamps>64021d2b-b07b-544c-91ba-0d9be4fe40db</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="3"/>
+            <pin num="2"/>
+            <pin num="4"/>
+            <pin num="5"/>
+            <pin num="6"/>
+            <pin num="8"/>
+            <pin num="7"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C300">
+      <value>1u / 25V / X7R</value>
+      <footprint>RBPHAT:Capacitor_SMD_C_0603_1608Metric</footprint>
+      <datasheet>https://www.murata.com/products/productdetail?partno=GRM188R71E105KA12%23</datasheet>
+      <fields>
+        <field name="MPN">GRM188R71E105KA12D</field>
+        <field name="Footprint">RBPHAT:Capacitor_SMD_C_0603_1608Metric</field>
+        <field name="Datasheet">https://www.murata.com/products/productdetail?partno=GRM188R71E105KA12%23</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="C" description=""/>
+      <property name="MPN" value="GRM188R71E105KA12D"/>
+      <property name="Sheetname" value="Battery sensing and I2C isolation"/>
+      <property name="Sheetfile" value="battery.kicad_sch"/>
+      <sheetpath names="/Battery sensing and I2C isolation/" tstamps="/6f318647-fd72-5e69-9a33-a41682075ae9/"/>
+      <tstamps>28426c7b-28fb-57c3-814c-74e659af0329</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C301">
+      <value>1n / 50V / C0G</value>
+      <footprint>RBPHAT:Capacitor_SMD_C_0603_1608Metric</footprint>
+      <datasheet>https://www.murata.com/products/productdetail?partno=GRM1885C1H102JA01%23</datasheet>
+      <fields>
+        <field name="MPN">GRM1885C1H102JA01D</field>
+        <field name="Footprint">RBPHAT:Capacitor_SMD_C_0603_1608Metric</field>
+        <field name="Datasheet">https://www.murata.com/products/productdetail?partno=GRM1885C1H102JA01%23</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="C" description=""/>
+      <property name="MPN" value="GRM1885C1H102JA01D"/>
+      <property name="Sheetname" value="Battery sensing and I2C isolation"/>
+      <property name="Sheetfile" value="battery.kicad_sch"/>
+      <sheetpath names="/Battery sensing and I2C isolation/" tstamps="/6f318647-fd72-5e69-9a33-a41682075ae9/"/>
+      <tstamps>b9806934-31bc-511b-abea-3774a5b78f84</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C302">
+      <value>100n / 16V / X7R</value>
+      <footprint>RBPHAT:Capacitor_SMD_C_0603_1608Metric</footprint>
+      <datasheet>https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23</datasheet>
+      <fields>
+        <field name="MPN">GRM188R71C104KA01D</field>
+        <field name="Footprint">RBPHAT:Capacitor_SMD_C_0603_1608Metric</field>
+        <field name="Datasheet">https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="C" description=""/>
+      <property name="MPN" value="GRM188R71C104KA01D"/>
+      <property name="Sheetname" value="Battery sensing and I2C isolation"/>
+      <property name="Sheetfile" value="battery.kicad_sch"/>
+      <sheetpath names="/Battery sensing and I2C isolation/" tstamps="/6f318647-fd72-5e69-9a33-a41682075ae9/"/>
+      <tstamps>4aee4a71-6eab-5ec2-8a1c-e97b7bfea936</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C303">
+      <value>100n / 16V / X7R</value>
+      <footprint>RBPHAT:Capacitor_SMD_C_0603_1608Metric</footprint>
+      <datasheet>https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23</datasheet>
+      <fields>
+        <field name="MPN">GRM188R71C104KA01D</field>
+        <field name="Footprint">RBPHAT:Capacitor_SMD_C_0603_1608Metric</field>
+        <field name="Datasheet">https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="C" description=""/>
+      <property name="MPN" value="GRM188R71C104KA01D"/>
+      <property name="Sheetname" value="Battery sensing and I2C isolation"/>
+      <property name="Sheetfile" value="battery.kicad_sch"/>
+      <sheetpath names="/Battery sensing and I2C isolation/" tstamps="/6f318647-fd72-5e69-9a33-a41682075ae9/"/>
+      <tstamps>35d4df20-89bb-5cc1-9bfd-1bcfed397757</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C304">
+      <value>100n / 16V / X7R</value>
+      <footprint>RBPHAT:Capacitor_SMD_C_0603_1608Metric</footprint>
+      <datasheet>https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23</datasheet>
+      <fields>
+        <field name="MPN">GRM188R71C104KA01D</field>
+        <field name="Footprint">RBPHAT:Capacitor_SMD_C_0603_1608Metric</field>
+        <field name="Datasheet">https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="C" description=""/>
+      <property name="MPN" value="GRM188R71C104KA01D"/>
+      <property name="Sheetname" value="Battery sensing and I2C isolation"/>
+      <property name="Sheetfile" value="battery.kicad_sch"/>
+      <sheetpath names="/Battery sensing and I2C isolation/" tstamps="/6f318647-fd72-5e69-9a33-a41682075ae9/"/>
+      <tstamps>8dc408d1-f9af-5e13-a189-9a076f42766a</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C305">
+      <value>100n / 16V / X7R</value>
+      <footprint>RBPHAT:Capacitor_SMD_C_0603_1608Metric</footprint>
+      <datasheet>https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23</datasheet>
+      <fields>
+        <field name="MPN">GRM188R71C104KA01D</field>
+        <field name="Footprint">RBPHAT:Capacitor_SMD_C_0603_1608Metric</field>
+        <field name="Datasheet">https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="C" description=""/>
+      <property name="MPN" value="GRM188R71C104KA01D"/>
+      <property name="Sheetname" value="Battery sensing and I2C isolation"/>
+      <property name="Sheetfile" value="battery.kicad_sch"/>
+      <sheetpath names="/Battery sensing and I2C isolation/" tstamps="/6f318647-fd72-5e69-9a33-a41682075ae9/"/>
+      <tstamps>375bb31a-167f-58b7-8943-d2a39a8302d7</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="J4">
+      <value>S02B-XASS-1</value>
+      <footprint>RBPHAT:XA_S02B_Horizontal</footprint>
+      <datasheet>https://www.jst-mfg.com/product/pdf/eng/eXA-WB.pdf</datasheet>
+      <fields>
+        <field name="MPN">S02B-XASS-1(LF)(SN)</field>
+        <field name="Footprint">RBPHAT:XA_S02B_Horizontal</field>
+        <field name="Datasheet">https://www.jst-mfg.com/product/pdf/eng/eXA-WB.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="BAT2" description=""/>
+      <property name="MPN" value="S02B-XASS-1(LF)(SN)"/>
+      <property name="Sheetname" value="Battery sensing and I2C isolation"/>
+      <property name="Sheetfile" value="battery.kicad_sch"/>
+      <sheetpath names="/Battery sensing and I2C isolation/" tstamps="/6f318647-fd72-5e69-9a33-a41682075ae9/"/>
+      <tstamps>7185506f-a730-56b4-b727-133152de21e1</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R300">
+      <value>47k / 0.1%</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/28758/tnpw_e3.pdf</datasheet>
+      <fields>
+        <field name="MPN">TNPW060347K0BEEA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/28758/tnpw_e3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="TNPW060347K0BEEA"/>
+      <property name="Sheetname" value="Battery sensing and I2C isolation"/>
+      <property name="Sheetfile" value="battery.kicad_sch"/>
+      <sheetpath names="/Battery sensing and I2C isolation/" tstamps="/6f318647-fd72-5e69-9a33-a41682075ae9/"/>
+      <tstamps>9f9905af-6a0d-5938-a19d-c174ce147c9b</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R301">
+      <value>47k / 0.1%</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/28758/tnpw_e3.pdf</datasheet>
+      <fields>
+        <field name="MPN">TNPW060347K0BEEA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/28758/tnpw_e3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="TNPW060347K0BEEA"/>
+      <property name="Sheetname" value="Battery sensing and I2C isolation"/>
+      <property name="Sheetfile" value="battery.kicad_sch"/>
+      <sheetpath names="/Battery sensing and I2C isolation/" tstamps="/6f318647-fd72-5e69-9a33-a41682075ae9/"/>
+      <tstamps>8208e3b9-7b97-536c-9a97-f91158875e27</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R302">
+      <value>18k / 0.1%</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/28758/tnpw_e3.pdf</datasheet>
+      <fields>
+        <field name="MPN">TNPW060318K0BEEA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/28758/tnpw_e3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="TNPW060318K0BEEA"/>
+      <property name="Sheetname" value="Battery sensing and I2C isolation"/>
+      <property name="Sheetfile" value="battery.kicad_sch"/>
+      <sheetpath names="/Battery sensing and I2C isolation/" tstamps="/6f318647-fd72-5e69-9a33-a41682075ae9/"/>
+      <tstamps>f0c7b2b5-207c-51c3-a2ee-6879367bd896</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R303">
+      <value>47k / 0.1%</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/28758/tnpw_e3.pdf</datasheet>
+      <fields>
+        <field name="MPN">TNPW060347K0BEEA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/28758/tnpw_e3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="TNPW060347K0BEEA"/>
+      <property name="Sheetname" value="Battery sensing and I2C isolation"/>
+      <property name="Sheetfile" value="battery.kicad_sch"/>
+      <sheetpath names="/Battery sensing and I2C isolation/" tstamps="/6f318647-fd72-5e69-9a33-a41682075ae9/"/>
+      <tstamps>79097bbc-ee4d-522d-aa09-33f25d67122c</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R304">
+      <value>4.7k</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20035/dcrcwe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW06034K70FKEA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20035/dcrcwe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW06034K70FKEA"/>
+      <property name="Sheetname" value="Battery sensing and I2C isolation"/>
+      <property name="Sheetfile" value="battery.kicad_sch"/>
+      <sheetpath names="/Battery sensing and I2C isolation/" tstamps="/6f318647-fd72-5e69-9a33-a41682075ae9/"/>
+      <tstamps>5981cd61-7c50-5c07-8351-76e86e740c1a</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R305">
+      <value>4.7k</value>
+      <footprint>RBPHAT:Resistor_SMD_R_0603_1608Metric</footprint>
+      <datasheet>https://www.vishay.com/docs/20035/dcrcwe3.pdf</datasheet>
+      <fields>
+        <field name="MPN">CRCW06034K70FKEA</field>
+        <field name="Footprint">RBPHAT:Resistor_SMD_R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.vishay.com/docs/20035/dcrcwe3.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="R" description=""/>
+      <property name="MPN" value="CRCW06034K70FKEA"/>
+      <property name="Sheetname" value="Battery sensing and I2C isolation"/>
+      <property name="Sheetfile" value="battery.kicad_sch"/>
+      <sheetpath names="/Battery sensing and I2C isolation/" tstamps="/6f318647-fd72-5e69-9a33-a41682075ae9/"/>
+      <tstamps>386e2eca-c423-5116-b491-010be79d28db</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="TP300">
+      <value>BAT_DIV</value>
+      <footprint>RBPHAT:TestPoint_TestPoint_Pad_D1.5mm</footprint>
+      <fields>
+        <field name="MPN">PCB feature - no purchased part</field>
+        <field name="Footprint">RBPHAT:TestPoint_TestPoint_Pad_D1.5mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="TP" description=""/>
+      <property name="MPN" value="PCB feature - no purchased part"/>
+      <property name="Sheetname" value="Battery sensing and I2C isolation"/>
+      <property name="Sheetfile" value="battery.kicad_sch"/>
+      <property name="exclude_from_bom"/>
+      <sheetpath names="/Battery sensing and I2C isolation/" tstamps="/6f318647-fd72-5e69-9a33-a41682075ae9/"/>
+      <tstamps>9e64fca9-65a5-512d-97db-13a9c691956a</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="TP301">
+      <value>BAT_ADC</value>
+      <footprint>RBPHAT:TestPoint_TestPoint_Pad_D1.5mm</footprint>
+      <fields>
+        <field name="MPN">PCB feature - no purchased part</field>
+        <field name="Footprint">RBPHAT:TestPoint_TestPoint_Pad_D1.5mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="TP" description=""/>
+      <property name="MPN" value="PCB feature - no purchased part"/>
+      <property name="Sheetname" value="Battery sensing and I2C isolation"/>
+      <property name="Sheetfile" value="battery.kicad_sch"/>
+      <property name="exclude_from_bom"/>
+      <sheetpath names="/Battery sensing and I2C isolation/" tstamps="/6f318647-fd72-5e69-9a33-a41682075ae9/"/>
+      <tstamps>db028d80-d52e-5660-80fd-e93fd23ea8ab</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="TP302">
+      <value>POWER_GOOD</value>
+      <footprint>RBPHAT:TestPoint_TestPoint_Pad_D1.5mm</footprint>
+      <fields>
+        <field name="MPN">PCB feature - no purchased part</field>
+        <field name="Footprint">RBPHAT:TestPoint_TestPoint_Pad_D1.5mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="TP" description=""/>
+      <property name="MPN" value="PCB feature - no purchased part"/>
+      <property name="Sheetname" value="Battery sensing and I2C isolation"/>
+      <property name="Sheetfile" value="battery.kicad_sch"/>
+      <property name="exclude_from_bom"/>
+      <sheetpath names="/Battery sensing and I2C isolation/" tstamps="/6f318647-fd72-5e69-9a33-a41682075ae9/"/>
+      <tstamps>258dbd9c-ce80-502f-a293-9bd7921e8791</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="TP303">
+      <value>GND</value>
+      <footprint>RBPHAT:TestPoint_TestPoint_Pad_D1.5mm</footprint>
+      <fields>
+        <field name="MPN">PCB feature - no purchased part</field>
+        <field name="Footprint">RBPHAT:TestPoint_TestPoint_Pad_D1.5mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="TP" description=""/>
+      <property name="MPN" value="PCB feature - no purchased part"/>
+      <property name="Sheetname" value="Battery sensing and I2C isolation"/>
+      <property name="Sheetfile" value="battery.kicad_sch"/>
+      <property name="exclude_from_bom"/>
+      <sheetpath names="/Battery sensing and I2C isolation/" tstamps="/6f318647-fd72-5e69-9a33-a41682075ae9/"/>
+      <tstamps>8b18a78b-d1f6-59a0-be1b-e0836ecc56c5</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U300">
+      <value>TMUX1511PWR</value>
+      <footprint>RBPHAT:TI_PW0014A</footprint>
+      <datasheet>https://www.ti.com/lit/ds/symlink/tmux1511.pdf</datasheet>
+      <fields>
+        <field name="MPN">TMUX1511PWR</field>
+        <field name="Footprint">RBPHAT:TI_PW0014A</field>
+        <field name="Datasheet">https://www.ti.com/lit/ds/symlink/tmux1511.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="TMUX1511" description=""/>
+      <property name="MPN" value="TMUX1511PWR"/>
+      <property name="Sheetname" value="Battery sensing and I2C isolation"/>
+      <property name="Sheetfile" value="battery.kicad_sch"/>
+      <sheetpath names="/Battery sensing and I2C isolation/" tstamps="/6f318647-fd72-5e69-9a33-a41682075ae9/"/>
+      <tstamps>178ad618-fbfd-5d67-a316-41b84258d179</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="14"/>
+            <pin num="1"/>
+            <pin num="2"/>
+            <pin num="4"/>
+            <pin num="10"/>
+            <pin num="13"/>
+            <pin num="7"/>
+            <pin num="3"/>
+            <pin num="5"/>
+            <pin num="6"/>
+            <pin num="9"/>
+            <pin num="8"/>
+            <pin num="12"/>
+            <pin num="11"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U301">
+      <value>ADS1115IDGSR</value>
+      <footprint>RBPHAT:TI_DGS0010A</footprint>
+      <datasheet>https://www.ti.com/lit/ds/symlink/ads1115.pdf</datasheet>
+      <fields>
+        <field name="MPN">ADS1115IDGSR</field>
+        <field name="Footprint">RBPHAT:TI_DGS0010A</field>
+        <field name="Datasheet">https://www.ti.com/lit/ds/symlink/ads1115.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="ADS1115" description=""/>
+      <property name="MPN" value="ADS1115IDGSR"/>
+      <property name="Sheetname" value="Battery sensing and I2C isolation"/>
+      <property name="Sheetfile" value="battery.kicad_sch"/>
+      <sheetpath names="/Battery sensing and I2C isolation/" tstamps="/6f318647-fd72-5e69-9a33-a41682075ae9/"/>
+      <tstamps>6b042b5e-9a43-5e89-9029-f6cf752fa1cc</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="8"/>
+            <pin num="4"/>
+            <pin num="5"/>
+            <pin num="6"/>
+            <pin num="7"/>
+            <pin num="3"/>
+            <pin num="10"/>
+            <pin num="9"/>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U302">
+      <value>TCA9517ADGKR</value>
+      <footprint>RBPHAT:TI_DGK0008A</footprint>
+      <datasheet>https://www.ti.com/lit/ds/symlink/tca9517a.pdf</datasheet>
+      <fields>
+        <field name="MPN">TCA9517ADGKR</field>
+        <field name="Footprint">RBPHAT:TI_DGK0008A</field>
+        <field name="Datasheet">https://www.ti.com/lit/ds/symlink/tca9517a.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RBPHAT" part="TCA9517A" description=""/>
+      <property name="MPN" value="TCA9517ADGKR"/>
+      <property name="Sheetname" value="Battery sensing and I2C isolation"/>
+      <property name="Sheetfile" value="battery.kicad_sch"/>
+      <sheetpath names="/Battery sensing and I2C isolation/" tstamps="/6f318647-fd72-5e69-9a33-a41682075ae9/"/>
+      <tstamps>b0eca274-8f89-5be4-b26a-da826dc72a41</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+            <pin num="3"/>
+            <pin num="4"/>
+            <pin num="8"/>
+            <pin num="7"/>
+            <pin num="6"/>
+            <pin num="5"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+  </components>
+  <libparts>
+    <libpart lib="RBPHAT" part="ADS1115">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">ADS1115</field>
+        <field name="Footprint">Package_SO:MSOP-10_3x3mm_P0.5mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="ADDR" type="input"/>
+        <pin num="2" name="ALERT/RDY" type="open_collector"/>
+        <pin num="3" name="GND" type="power_in"/>
+        <pin num="4" name="AIN0" type="input"/>
+        <pin num="5" name="AIN1" type="input"/>
+        <pin num="6" name="AIN2" type="input"/>
+        <pin num="7" name="AIN3" type="input"/>
+        <pin num="8" name="VDD" type="power_in"/>
+        <pin num="9" name="SDA" type="bidirectional"/>
+        <pin num="10" name="SCL" type="input"/>
+      </pins>
+    </libpart>
+    <libpart lib="RBPHAT" part="BAT2">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">BAT2</field>
+        <field name="Footprint">Connector_JST:JST_GH_BM02B-GHS-TBT_1x02-1MP_P1.25mm_Vertical</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="BAT+" type="passive"/>
+        <pin num="2" name="GND" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="RBPHAT" part="C">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">C</field>
+        <field name="Footprint">Capacitor_SMD:C_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="" type="passive"/>
+        <pin num="2" name="" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="RBPHAT" part="CP">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">CP</field>
+        <field name="Footprint">Capacitor_SMD:CP_Elec_6.3x5.8</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="+" type="passive"/>
+        <pin num="2" name="-" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="RBPHAT" part="LM66100">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">LM66100</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-363_SC-70-6</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="VIN" type="power_in"/>
+        <pin num="2" name="GND" type="power_in"/>
+        <pin num="3" name="CE" type="input"/>
+        <pin num="4" name="NC" type="no_connect"/>
+        <pin num="5" name="ST" type="open_collector"/>
+        <pin num="6" name="VOUT" type="power_out"/>
+      </pins>
+    </libpart>
+    <libpart lib="RBPHAT" part="LVC2G17">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">LVC2G17</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23-6</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="1A" type="input"/>
+        <pin num="2" name="GND" type="power_in"/>
+        <pin num="3" name="2A" type="input"/>
+        <pin num="4" name="2Y" type="output"/>
+        <pin num="5" name="VCC" type="power_in"/>
+        <pin num="6" name="1Y" type="output"/>
+      </pins>
+    </libpart>
+    <libpart lib="RBPHAT" part="PI40">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">PI40</field>
+        <field name="Footprint">Connector_PinSocket_2.54mm:PinSocket_2x20_P2.54mm_Vertical</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="passive"/>
+        <pin num="2" name="2" type="passive"/>
+        <pin num="3" name="3" type="passive"/>
+        <pin num="4" name="4" type="passive"/>
+        <pin num="5" name="5" type="passive"/>
+        <pin num="6" name="6" type="passive"/>
+        <pin num="7" name="7" type="passive"/>
+        <pin num="8" name="8" type="passive"/>
+        <pin num="9" name="9" type="passive"/>
+        <pin num="10" name="10" type="passive"/>
+        <pin num="11" name="11" type="passive"/>
+        <pin num="12" name="12" type="passive"/>
+        <pin num="13" name="13" type="passive"/>
+        <pin num="14" name="14" type="passive"/>
+        <pin num="15" name="15" type="passive"/>
+        <pin num="16" name="16" type="passive"/>
+        <pin num="17" name="17" type="passive"/>
+        <pin num="18" name="18" type="passive"/>
+        <pin num="19" name="19" type="passive"/>
+        <pin num="20" name="20" type="passive"/>
+        <pin num="21" name="21" type="passive"/>
+        <pin num="22" name="22" type="passive"/>
+        <pin num="23" name="23" type="passive"/>
+        <pin num="24" name="24" type="passive"/>
+        <pin num="25" name="25" type="passive"/>
+        <pin num="26" name="26" type="passive"/>
+        <pin num="27" name="27" type="passive"/>
+        <pin num="28" name="28" type="passive"/>
+        <pin num="29" name="29" type="passive"/>
+        <pin num="30" name="30" type="passive"/>
+        <pin num="31" name="31" type="passive"/>
+        <pin num="32" name="32" type="passive"/>
+        <pin num="33" name="33" type="passive"/>
+        <pin num="34" name="34" type="passive"/>
+        <pin num="35" name="35" type="passive"/>
+        <pin num="36" name="36" type="passive"/>
+        <pin num="37" name="37" type="passive"/>
+        <pin num="38" name="38" type="passive"/>
+        <pin num="39" name="39" type="passive"/>
+        <pin num="40" name="40" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="RBPHAT" part="R">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">R</field>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="" type="passive"/>
+        <pin num="2" name="" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="RBPHAT" part="SM712">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">SM712</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="LINE1" type="passive"/>
+        <pin num="2" name="LINE2" type="passive"/>
+        <pin num="3" name="GND" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="RBPHAT" part="TCA9517A">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">TCA9517A</field>
+        <field name="Footprint">Package_SO:VSSOP-8_3x3mm_P0.65mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="VCCA" type="power_in"/>
+        <pin num="2" name="SCLA" type="bidirectional"/>
+        <pin num="3" name="SDAA" type="bidirectional"/>
+        <pin num="4" name="GND" type="power_in"/>
+        <pin num="5" name="EN" type="input"/>
+        <pin num="6" name="SDAB" type="bidirectional"/>
+        <pin num="7" name="SCLB" type="bidirectional"/>
+        <pin num="8" name="VCCB" type="power_in"/>
+      </pins>
+    </libpart>
+    <libpart lib="RBPHAT" part="THVD1451">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">THVD1451</field>
+        <field name="Footprint">Package_SO:SOIC-8_3.9x4.9mm_P1.27mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="VCC" type="power_in"/>
+        <pin num="2" name="R" type="output"/>
+        <pin num="3" name="D" type="input"/>
+        <pin num="4" name="GND" type="power_in"/>
+        <pin num="5" name="Y_/_TX+" type="output"/>
+        <pin num="6" name="Z_/_TX-" type="output"/>
+        <pin num="7" name="B_/_RX-" type="input"/>
+        <pin num="8" name="A_/_RX+" type="input"/>
+      </pins>
+    </libpart>
+    <libpart lib="RBPHAT" part="TLV803E">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">TLV803E</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="GND" type="power_in"/>
+        <pin num="2" name="~{RESET}" type="open_collector"/>
+        <pin num="3" name="VDD" type="power_in"/>
+      </pins>
+    </libpart>
+    <libpart lib="RBPHAT" part="TMUX1511">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">TMUX1511</field>
+        <field name="Footprint">Package_SO:TSSOP-14_4.4x5mm_P0.65mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="SEL1" type="input"/>
+        <pin num="2" name="S1" type="passive"/>
+        <pin num="3" name="D1" type="passive"/>
+        <pin num="4" name="SEL2" type="input"/>
+        <pin num="5" name="S2" type="passive"/>
+        <pin num="6" name="D2" type="passive"/>
+        <pin num="7" name="GND" type="power_in"/>
+        <pin num="8" name="D3" type="passive"/>
+        <pin num="9" name="S3" type="passive"/>
+        <pin num="10" name="SEL3" type="input"/>
+        <pin num="11" name="D4" type="passive"/>
+        <pin num="12" name="S4" type="passive"/>
+        <pin num="13" name="SEL4" type="input"/>
+        <pin num="14" name="VDD" type="power_in"/>
+      </pins>
+    </libpart>
+    <libpart lib="RBPHAT" part="TP">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">TP</field>
+        <field name="Footprint">TestPoint:TestPoint_Pad_D1.5mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="TP" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="RBPHAT" part="XA6">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">XA6</field>
+        <field name="Footprint">Connector_JST:JST_GH_BM05B-GHS-TBT_1x05-1MP_P1.25mm_Vertical</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="TX+" type="passive"/>
+        <pin num="2" name="TX-" type="passive"/>
+        <pin num="3" name="RX+" type="passive"/>
+        <pin num="4" name="RX-" type="passive"/>
+        <pin num="5" name="GND" type="passive"/>
+        <pin num="6" name="SHIELD" type="passive"/>
+      </pins>
+    </libpart>
+  </libparts>
+  <libraries>
+    <library logical="RBPHAT">
+      <uri>${KIPRJMOD}/RBPHAT.kicad_sym</uri>
+    </library>
+  </libraries>
+  <nets>
+    <net code="1" name="+3V3_ANA" class="Default">
+      <node ref="C3" pin="1" pinfunction="+_1" pintype="passive"/>
+      <node ref="C302" pin="1" pintype="passive"/>
+      <node ref="C303" pin="1" pintype="passive"/>
+      <node ref="C305" pin="1" pintype="passive"/>
+      <node ref="R3" pin="1" pintype="passive"/>
+      <node ref="R304" pin="1" pintype="passive"/>
+      <node ref="R305" pin="1" pintype="passive"/>
+      <node ref="TP1" pin="1" pinfunction="TP_1" pintype="passive"/>
+      <node ref="U2" pin="3" pinfunction="CE_3" pintype="input"/>
+      <node ref="U2" pin="6" pinfunction="VOUT_6" pintype="power_out"/>
+      <node ref="U300" pin="14" pinfunction="VDD_14" pintype="power_in"/>
+      <node ref="U301" pin="8" pinfunction="VDD_8" pintype="power_in"/>
+      <node ref="U302" pin="8" pinfunction="VCCB_8" pintype="power_in"/>
+    </net>
+    <net code="2" name="+3V3_PI" class="Default">
+      <node ref="C1" pin="1" pintype="passive"/>
+      <node ref="C100" pin="1" pintype="passive"/>
+      <node ref="C200" pin="1" pintype="passive"/>
+      <node ref="C304" pin="1" pintype="passive"/>
+      <node ref="C4" pin="1" pintype="passive"/>
+      <node ref="J1" pin="1" pinfunction="1_1" pintype="passive"/>
+      <node ref="J1" pin="17" pinfunction="17_17" pintype="passive"/>
+      <node ref="R1" pin="1" pintype="passive"/>
+      <node ref="R100" pin="1" pintype="passive"/>
+      <node ref="R200" pin="1" pintype="passive"/>
+      <node ref="R4" pin="1" pintype="passive"/>
+      <node ref="R6" pin="1" pintype="passive"/>
+      <node ref="U1" pin="1" pinfunction="VIN_1" pintype="power_in"/>
+      <node ref="U100" pin="5" pinfunction="VCC_5" pintype="power_in"/>
+      <node ref="U200" pin="5" pinfunction="VCC_5" pintype="power_in"/>
+      <node ref="U3" pin="3" pinfunction="VDD_3" pintype="power_in"/>
+      <node ref="U302" pin="1" pinfunction="VCCA_1" pintype="power_in"/>
+    </net>
+    <net code="3" name="+3V3_RS" class="Default">
+      <node ref="C2" pin="1" pintype="passive"/>
+      <node ref="R108" pin="1" pintype="passive"/>
+      <node ref="R2" pin="1" pintype="passive"/>
+      <node ref="R208" pin="1" pintype="passive"/>
+      <node ref="U1" pin="3" pinfunction="CE_3" pintype="input"/>
+      <node ref="U1" pin="6" pinfunction="VOUT_6" pintype="power_out"/>
+    </net>
+    <net code="4" name="/ANA_FEED" class="Default">
+      <node ref="C5" pin="1" pintype="passive"/>
+      <node ref="R1" pin="2" pintype="passive"/>
+      <node ref="U2" pin="1" pinfunction="VIN_1" pintype="power_in"/>
+    </net>
+    <net code="5" name="/ANA_STATUS_UNUSED" class="Default">
+      <node ref="R8" pin="1" pintype="passive"/>
+      <node ref="U2" pin="5" pinfunction="ST_5" pintype="open_collector"/>
+    </net>
+    <net code="6" name="/Battery sensing and I2C isolation/ADC_SCL" class="Default">
+      <node ref="R304" pin="2" pintype="passive"/>
+      <node ref="U301" pin="10" pinfunction="SCL_10" pintype="input"/>
+      <node ref="U302" pin="7" pinfunction="SCLB_7" pintype="bidirectional"/>
+    </net>
+    <net code="7" name="/Battery sensing and I2C isolation/ADC_SDA" class="Default">
+      <node ref="R305" pin="2" pintype="passive"/>
+      <node ref="U301" pin="9" pinfunction="SDA_9" pintype="bidirectional"/>
+      <node ref="U302" pin="6" pinfunction="SDAB_6" pintype="bidirectional"/>
+    </net>
+    <net code="8" name="/Battery sensing and I2C isolation/BAT_ADC" class="Default">
+      <node ref="C301" pin="1" pintype="passive"/>
+      <node ref="R303" pin="1" pintype="passive"/>
+      <node ref="TP301" pin="1" pinfunction="TP_1" pintype="passive"/>
+      <node ref="U300" pin="3" pinfunction="D1_3" pintype="passive"/>
+      <node ref="U301" pin="4" pinfunction="AIN0_4" pintype="input"/>
+    </net>
+    <net code="9" name="/Battery sensing and I2C isolation/BAT_DIV" class="Default">
+      <node ref="C300" pin="1" pintype="passive"/>
+      <node ref="R301" pin="2" pintype="passive"/>
+      <node ref="R302" pin="1" pintype="passive"/>
+      <node ref="TP300" pin="1" pinfunction="TP_1" pintype="passive"/>
+      <node ref="U300" pin="2" pinfunction="S1_2" pintype="passive"/>
+    </net>
+    <net code="10" name="/Battery sensing and I2C isolation/BAT_MID" class="Default">
+      <node ref="R300" pin="2" pintype="passive"/>
+      <node ref="R301" pin="1" pintype="passive"/>
+    </net>
+    <net code="11" name="/Battery sensing and I2C isolation/BAT_RAW" class="Default">
+      <node ref="J4" pin="1" pinfunction="BAT+_1" pintype="passive"/>
+      <node ref="R300" pin="1" pintype="passive"/>
+    </net>
+    <net code="12" name="/CTRL full-duplex RS-422/CTRL_A" class="Default">
+      <node ref="R105" pin="1" pintype="passive"/>
+      <node ref="U101" pin="8" pinfunction="A_/_RX+_8" pintype="input"/>
+    </net>
+    <net code="13" name="/CTRL full-duplex RS-422/CTRL_B" class="Default">
+      <node ref="R106" pin="1" pintype="passive"/>
+      <node ref="U101" pin="7" pinfunction="B_/_RX-_7" pintype="input"/>
+    </net>
+    <net code="14" name="/CTRL full-duplex RS-422/CTRL_DI" class="Default">
+      <node ref="R101" pin="2" pintype="passive"/>
+      <node ref="U101" pin="3" pinfunction="D_3" pintype="input"/>
+    </net>
+    <net code="15" name="/CTRL full-duplex RS-422/CTRL_RO" class="Default">
+      <node ref="U100" pin="3" pinfunction="2A_3" pintype="input"/>
+      <node ref="U101" pin="2" pinfunction="R_2" pintype="output"/>
+    </net>
+    <net code="16" name="/CTRL full-duplex RS-422/CTRL_RX+" class="Default">
+      <node ref="D101" pin="1" pinfunction="LINE1_1" pintype="passive"/>
+      <node ref="J2" pin="3" pinfunction="RX+_3" pintype="passive"/>
+      <node ref="R105" pin="2" pintype="passive"/>
+      <node ref="R107" pin="1" pintype="passive"/>
+    </net>
+    <net code="17" name="/CTRL full-duplex RS-422/CTRL_RX-" class="Default">
+      <node ref="D101" pin="2" pinfunction="LINE2_2" pintype="passive"/>
+      <node ref="J2" pin="4" pinfunction="RX-_4" pintype="passive"/>
+      <node ref="R106" pin="2" pintype="passive"/>
+      <node ref="R107" pin="2" pintype="passive"/>
+    </net>
+    <net code="18" name="/CTRL full-duplex RS-422/CTRL_RX_BUF" class="Default">
+      <node ref="R102" pin="1" pintype="passive"/>
+      <node ref="U100" pin="4" pinfunction="2Y_4" pintype="output"/>
+    </net>
+    <net code="19" name="/CTRL full-duplex RS-422/CTRL_TX+" class="Default">
+      <node ref="D100" pin="1" pinfunction="LINE1_1" pintype="passive"/>
+      <node ref="J2" pin="1" pinfunction="TX+_1" pintype="passive"/>
+      <node ref="R103" pin="2" pintype="passive"/>
+    </net>
+    <net code="20" name="/CTRL full-duplex RS-422/CTRL_TX-" class="Default">
+      <node ref="D100" pin="2" pinfunction="LINE2_2" pintype="passive"/>
+      <node ref="J2" pin="2" pinfunction="TX-_2" pintype="passive"/>
+      <node ref="R104" pin="2" pintype="passive"/>
+    </net>
+    <net code="21" name="/CTRL full-duplex RS-422/CTRL_TX_BUF" class="Default">
+      <node ref="R101" pin="1" pintype="passive"/>
+      <node ref="U100" pin="6" pinfunction="1Y_6" pintype="output"/>
+    </net>
+    <net code="22" name="/CTRL full-duplex RS-422/CTRL_VCC" class="Default">
+      <node ref="C101" pin="1" pintype="passive"/>
+      <node ref="R108" pin="2" pintype="passive"/>
+      <node ref="TP100" pin="1" pinfunction="TP_1" pintype="passive"/>
+      <node ref="U101" pin="1" pinfunction="VCC_1" pintype="power_in"/>
+    </net>
+    <net code="23" name="/CTRL full-duplex RS-422/CTRL_Y" class="Default">
+      <node ref="R103" pin="1" pintype="passive"/>
+      <node ref="U101" pin="5" pinfunction="Y_/_TX+_5" pintype="output"/>
+    </net>
+    <net code="24" name="/CTRL full-duplex RS-422/CTRL_Z" class="Default">
+      <node ref="R104" pin="1" pintype="passive"/>
+      <node ref="U101" pin="6" pinfunction="Z_/_TX-_6" pintype="output"/>
+    </net>
+    <net code="25" name="/PAY full-duplex RS-422/PAY_A" class="Default">
+      <node ref="R205" pin="1" pintype="passive"/>
+      <node ref="U201" pin="8" pinfunction="A_/_RX+_8" pintype="input"/>
+    </net>
+    <net code="26" name="/PAY full-duplex RS-422/PAY_B" class="Default">
+      <node ref="R206" pin="1" pintype="passive"/>
+      <node ref="U201" pin="7" pinfunction="B_/_RX-_7" pintype="input"/>
+    </net>
+    <net code="27" name="/PAY full-duplex RS-422/PAY_DI" class="Default">
+      <node ref="R201" pin="2" pintype="passive"/>
+      <node ref="U201" pin="3" pinfunction="D_3" pintype="input"/>
+    </net>
+    <net code="28" name="/PAY full-duplex RS-422/PAY_RO" class="Default">
+      <node ref="U200" pin="3" pinfunction="2A_3" pintype="input"/>
+      <node ref="U201" pin="2" pinfunction="R_2" pintype="output"/>
+    </net>
+    <net code="29" name="/PAY full-duplex RS-422/PAY_RX+" class="Default">
+      <node ref="D201" pin="1" pinfunction="LINE1_1" pintype="passive"/>
+      <node ref="J3" pin="3" pinfunction="RX+_3" pintype="passive"/>
+      <node ref="R205" pin="2" pintype="passive"/>
+      <node ref="R207" pin="1" pintype="passive"/>
+    </net>
+    <net code="30" name="/PAY full-duplex RS-422/PAY_RX-" class="Default">
+      <node ref="D201" pin="2" pinfunction="LINE2_2" pintype="passive"/>
+      <node ref="J3" pin="4" pinfunction="RX-_4" pintype="passive"/>
+      <node ref="R206" pin="2" pintype="passive"/>
+      <node ref="R207" pin="2" pintype="passive"/>
+    </net>
+    <net code="31" name="/PAY full-duplex RS-422/PAY_RX_BUF" class="Default">
+      <node ref="R202" pin="1" pintype="passive"/>
+      <node ref="U200" pin="4" pinfunction="2Y_4" pintype="output"/>
+    </net>
+    <net code="32" name="/PAY full-duplex RS-422/PAY_TX+" class="Default">
+      <node ref="D200" pin="1" pinfunction="LINE1_1" pintype="passive"/>
+      <node ref="J3" pin="1" pinfunction="TX+_1" pintype="passive"/>
+      <node ref="R203" pin="2" pintype="passive"/>
+    </net>
+    <net code="33" name="/PAY full-duplex RS-422/PAY_TX-" class="Default">
+      <node ref="D200" pin="2" pinfunction="LINE2_2" pintype="passive"/>
+      <node ref="J3" pin="2" pinfunction="TX-_2" pintype="passive"/>
+      <node ref="R204" pin="2" pintype="passive"/>
+    </net>
+    <net code="34" name="/PAY full-duplex RS-422/PAY_TX_BUF" class="Default">
+      <node ref="R201" pin="1" pintype="passive"/>
+      <node ref="U200" pin="6" pinfunction="1Y_6" pintype="output"/>
+    </net>
+    <net code="35" name="/PAY full-duplex RS-422/PAY_VCC" class="Default">
+      <node ref="C201" pin="1" pintype="passive"/>
+      <node ref="R208" pin="2" pintype="passive"/>
+      <node ref="TP200" pin="1" pinfunction="TP_1" pintype="passive"/>
+      <node ref="U201" pin="1" pinfunction="VCC_1" pintype="power_in"/>
+    </net>
+    <net code="36" name="/PAY full-duplex RS-422/PAY_Y" class="Default">
+      <node ref="R203" pin="1" pintype="passive"/>
+      <node ref="U201" pin="5" pinfunction="Y_/_TX+_5" pintype="output"/>
+    </net>
+    <net code="37" name="/PAY full-duplex RS-422/PAY_Z" class="Default">
+      <node ref="R204" pin="1" pintype="passive"/>
+      <node ref="U201" pin="6" pinfunction="Z_/_TX-_6" pintype="output"/>
+    </net>
+    <net code="38" name="/RS_STATUS_UNUSED" class="Default">
+      <node ref="R7" pin="1" pintype="passive"/>
+      <node ref="U1" pin="5" pinfunction="ST_5" pintype="open_collector"/>
+    </net>
+    <net code="39" name="CHASSIS" class="Default">
+      <node ref="J2" pin="6" pinfunction="SHIELD_6" pintype="passive"/>
+      <node ref="J3" pin="6" pinfunction="SHIELD_6" pintype="passive"/>
+      <node ref="SH1" pin="1" pinfunction="TP_1" pintype="passive"/>
+    </net>
+    <net code="40" name="CTRL_RX" class="Default">
+      <node ref="J1" pin="29" pinfunction="29_29" pintype="passive"/>
+      <node ref="R102" pin="2" pintype="passive"/>
+    </net>
+    <net code="41" name="CTRL_TX" class="Default">
+      <node ref="J1" pin="7" pinfunction="7_7" pintype="passive"/>
+      <node ref="R100" pin="2" pintype="passive"/>
+      <node ref="U100" pin="1" pinfunction="1A_1" pintype="input"/>
+    </net>
+    <net code="42" name="GND" class="Default">
+      <node ref="C1" pin="2" pintype="passive"/>
+      <node ref="C100" pin="2" pintype="passive"/>
+      <node ref="C101" pin="2" pintype="passive"/>
+      <node ref="C2" pin="2" pintype="passive"/>
+      <node ref="C200" pin="2" pintype="passive"/>
+      <node ref="C201" pin="2" pintype="passive"/>
+      <node ref="C3" pin="2" pinfunction="-_2" pintype="passive"/>
+      <node ref="C300" pin="2" pintype="passive"/>
+      <node ref="C301" pin="2" pintype="passive"/>
+      <node ref="C302" pin="2" pintype="passive"/>
+      <node ref="C303" pin="2" pintype="passive"/>
+      <node ref="C304" pin="2" pintype="passive"/>
+      <node ref="C305" pin="2" pintype="passive"/>
+      <node ref="C4" pin="2" pintype="passive"/>
+      <node ref="C5" pin="2" pintype="passive"/>
+      <node ref="D100" pin="3" pinfunction="GND_3" pintype="passive"/>
+      <node ref="D101" pin="3" pinfunction="GND_3" pintype="passive"/>
+      <node ref="D200" pin="3" pinfunction="GND_3" pintype="passive"/>
+      <node ref="D201" pin="3" pinfunction="GND_3" pintype="passive"/>
+      <node ref="J1" pin="14" pinfunction="14_14" pintype="passive"/>
+      <node ref="J1" pin="20" pinfunction="20_20" pintype="passive"/>
+      <node ref="J1" pin="25" pinfunction="25_25" pintype="passive"/>
+      <node ref="J1" pin="30" pinfunction="30_30" pintype="passive"/>
+      <node ref="J1" pin="34" pinfunction="34_34" pintype="passive"/>
+      <node ref="J1" pin="39" pinfunction="39_39" pintype="passive"/>
+      <node ref="J1" pin="6" pinfunction="6_6" pintype="passive"/>
+      <node ref="J1" pin="9" pinfunction="9_9" pintype="passive"/>
+      <node ref="J2" pin="5" pinfunction="GND_5" pintype="passive"/>
+      <node ref="J3" pin="5" pinfunction="GND_5" pintype="passive"/>
+      <node ref="J4" pin="2" pinfunction="GND_2" pintype="passive"/>
+      <node ref="R2" pin="2" pintype="passive"/>
+      <node ref="R3" pin="2" pintype="passive"/>
+      <node ref="R302" pin="2" pintype="passive"/>
+      <node ref="R303" pin="2" pintype="passive"/>
+      <node ref="R5" pin="2" pintype="passive"/>
+      <node ref="R6" pin="2" pintype="passive"/>
+      <node ref="R7" pin="2" pintype="passive"/>
+      <node ref="R8" pin="2" pintype="passive"/>
+      <node ref="TP303" pin="1" pinfunction="TP_1" pintype="passive"/>
+      <node ref="U1" pin="2" pinfunction="GND_2" pintype="power_in"/>
+      <node ref="U100" pin="2" pinfunction="GND_2" pintype="power_in"/>
+      <node ref="U101" pin="4" pinfunction="GND_4" pintype="power_in"/>
+      <node ref="U2" pin="2" pinfunction="GND_2" pintype="power_in"/>
+      <node ref="U200" pin="2" pinfunction="GND_2" pintype="power_in"/>
+      <node ref="U201" pin="4" pinfunction="GND_4" pintype="power_in"/>
+      <node ref="U3" pin="1" pinfunction="GND_1" pintype="power_in"/>
+      <node ref="U300" pin="10" pinfunction="SEL3_10" pintype="input"/>
+      <node ref="U300" pin="13" pinfunction="SEL4_13" pintype="input"/>
+      <node ref="U300" pin="4" pinfunction="SEL2_4" pintype="input"/>
+      <node ref="U300" pin="7" pinfunction="GND_7" pintype="power_in"/>
+      <node ref="U301" pin="1" pinfunction="ADDR_1" pintype="input"/>
+      <node ref="U301" pin="3" pinfunction="GND_3" pintype="power_in"/>
+      <node ref="U301" pin="5" pinfunction="AIN1_5" pintype="input"/>
+      <node ref="U301" pin="6" pinfunction="AIN2_6" pintype="input"/>
+      <node ref="U301" pin="7" pinfunction="AIN3_7" pintype="input"/>
+      <node ref="U302" pin="4" pinfunction="GND_4" pintype="power_in"/>
+    </net>
+    <net code="43" name="PAY_RX" class="Default">
+      <node ref="J1" pin="33" pinfunction="33_33" pintype="passive"/>
+      <node ref="R202" pin="2" pintype="passive"/>
+    </net>
+    <net code="44" name="PAY_TX" class="Default">
+      <node ref="J1" pin="32" pinfunction="32_32" pintype="passive"/>
+      <node ref="R200" pin="2" pintype="passive"/>
+      <node ref="U200" pin="1" pinfunction="1A_1" pintype="input"/>
+    </net>
+    <net code="45" name="PI_SCL" class="Default">
+      <node ref="J1" pin="5" pinfunction="5_5" pintype="passive"/>
+      <node ref="U302" pin="2" pinfunction="SCLA_2" pintype="bidirectional"/>
+    </net>
+    <net code="46" name="PI_SDA" class="Default">
+      <node ref="J1" pin="3" pinfunction="3_3" pintype="passive"/>
+      <node ref="U302" pin="3" pinfunction="SDAA_3" pintype="bidirectional"/>
+    </net>
+    <net code="47" name="POWER_GOOD" class="Default">
+      <node ref="R4" pin="2" pintype="passive"/>
+      <node ref="R5" pin="1" pintype="passive"/>
+      <node ref="TP302" pin="1" pinfunction="TP_1" pintype="passive"/>
+      <node ref="U3" pin="2" pinfunction="~{RESET}_2" pintype="open_collector"/>
+      <node ref="U300" pin="1" pinfunction="SEL1_1" pintype="input"/>
+      <node ref="U302" pin="5" pinfunction="EN_5" pintype="input"/>
+    </net>
+    <net code="48" name="unconnected-(J1-Pad2)" class="Default">
+      <node ref="J1" pin="2" pinfunction="2_2" pintype="passive+no_connect"/>
+    </net>
+    <net code="49" name="unconnected-(J1-Pad4)" class="Default">
+      <node ref="J1" pin="4" pinfunction="4_4" pintype="passive+no_connect"/>
+    </net>
+    <net code="50" name="unconnected-(J1-Pad8)" class="Default">
+      <node ref="J1" pin="8" pinfunction="8_8" pintype="passive+no_connect"/>
+    </net>
+    <net code="51" name="unconnected-(J1-Pad10)" class="Default">
+      <node ref="J1" pin="10" pinfunction="10_10" pintype="passive+no_connect"/>
+    </net>
+    <net code="52" name="unconnected-(J1-Pad11)" class="Default">
+      <node ref="J1" pin="11" pinfunction="11_11" pintype="passive+no_connect"/>
+    </net>
+    <net code="53" name="unconnected-(J1-Pad12)" class="Default">
+      <node ref="J1" pin="12" pinfunction="12_12" pintype="passive+no_connect"/>
+    </net>
+    <net code="54" name="unconnected-(J1-Pad13)" class="Default">
+      <node ref="J1" pin="13" pinfunction="13_13" pintype="passive+no_connect"/>
+    </net>
+    <net code="55" name="unconnected-(J1-Pad15)" class="Default">
+      <node ref="J1" pin="15" pinfunction="15_15" pintype="passive+no_connect"/>
+    </net>
+    <net code="56" name="unconnected-(J1-Pad16)" class="Default">
+      <node ref="J1" pin="16" pinfunction="16_16" pintype="passive+no_connect"/>
+    </net>
+    <net code="57" name="unconnected-(J1-Pad18)" class="Default">
+      <node ref="J1" pin="18" pinfunction="18_18" pintype="passive+no_connect"/>
+    </net>
+    <net code="58" name="unconnected-(J1-Pad19)" class="Default">
+      <node ref="J1" pin="19" pinfunction="19_19" pintype="passive+no_connect"/>
+    </net>
+    <net code="59" name="unconnected-(J1-Pad21)" class="Default">
+      <node ref="J1" pin="21" pinfunction="21_21" pintype="passive+no_connect"/>
+    </net>
+    <net code="60" name="unconnected-(J1-Pad22)" class="Default">
+      <node ref="J1" pin="22" pinfunction="22_22" pintype="passive+no_connect"/>
+    </net>
+    <net code="61" name="unconnected-(J1-Pad23)" class="Default">
+      <node ref="J1" pin="23" pinfunction="23_23" pintype="passive+no_connect"/>
+    </net>
+    <net code="62" name="unconnected-(J1-Pad24)" class="Default">
+      <node ref="J1" pin="24" pinfunction="24_24" pintype="passive+no_connect"/>
+    </net>
+    <net code="63" name="unconnected-(J1-Pad26)" class="Default">
+      <node ref="J1" pin="26" pinfunction="26_26" pintype="passive+no_connect"/>
+    </net>
+    <net code="64" name="unconnected-(J1-Pad27)" class="Default">
+      <node ref="J1" pin="27" pinfunction="27_27" pintype="passive+no_connect"/>
+    </net>
+    <net code="65" name="unconnected-(J1-Pad28)" class="Default">
+      <node ref="J1" pin="28" pinfunction="28_28" pintype="passive+no_connect"/>
+    </net>
+    <net code="66" name="unconnected-(J1-Pad31)" class="Default">
+      <node ref="J1" pin="31" pinfunction="31_31" pintype="passive+no_connect"/>
+    </net>
+    <net code="67" name="unconnected-(J1-Pad35)" class="Default">
+      <node ref="J1" pin="35" pinfunction="35_35" pintype="passive+no_connect"/>
+    </net>
+    <net code="68" name="unconnected-(J1-Pad36)" class="Default">
+      <node ref="J1" pin="36" pinfunction="36_36" pintype="passive+no_connect"/>
+    </net>
+    <net code="69" name="unconnected-(J1-Pad37)" class="Default">
+      <node ref="J1" pin="37" pinfunction="37_37" pintype="passive+no_connect"/>
+    </net>
+    <net code="70" name="unconnected-(J1-Pad38)" class="Default">
+      <node ref="J1" pin="38" pinfunction="38_38" pintype="passive+no_connect"/>
+    </net>
+    <net code="71" name="unconnected-(J1-Pad40)" class="Default">
+      <node ref="J1" pin="40" pinfunction="40_40" pintype="passive+no_connect"/>
+    </net>
+    <net code="72" name="unconnected-(U1-NC-Pad4)" class="Default">
+      <node ref="U1" pin="4" pinfunction="NC_4" pintype="no_connect"/>
+    </net>
+    <net code="73" name="unconnected-(U2-NC-Pad4)" class="Default">
+      <node ref="U2" pin="4" pinfunction="NC_4" pintype="no_connect"/>
+    </net>
+    <net code="74" name="unconnected-(U300-D2-Pad6)" class="Default">
+      <node ref="U300" pin="6" pinfunction="D2_6" pintype="passive+no_connect"/>
+    </net>
+    <net code="75" name="unconnected-(U300-D3-Pad8)" class="Default">
+      <node ref="U300" pin="8" pinfunction="D3_8" pintype="passive+no_connect"/>
+    </net>
+    <net code="76" name="unconnected-(U300-D4-Pad11)" class="Default">
+      <node ref="U300" pin="11" pinfunction="D4_11" pintype="passive+no_connect"/>
+    </net>
+    <net code="77" name="unconnected-(U300-S2-Pad5)" class="Default">
+      <node ref="U300" pin="5" pinfunction="S2_5" pintype="passive+no_connect"/>
+    </net>
+    <net code="78" name="unconnected-(U300-S3-Pad9)" class="Default">
+      <node ref="U300" pin="9" pinfunction="S3_9" pintype="passive+no_connect"/>
+    </net>
+    <net code="79" name="unconnected-(U300-S4-Pad12)" class="Default">
+      <node ref="U300" pin="12" pinfunction="S4_12" pintype="passive+no_connect"/>
+    </net>
+    <net code="80" name="unconnected-(U301-ALERT/RDY-Pad2)" class="Default">
+      <node ref="U301" pin="2" pinfunction="ALERT/RDY_2" pintype="open_collector+no_connect"/>
+    </net>
+  </nets>
+</export>

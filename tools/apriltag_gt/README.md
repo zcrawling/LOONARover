@@ -48,9 +48,13 @@ changes; availability depends on the hotspot and host configuration.
 bash /home/sb/LOONAR/tools/apriltag_gt/run_distance_test.sh --distance 2
 ```
 
+SSH and scp use `sshpass -f ~/.config/loonar/ssh-password`. This machine's
+password file is configured with mode 600; the password is not in the repository,
+command arguments or trial metadata. The same file handles connection checks.
+
 Defaults: forward 0.05 m/s, angular command zero, tag ID 0 / 150 mm, calibrated
-C920 at calibration-file resolution, SSH `wego@192.168.0.7`. Authenticate when
-prompted. Keep the camera fixed and rover stationary at startup. Once the tag
+C920 at calibration-file resolution, SSH `wego@192.168.0.7` unless a host is saved.
+Keep the camera fixed and rover stationary at startup. Once the tag
 is detected, this command **automatically starts motion**. The tag-measured
 distance terminates motion; 40 seconds is only nominal metadata for 2 m, not
 the stopping criterion. Constant speed means braking/transport latency can
@@ -251,7 +255,7 @@ unverified zero-offset captures as synchronized training truth.
 ## Validation
 
 ```bash
-.venv-apriltag/bin/python -m unittest discover -s tools/apriltag_gt -v
+PYTHONPATH=tools/apriltag_gt .venv-apriltag/bin/python -m unittest discover -s tools/apriltag_gt/tests -v
 ```
 
 Tests decode the actual generated SVG marker pattern and recover known metric
@@ -263,3 +267,201 @@ Primary references:
 - https://github.com/AprilRobotics/apriltag (36h11 for ArUco compatibility)
 - https://docs.opencv.org/4.x/d5/dae/tutorial_aruco_detection.html
 - https://docs.opencv.org/4.x/dc/dbb/tutorial_py_calibration.html
+
+## C920 tracking update (2026-09-10)
+
+The existing command remains:
+
+```bash
+bash tools/apriltag_gt/run_distance_test.sh --speed 0.1 --distance 1
+```
+
+Tracking uses the native AprilTag 3 decoder through `pupil-apriltags`. It searches
+at full calibration resolution (no image resizing or changed intrinsics), uses
+an expanded tag ROI with full-frame reacquisition, and retries blurred images
+with mild sharpening. Each measurement must decode the tag: at most one corrected
+bit and decision margin at least 30. No optical-flow prediction or filled gaps
+are written as measured GT. The existing pose/straight-run checks remain.
+
+By default the integrated run enables autofocus while stationary, waits for one
+second of valid detections with unchanged focus readback, then disables autofocus
+before creating the distance origin or starting motion. `--focus N` explicitly
+sets a fixed C920 focus control (0..250); `--focus-mode keep` leaves current focus
+controls unchanged. Exposure is retained. The calibration photographs did not
+record fixed focus, so this prevents focus changes within a run but does not
+establish absolute calibration accuracy at the locked focus.
+
+A capture thread continuously drains the camera, and processing consumes the
+latest frame. Video and CSV still have matching processed frame indices; skipped
+capture frames, receipt timestamps, decision margin, and bit corrections are
+recorded explicitly. CSV timestamps, not AVI nominal FPS, define measurement time.
+
+Offline replay of all CSV-indexed frames in the three available Sept 10 runs:
+
+| Run | Original valid frames | Revised valid frames | Revised longest detection gap |
+| --- | ---: | ---: | ---: |
+| 16:18:51 | 173 / 264 | 260 / 264 | 0.089 s |
+| 16:37:31 | 232 / 412 | 412 / 412 | 0 s |
+| 16:42:19 | 167 / 341 | 341 / 341 | 0 s |
+
+The original tracking gate produced no post-start PAUSE/STOP on these revised
+replays with the current +X mount. Mean detector time was approximately 34, 8,
+and 11 ms respectively; these are offline detector timings, not camera FPS.
+Reproduce with `replay_tracking.py CAPTURE_DIR --output NEW_REPORT.json`;
+`--detector legacy` selects the original OpenCV decoder. The native binding's
+family cleanup ordering is handled locally to prevent an observed exit crash.
+Hardware focus control, live capture rate, and full-distance physical accuracy
+were **not** validated in this update because camera and rover were unavailable.
+
+## 2026-09-14 primitive / ZUPT trial
+
+```bash
+bash tools/apriltag_gt/run_primitive_test.sh --dry-run
+bash tools/apriltag_gt/run_primitive_test.sh
+# Override saved hotspot address if necessary:
+bash tools/apriltag_gt/run_primitive_test.sh --ip 172.20.10.12
+```
+
+The second/third commands **drive the rover**. Automatically starts the existing LIMO driver, wheel odom and EKF when the
+stack is absent, and checks fresh sensor messages before opening the camera. A
+partially running/duplicate stack is reported explicitly rather than duplicated. Do not separately launch another shadow DR: the trial
+owns its isolated DR instance. The script uploads a temporary Python bundle without
+replacing the installed stack. Existing password-file authentication and saved host
+selection are reused. It checks remote ROS/SciPy dependencies before motion.
+
+Sequence: forward .5m, left 30°, forward .5m, left 60°, forward .2m,
+left 60°, forward .3m, left 30°, forward .5m. STOP is inserted before/after each
+motion. Total forward distance 2.0m, total rotation 180°. All forward requests are
+0.1m/s, turns default to 0.15rad/s (`--angular`). Each confirmed stationary state
+is held another 2s (`--stop-hold`). Distance completion uses V1 DR and rotation uses
+gyro yaw; these are not GT-guaranteed distances/angles. Ctrl+C sends STOP and
+finalizes recording. No ToF correction is enabled.
+
+Tag is horizontal, centred on rover, +Z up, configured tag axis aligned to rover
+forward (existing mount default `--forward-axis x`). Camera must remain fixed with
+all path locations in view. No straight-run rotation/lateral rejection is used.
+Full camera-to-tag rotation and position are saved. Tag dropouts do not pause the
+motion because camera is evaluation-only. Closing the camera program or Ctrl+C
+cancels the trial; a hidden tag merely produces missing evaluation samples.
+
+Output: `data/apriltag_gt/primitive_TIMESTAMP/`. Includes video, full-pose frames,
+remote rosbag, command/transition events, estimator states, pre/post clock probes,
+and automatic report.html / comparison.csv when GT overlap and clocks are valid.
+Comparison aligns initial pose only, never scales trajectories. It assumes tag XY
+centre coincides with base_link XY, +Z upward and fixed camera; mounting offset,
+tilt and camera exposure delay remain limitations. No GT is interpolated through
+missing video intervals. Missing comparison prerequisites preserve all raw files.
+
+Re-run analysis with:
+
+```bash
+.venv-icp/bin/python tools/apriltag_gt/compare_primitive_test.py data/apriltag_gt/primitive_TIMESTAMP
+```
+
+The trial's ROS executor runs continuously on its own thread. The control loop
+reads the latest estimator snapshot; it never throttles subscription processing
+to a fixed number of callbacks per command cycle. The remote runner supports
+`--observe-only-seconds N` for recording-load validation: it exercises STOP/intent
+transitions but publishes no velocity commands, including zero commands. Trial
+metadata records maximum feedback age, motion readiness and whether any command
+was published. The 2026-09-14 real LIMO 20s recording probe reached STRAIGHT intent
+without publishing motion; maximum feedback age was 0.02495s.
+
+## Ramp C versus AprilTag (laptop + SSH)
+
+On the laptop, pass the current LIMO IP explicitly; SSH user is always `wego`.
+The existing local password-file authentication is reused.
+
+```bash
+bash tools/apriltag_gt/run_c_vision_test.sh --ip 192.168.0.7 \
+  --speed 0.25 --ramp 2.5 --cruise 2 --decel 2.5 --stop 4
+```
+
+**This executes motion** after camera/tag and stationary-bias preparation. Use
+`--dry-run` to print the profile without camera, SSH, or motion. Default nominal
+commanded travel is 1.125 m; this is not a distance-limited controller.
+
+The script uploads the current experimental Python modules into an isolated /tmp
+bundle on LIMO, sources Humble/agilex_ws/loonar_ws, checks existing sensors, captures
+C920 AprilTag frames locally, then runs the remote ramp and bag recorder. Installed
+baseline code is not overwritten. V1 is started if absent; an already running V1
+is retained. Camera observations are evaluation only: tag misses do not alter the
+motion profile. Camera program exit or Ctrl+C requests remote cleanup. Remote stdin
+EOF/STOP interrupts the owned motion process, whose finalizer sends zero velocity.
+
+The code uses the LIMO `static_bias_experiment` acceleration mode; pitch changes
+can contaminate C. This is not verified full gravity compensation.
+
+Results are copied to `data/apriltag_gt/c_vision_<date_time>/`:
+
+- `report.html`: C_acc vs C_GT on the exact acceleration window, C_dec vs C_GT on
+  the exact deceleration-to-confirmed-STOP window; absolute/relative C differences.
+- `c_comparison.csv`, `c_comparison.json`: window times, encoder/vision distances,
+  raw estimated C, vision C and missing-data status.
+- `evaluation/evaluation.json`: per-phase distance ratios and start-aligned errors
+  for encoder-only, V1, existing EKF and `/odom_c_test`.
+- `rover/estimate/samples.csv`, `windows.jsonl`, `rover/bag/`: original evidence.
+- `camera/frames.csv`, `capture.json`, `test.json`: camera poses and pre/post SSH
+  clock probes. Camera hardware exposure latency remains uncalibrated.
+
+Recompute a copied run without hardware:
+
+```bash
+.venv-icp/bin/python tools/apriltag_gt/compare_c_test.py \
+  data/apriltag_gt/c_vision_<date_time>
+```
+
+Do not interpret agreement from a single trial as slip-correction validation.
+Unavailable tag endpoints yield N/A, not a predicted replacement. C_GT is signed
+forward projection, not 3D terrain arc length. Existing C920 calibration, 15 cm
+36h11 tag and forward axis x are defaults; override `--camera`, `--calibration`,
+`--tag-size`, `--forward-axis`, `--focus`, or `--no-preview` if appropriate.
+
+### 모래 slip 통합 시험 (laptop 실행)
+
+```bash
+bash tools/apriltag_gt/run_slip_test.sh --ip 172.20.10.12 --tof
+```
+
+`--tof`는 LIMO에 I200DK가 연결되어 있고 `~/cubeeye_sdk`가 설치되어 있을 때 사용한다.
+센서 없이 실행할 때는 `--tof`만 생략한다. SSH 암호는 기존 ssh-password 설정을 사용한다.
+노트북 AprilTag 카메라와 LIMO 센서 준비 후 실제 주행하므로 로버를 정지시킨 상태에서 실행한다.
+
+기본 프로파일: STOP 4초 → 2.5초 가속 → 0.25 m/s 정속 1초 → 2.5초 감속 → STOP 4초.
+명령상 거리 0.875 m이며 실제 거리 제한이나 AprilTag 거리 제어는 아니다. 변경 예:
+
+```bash
+bash tools/apriltag_gt/run_slip_test.sh --ip 172.20.10.12 --tof --speed 0.2 --ramp 2.5 --cruise 1 --decel 2.5 --stop 4
+# SSH/카메라/주행 없이 인자 확인
+bash tools/apriltag_gt/run_slip_test.sh --ip 172.20.10.12 --tof --dry-run
+```
+
+동일 bag에 `/wheel/odom`, `/odometry/filtered` (기존 EKF), `/localization/dr` (V1),
+`/odom_c_test`, IMU, 명령, TF, stationary/monitor/C diagnostics를 기록한다.
+`--tof` 사용 시 cloud, ToF 상태, ICP 판정, `/odom_tof_test`도 기록한다.
+기존 EKF 및 V1 알고리즘/TF는 변경하지 않고 독립 test branch로 비교한다.
+현재 C 실험은 일정 자세의 static-bias 가정이며 검증된 중력 보상은 아니다.
+모래에서 pitch가 변하면 C가 오염될 수 있으므로 raw 값과 유효성 판정을 함께 본다.
+ICP 거절 시 ToF odom은 V1 fallback이며 개선으로 해석하지 않는다.
+
+AprilTag는 추정기 입력이 아니다. GT 원본은 **노트북 camera/frames.csv**에 따로 저장하고,
+SSH 전후 시간 오프셋으로 ROS bag과 정렬한다 (카메라 노출 지연은 남음).
+태그 누락만으로 주행을 멈추지 않으며 누락 구간은 GT 평가에서 제외한다.
+종료 후 원격 bag을 복사하여 `report.html`, `comparison.csv`, `c_comparison.json`,
+`icp_summary.json`을 생성한다. `--tof` 결과는 `data/apriltag_gt/slip_*/`,
+생략 시 `data/apriltag_gt/c_vision_*/` 아래 저장한다.
+ICP 적용 전후 위치 오차는 AprilTag가 관측된 시각에서만 비교한다.
+
+### ㄷ자 primitive 시험
+
+```bash
+bash tools/apriltag_gt/run_primitive_test.sh --ip 172.20.10.12 --u-shape 0.9 0.7 0.9 --speed 0.1 --angular 0.15 --stop-hold 3
+```
+
+세 길이는 첫 직선/중간 직선/마지막 직선(m). 각 직선 사이 좌회전 90도,
+각 직진 및 회전 후 confirmed STOP을 유지한다. 거리 종료는 V1 encoder translation,
+각도 종료는 gyro yaw 피드백이므로 slip 시 실제 거리와 다르다.
+AprilTag는 평가에만 사용한다. 카메라가 전체 ㄷ자 경로를 볼 수 있게 배치한다.
+기존 encoder/EKF/V1 및 센서·진단 bag과 카메라 기록을 저장하고 비교 보고서를 만든다.
+이 primitive runner는 C ramp 시험이나 ToF bridge를 자동 실행하지 않는다.
+`--u-shape` 생략 시 기존 5단계 경로를 유지한다. `--dry-run`은 주행/SSH 없이 경로만 출력한다.

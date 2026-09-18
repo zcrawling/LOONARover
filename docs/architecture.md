@@ -20,3 +20,7 @@ ROS topics/TF/map -- same LAN ----------------> RViz2
   교체한다.
 
 Gateway에 암묵적인 authority/TTL/속도 제한/health gate를 추가하지 않는다.
+
+Odometry/localization은 [slip/contact-tolerant 기준 설계](odometry-localization.md)를 따른다.
+V1 continuous DR과 STOP-to-STOP 환경 보정을 분리하며, 2.5D terrain perception은
+ToF odometry 성공을 전제조건으로 두지 않는다.

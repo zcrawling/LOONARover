@@ -1,0 +1,205 @@
+{
+  "retrieved": "2026-09-05",
+  "documents": [
+    {
+      "file": "sn74lvc2g34.pdf",
+      "url": "https://www.ti.com/lit/ds/symlink/sn74lvc2g34.pdf",
+      "resolved_url": "https://www.ti.com/lit/ds/symlink/sn74lvc2g34.pdf",
+      "sha256": "faa5171ab00e49fc087355ba26b361574800272ba730c6b8f9dc88225a8d0bb7",
+      "bytes": 1005713,
+      "retrieved": "2026-09-05",
+      "pages": 30
+    },
+    {
+      "file": "tmux1511.pdf",
+      "url": "https://www.ti.com/lit/ds/symlink/tmux1511.pdf",
+      "resolved_url": "https://www.ti.com/lit/ds/symlink/tmux1511.pdf",
+      "sha256": "c32b83722e3717c554dc8f68da05d9e02aa44087043d7b820f5e113713adbfcb",
+      "bytes": 2548188,
+      "retrieved": "2026-09-05",
+      "pages": 45
+    },
+    {
+      "file": "ads1115.pdf",
+      "url": "https://www.ti.com/lit/ds/symlink/ads1115.pdf",
+      "resolved_url": "https://www.ti.com/lit/ds/symlink/ads1115.pdf",
+      "sha256": "eefff4d412ce2dcd7e659f47238edc9b2fa02e5971f2625af730502033701834",
+      "bytes": 2654255,
+      "retrieved": "2026-09-05",
+      "pages": 57
+    },
+    {
+      "file": "jst-gh.pdf",
+      "url": "https://www.jst-mfg.com/product/pdf/eng/eGH.pdf",
+      "resolved_url": "https://www.jst-mfg.com/product/pdf/eng/eGH.pdf",
+      "sha256": "b1dcb317b6b9a4fbbedd2dbf42c64c95306a252d23de8933b85fcf161240b722",
+      "bytes": 146619,
+      "retrieved": "2026-09-05",
+      "pages": 6
+    },
+    {
+      "file": "samtec-ssq-drawing.pdf",
+      "url": "https://suddendocs.samtec.com/prints/ssq-1xx-xx-xxx-x-xx-xxx-xx-x-mkt.pdf",
+      "resolved_url": "https://suddendocs.samtec.com/prints/ssq-1xx-xx-xxx-x-xx-xxx-xx-x-mkt.pdf",
+      "sha256": "3609be190ef021cc260abf423296449d797dd474fe1618dcf0fec719e2a05141",
+      "bytes": 368190,
+      "retrieved": "2026-09-05",
+      "pages": 3
+    },
+    {
+      "file": "samtec-ssq-footprint.pdf",
+      "url": "https://suddendocs.samtec.com/prints/ssq-1xx-xx-xx-x-xx-xxx-xx-xx.pdf",
+      "resolved_url": "https://suddendocs.samtec.com/prints/ssq-1xx-xx-xx-x-xx-xxx-xx-xx.pdf",
+      "sha256": "22412225a71a963f7337ba8057011971d161901832198f98770636aa7912b19c",
+      "bytes": 25534,
+      "retrieved": "2026-09-05",
+      "pages": 2
+    },
+    {
+      "file": "hat-plus-specification.pdf",
+      "url": "https://datasheets.raspberrypi.com/hat/hat-plus-specification.pdf?download=1",
+      "resolved_url": "https://pip-assets.raspberrypi.com/categories/1215-raspberry-pi-hat/documents/RP-008281-DS-1-hat-plus-specification.pdf",
+      "sha256": "3a0932253767147038383162ac9f4b5aac3adb048c30bd1f9177a462a054ca1e",
+      "bytes": 1210200,
+      "retrieved": "2026-09-05",
+      "pages": 21
+    },
+    {
+      "file": "rp1-peripherals.pdf",
+      "url": "https://datasheets.raspberrypi.com/rp1/rp1-peripherals.pdf?download=1",
+      "resolved_url": "https://pip-assets.raspberrypi.com/categories/892-raspberry-pi-5/documents/RP-008370-DS-1-rp1-peripherals.pdf",
+      "sha256": "87fb7b24e8d9add075b849d095a107827610c0409ea194785af624c1ea986c3d",
+      "bytes": 3513008,
+      "retrieved": "2026-09-05",
+      "pages": 93
+    },
+    {
+      "file": "pi5-mechanical.pdf",
+      "url": "https://datasheets.raspberrypi.com/rpi5/raspberry-pi-5-mechanical-drawing.pdf",
+      "resolved_url": "https://pip-assets.raspberrypi.com/categories/892-raspberry-pi-5/documents/RP-008347-DS-1-raspberry-pi-5-mechanical-drawing.pdf",
+      "sha256": "5dd680d6c1f5e7aa9c7b020695e315d04aac862df82ff01d4e9041cd0668d7f2",
+      "bytes": 174949,
+      "retrieved": "2026-09-05",
+      "pages": 1
+    },
+    {
+      "file": "sparkfun-prt-16763.pdf",
+      "url": "https://cdn.sparkfun.com/assets/0/b/8/5/2/DS-16763-2_X_20_Pin_Extended_GPIO_Header_-_Female_-_16mm_7.30mm.pdf",
+      "sha256": "f172f545a495dd5abfa4266299f621ebf7a35f31278551e25ca26ad80cbeddf4",
+      "bytes": 127414,
+      "retrieved": "2026-09-05",
+      "pages": 1
+    },
+    {
+      "file": "tlv803e.pdf",
+      "url": "https://www.ti.com/lit/ds/symlink/tlv803e.pdf",
+      "sha256": "8c0e1447e9f5edfc933912d7f30d3a11867d052b43b3ff75e45309aa461a651b",
+      "bytes": 2343229,
+      "retrieved": "2026-09-05",
+      "pages": 52,
+      "note": "Step 2 supervisor candidate; not released BOM"
+    },
+    {
+      "file": "thvd1451.pdf",
+      "url": "https://www.ti.com/lit/ds/symlink/thvd1451.pdf",
+      "sha256": "58ecc4cc07dd1d3206c2e67ffa734ad21a6d3a9e3c8c307068e6385bd79ee897",
+      "bytes": 2012884,
+      "retrieved": "2026-09-05",
+      "pages": 54
+    },
+    {
+      "file": "lm66100.pdf",
+      "url": "https://www.ti.com/lit/ds/symlink/lm66100.pdf",
+      "sha256": "83c17370a97b85ecebe20605da0b955d4ff6f9a474e9692b611a6685d7ad0f00",
+      "bytes": 2105188,
+      "retrieved": "2026-09-05",
+      "pages": 23
+    },
+    {
+      "file": "sn74lvc2g17.pdf",
+      "url": "https://www.ti.com/lit/ds/symlink/sn74lvc2g17.pdf",
+      "sha256": "624dbe55679d2fed4123b0d7708cd0d295efcc78de395e71a0caf5cd13cbc216",
+      "bytes": 1888823,
+      "retrieved": "2026-09-05",
+      "pages": 36
+    },
+    {
+      "file": "tca9517a.pdf",
+      "url": "https://www.ti.com/lit/ds/symlink/tca9517a.pdf",
+      "sha256": "ad2d7dc5994583006aa21b67ee9f18507a2698ad9366285dff56816f065790c6",
+      "bytes": 1119704,
+      "retrieved": "2026-09-05",
+      "pages": 31
+    },
+    {
+      "file": "panasonic-fk.pdf",
+      "url": "https://api.pim.na.industrial.panasonic.com/file_stream/main/fileversion/3128",
+      "sha256": "b36857d089adaddf3042b33bf11d0f7d83bf70734e983f33b7827152e11854e3",
+      "bytes": 1062715,
+      "retrieved": "2026-09-05",
+      "pages": 12
+    },
+    {
+      "file": "vishay-pulse.pdf",
+      "url": "https://www.vishay.com/docs/20043/crcwhpe3.pdf",
+      "sha256": "f15e2d5b524751188178e2f185f30b7b07b23f8d397aae4c98df3d8a4e62592e",
+      "bytes": 153511,
+      "retrieved": "2026-09-05",
+      "pages": 11
+    }
+  ],
+  "failed_attempts": [
+    {
+      "file": "max3490e.pdf",
+      "url": "https://www.analog.com/media/en/technical-documentation/data-sheets/max3483e-max3491e.pdf",
+      "error": "The read operation timed out"
+    },
+    {
+      "file": "hat-plus-specification.pdf",
+      "url": "https://datasheets.raspberrypi.com/hat/hat-plus-specification.pdf",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "file": "rp1-peripherals.pdf",
+      "url": "https://datasheets.raspberrypi.com/rp1/rp1-peripherals.pdf",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "file": "sm712.pdf",
+      "url": "https://www.semtech.com/uploads/documents/sm712.pdf",
+      "error": "not PDF"
+    },
+    {
+      "file": "pi5-mechanical.pdf",
+      "url": "https://pip-assets.raspberrypi.com/categories/892-raspberry-pi-5/documents/RP-008347-DS-1-raspberry-pi-5-mechanical-drawing.pdf",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "file": "sm712-legacy.pdf",
+      "url": "https://www.semtech.com/images/datasheet/sm712.pdf",
+      "error": "AssertionError('not PDF')"
+    },
+    {
+      "file": "max3490e.pdf",
+      "url": "https://www.analog.com/media/en/technical-documentation/data-sheets/max3483e-max3491e.pdf?download=1",
+      "error": "TimeoutError('The read operation timed out')"
+    },
+    {
+      "file": "maxim-soic-outline.pdf",
+      "url": "https://www.analog.com/media/en/package-pcb-resources/package/21-0041.pdf",
+      "error": "TimeoutError('The read operation timed out')"
+    },
+    {
+      "file": "maxim-soic-land.pdf",
+      "url": "https://www.analog.com/media/en/package-pcb-resources/land-pattern/90-0096.pdf",
+      "error": "TimeoutError('The read operation timed out')"
+    }
+  ],
+  "remote_only_rev_b": [
+    {
+      "url": "https://www.bourns.com/pdfs/CDSOT23-SM712.pdf",
+      "status": "Read with web PDF viewer; direct download returns HTTP 403",
+      "pages": 5
+    }
+  ]
+}

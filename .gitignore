@@ -9,6 +9,17 @@
 /tmp/
 /data/apriltag_gt/*
 /data/imu_vibration/*
+/data/cubeeye/*
 # Data manifests and documentation are versioned; recordings stay local.
 !/data/apriltag_gt/README.md
 !/data/imu_vibration/README.md
+
+# Vendor SDK is provisioned separately; see platforms/loonar/vendor-assets.md.
+/platforms/loonar/arm64-pi5-linux-ubuntu_24_04_v2.5.9_20250311.tar.gz
+# Duplicate export archive; editable B4 project and manufacturing outputs are versioned.
+/platforms/loonar/hardware/pcb/rbphat-xa-b4.zip
+# Editor state and local backups are not deployment inputs.
+**/.history/
+*.kicad_prl
+*.lck
+/odom.save

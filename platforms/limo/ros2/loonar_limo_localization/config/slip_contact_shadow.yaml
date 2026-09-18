@@ -1,0 +1,22 @@
+# LIMO 4WD adapter profile. Provisional diagnostics, no actuator limits.
+loonar_dead_reckoning:
+  ros__parameters:
+    base_frame: base_link
+    odom_frame: odom
+    publish_odom_tf: false
+    wheel_position_topic: /wheel/odometer
+    wheel_position_names: [left_wheel_odometer_m, right_wheel_odometer_m]
+    wheel_position_scale_to_m: 1.0
+    gravity_compensation_validated: false
+    initial_gyro_bias: [0.0, 0.0, 0.0]
+    stationary_window: 1.0
+    max_gap: 0.08
+    sync_slop: 0.015
+    max_sensor_age: 0.25
+loonar_stop_registration:
+  ros__parameters:
+    base_frame: base_link
+    odom_frame: odom
+    map_frame: map
+    registration_enabled: false
+    publish_map_tf: false

@@ -15,6 +15,7 @@ import tempfile
 import re
 import ipaddress
 from .trial_analysis import clock_probe, analyze
+from .ssh_auth import authenticated
 
 ROOT = Path(__file__).resolve().parents[3]
 HOST_CONFIG = Path.home()/'.config/loonar/rover-ssh.json'
@@ -105,6 +106,8 @@ def main():
     p.add_argument('--check-connection',action='store_true',help='Check and remember SSH only; no camera, driver launch, or motion')
     p.add_argument('--camera',default='/dev/v4l/by-id/usb-046d_HD_Pro_Webcam_C920_E4159DCF-video-index0')
     p.add_argument('--calibration',default=str(ROOT/'config/cameras/c920_20260909_17mm.json'))
+    p.add_argument('--focus-mode',choices=['lock','keep'],default='lock')
+    p.add_argument('--focus',type=int,help='Fixed C920 focus control, 0..250')
     p.add_argument('--tag-size',type=float,default=.15)
     p.add_argument('--tag-id',type=int,default=0)
     p.add_argument('--forward-axis',choices=['x','y','-x','-y'],default='x',help='Current tested mount uses +X; change when mounting changes')
@@ -118,8 +121,12 @@ def main():
     try:a.host=resolve_host(a.host,a.ip)
     except (ValueError,KeyError,OSError) as error:p.error(str(error))
     print(f'LIMO SSH target: {a.host}',flush=True)
+    try:
+        ssh_auth=authenticated('ssh')
+        scp_auth=authenticated('scp')
+    except RuntimeError as error:p.error(str(error))
     if a.check_connection:
-        result=subprocess.run(['ssh','-o','ConnectTimeout=5','-o','StrictHostKeyChecking=accept-new',a.host,'hostname'],check=False)
+        result=subprocess.run(ssh_auth+['-o','ConnectTimeout=5','-o','StrictHostKeyChecking=accept-new',a.host,'hostname'],check=False)
         if result.returncode:sys.exit('SSH connection failed; saved target unchanged. No motion started.')
         remember_host(a.host)
         print(f'연결 성공. 다음 실행에도 {a.host} 사용. 주행은 실행하지 않았습니다.')
@@ -130,6 +137,7 @@ def main():
         p.error('distance, speed and tag-size must be positive finite values')
     if not (math.isfinite(a.tracking_grace_s) and math.isfinite(a.tracking_timeout_s) and 0<=a.tracking_grace_s<a.tracking_timeout_s and a.recovery_frames>=1):
         p.error('Require 0 <= tracking-grace-s < tracking-timeout-s and recovery-frames >= 1')
+    if a.focus is not None and not 0<=a.focus<=250:p.error('focus must be 0..250')
     cal = json.loads(Path(a.calibration).read_text())
     name = datetime.datetime.now().strftime('tag_%Y%m%d_%H%M%S_%f')
     out = Path(a.output) if a.output else ROOT/'data/apriltag_gt'/name
@@ -138,8 +146,8 @@ def main():
     options = ['-o','ConnectTimeout=5','-o','StrictHostKeyChecking=accept-new',
                '-o','ControlMaster=auto','-o','ControlPersist=120',
                '-o','ControlPath='+str(Path(connection.name)/'socket')]
-    ssh = ['ssh',*options,a.host]
-    # Authenticate interactively before the camera begins and before any motion.
+    ssh = [*ssh_auth,*options,a.host]
+    # Authenticate before the camera begins and before any motion.
     result = subprocess.run(ssh+['true'],check=False)
     if result.returncode:
         connection.cleanup()
@@ -184,6 +192,8 @@ nohup ros2 launch loonar_limo_localization limo_imu_velocity_ekf.launch.py port_
                '--camera',a.camera,'--calibration',a.calibration,'--width',str(cal['width']),
                '--height',str(cal['height']),'--tag-size',str(a.tag_size),'--tag-id',str(a.tag_id),'--forward-axis',a.forward_axis,
                '--time-offset-s',str(a.time_offset_s),'--output',str(out/'camera')]
+    command += ['--focus-mode',a.focus_mode,'--nominal-speed',str(a.speed)]
+    if a.focus is not None:command += ['--focus',str(a.focus)]
     if a.no_preview:command.append('--no-preview')
     state = dict(target_m=a.distance,speed_mps=a.speed,nominal_duration_s=a.distance/a.speed,
                  status='preparing',host=a.host,stop_distance_m=None,final_distance_m=None,
@@ -291,7 +301,7 @@ nohup ros2 launch loonar_limo_localization limo_imu_velocity_ekf.launch.py port_
                 remote_path = match.group(1).strip()
                 state['remote_trial_path']=remote_path
                 try:
-                    transfer = subprocess.run(['scp',*options,'-r',a.host+':'+shlex.quote(remote_path),str(out/'rover')],check=False,timeout=120)
+                    transfer = subprocess.run([*scp_auth,*options,'-r',a.host+':'+shlex.quote(remote_path),str(out/'rover')],check=False,timeout=120)
                     state['record_copy_ok']=transfer.returncode==0
                 except subprocess.TimeoutExpired:
                     state['record_copy_ok']=False
