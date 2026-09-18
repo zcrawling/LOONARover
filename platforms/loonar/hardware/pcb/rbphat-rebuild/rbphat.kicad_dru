@@ -1,0 +1,11 @@
+(version 1)
+(rule "Copper clearance" (constraint clearance (min 0.2mm)))
+(rule "Track minimum" (constraint track_width (min 0.2mm)))
+(rule "Edge copper margin" (constraint edge_clearance (min 0.3mm)))
+(rule "Bottom reserved for Pi and cooler"
+ (layer "B.Cu")
+ (condition "A.Reference != 'J1'")
+ (constraint disallow footprint))
+(rule "Mounting screw to copper"
+ (condition "A.Reference == 'H*' && B.Type != 'Footprint'")
+ (constraint hole_clearance (min 1.725mm)))

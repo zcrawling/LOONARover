@@ -1,0 +1,18 @@
+
+Files:             bag_0.db3
+Bag size:          4.8 MiB
+Storage id:        sqlite3
+Duration:          23.305s
+Start:             Sep  5 2026 15:27:44.352 (1788593264.352)
+End:               Sep  5 2026 15:28:07.657 (1788593287.657)
+Messages:          10937
+Topic information: Topic: /imu | Type: sensor_msgs/msg/Imu | Count: 2329 | Serialization Format: cdr
+                   Topic: /limo_status | Type: limo_msgs/msg/LimoStatus | Count: 46 | Serialization Format: cdr
+                   Topic: /odometry/filtered | Type: nav_msgs/msg/Odometry | Count: 1165 | Serialization Format: cdr
+                   Topic: /tf_static | Type: tf2_msgs/msg/TFMessage | Count: 2329 | Serialization Format: cdr
+                   Topic: /tf | Type: tf2_msgs/msg/TFMessage | Count: 1165 | Serialization Format: cdr
+                   Topic: /vendor/velocity_odom | Type: nav_msgs/msg/Odometry | Count: 1164 | Serialization Format: cdr
+                   Topic: /wheel/odom | Type: nav_msgs/msg/Odometry | Count: 1164 | Serialization Format: cdr
+                   Topic: /cmd_vel | Type: geometry_msgs/msg/Twist | Count: 411 | Serialization Format: cdr
+                   Topic: /wheel/odometer | Type: sensor_msgs/msg/JointState | Count: 1164 | Serialization Format: cdr
+

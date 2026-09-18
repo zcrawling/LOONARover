@@ -1,0 +1,12 @@
+name: forward_2m_01
+requested_linear_mps: 0.1
+requested_angular_radps: 0.0
+requested_duration_s: 20.0
+actual_distance_m: 2
+actual_heading_error_deg: " 3cm 틀어짐 "
+status: completed
+ros_domain_id: '0'
+command_start_ros_ns: 1788595472612778351
+command_stop_ros_ns: 1788595492613066534
+actual_command_duration_s: 20.00030886500008
+bag_exit_code: 0

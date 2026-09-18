@@ -1,0 +1,17 @@
+{
+  "catalog": "wire_messages",
+  "constant_prefix": "LNR_MSG",
+  "width_bits": 8,
+  "reserved": [
+    {"start": "0x00", "end": "0x00"},
+    {"start": "0x01", "end": "0x0F"},
+    {"start": "0x11", "end": "0x1F"},
+    {"start": "0x21", "end": "0x7F"},
+    {"start": "0x81", "end": "0xFF"}
+  ],
+  "entries": [
+    {"name": "MPU_HEALTH", "id": "0x10", "description": "MPU liveness packet"},
+    {"name": "MOTION_CMD", "id": "0x20", "description": "Linear velocity and yaw-rate command"},
+    {"name": "MCU_STATUS", "id": "0x80", "description": "Control MCU observable status"}
+  ]
+}

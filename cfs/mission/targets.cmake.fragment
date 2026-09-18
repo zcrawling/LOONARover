@@ -1,0 +1,4 @@
+# Add both LOONAR applications to every CPU target that needs ground control.
+list(APPEND MISSION_GLOBAL_APPLIST
+  loonar_ground_link
+  loonar_vehicle_adapter)

@@ -1,0 +1,3 @@
+# Verified on wego-NUC12WSKi7: LIMO CP2102 at USB path 0:7.4.
+# Confirm with platforms/limo/scripts/preflight.sh after every hardware change.
+SUBSYSTEM=="tty", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:7.4:1.0", SYMLINK+="ttylimo", GROUP="dialout", MODE="0660"

@@ -1,0 +1,12 @@
+name: right_30deg_01
+requested_linear_mps: 0.0
+requested_angular_radps: -0.15
+requested_duration_s: 3.49
+actual_distance_m: null
+actual_heading_error_deg: "약 28도고 좌회전 우회전 하기 전 상태로 완벽히 돌아옴. "
+status: completed
+ros_domain_id: '0'
+command_start_ros_ns: 1788596715314853526
+command_stop_ros_ns: 1788596718805122146
+actual_command_duration_s: 3.4902924519992666
+bag_exit_code: 0

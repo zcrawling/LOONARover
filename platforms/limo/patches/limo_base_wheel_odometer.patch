@@ -1,0 +1,87 @@
+diff -urN a/include/limo_base/limo_driver.h b/include/limo_base/limo_driver.h
+--- a/include/limo_base/limo_driver.h
++++ b/include/limo_base/limo_driver.h
+@@ -37,6 +37,7 @@
+ #include <atomic>
+ #include <cstdlib>
+ #include <chrono>
++#include <cstdint>
+ 
+ #include "rclcpp/rclcpp.hpp"
+ #include <rclcpp/executor.hpp>
+@@ -45,7 +46,8 @@
+ #include <tf2_ros/transform_broadcaster.h>
+ #include "tf2_ros/static_transform_broadcaster.h"
+ #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+ #include <sensor_msgs/msg/imu.hpp>
++#include <sensor_msgs/msg/joint_state.hpp>
+ 
+ #include "std_msgs/msg/string.hpp"
+ #include "limo_msgs/msg/limo_status.hpp"
+@@ -88,6 +90,7 @@
+     void publishLimoState(double stamp, uint8_t vehicle_state, uint8_t control_mode,
+                           double battery_voltage, uint16_t error_code, int8_t motion_mode);
+     void publishIMUData(double stamp);
++    void publishWheelOdometers(double stamp, std::int32_t left_mm, std::int32_t right_mm);
+ 
+ private:
+     rclcpp::Node *node_;
+@@ -111,6 +114,7 @@
+     // rclcpp::Subscription<scout_msgs::msg::ScoutLightCmd>::SharedPtr
+     //   light_cmd_sub_;
+     rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_publisher_;
++    rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr wheel_odometer_publisher_;
+     std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+     std::shared_ptr<tf2_ros::StaticTransformBroadcaster> tf_static_broadcaster_;
+ 
+diff -urN a/src/limo_driver.cpp b/src/limo_driver.cpp
+--- a/src/limo_driver.cpp
++++ b/src/limo_driver.cpp
+@@ -68,6 +68,7 @@
+     odom_publisher_=this->create_publisher<nav_msgs::msg::Odometry>("/odom",50);
+     status_publisher_ = this->create_publisher<limo_msgs::msg::LimoStatus>("/limo_status",50);
+     imu_publisher_ = this->create_publisher<sensor_msgs::msg::Imu>("/imu",10);
++    wheel_odometer_publisher_ = this->create_publisher<sensor_msgs::msg::JointState>("/wheel/odometer", 50);
+ 
+     motion_cmd_sub_= this->create_subscription<geometry_msgs::msg::Twist>(
+         "/cmd_vel",10,std::bind(&LimoDriver::twistCmdCallback,this,std::placeholders::_1));
+@@ -295,12 +296,15 @@
+         }
+         /****************** sensor frame *****************/
+         case MSG_ODOMETRY_ID: {
+-            int32_t left_wheel_odom = (frame.data[3] & 0xff) | (frame.data[2] << 8) |
+-                                      (frame.data[1] << 16)  | (frame.data[0] << 24);
+-            int32_t right_wheel_odom = (frame.data[7] & 0xff) | (frame.data[6] << 8) |
+-                                       (frame.data[5] << 16)  | (frame.data[4] << 24);
+-            // RCLCPP_INFO(this->get_logger(),"MSG_SYSTEM_STATE_ID :");
+-            
++            const auto decode_signed_big_endian = [](const uint8_t* data) -> std::int32_t {
++                const std::uint32_t raw = (static_cast<std::uint32_t>(data[0]) << 24U) |
++                    (static_cast<std::uint32_t>(data[1]) << 16U) |
++                    (static_cast<std::uint32_t>(data[2]) << 8U) |
++                    static_cast<std::uint32_t>(data[3]);
++                return static_cast<std::int32_t>(raw);
++            };
++            publishWheelOdometers(frame.stamp, decode_signed_big_endian(&frame.data[0]),
++                                  decode_signed_big_endian(&frame.data[4]));
+             break;
+         }
+         case MSG_IMU_ACCEL_ID: { // accelerate
+@@ -536,6 +540,17 @@
+ 
+ }
+ 
++void LimoDriver::publishWheelOdometers(double stamp, std::int32_t left_mm, std::int32_t right_mm) {
++    sensor_msgs::msg::JointState message;
++    message.header.stamp = rclcpp::Time(RCL_S_TO_NS(stamp));
++    message.header.frame_id = base_frame_;
++    // CAN 0x311: cumulative left/right chassis wheel odometers, millimetres.
++    message.name = {"left_wheel_odometer_m", "right_wheel_odometer_m"};
++    message.position = {static_cast<double>(left_mm) / 1000.0,
++                        static_cast<double>(right_mm) / 1000.0};
++    wheel_odometer_publisher_->publish(message);
++}
++
+ void LimoDriver::publishOdometry(double stamp, double linear_velocity,
+                                  double angular_velocity, double lateral_velocity,
+                                  double steering_angle) {

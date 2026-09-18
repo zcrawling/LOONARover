@@ -1,0 +1,12 @@
+name: forward_1m_01
+requested_linear_mps: 0.1
+requested_angular_radps: 0.0
+requested_duration_s: 10.0
+actual_distance_m: 1
+actual_heading_error_deg: 0
+status: completed
+ros_domain_id: '0'
+command_start_ros_ns: 1788595271302753000
+command_stop_ros_ns: 1788595281303046866
+actual_command_duration_s: 10.000316600000133
+bag_exit_code: 0

@@ -1,0 +1,76 @@
+{
+  "nominal_factor": 8.222222222222221,
+  "adc_at_12v6_ideal": 1.5324324324324325,
+  "battery_lsb_mv": 1.0277777777777777,
+  "resistor_only_gain_error_percent": [
+    -0.17554283245112545,
+    0.17580872011249138
+  ],
+  "typical_loading_model": [
+    {
+      "battery_v": 0.0,
+      "ron_ohm": 0.0,
+      "adc_v": 0.001330235291263575,
+      "nominal_factor_battery_error_mv": 10.937490172611616
+    },
+    {
+      "battery_v": 0.0,
+      "ron_ohm": 4.5,
+      "adc_v": 0.001330534329179159,
+      "nominal_factor_battery_error_mv": 10.939948928806416
+    },
+    {
+      "battery_v": 9.0,
+      "ron_ohm": 0.0,
+      "adc_v": 1.0930126931671458,
+      "nominal_factor_battery_error_mv": -13.006745070136105
+    },
+    {
+      "battery_v": 9.0,
+      "ron_ohm": 4.5,
+      "adc_v": 1.0929332450061597,
+      "nominal_factor_battery_error_mv": -13.65998550491021
+    },
+    {
+      "battery_v": 11.1,
+      "ron_ohm": 0.0,
+      "adc_v": 1.3477386000048517,
+      "nominal_factor_battery_error_mv": -18.593733293442938
+    },
+    {
+      "battery_v": 11.1,
+      "ron_ohm": 4.5,
+      "adc_v": 1.347640544164122,
+      "nominal_factor_battery_error_mv": -19.399970206109174
+    },
+    {
+      "battery_v": 12.6,
+      "ron_ohm": 0.0,
+      "adc_v": 1.5296856763174989,
+      "nominal_factor_battery_error_mv": -22.584439167232517
+    },
+    {
+      "battery_v": 12.6,
+      "ron_ohm": 4.5,
+      "adc_v": 1.5295743292769521,
+      "nominal_factor_battery_error_mv": -23.499959278394655
+    }
+  ],
+  "off_input_v_from_2ua_and_47k_1pct": 0.09409399999999998,
+  "rc": {
+    "on_tau_ms": 11.43243243243243,
+    "on_settle_0p1pct_ms": 78.9724454867417,
+    "off_discharge_from_2v025_to_0v3_us": 98.82207085002798
+  },
+  "hold_up_assumptions": {
+    "current_a": 0.01,
+    "cap_nominal_f": 0.0001,
+    "cap_min_f": 8e-05,
+    "voltage_drop_in_200us_v": 0.025,
+    "startup_rc_ms": 2.2,
+    "initial_22r_power_w": 0.49499999999999994,
+    "resistor_charge_energy_j": 0.0005445,
+    "warning": "Capacitance tolerance at reference conditions only. LM66100 reverse turn-off delay is typical, not maximum; rail-collapse test required."
+  },
+  "acceptance": "User accepts previous ~33mV typical ADC loading error; this does not waive ADC gain/offset, temperature, resistor and calibration error."
+}

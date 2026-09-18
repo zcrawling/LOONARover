@@ -1,0 +1,3 @@
+# Add these lines after the cFE core services are available.
+CFE_APP, lnr_vehicle, LNR_VehicleMain, LNR_VEHICLE, 50, 65536, 0x0, 0;
+CFE_APP, lnr_ground, LNR_GroundMain, LNR_GROUND, 55, 65536, 0x0, 0;

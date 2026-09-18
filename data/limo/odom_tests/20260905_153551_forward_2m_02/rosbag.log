@@ -1,0 +1,19 @@
+stdin is not a terminal device. Keyboard handling disabled.[INFO] [1788593754.339064718] [rosbag2_recorder]: Press SPACE for pausing/resuming
+[INFO] [1788593754.340092425] [rosbag2_storage]: Opened database '/home/wego/odom_tests/20260905_153551_forward_2m_02/bag/bag_0.db3' for READ_WRITE.
+[INFO] [1788593754.340580664] [rosbag2_recorder]: Listening for topics...
+[INFO] [1788593754.340588885] [rosbag2_recorder]: Event publisher thread: Starting
+[INFO] [1788593754.342994264] [rosbag2_recorder]: Subscribed to topic '/wheel/odometer'
+[INFO] [1788593754.344084014] [rosbag2_recorder]: Subscribed to topic '/wheel/odom'
+[INFO] [1788593754.344553137] [rosbag2_recorder]: Subscribed to topic '/vendor/velocity_odom'
+[INFO] [1788593754.345712035] [rosbag2_recorder]: Subscribed to topic '/tf'
+[INFO] [1788593754.346146050] [rosbag2_recorder]: Subscribed to topic '/tf_static'
+[INFO] [1788593754.346562357] [rosbag2_recorder]: Subscribed to topic '/odometry/filtered'
+[INFO] [1788593754.347251408] [rosbag2_recorder]: Subscribed to topic '/limo_status'
+[INFO] [1788593754.347751574] [rosbag2_recorder]: Subscribed to topic '/imu'
+[INFO] [1788593754.347795747] [rosbag2_recorder]: Recording...
+[INFO] [1788593756.012893839] [rosbag2_recorder]: Subscribed to topic '/cmd_vel'
+[INFO] [1788593756.012938087] [rosbag2_recorder]: All requested topics are subscribed. Stopping discovery...
+[INFO] [1788593765.305833213] [rosbag2_cpp]: Writing remaining messages from cache to the bag. It may take a while
+[INFO] [1788593765.309200758] [rosbag2_recorder]: Event publisher thread: Exiting
+[INFO] [1788593765.309415417] [rosbag2_recorder]: Recording stopped
+[INFO] [1788593765.311241550] [rosbag2_recorder]: Recording stopped

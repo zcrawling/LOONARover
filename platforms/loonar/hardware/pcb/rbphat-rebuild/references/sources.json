@@ -1,0 +1,49 @@
+[
+  {
+    "file": "max3490e.pdf",
+    "url": "https://www.analog.com/media/en/technical-documentation/data-sheets/max3483e-max3491e.pdf",
+    "error": "The read operation timed out"
+  },
+  {
+    "file": "sn74lvc2g34.pdf",
+    "url": "https://www.ti.com/lit/ds/symlink/sn74lvc2g34.pdf",
+    "resolved_url": "https://www.ti.com/lit/ds/symlink/sn74lvc2g34.pdf",
+    "sha256": "faa5171ab00e49fc087355ba26b361574800272ba730c6b8f9dc88225a8d0bb7",
+    "bytes": 1005713,
+    "retrieved": "2026-09-05"
+  },
+  {
+    "file": "tmux1511.pdf",
+    "url": "https://www.ti.com/lit/ds/symlink/tmux1511.pdf",
+    "resolved_url": "https://www.ti.com/lit/ds/symlink/tmux1511.pdf",
+    "sha256": "c32b83722e3717c554dc8f68da05d9e02aa44087043d7b820f5e113713adbfcb",
+    "bytes": 2548188,
+    "retrieved": "2026-09-05"
+  },
+  {
+    "file": "ads1115.pdf",
+    "url": "https://www.ti.com/lit/ds/symlink/ads1115.pdf",
+    "resolved_url": "https://www.ti.com/lit/ds/symlink/ads1115.pdf",
+    "sha256": "eefff4d412ce2dcd7e659f47238edc9b2fa02e5971f2625af730502033701834",
+    "bytes": 2654255,
+    "retrieved": "2026-09-05"
+  },
+  {
+    "file": "jst-gh.pdf",
+    "url": "https://www.jst-mfg.com/product/pdf/eng/eGH.pdf",
+    "resolved_url": "https://www.jst-mfg.com/product/pdf/eng/eGH.pdf",
+    "sha256": "b1dcb317b6b9a4fbbedd2dbf42c64c95306a252d23de8933b85fcf161240b722",
+    "bytes": 146619,
+    "retrieved": "2026-09-05"
+  },
+  {
+    "file": "hat-plus-specification.pdf",
+    "url": "https://datasheets.raspberrypi.com/hat/hat-plus-specification.pdf",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "file": "rp1-peripherals.pdf",
+    "url": "https://datasheets.raspberrypi.com/rp1/rp1-peripherals.pdf",
+    "error": "HTTP Error 403: Forbidden"
+  }
+]

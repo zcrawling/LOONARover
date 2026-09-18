@@ -1,0 +1,35 @@
+references,quantity,value,mpn,footprint,dnp,datasheet
+J1,1,Pi 5 / H16 / gap19,PRT-16763,RBPHAT:GPIO_2x20_H16_Drill1.02,False,https://cdn.sparkfun.com/assets/0/b/8/5/2/DS-16763-2_X_20_Pin_Extended_GPIO_Header_-_Female_-_16mm_7.30mm.pdf
+U1 U2,2,LM66100DCKR,LM66100DCKR,RBPHAT:TI_DCK0006A,False,https://www.ti.com/lit/ds/symlink/lm66100.pdf
+R7 R8 R2 R3 R4 R100 R200,7,10k,CRCW060310K0FKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+R1,1,22R pulse,CRCW060322R0FKEAHP,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,https://www.vishay.com/docs/20043/crcwhpe3.pdf
+C1 C5 C300,3,1u / 25V / X7R,GRM188R71E105KA12D,RBPHAT:Capacitor_SMD_C_0603_1608Metric,False,https://www.murata.com/products/productdetail?partno=GRM188R71E105KA12%23
+C2,1,4.7u / 10V / X5R,GRM188R61A475KE15D,RBPHAT:Capacitor_SMD_C_0603_1608Metric,False,https://www.murata.com/products/productdetail?partno=GRM188R61A475KE15%23
+C3,1,100u / 16V / 20%,EEEFK1C101P,RBPHAT:Panasonic_FK_D_6.3x5.8,False,https://api.pim.na.industrial.panasonic.com/file_stream/main/fileversion/3128
+U3,1,TLV803ED29DBZR,TLV803ED29DBZR,RBPHAT:TI_DBZ0003A,False,https://www.ti.com/lit/ds/symlink/tlv803e.pdf
+R5,1,100k,CRCW0603100KFKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+R6,1,1k,CRCW06031K00FKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+C4 C100 C101 C200 C201 C302 C303 C304 C305,9,100n / 16V / X7R,GRM188R71C104KA01D,RBPHAT:Capacitor_SMD_C_0603_1608Metric,False,https://www.murata.com/products/productdetail?partno=GRM188R71C104KA01%23
+TP1,1,ANA supply,PCB feature - no purchased part,RBPHAT:TestPoint_TestPoint_Pad_D1.5mm,False,
+U100 U200,2,SN74LVC2G17DBVR,SN74LVC2G17DBVR,RBPHAT:TI_DBV0006A,False,https://www.ti.com/lit/ds/symlink/sn74lvc2g17.pdf
+U101 U201,2,THVD1451DR,THVD1451DR,RBPHAT:TI_D0008A,False,https://www.ti.com/lit/ds/symlink/thvd1451.pdf
+J2 J3,2,BM05B-GHS-TBT,BM05B-GHS-TBT(LF)(SN),RBPHAT:Connector_JST_JST_GH_BM05B-GHS-TBT_1x05-1MP_P1.25mm_Vertical,False,https://www.jst-mfg.com/product/pdf/eng/eGH.pdf
+R108 R208,2,0R / rail link,CRCW06030000Z0EA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+TP100,1,CTRL_VCC,PCB feature - no purchased part,RBPHAT:TestPoint_TestPoint_Pad_D1.5mm,False,
+R101 R102 R201 R202,4,47R,CRCW060347R0FKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+R103 R104 R105 R106 R203 R204 R205 R206,8,10R pulse,CRCW0603010RJNEAHP,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,https://www.vishay.com/docs/20043/crcwhpe3.pdf
+R107 R207,2,120R / DNP,CRCW0603120RFKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,True,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+D100 D101 D200 D201,4,CDSOT23-SM712,CDSOT23-SM712,RBPHAT:Bourns_CDSOT23_SM712,False,https://www.bourns.com/pdfs/CDSOT23-SM712.pdf
+TP200,1,PAY_VCC,PCB feature - no purchased part,RBPHAT:TestPoint_TestPoint_Pad_D1.5mm,False,
+J4,1,Battery sense only,BM02B-GHS-TBT(LF)(SN),RBPHAT:Connector_JST_JST_GH_BM02B-GHS-TBT_1x02-1MP_P1.25mm_Vertical,False,https://www.jst-mfg.com/product/pdf/eng/eGH.pdf
+R300 R301 R303,3,47k / 0.1%,TNPW060347K0BEEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,https://www.vishay.com/docs/28758/tnpw_e3.pdf
+R302,1,18k / 0.1%,TNPW060318K0BEEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,https://www.vishay.com/docs/28758/tnpw_e3.pdf
+U300,1,TMUX1511PWR,TMUX1511PWR,RBPHAT:TI_PW0014A,False,https://www.ti.com/lit/ds/symlink/tmux1511.pdf
+U301,1,ADS1115IDGSR,ADS1115IDGSR,RBPHAT:TI_DGS0010A,False,https://www.ti.com/lit/ds/symlink/ads1115.pdf
+C301,1,1n / 50V / C0G,GRM1885C1H102JA01D,RBPHAT:Capacitor_SMD_C_0603_1608Metric,False,https://www.murata.com/products/productdetail?partno=GRM1885C1H102JA01%23
+U302,1,TCA9517ADGKR,TCA9517ADGKR,RBPHAT:TI_DGK0008A,False,https://www.ti.com/lit/ds/symlink/tca9517a.pdf
+R304 R305,2,4.7k,CRCW06034K70FKEA,RBPHAT:Resistor_SMD_R_0603_1608Metric,False,https://www.vishay.com/docs/20035/dcrcwe3.pdf
+TP300,1,BAT_DIV,PCB feature - no purchased part,RBPHAT:TestPoint_TestPoint_Pad_D1.5mm,False,
+TP301,1,BAT_ADC,PCB feature - no purchased part,RBPHAT:TestPoint_TestPoint_Pad_D1.5mm,False,
+TP302,1,POWER_GOOD,PCB feature - no purchased part,RBPHAT:TestPoint_TestPoint_Pad_D1.5mm,False,
+TP303,1,GND,PCB feature - no purchased part,RBPHAT:TestPoint_TestPoint_Pad_D1.5mm,False,

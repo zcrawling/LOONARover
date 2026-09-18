@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>loonar_limo_tof</name>
+  <version>0.1.0</version>
+  <description>Fixed depth-only Orbbec DaBai bringup for the LIMO validation platform.</description>
+  <maintainer email="noreply@example.invalid">LOONAR</maintainer>
+  <license>MIT</license>
+  <buildtool_depend>ament_python</buildtool_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>orbbec_camera</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <export><build_type>ament_python</build_type></export>
+</package>

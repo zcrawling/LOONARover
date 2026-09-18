@@ -1,0 +1,30 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "loonar-hw-debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/loonar-hw-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILD_TESTING": "ON"
+      }
+    },
+    {
+      "name": "loonar-hw-asan",
+      "inherits": "loonar-hw-debug",
+      "binaryDir": "${sourceDir}/build/loonar-hw-asan",
+      "cacheVariables": {
+        "LOONAR_ENABLE_SANITIZERS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {"name": "loonar-hw-debug", "configurePreset": "loonar-hw-debug"},
+    {"name": "loonar-hw-asan", "configurePreset": "loonar-hw-asan"}
+  ],
+  "testPresets": [
+    {"name": "loonar-hw-debug", "configurePreset": "loonar-hw-debug"},
+    {"name": "loonar-hw-asan", "configurePreset": "loonar-hw-asan"}
+  ]
+}

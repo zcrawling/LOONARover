@@ -1,0 +1,12 @@
+name: left_curve_03
+requested_linear_mps: 0.10
+requested_angular_radps: 0.30
+requested_duration_s: 10
+started_utc: 2026-09-05T07:43:16+00:00
+actual_distance_m: 0.44
+actual_lateral_offset_m: 0.14
+actual_heading_error_deg: :180도 이상 회전 
+surface:
+notes:
+command_start_utc: 2026-09-05T07:43:17+00:00
+command_stop_utc: 2026-09-05T07:43:29+00:00

@@ -1,0 +1,2748 @@
+[
+  {
+    "reference": "J1",
+    "mpn": "PRT-16763",
+    "footprint": "RBPHAT:GPIO_2x20_H16_Drill1.02",
+    "basis": "4UCON 07005 p.1: 2.54 pitch, finished hole 1.02mm; body H=16, tails=7.30mm; PCB gap=19mm",
+    "pads": [
+      {
+        "number": "1",
+        "x": 0.0,
+        "y": 0.0,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "2",
+        "x": -2.54,
+        "y": 0.0,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "3",
+        "x": 0.0,
+        "y": 2.54,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "4",
+        "x": -2.54,
+        "y": 2.54,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "5",
+        "x": 0.0,
+        "y": 5.08,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "6",
+        "x": -2.54,
+        "y": 5.08,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "7",
+        "x": 0.0,
+        "y": 7.62,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "8",
+        "x": -2.54,
+        "y": 7.62,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "9",
+        "x": 0.0,
+        "y": 10.16,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "10",
+        "x": -2.54,
+        "y": 10.16,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "11",
+        "x": 0.0,
+        "y": 12.7,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "12",
+        "x": -2.54,
+        "y": 12.7,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "13",
+        "x": 0.0,
+        "y": 15.24,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "14",
+        "x": -2.54,
+        "y": 15.24,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "15",
+        "x": 0.0,
+        "y": 17.78,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "16",
+        "x": -2.54,
+        "y": 17.78,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "17",
+        "x": 0.0,
+        "y": 20.32,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "18",
+        "x": -2.54,
+        "y": 20.32,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "19",
+        "x": 0.0,
+        "y": 22.86,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "20",
+        "x": -2.54,
+        "y": 22.86,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "21",
+        "x": 0.0,
+        "y": 25.4,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "22",
+        "x": -2.54,
+        "y": 25.4,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "23",
+        "x": 0.0,
+        "y": 27.94,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "24",
+        "x": -2.54,
+        "y": 27.94,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "25",
+        "x": 0.0,
+        "y": 30.48,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "26",
+        "x": -2.54,
+        "y": 30.48,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "27",
+        "x": 0.0,
+        "y": 33.02,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "28",
+        "x": -2.54,
+        "y": 33.02,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "29",
+        "x": 0.0,
+        "y": 35.56,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "30",
+        "x": -2.54,
+        "y": 35.56,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "31",
+        "x": 0.0,
+        "y": 38.1,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "32",
+        "x": -2.54,
+        "y": 38.1,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "33",
+        "x": 0.0,
+        "y": 40.64,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "34",
+        "x": -2.54,
+        "y": 40.64,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "35",
+        "x": 0.0,
+        "y": 43.18,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "36",
+        "x": -2.54,
+        "y": 43.18,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "37",
+        "x": 0.0,
+        "y": 45.72,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "38",
+        "x": -2.54,
+        "y": 45.72,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "39",
+        "x": 0.0,
+        "y": 48.26,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      },
+      {
+        "number": "40",
+        "x": -2.54,
+        "y": 48.26,
+        "sx": 1.7,
+        "sy": 1.7,
+        "drill": 1.02
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/GPIO_H16_envelope.wrl"
+    ]
+  },
+  {
+    "reference": "U1",
+    "mpn": "LM66100DCKR",
+    "footprint": "RBPHAT:TI_DCK0006A",
+    "basis": "TI lm66100.pdf p.21; exact example pad size/centers/pitch, NSMD +0.05mm",
+    "pads": [
+      {
+        "number": "1",
+        "x": -1.1,
+        "y": -0.65,
+        "sx": 0.9,
+        "sy": 0.4,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": -1.1,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.4,
+        "drill": 0
+      },
+      {
+        "number": "3",
+        "x": -1.1,
+        "y": 0.65,
+        "sx": 0.9,
+        "sy": 0.4,
+        "drill": 0
+      },
+      {
+        "number": "4",
+        "x": 1.1,
+        "y": 0.65,
+        "sx": 0.9,
+        "sy": 0.4,
+        "drill": 0
+      },
+      {
+        "number": "5",
+        "x": 1.1,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.4,
+        "drill": 0
+      },
+      {
+        "number": "6",
+        "x": 1.1,
+        "y": -0.65,
+        "sx": 0.9,
+        "sy": 0.4,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Package_TO_SOT_SMD.3dshapes_SOT-363_SC-70-6.step"
+    ]
+  },
+  {
+    "reference": "U2",
+    "mpn": "LM66100DCKR",
+    "footprint": "RBPHAT:TI_DCK0006A",
+    "basis": "TI lm66100.pdf p.21; exact example pad size/centers/pitch, NSMD +0.05mm",
+    "pads": [
+      {
+        "number": "1",
+        "x": -1.1,
+        "y": -0.65,
+        "sx": 0.9,
+        "sy": 0.4,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": -1.1,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.4,
+        "drill": 0
+      },
+      {
+        "number": "3",
+        "x": -1.1,
+        "y": 0.65,
+        "sx": 0.9,
+        "sy": 0.4,
+        "drill": 0
+      },
+      {
+        "number": "4",
+        "x": 1.1,
+        "y": 0.65,
+        "sx": 0.9,
+        "sy": 0.4,
+        "drill": 0
+      },
+      {
+        "number": "5",
+        "x": 1.1,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.4,
+        "drill": 0
+      },
+      {
+        "number": "6",
+        "x": 1.1,
+        "y": -0.65,
+        "sx": 0.9,
+        "sy": 0.4,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Package_TO_SOT_SMD.3dshapes_SOT-363_SC-70-6.step"
+    ]
+  },
+  {
+    "reference": "R7",
+    "mpn": "CRCW060310K0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R8",
+    "mpn": "CRCW060310K0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R1",
+    "mpn": "CRCW060322R0FKEAHP",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "C1",
+    "mpn": "GRM188R71E105KA12D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Capacitor_SMD.3dshapes_C_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "C2",
+    "mpn": "GRM188R61A475KE15D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Capacitor_SMD.3dshapes_C_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "C3",
+    "mpn": "EEEFK1C101P",
+    "footprint": "RBPHAT:Panasonic_FK_D_6.3x5.8",
+    "basis": "Panasonic FK p.3 size D: inner land gap 1.8, land length 3.2, width 1.6mm",
+    "pads": [
+      {
+        "number": "1",
+        "x": -2.5,
+        "y": 0.0,
+        "sx": 3.2,
+        "sy": 1.6,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 2.5,
+        "y": 0.0,
+        "sx": 3.2,
+        "sy": 1.6,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Capacitor_SMD.3dshapes_CP_Elec_6.3x5.8.step"
+    ]
+  },
+  {
+    "reference": "R2",
+    "mpn": "CRCW060310K0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R3",
+    "mpn": "CRCW060310K0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "U3",
+    "mpn": "TLV803ED29DBZR",
+    "footprint": "RBPHAT:TI_DBZ0003A",
+    "basis": "TI tlv803e.pdf p.40; exact example pad size/centers/pitch, NSMD +0.05mm",
+    "pads": [
+      {
+        "number": "1",
+        "x": -1.05,
+        "y": -0.95,
+        "sx": 1.3,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": -1.05,
+        "y": 0.95,
+        "sx": 1.3,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "3",
+        "x": 1.05,
+        "y": 0.0,
+        "sx": 1.3,
+        "sy": 0.6,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Package_TO_SOT_SMD.3dshapes_SOT-23.step"
+    ]
+  },
+  {
+    "reference": "R4",
+    "mpn": "CRCW060310K0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R5",
+    "mpn": "CRCW0603100KFKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R6",
+    "mpn": "CRCW06031K00FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "C4",
+    "mpn": "GRM188R71C104KA01D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Capacitor_SMD.3dshapes_C_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "C5",
+    "mpn": "GRM188R71E105KA12D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Capacitor_SMD.3dshapes_C_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "TP1",
+    "mpn": "PCB feature - no purchased part",
+    "footprint": "RBPHAT:TestPoint_TestPoint_Pad_D1.5mm",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": 0.0,
+        "y": 0.0,
+        "sx": 1.5,
+        "sy": 1.5,
+        "drill": 0
+      }
+    ],
+    "model_files": []
+  },
+  {
+    "reference": "U100",
+    "mpn": "SN74LVC2G17DBVR",
+    "footprint": "RBPHAT:TI_DBV0006A",
+    "basis": "TI sn74lvc2g17.pdf p.31; exact example pad size/centers/pitch, NSMD +0.05mm",
+    "pads": [
+      {
+        "number": "1",
+        "x": -1.3,
+        "y": -0.95,
+        "sx": 1.1,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": -1.3,
+        "y": 0.0,
+        "sx": 1.1,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "3",
+        "x": -1.3,
+        "y": 0.95,
+        "sx": 1.1,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "4",
+        "x": 1.3,
+        "y": 0.95,
+        "sx": 1.1,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "5",
+        "x": 1.3,
+        "y": 0.0,
+        "sx": 1.1,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "6",
+        "x": 1.3,
+        "y": -0.95,
+        "sx": 1.1,
+        "sy": 0.6,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Package_TO_SOT_SMD.3dshapes_SOT-23-6.step"
+    ]
+  },
+  {
+    "reference": "U101",
+    "mpn": "THVD1451DR",
+    "footprint": "RBPHAT:TI_D0008A",
+    "basis": "TI thvd1451.pdf p.42; exact example pad size/centers/pitch, NSMD +0.05mm",
+    "pads": [
+      {
+        "number": "1",
+        "x": -2.7,
+        "y": -1.905,
+        "sx": 1.55,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": -2.7,
+        "y": -0.635,
+        "sx": 1.55,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "3",
+        "x": -2.7,
+        "y": 0.635,
+        "sx": 1.55,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "4",
+        "x": -2.7,
+        "y": 1.905,
+        "sx": 1.55,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "5",
+        "x": 2.7,
+        "y": 1.905,
+        "sx": 1.55,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "6",
+        "x": 2.7,
+        "y": 0.635,
+        "sx": 1.55,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "7",
+        "x": 2.7,
+        "y": -0.635,
+        "sx": 1.55,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "8",
+        "x": 2.7,
+        "y": -1.905,
+        "sx": 1.55,
+        "sy": 0.6,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Package_SO.3dshapes_SOIC-8_3.9x4.9mm_P1.27mm.step"
+    ]
+  },
+  {
+    "reference": "J2",
+    "mpn": "BM05B-GHS-TBT(LF)(SN)",
+    "footprint": "RBPHAT:Connector_JST_JST_GH_BM05B-GHS-TBT_1x05-1MP_P1.25mm_Vertical",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -2.5,
+        "y": 1.95,
+        "sx": 0.6,
+        "sy": 1.7,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": -1.25,
+        "y": 1.95,
+        "sx": 0.6,
+        "sy": 1.7,
+        "drill": 0
+      },
+      {
+        "number": "3",
+        "x": 0.0,
+        "y": 1.95,
+        "sx": 0.6,
+        "sy": 1.7,
+        "drill": 0
+      },
+      {
+        "number": "4",
+        "x": 1.25,
+        "y": 1.95,
+        "sx": 0.6,
+        "sy": 1.7,
+        "drill": 0
+      },
+      {
+        "number": "5",
+        "x": 2.5,
+        "y": 1.95,
+        "sx": 0.6,
+        "sy": 1.7,
+        "drill": 0
+      },
+      {
+        "number": "MP",
+        "x": -4.35,
+        "y": -1.4,
+        "sx": 1.0,
+        "sy": 2.8,
+        "drill": 0
+      },
+      {
+        "number": "MP",
+        "x": 4.35,
+        "y": -1.4,
+        "sx": 1.0,
+        "sy": 2.8,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Connector_JST.3dshapes_JST_GH_BM05B-GHS-TBT_1x05-1MP_P1.25mm_Vertical.step"
+    ]
+  },
+  {
+    "reference": "R108",
+    "mpn": "CRCW06030000Z0EA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "TP100",
+    "mpn": "PCB feature - no purchased part",
+    "footprint": "RBPHAT:TestPoint_TestPoint_Pad_D1.5mm",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": 0.0,
+        "y": 0.0,
+        "sx": 1.5,
+        "sy": 1.5,
+        "drill": 0
+      }
+    ],
+    "model_files": []
+  },
+  {
+    "reference": "R100",
+    "mpn": "CRCW060310K0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R101",
+    "mpn": "CRCW060347R0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R102",
+    "mpn": "CRCW060347R0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R103",
+    "mpn": "CRCW0603010RJNEAHP",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R104",
+    "mpn": "CRCW0603010RJNEAHP",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R105",
+    "mpn": "CRCW0603010RJNEAHP",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R106",
+    "mpn": "CRCW0603010RJNEAHP",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R107",
+    "mpn": "CRCW0603120RFKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "D100",
+    "mpn": "CDSOT23-SM712",
+    "footprint": "RBPHAT:Bourns_CDSOT23_SM712",
+    "basis": "Bourns CDSOT23-SM712 p.2: 0.85mm square lands, 2.00mm row centers, 0.95mm pitch",
+    "pads": [
+      {
+        "number": "1",
+        "x": -1.0,
+        "y": -0.95,
+        "sx": 0.85,
+        "sy": 0.85,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": -1.0,
+        "y": 0.95,
+        "sx": 0.85,
+        "sy": 0.85,
+        "drill": 0
+      },
+      {
+        "number": "3",
+        "x": 1.0,
+        "y": 0.0,
+        "sx": 0.85,
+        "sy": 0.85,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Package_TO_SOT_SMD.3dshapes_SOT-23.step"
+    ]
+  },
+  {
+    "reference": "D101",
+    "mpn": "CDSOT23-SM712",
+    "footprint": "RBPHAT:Bourns_CDSOT23_SM712",
+    "basis": "Bourns CDSOT23-SM712 p.2: 0.85mm square lands, 2.00mm row centers, 0.95mm pitch",
+    "pads": [
+      {
+        "number": "1",
+        "x": -1.0,
+        "y": -0.95,
+        "sx": 0.85,
+        "sy": 0.85,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": -1.0,
+        "y": 0.95,
+        "sx": 0.85,
+        "sy": 0.85,
+        "drill": 0
+      },
+      {
+        "number": "3",
+        "x": 1.0,
+        "y": 0.0,
+        "sx": 0.85,
+        "sy": 0.85,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Package_TO_SOT_SMD.3dshapes_SOT-23.step"
+    ]
+  },
+  {
+    "reference": "C100",
+    "mpn": "GRM188R71C104KA01D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Capacitor_SMD.3dshapes_C_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "C101",
+    "mpn": "GRM188R71C104KA01D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Capacitor_SMD.3dshapes_C_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "U200",
+    "mpn": "SN74LVC2G17DBVR",
+    "footprint": "RBPHAT:TI_DBV0006A",
+    "basis": "TI sn74lvc2g17.pdf p.31; exact example pad size/centers/pitch, NSMD +0.05mm",
+    "pads": [
+      {
+        "number": "1",
+        "x": -1.3,
+        "y": -0.95,
+        "sx": 1.1,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": -1.3,
+        "y": 0.0,
+        "sx": 1.1,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "3",
+        "x": -1.3,
+        "y": 0.95,
+        "sx": 1.1,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "4",
+        "x": 1.3,
+        "y": 0.95,
+        "sx": 1.1,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "5",
+        "x": 1.3,
+        "y": 0.0,
+        "sx": 1.1,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "6",
+        "x": 1.3,
+        "y": -0.95,
+        "sx": 1.1,
+        "sy": 0.6,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Package_TO_SOT_SMD.3dshapes_SOT-23-6.step"
+    ]
+  },
+  {
+    "reference": "U201",
+    "mpn": "THVD1451DR",
+    "footprint": "RBPHAT:TI_D0008A",
+    "basis": "TI thvd1451.pdf p.42; exact example pad size/centers/pitch, NSMD +0.05mm",
+    "pads": [
+      {
+        "number": "1",
+        "x": -2.7,
+        "y": -1.905,
+        "sx": 1.55,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": -2.7,
+        "y": -0.635,
+        "sx": 1.55,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "3",
+        "x": -2.7,
+        "y": 0.635,
+        "sx": 1.55,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "4",
+        "x": -2.7,
+        "y": 1.905,
+        "sx": 1.55,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "5",
+        "x": 2.7,
+        "y": 1.905,
+        "sx": 1.55,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "6",
+        "x": 2.7,
+        "y": 0.635,
+        "sx": 1.55,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "7",
+        "x": 2.7,
+        "y": -0.635,
+        "sx": 1.55,
+        "sy": 0.6,
+        "drill": 0
+      },
+      {
+        "number": "8",
+        "x": 2.7,
+        "y": -1.905,
+        "sx": 1.55,
+        "sy": 0.6,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Package_SO.3dshapes_SOIC-8_3.9x4.9mm_P1.27mm.step"
+    ]
+  },
+  {
+    "reference": "J3",
+    "mpn": "BM05B-GHS-TBT(LF)(SN)",
+    "footprint": "RBPHAT:Connector_JST_JST_GH_BM05B-GHS-TBT_1x05-1MP_P1.25mm_Vertical",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -2.5,
+        "y": 1.95,
+        "sx": 0.6,
+        "sy": 1.7,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": -1.25,
+        "y": 1.95,
+        "sx": 0.6,
+        "sy": 1.7,
+        "drill": 0
+      },
+      {
+        "number": "3",
+        "x": 0.0,
+        "y": 1.95,
+        "sx": 0.6,
+        "sy": 1.7,
+        "drill": 0
+      },
+      {
+        "number": "4",
+        "x": 1.25,
+        "y": 1.95,
+        "sx": 0.6,
+        "sy": 1.7,
+        "drill": 0
+      },
+      {
+        "number": "5",
+        "x": 2.5,
+        "y": 1.95,
+        "sx": 0.6,
+        "sy": 1.7,
+        "drill": 0
+      },
+      {
+        "number": "MP",
+        "x": -4.35,
+        "y": -1.4,
+        "sx": 1.0,
+        "sy": 2.8,
+        "drill": 0
+      },
+      {
+        "number": "MP",
+        "x": 4.35,
+        "y": -1.4,
+        "sx": 1.0,
+        "sy": 2.8,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Connector_JST.3dshapes_JST_GH_BM05B-GHS-TBT_1x05-1MP_P1.25mm_Vertical.step"
+    ]
+  },
+  {
+    "reference": "R208",
+    "mpn": "CRCW06030000Z0EA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "TP200",
+    "mpn": "PCB feature - no purchased part",
+    "footprint": "RBPHAT:TestPoint_TestPoint_Pad_D1.5mm",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": 0.0,
+        "y": 0.0,
+        "sx": 1.5,
+        "sy": 1.5,
+        "drill": 0
+      }
+    ],
+    "model_files": []
+  },
+  {
+    "reference": "R200",
+    "mpn": "CRCW060310K0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R201",
+    "mpn": "CRCW060347R0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R202",
+    "mpn": "CRCW060347R0FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R203",
+    "mpn": "CRCW0603010RJNEAHP",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R204",
+    "mpn": "CRCW0603010RJNEAHP",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R205",
+    "mpn": "CRCW0603010RJNEAHP",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R206",
+    "mpn": "CRCW0603010RJNEAHP",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R207",
+    "mpn": "CRCW0603120RFKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "D200",
+    "mpn": "CDSOT23-SM712",
+    "footprint": "RBPHAT:Bourns_CDSOT23_SM712",
+    "basis": "Bourns CDSOT23-SM712 p.2: 0.85mm square lands, 2.00mm row centers, 0.95mm pitch",
+    "pads": [
+      {
+        "number": "1",
+        "x": -1.0,
+        "y": -0.95,
+        "sx": 0.85,
+        "sy": 0.85,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": -1.0,
+        "y": 0.95,
+        "sx": 0.85,
+        "sy": 0.85,
+        "drill": 0
+      },
+      {
+        "number": "3",
+        "x": 1.0,
+        "y": 0.0,
+        "sx": 0.85,
+        "sy": 0.85,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Package_TO_SOT_SMD.3dshapes_SOT-23.step"
+    ]
+  },
+  {
+    "reference": "D201",
+    "mpn": "CDSOT23-SM712",
+    "footprint": "RBPHAT:Bourns_CDSOT23_SM712",
+    "basis": "Bourns CDSOT23-SM712 p.2: 0.85mm square lands, 2.00mm row centers, 0.95mm pitch",
+    "pads": [
+      {
+        "number": "1",
+        "x": -1.0,
+        "y": -0.95,
+        "sx": 0.85,
+        "sy": 0.85,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": -1.0,
+        "y": 0.95,
+        "sx": 0.85,
+        "sy": 0.85,
+        "drill": 0
+      },
+      {
+        "number": "3",
+        "x": 1.0,
+        "y": 0.0,
+        "sx": 0.85,
+        "sy": 0.85,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Package_TO_SOT_SMD.3dshapes_SOT-23.step"
+    ]
+  },
+  {
+    "reference": "C200",
+    "mpn": "GRM188R71C104KA01D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Capacitor_SMD.3dshapes_C_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "C201",
+    "mpn": "GRM188R71C104KA01D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Capacitor_SMD.3dshapes_C_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "J4",
+    "mpn": "BM02B-GHS-TBT(LF)(SN)",
+    "footprint": "RBPHAT:Connector_JST_JST_GH_BM02B-GHS-TBT_1x02-1MP_P1.25mm_Vertical",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.625,
+        "y": 1.95,
+        "sx": 0.6,
+        "sy": 1.7,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.625,
+        "y": 1.95,
+        "sx": 0.6,
+        "sy": 1.7,
+        "drill": 0
+      },
+      {
+        "number": "MP",
+        "x": -2.475,
+        "y": -1.4,
+        "sx": 1.0,
+        "sy": 2.8,
+        "drill": 0
+      },
+      {
+        "number": "MP",
+        "x": 2.475,
+        "y": -1.4,
+        "sx": 1.0,
+        "sy": 2.8,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Connector_JST.3dshapes_JST_GH_BM02B-GHS-TBT_1x02-1MP_P1.25mm_Vertical.step"
+    ]
+  },
+  {
+    "reference": "R300",
+    "mpn": "TNPW060347K0BEEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R301",
+    "mpn": "TNPW060347K0BEEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R302",
+    "mpn": "TNPW060318K0BEEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "C300",
+    "mpn": "GRM188R71E105KA12D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Capacitor_SMD.3dshapes_C_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "U300",
+    "mpn": "TMUX1511PWR",
+    "footprint": "RBPHAT:TI_PW0014A",
+    "basis": "TI tmux1511.pdf p.39; exact example pad size/centers/pitch, NSMD +0.05mm",
+    "pads": [
+      {
+        "number": "1",
+        "x": -2.9,
+        "y": -1.9500000000000002,
+        "sx": 1.5,
+        "sy": 0.45,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": -2.9,
+        "y": -1.3,
+        "sx": 1.5,
+        "sy": 0.45,
+        "drill": 0
+      },
+      {
+        "number": "3",
+        "x": -2.9,
+        "y": -0.65,
+        "sx": 1.5,
+        "sy": 0.45,
+        "drill": 0
+      },
+      {
+        "number": "4",
+        "x": -2.9,
+        "y": 0.0,
+        "sx": 1.5,
+        "sy": 0.45,
+        "drill": 0
+      },
+      {
+        "number": "5",
+        "x": -2.9,
+        "y": 0.65,
+        "sx": 1.5,
+        "sy": 0.45,
+        "drill": 0
+      },
+      {
+        "number": "6",
+        "x": -2.9,
+        "y": 1.3,
+        "sx": 1.5,
+        "sy": 0.45,
+        "drill": 0
+      },
+      {
+        "number": "7",
+        "x": -2.9,
+        "y": 1.9500000000000002,
+        "sx": 1.5,
+        "sy": 0.45,
+        "drill": 0
+      },
+      {
+        "number": "8",
+        "x": 2.9,
+        "y": 1.9500000000000002,
+        "sx": 1.5,
+        "sy": 0.45,
+        "drill": 0
+      },
+      {
+        "number": "9",
+        "x": 2.9,
+        "y": 1.3,
+        "sx": 1.5,
+        "sy": 0.45,
+        "drill": 0
+      },
+      {
+        "number": "10",
+        "x": 2.9,
+        "y": 0.65,
+        "sx": 1.5,
+        "sy": 0.45,
+        "drill": 0
+      },
+      {
+        "number": "11",
+        "x": 2.9,
+        "y": 0.0,
+        "sx": 1.5,
+        "sy": 0.45,
+        "drill": 0
+      },
+      {
+        "number": "12",
+        "x": 2.9,
+        "y": -0.65,
+        "sx": 1.5,
+        "sy": 0.45,
+        "drill": 0
+      },
+      {
+        "number": "13",
+        "x": 2.9,
+        "y": -1.3,
+        "sx": 1.5,
+        "sy": 0.45,
+        "drill": 0
+      },
+      {
+        "number": "14",
+        "x": 2.9,
+        "y": -1.9500000000000002,
+        "sx": 1.5,
+        "sy": 0.45,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Package_SO.3dshapes_TSSOP-14_4.4x5mm_P0.65mm.step"
+    ]
+  },
+  {
+    "reference": "U301",
+    "mpn": "ADS1115IDGSR",
+    "footprint": "RBPHAT:TI_DGS0010A",
+    "basis": "TI ads1115.pdf p.52; exact example pad size/centers/pitch, NSMD +0.05mm",
+    "pads": [
+      {
+        "number": "1",
+        "x": -2.2,
+        "y": -1.0,
+        "sx": 1.45,
+        "sy": 0.3,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": -2.2,
+        "y": -0.5,
+        "sx": 1.45,
+        "sy": 0.3,
+        "drill": 0
+      },
+      {
+        "number": "3",
+        "x": -2.2,
+        "y": 0.0,
+        "sx": 1.45,
+        "sy": 0.3,
+        "drill": 0
+      },
+      {
+        "number": "4",
+        "x": -2.2,
+        "y": 0.5,
+        "sx": 1.45,
+        "sy": 0.3,
+        "drill": 0
+      },
+      {
+        "number": "5",
+        "x": -2.2,
+        "y": 1.0,
+        "sx": 1.45,
+        "sy": 0.3,
+        "drill": 0
+      },
+      {
+        "number": "6",
+        "x": 2.2,
+        "y": 1.0,
+        "sx": 1.45,
+        "sy": 0.3,
+        "drill": 0
+      },
+      {
+        "number": "7",
+        "x": 2.2,
+        "y": 0.5,
+        "sx": 1.45,
+        "sy": 0.3,
+        "drill": 0
+      },
+      {
+        "number": "8",
+        "x": 2.2,
+        "y": 0.0,
+        "sx": 1.45,
+        "sy": 0.3,
+        "drill": 0
+      },
+      {
+        "number": "9",
+        "x": 2.2,
+        "y": -0.5,
+        "sx": 1.45,
+        "sy": 0.3,
+        "drill": 0
+      },
+      {
+        "number": "10",
+        "x": 2.2,
+        "y": -1.0,
+        "sx": 1.45,
+        "sy": 0.3,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Package_SO.3dshapes_MSOP-10_3x3mm_P0.5mm.step"
+    ]
+  },
+  {
+    "reference": "R303",
+    "mpn": "TNPW060347K0BEEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "C301",
+    "mpn": "GRM1885C1H102JA01D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Capacitor_SMD.3dshapes_C_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "U302",
+    "mpn": "TCA9517ADGKR",
+    "footprint": "RBPHAT:TI_DGK0008A",
+    "basis": "TI tca9517a.pdf p.29; exact example pad size/centers/pitch, NSMD +0.05mm",
+    "pads": [
+      {
+        "number": "1",
+        "x": -2.2,
+        "y": -0.9750000000000001,
+        "sx": 1.4,
+        "sy": 0.45,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": -2.2,
+        "y": -0.325,
+        "sx": 1.4,
+        "sy": 0.45,
+        "drill": 0
+      },
+      {
+        "number": "3",
+        "x": -2.2,
+        "y": 0.325,
+        "sx": 1.4,
+        "sy": 0.45,
+        "drill": 0
+      },
+      {
+        "number": "4",
+        "x": -2.2,
+        "y": 0.9750000000000001,
+        "sx": 1.4,
+        "sy": 0.45,
+        "drill": 0
+      },
+      {
+        "number": "5",
+        "x": 2.2,
+        "y": 0.9750000000000001,
+        "sx": 1.4,
+        "sy": 0.45,
+        "drill": 0
+      },
+      {
+        "number": "6",
+        "x": 2.2,
+        "y": 0.325,
+        "sx": 1.4,
+        "sy": 0.45,
+        "drill": 0
+      },
+      {
+        "number": "7",
+        "x": 2.2,
+        "y": -0.325,
+        "sx": 1.4,
+        "sy": 0.45,
+        "drill": 0
+      },
+      {
+        "number": "8",
+        "x": 2.2,
+        "y": -0.9750000000000001,
+        "sx": 1.4,
+        "sy": 0.45,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Package_SO.3dshapes_VSSOP-8_3x3mm_P0.65mm.step"
+    ]
+  },
+  {
+    "reference": "R304",
+    "mpn": "CRCW06034K70FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "R305",
+    "mpn": "CRCW06034K70FKEA",
+    "footprint": "RBPHAT:Resistor_SMD_R_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.825,
+        "y": 0.0,
+        "sx": 0.8,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Resistor_SMD.3dshapes_R_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "C302",
+    "mpn": "GRM188R71C104KA01D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Capacitor_SMD.3dshapes_C_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "C303",
+    "mpn": "GRM188R71C104KA01D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Capacitor_SMD.3dshapes_C_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "C304",
+    "mpn": "GRM188R71C104KA01D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Capacitor_SMD.3dshapes_C_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "C305",
+    "mpn": "GRM188R71C104KA01D",
+    "footprint": "RBPHAT:Capacitor_SMD_C_0603_1608Metric",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": -0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      },
+      {
+        "number": "2",
+        "x": 0.775,
+        "y": 0.0,
+        "sx": 0.9,
+        "sy": 0.95,
+        "drill": 0
+      }
+    ],
+    "model_files": [
+      "${KIPRJMOD}/models/Capacitor_SMD.3dshapes_C_0603_1608Metric.step"
+    ]
+  },
+  {
+    "reference": "TP300",
+    "mpn": "PCB feature - no purchased part",
+    "footprint": "RBPHAT:TestPoint_TestPoint_Pad_D1.5mm",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": 0.0,
+        "y": 0.0,
+        "sx": 1.5,
+        "sy": 1.5,
+        "drill": 0
+      }
+    ],
+    "model_files": []
+  },
+  {
+    "reference": "TP301",
+    "mpn": "PCB feature - no purchased part",
+    "footprint": "RBPHAT:TestPoint_TestPoint_Pad_D1.5mm",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": 0.0,
+        "y": 0.0,
+        "sx": 1.5,
+        "sy": 1.5,
+        "drill": 0
+      }
+    ],
+    "model_files": []
+  },
+  {
+    "reference": "TP302",
+    "mpn": "PCB feature - no purchased part",
+    "footprint": "RBPHAT:TestPoint_TestPoint_Pad_D1.5mm",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": 0.0,
+        "y": 0.0,
+        "sx": 1.5,
+        "sy": 1.5,
+        "drill": 0
+      }
+    ],
+    "model_files": []
+  },
+  {
+    "reference": "TP303",
+    "mpn": "PCB feature - no purchased part",
+    "footprint": "RBPHAT:TestPoint_TestPoint_Pad_D1.5mm",
+    "basis": "KiCad land pattern, terminal geometry checked against manufacturer drawing",
+    "pads": [
+      {
+        "number": "1",
+        "x": 0.0,
+        "y": 0.0,
+        "sx": 1.5,
+        "sy": 1.5,
+        "drill": 0
+      }
+    ],
+    "model_files": []
+  }
+]

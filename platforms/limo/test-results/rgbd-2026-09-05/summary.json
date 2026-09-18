@@ -1,0 +1,46 @@
+{
+  "/tof/depth/image_raw": {
+    "count": 1853,
+    "hz": 28.987403751373044
+  },
+  "/tof/color/image_raw": {
+    "count": 1919,
+    "hz": 30.01724439200887
+  },
+  "/tf": {
+    "count": 638,
+    "hz": 9.978112042871501
+  },
+  "/tf_static": {
+    "count": 1,
+    "hz": 0
+  },
+  "/rgbd/odom": {
+    "count": 246,
+    "hz": 3.824179017236144,
+    "valid": 100,
+    "end_displacement_m": 0.6443374248436285,
+    "max_displacement_m": 0.8277220302512984,
+    "yaw_change_deg": 0.1686676022991734
+  },
+  "/tof/color/camera_info": {
+    "count": 1919,
+    "hz": 30.017020378443846
+  },
+  "/rgbd/odom_info": {
+    "count": 246,
+    "hz": 3.824187906351631,
+    "lost": 146,
+    "inliers_min": 0,
+    "inliers_median": 9.0,
+    "processing_ms_median": 34.359097480773926
+  },
+  "/rgbd/input_diagnostics": {
+    "count": 65,
+    "hz": 0.9999814122830096,
+    "messages": {
+      "RGB-D input contract satisfied": 22,
+      "RGB/depth timestamp delta exceeds limit": 43
+    }
+  }
+}

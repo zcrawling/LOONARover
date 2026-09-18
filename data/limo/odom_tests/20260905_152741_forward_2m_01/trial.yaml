@@ -1,0 +1,12 @@
+name: forward_2m_01
+requested_linear_mps: 0.10
+requested_angular_radps: 0.0
+requested_duration_s: 20
+started_utc: 2026-09-05T07:27:44+00:00
+actual_distance_m: 2.10
+actual_lateral_offset_m: 0.033
+actual_heading_error_deg: 0.9
+surface:
+notes:
+command_start_utc: 2026-09-05T07:27:45+00:00
+command_stop_utc: 2026-09-05T07:28:06+00:00

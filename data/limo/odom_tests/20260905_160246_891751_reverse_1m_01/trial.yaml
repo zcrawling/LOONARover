@@ -1,0 +1,12 @@
+name: reverse_1m_01
+requested_linear_mps: -0.1
+requested_angular_radps: 0.0
+requested_duration_s: 10.0
+actual_distance_m: 1.01
+actual_heading_error_deg: 0
+status: completed
+ros_domain_id: '0'
+command_start_ros_ns: 1788595370873140074
+command_stop_ros_ns: 1788595380873477565
+actual_command_duration_s: 10.000362619000043
+bag_exit_code: 0

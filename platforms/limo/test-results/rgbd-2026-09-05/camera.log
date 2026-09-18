@@ -1,0 +1,55 @@
+[INFO] [launch]: All log files can be found below /home/wego/.ros/log/2026-09-05-14-59-30-869622-wego-NUC12WSKi7-6576
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [static_transform_publisher-1]: process started with pid [6588]
+[INFO] [component_container-2]: process started with pid [6590]
+[static_transform_publisher-1] [INFO] [1788591571.092511612] [limo_tof_mount_tf]: Spinning until stopped - publishing transform
+[static_transform_publisher-1] translation: ('0.150000', '0.000000', '0.033000')
+[static_transform_publisher-1] rotation: ('0.000000', '0.000000', '0.000000', '1.000000')
+[static_transform_publisher-1] from 'base_link' to 'tof_link'
+[component_container-2] [INFO] [1788591571.287736862] [tof.camera_container]: Load Library: /home/wego/agilex_ws/install/orbbec_camera/lib/liborbbec_camera.so
+[component_container-2] [INFO] [1788591571.682372083] [tof.camera_container]: Found class: rclcpp_components::NodeFactoryTemplate<orbbec_camera::OBCameraNodeDriver>
+[component_container-2] [INFO] [1788591571.682421588] [tof.camera_container]: Instantiate class: rclcpp_components::NodeFactoryTemplate<orbbec_camera::OBCameraNodeDriver>
+[component_container-2] [09/05 14:59:31.691922][info][6590][Context.cpp:67] Context created with config: /home/wego/agilex_ws/install/orbbec_camera/share/orbbec_camera/config/OrbbecSDKConfig_v1.0.xml
+[component_container-2] [09/05 14:59:31.691939][info][6590][Context.cpp:72] Context work_dir=/home/wego
+[component_container-2] [09/05 14:59:31.737337][warning][6590][OpenNIDeviceInfo.cpp:180] New openni device matched.
+[component_container-2] [09/05 14:59:31.737654][info][6590][LinuxPal.cpp:110] Create PollingDeviceWatcher!
+[component_container-2] [09/05 14:59:31.737703][info][6590][DeviceManager.cpp:15] Current found device(s): (1)
+[component_container-2] [09/05 14:59:31.737717][info][6590][DeviceManager.cpp:24] 	- Name: DaBai, PID: 0x060e, SN/ID: , Connection: USB2.0
+[component_container-2] [09/05 14:59:31.738325][info][6590][DeviceManager.cpp:307] Enable net device enumeration: true
+[component_container-2] [09/05 14:59:32.741187][info][6590][DeviceManager.cpp:15] Current device(s) list: (1)
+[component_container-2] [09/05 14:59:32.741229][info][6590][DeviceManager.cpp:24] 	- Name: DaBai, PID: 0x060e, SN/ID: , Connection: USB2.0
+[INFO] [launch_ros.actions.load_composable_nodes]: Loaded node '/tof/tof' in container '/tof/camera_container'
+[component_container-2] [INFO] [1788591572.741511229] [tof.tof]: Connecting to the default device
+[component_container-2] [09/05 14:59:32.742795][info][6630][OpenNIHostProtocol.cpp:546] Hardware versions: FW=5.8.23 (14), HW=0, Chip=7, Sensor=0, SYS=12
+[component_container-2] [09/05 14:59:32.743209][error][6630][OpenNIHostProtocol.cpp:563] Get usb core type failed!
+[component_container-2] [09/05 14:59:32.745802][info][6630][OpenNISensorFirmware.cpp:1022] Sensor serial number:AU1SB3302CG
+[component_container-2] [09/05 14:59:32.746435][info][6630][OpenNISensorFirmware.cpp:1050] Firmware version RD2434
+[component_container-2] [09/05 14:59:32.746711][info][6630][OpenNISensorFirmware.cpp:1056] Device frequency 31.25
+[component_container-2] [09/05 14:59:32.787310][error][6630][OpenNIHostProtocol.cpp:931] Support sub cmd error!
+[component_container-2] [09/05 14:59:32.787338][warning][6630][OpenNISensorFirmware.cpp:148] OpenNI2 camera don't support Watchdog function!
+[component_container-2] [09/05 14:59:32.787540][info][6630][OpenNIDevice.cpp:28] OpenNI device created! PID: 0x060e, SN: AU1SB3302CG
+[component_container-2] [09/05 14:59:32.787552][info][6630][DeviceManager.cpp:154] Device created successfully! Name: DaBai, PID: 0x060e, SN/ID: 
+[component_container-2] [09/05 14:59:32.795288][info][6630][OpenNIDevice.cpp:471] IR sensor has been created!
+[component_container-2] [09/05 14:59:32.866335][info][6630][OpenNIDevice.cpp:424] Color sensor has been created!
+[component_container-2] [09/05 14:59:32.866916][info][6630][OpenNIDevice.cpp:365] Depth sensor has been created!
+[component_container-2] [09/05 14:59:32.869154][warning][6630][ObException.cpp:5] Property is not supported! propertyId: 2025
+[component_container-2] [ERROR] [1788591572.870728725] [tof.tof]: Failed to setup devices: Property is not supported! propertyId: 2025
+[component_container-2] [INFO] [1788591572.872060596] [tof.tof]:  stream depth is enabled - width: 640, height: 400, fps: 30, Format: OB_FORMAT_Y11
+[component_container-2] [INFO] [1788591572.872415920] [tof.tof]:  stream color is enabled - width: 640, height: 480, fps: 30, Format: OB_FORMAT_MJPG
+[component_container-2] [09/05 14:59:32.900448][info][6630][Pipeline.cpp:44] Pipeline created with device: {name: DaBai, sn: AU1SB3302CG}, @0x752F701C9D90
+[component_container-2] [INFO] [1788591572.900475344] [tof.tof]: set align mode ALIGN_D2C_HW_MODE.
+[component_container-2] [INFO] [1788591572.900500587] [tof.tof]: Enable depth stream
+[component_container-2] [INFO] [1788591572.900507783] [tof.tof]: Stream depth width: 640 height: 400 fps: 30 format: Y11
+[component_container-2] [INFO] [1788591572.900515140] [tof.tof]: Enable color stream
+[component_container-2] [INFO] [1788591572.900519960] [tof.tof]: Stream color width: 640 height: 480 fps: 30 format: MJPG
+[component_container-2] [09/05 14:59:32.922717][info][6630][Pipeline.cpp:238] Try to start streams!
+[component_container-2] [09/05 14:59:32.999771][info][6630][VideoSensor.cpp:590] start OB_SENSOR_COLOR stream with profile: {type: OB_STREAM_COLOR, format: OB_FORMAT_MJPG, width: 640, height: 480, fps: 30}
+[component_container-2] [INFO] [1788591573.127282273] [tof.tof]: transform x -29.8844 y -0.167171 z 0
+[component_container-2] [WARN] [1788591573.127482253] [tof.tof]: Publishing dynamic camera transforms (/tf) at 10 Hz
+[component_container-2] [09/05 14:59:33.470249][info][6630][Pipeline.cpp:251] Start streams done!
+[component_container-2] [09/05 14:59:33.470309][info][6630][Pipeline.cpp:234] Pipeline start done!
+[component_container-2] [INFO] [1788591573.470478536] [tof.tof]: Device DaBai connected
+[component_container-2] [INFO] [1788591573.470559618] [tof.tof]: Serial number: AU1SB3302CG
+[component_container-2] [INFO] [1788591573.470574686] [tof.tof]: Firmware version: RD2434
+[component_container-2] [INFO] [1788591573.470587243] [tof.tof]: Hardware version: 
+[component_container-2] [INFO] [1788591573.470596589] [tof.tof]: device unique id: 1-1.4-6

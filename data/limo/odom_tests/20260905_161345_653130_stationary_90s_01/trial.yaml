@@ -1,0 +1,12 @@
+name: stationary_90s_01
+requested_linear_mps: 0.0
+requested_angular_radps: 0.0
+requested_duration_s: 90.0
+actual_distance_m: null
+actual_heading_error_deg: null
+status: completed
+ros_domain_id: '0'
+command_start_ros_ns: 1788596029228567283
+command_stop_ros_ns: 1788596119228869297
+actual_command_duration_s: 90.00032334299976
+bag_exit_code: 0

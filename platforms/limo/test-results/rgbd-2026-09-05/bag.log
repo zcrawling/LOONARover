@@ -1,0 +1,17 @@
+stdin is not a terminal device. Keyboard handling disabled.[INFO] [1788591621.296373739] [rosbag2_recorder]: Press SPACE for pausing/resuming
+[INFO] [1788591621.299178464] [rosbag2_storage]: Opened database '/home/wego/loonar_rgbd_test/baseline/baseline_0.db3' for READ_WRITE.
+[INFO] [1788591621.301154581] [rosbag2_recorder]: Listening for topics...
+[INFO] [1788591621.301156977] [rosbag2_recorder]: Event publisher thread: Starting
+[INFO] [1788591621.305366815] [rosbag2_recorder]: Subscribed to topic '/tof/depth/image_raw'
+[INFO] [1788591621.305908372] [rosbag2_recorder]: Subscribed to topic '/tof/color/image_raw'
+[INFO] [1788591621.307184511] [rosbag2_recorder]: Subscribed to topic '/tf'
+[INFO] [1788591621.307784374] [rosbag2_recorder]: Subscribed to topic '/tf_static'
+[INFO] [1788591621.308809394] [rosbag2_recorder]: Subscribed to topic '/rgbd/odom'
+[INFO] [1788591621.309434394] [rosbag2_recorder]: Subscribed to topic '/tof/color/camera_info'
+[INFO] [1788591621.310910912] [rosbag2_recorder]: Subscribed to topic '/rgbd/odom_info'
+[INFO] [1788591621.312608403] [rosbag2_recorder]: Subscribed to topic '/rgbd/input_diagnostics'
+[INFO] [1788591621.312674637] [rosbag2_recorder]: Recording...
+[INFO] [1788591686.229705982] [rosbag2_cpp]: Writing remaining messages from cache to the bag. It may take a while
+[INFO] [1788591686.232230681] [rosbag2_recorder]: Event publisher thread: Exiting
+[INFO] [1788591686.232449244] [rosbag2_recorder]: Recording stopped
+[INFO] [1788591686.236815057] [rosbag2_recorder]: Recording stopped
