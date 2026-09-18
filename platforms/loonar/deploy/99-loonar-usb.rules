@@ -1,0 +1,5 @@
+# Teensy USB CDC: stable identity is /dev/serial/by-id, never ttyACM enumeration order.
+# Control and Payload must be assigned by their distinct actual serial numbers.
+SUBSYSTEM=="tty", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="0483", GROUP="dialout", MODE="0660", ENV{ID_MM_DEVICE_IGNORE}="1", ENV{ID_MM_PORT_IGNORE}="1"
+# CubeEye I200DK; do not grant world-write access to every USB device.
+SUBSYSTEM=="usb", ATTR{idVendor}=="3674", ATTR{idProduct}=="0200", GROUP="plugdev", MODE="0660"

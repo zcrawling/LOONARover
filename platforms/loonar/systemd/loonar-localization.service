@@ -1,0 +1,17 @@
+[Unit]
+Description=LOONAR minimal wheel velocity and gyro EKF
+After=network.target
+
+[Service]
+Type=simple
+User=loonar
+Group=loonar
+Environment=ROS_DOMAIN_ID=0
+EnvironmentFile=-/etc/loonar/ros.env
+ExecStart=/opt/loonar/current/lib/run-localization.sh
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target

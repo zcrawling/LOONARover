@@ -7,6 +7,8 @@ references needed for migration from LIMO.
 See the [LIMO → LOONAR porting and acceptance plan](porting/limo_to_loonar_plan.md)
 for Raspberry Pi 5 / Ubuntu 24.04 / ROS 2 Jazzy, systemd/cFS deployment,
 minimal EKF with motion restrictions, CubeEye, camera streaming, and operator tests.
+The [Pi preparation guide](deploy/README.md) contains native build/deployment commands
+and the current camera → Teensy USB → lidar/ToF → driving verification sequence.
 
 The retained Control MCU wire protocol is **v1 hardware reference**. Before a
 vehicle is driven through this platform, `TeensyRs485Backend` and the MCU protocol

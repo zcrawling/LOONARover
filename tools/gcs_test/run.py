@@ -18,7 +18,7 @@ CFS = WORK / 'cFS'
 REV = '088b2fa828db9ff7e00733f1908e0eeb59f66ce3'  # NASA cFS v7.0.1
 
 
-def build():
+def build(run_tests=True, jobs=4):
     def run(argv, cwd=ROOT):
         with (WORK / 'build.log').open('a') as log:
             subprocess.run(argv, cwd=cwd, stdout=log, stderr=subprocess.STDOUT, check=True)
@@ -30,7 +30,8 @@ def build():
     if actual != REV:
         raise RuntimeError(f'Unexpected cFS revision: {actual}; expected {REV}')
     run(['git', 'submodule', 'update', '--init', '--recursive', '--depth', '1',
-         'cfe', 'osal', 'psp', 'tools/elf2cfetbl'], CFS)
+         'cfe', 'osal', 'psp', 'tools/elf2cfetbl',
+         'tools/tblCRCTool', 'tools/commandline-tools'], CFS)
     defs = CFS / 'loonar_defs'
     shutil.copytree(CFS / 'sample_defs', defs, dirs_exist_ok=True)
     (defs / 'targets.cmake').write_text('''set(MISSION_NAME "LOONAR_PC_Test")
@@ -52,9 +53,11 @@ set(MISSION_GLOBAL_APPLIST loonar_ground_link loonar_vehicle_adapter)
         dest = CFS / 'apps' / name
         if not dest.is_symlink():
             dest.symlink_to(ROOT / 'cfs/apps' / source, target_is_directory=True)
-    run(['cmake', '-S', str(ROOT), '-B', str(WORK / 'host'), '-DBUILD_TESTING=ON'])
-    run(['cmake', '--build', str(WORK / 'host'), '-j', '4'])
-    run(['ctest', '--test-dir', str(WORK / 'host'), '--output-on-failure'])
+    run(['cmake', '-S', str(ROOT), '-B', str(WORK / 'host'),
+         '-DBUILD_TESTING=' + ('ON' if run_tests else 'OFF')])
+    run(['cmake', '--build', str(WORK / 'host'), '-j', str(jobs)])
+    if run_tests:
+        run(['ctest', '--test-dir', str(WORK / 'host'), '--output-on-failure'])
     run(['make', 'native_std.prep',
          'PREP_OPTS_native_std=-DSIMULATION=native -DCFE_EDS_ENABLED=OFF '
          '-DMISSIONCONFIG=loonar -DCMAKE_BUILD_TYPE=Debug -DENABLE_UNIT_TESTS=OFF'], CFS)
@@ -70,7 +73,14 @@ def main():
     parser.add_argument('--battery-voltage', type=float, default=11.7, help='Synthetic test voltage, sent once/sec')
     parser.add_argument('--build-only', action='store_true')
     parser.add_argument('--skip-build', action='store_true')
+    parser.add_argument('--skip-tests', action='store_true',
+                        help='Only with --build-only: compile without running tests or processes')
+    parser.add_argument('--jobs', type=int, default=4, help='Host build parallelism')
     args = parser.parse_args()
+    if args.jobs < 1:
+        parser.error('--jobs must be positive')
+    if args.skip_tests and (not args.build_only or args.skip_build):
+        parser.error('--skip-tests requires --build-only and cannot be used with --skip-build')
     if args.video != 'none' and not args.gcs_ip:
         parser.error('--gcs-ip is required with --video test/camera')
     if not 1 <= args.video_port <= 65535:
@@ -82,7 +92,7 @@ def main():
     except BlockingIOError:
         raise RuntimeError('A GCS test launcher is already running') from None
     if not args.skip_build:
-        build()
+        build(run_tests=not args.skip_tests, jobs=args.jobs)
     if args.build_only:
         return
     cpu = CFS / 'build-native_std/exe/cpu1'

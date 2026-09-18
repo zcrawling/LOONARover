@@ -1,0 +1,22 @@
+[Unit]
+Description=LOONAR cFS GroundLink and VehicleAdapter
+Wants=vehicle_gatewayd.service
+After=vehicle_gatewayd.service network.target
+
+[Service]
+Type=simple
+User=loonar
+Group=loonar
+StateDirectory=loonar/cfs
+WorkingDirectory=/var/lib/loonar/cfs
+Environment=LOONAR_GATEWAY_SOCKET=/run/loonar/vehicle-gateway/cfs.sock
+ExecStart=/opt/loonar/current/cfs/core-cpu1
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+
+[Install]
+WantedBy=loonar-core.target

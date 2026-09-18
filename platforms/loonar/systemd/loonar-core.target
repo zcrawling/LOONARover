@@ -1,0 +1,7 @@
+[Unit]
+Description=LOONAR core services (no sensors or actuators)
+Wants=vehicle_gatewayd.service loonar-cfs.service
+After=vehicle_gatewayd.service loonar-cfs.service
+
+[Install]
+WantedBy=multi-user.target

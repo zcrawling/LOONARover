@@ -16,10 +16,15 @@ ToF, map, GPS, and command velocity는 **이 단계에서 fuse하지 않는다**
 장기 위치 오차를 스스로 제거하지 않는다.
 
 ```text
-Control MCU encoder --RS485--> Pi bridge -- /wheel/odom (vx only) --+
-                                                                  +--> EKF --> odom -> base_link
-BNO085 calibrated gyro -----> BNO driver -- /imu/data (wz only) --+
+Control MCU encoder --USB CDC/UART--> Pi bridge -- /wheel/odom (vx only) --+
+                                                                         +--> EKF --> odom -> base_link
+BNO085 --Control MCU--USB CDC/UART--> Pi bridge -- /imu/data (wz only) ----+
 ```
+
+초기 bench는 Teensy USB CDC, 이후 Pi HAT UART/RS485를 사용한다.
+BNO085와 encoder는 모두 Control MCU 소유다. 여기서 말하는 Pi bridge는
+실측 telemetry를 ROS 메시지로 옮기는 구현 대상으로, 현재 패키지에 포함되지 않는다.
+아래의 RS485 bridge 표현은 이 transport 독립 경계를 가리킨다.
 
 ## 실행 전 메시지 계약
 
@@ -171,7 +176,7 @@ pose는 이 최소 단계에 추가하지 않는다.
 
 ```bash
 source /opt/ros/jazzy/setup.bash
-source ~/loonar_ws/install/setup.bash
+source /opt/loonar/current/ros/install/setup.bash
 ros2 launch loonar_localization loonar_minimal_ekf.launch.py
 ```
 

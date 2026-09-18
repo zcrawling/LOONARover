@@ -6,6 +6,13 @@ Raspberry Pi 5 / Ubuntu 24.04 LTS arm64 / ROS 2 Jazzy**다.
 merge `2bea6db` 및 함께 반영하는 이 컴퓨터의 개발 작업물이다.
 이 문서는 구현·배포 계획이며, Pi 실기 검증 완료 보고서가 아니다.
 
+**2026-09-18 하드웨어 제작 중 준비 지침:** 실기 검증 순서는 사용자 요청에 따라
+**카메라 → Teensy USB → 라이다/ToF → 모터 및 주행**으로 변경한다.
+그 전에는 의존성 설치, native build, 비활성 서비스 배포와 문서 준비만 수행한다.
+테스트 실행·센서 열거·촬영·MCU 업로드·주행은 이번 준비 작업에 포함하지 않는다.
+Teensy 최초 연결은 Pi HAT UART 대신 USB CDC이며, 최종 UART 구성도 유지한다.
+구체적인 준비 명령과 다음 실기 절차는 [배포 안내](../deploy/README.md)에 기록한다.
+
 ### 병합 후 다시 확인한 사항
 
 - main과 master는 공통 조상이 없었지만 소스 내용은 같았다. master의 차이는 셸 파일
@@ -14,8 +21,8 @@ merge `2bea6db` 및 함께 반영하는 이 컴퓨터의 개발 작업물이다.
   PCB B4 설계 자료다. `cfs/apps`에는 `ground_link`, `vehicle_adapter` 두 앱만 있다.
 - 현재 로컬에서도 독립 Payload Transport/cFS payload 앱과 MCU payload firmware는
   확인되지 않는다. `PAYLOAD_EXEC` MID 발행 경로를 통신 앱 구현 완료로 계산하지 않는다.
-- 포팅 순서를 **의존성/공통부 → payload 통신 계약·단독 검증 → Control 센서/odom →
-  영상·ToF 동시 운용**으로 보완한다. payload 단독 작업은 Control 구현과 병행할 수 있다.
+- 소프트웨어 작업은 의존성/공통부 배포와 payload 통신 계약 정리를 먼저 한다.
+  실기 검증 순서는 위의 최신 사용자 지침을 따른다. payload 구현은 별도 미완료 항목이다.
 - CubeEye vendor archive는 소스 checkout에 포함되지 않는다.
   [SDK 체크섬과 별도 배치 절차](../vendor-assets.md)를 P0에 포함한다.
 
@@ -56,7 +63,7 @@ GCS ── TCP 7443 / GroundLink ── cFS GroundLink / VehicleAdapter
                                vehicle_gatewayd
                                       │ backend.sock
                          LOONAR backend (Control link 단독 소유)
-                                      │ RS-485
+                                      │ 초기 USB CDC → 이후 Pi HAT UART/RS-485
                                 Control Teensy
                               encoder / BNO085 / motor
                                       │ 측정값 fan-out

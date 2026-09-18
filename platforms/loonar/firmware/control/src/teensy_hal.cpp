@@ -13,8 +13,13 @@ namespace {
 
 using namespace loonar::control;
 
+#if defined(LOONAR_CONTROL_USB_CDC)
+auto &control_serial = Serial;
+#else
+auto &control_serial = Serial1;
 std::uint8_t uart_rx_storage[256] = {};
 std::uint8_t uart_tx_storage[64] = {};
+#endif
 
 constexpr std::uint8_t enable_level(bool enabled) {
   return enabled == pins::kMotorEnableActiveHigh ? HIGH : LOW;
@@ -58,11 +63,16 @@ std::int32_t board_temp_mdeg_c() {
 }
 
 bool uart_start() {
+#if defined(LOONAR_CONTROL_USB_CDC)
+  // USB enumerates asynchronously. Never wait for a host before starting safety tasks.
+  control_serial.begin(pins::kUartBaud);
+#else
   Serial1.setRX(pins::kUartRx);
   Serial1.setTX(pins::kUartTx);
   Serial1.addMemoryForRead(uart_rx_storage, sizeof(uart_rx_storage));
   Serial1.addMemoryForWrite(uart_tx_storage, sizeof(uart_tx_storage));
   Serial1.begin(pins::kUartBaud);
+#endif
   return true;
 }
 
@@ -71,8 +81,8 @@ std::size_t uart_read(std::uint8_t *output, std::size_t capacity) {
   if (output == nullptr) {
     return 0;
   }
-  while (count < capacity && Serial1.available() > 0) {
-    const int value = Serial1.read();
+  while (count < capacity && control_serial.available() > 0) {
+    const int value = control_serial.read();
     if (value < 0) {
       break;
     }
@@ -83,7 +93,13 @@ std::size_t uart_read(std::uint8_t *output, std::size_t capacity) {
 }
 
 bool uart_write(const std::uint8_t *data, std::size_t size) {
-  return data != nullptr && Serial1.write(data, size) == size;
+#if defined(LOONAR_CONTROL_USB_CDC)
+  // Skip a frame when disconnected or when the complete frame cannot fit in TX.
+  if (!control_serial || control_serial.availableForWrite() < static_cast<int>(size)) {
+    return false;
+  }
+#endif
+  return data != nullptr && control_serial.write(data, size) == size;
 }
 
 void apply_motor_duty(float left_duty, float right_duty) {

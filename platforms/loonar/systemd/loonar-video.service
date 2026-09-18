@@ -1,0 +1,20 @@
+[Unit]
+Description=LOONAR independent camera video stream
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=/etc/loonar/video.env
+
+[Service]
+Type=simple
+User=loonar
+Group=loonar
+SupplementaryGroups=video render
+Environment=LOONAR_VIDEO_CONFIG=/etc/loonar/video.env
+ExecStart=/opt/loonar/current/lib/run-video.sh
+Restart=on-failure
+RestartSec=3
+Nice=10
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target

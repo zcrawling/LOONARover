@@ -1,7 +1,8 @@
 """Launch only the LOONAR local-odometry EKF.
 
-The RS485 bridge must already publish /wheel/odom and the BNO085 driver must
-already publish /imu/data. robot_state_publisher must publish the fixed
+The Control MCU bridge (initially USB CDC, later Pi HAT UART/RS485) must already
+publish measured /wheel/odom and /imu/data. BNO085 is owned by that MCU.
+robot_state_publisher must publish the fixed
 base_link -> imu_link transform separately. This launch sends no command and
 does not publish any static transform.
 """

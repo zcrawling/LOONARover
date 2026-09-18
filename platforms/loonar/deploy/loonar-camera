@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+source /opt/loonar/current/lib/loonar-camera-env.sh
+command_name=${1:-rpicam-hello}
+if [[ $# -gt 0 ]]; then shift; fi
+case "$command_name" in
+  rpicam-hello|rpicam-still|rpicam-jpeg|rpicam-vid|rpicam-raw|cam)
+    exec "$LOONAR_CAMERA_PREFIX/bin/$command_name" "$@" ;;
+  *) echo "Expected rpicam-hello/still/jpeg/vid/raw or cam." >&2; exit 2 ;;
+esac

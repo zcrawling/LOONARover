@@ -72,6 +72,20 @@ pio run
 pio run --target upload
 ```
 
+초기 USB 연결용 빌드는 별도로 선택한다. 이 명령은 컴파일만 하며 업로드하지 않는다.
+
+```sh
+pio run -e teensy41_usb
+```
+
+출력은 `.pio/build/teensy41_usb/firmware.hex`다. `LOONAR_CONTROL_USB_CDC`가
+`Serial1` 대신 USB `Serial`로 동일 binary wire frame을 전달한다. USB host를 기다리며
+부팅을 막지 않고, 연결되지 않거나 TX 공간이 부족하면 해당 전송을 실패 처리한다.
+USB baud는 line coding이며 UART의 물리 baud가 아니다. 기본 `teensy41` 환경은
+기존 UART를 유지한다. USB 포트에는 텍스트 debug log를 섞지 않는다.
+이 변경은 encoder/IMU 수집이나 Pi backend를 구현하지 않으며, controller는 여전히 0 출력이다.
+실제 통신·USB 분리/재연결 검증과 업로드는 하드웨어 단계에서 수행한다.
+
 ## Host 검증
 
 ```sh

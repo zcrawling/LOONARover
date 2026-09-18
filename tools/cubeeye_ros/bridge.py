@@ -14,16 +14,23 @@ from scipy.spatial.transform import Rotation
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--sdk',type=Path,default=Path.home()/'cubeeye_sdk')
+    p.add_argument('--helper',type=Path,help='Use a prebuilt native helper instead of compiling at startup')
     p.add_argument('--seconds',type=float,default=0);p.add_argument('--hz',type=float,default=5.)
     p.add_argument('--stride',type=int,default=4);p.add_argument('--output',type=Path)
     for key,val in [('x',.15),('y',0.),('z',.033),('roll',0.),('pitch',0.),('yaw',0.)]:p.add_argument('--'+key,type=float,default=val)
     a=p.parse_args()
     if a.hz<=0 or a.stride<1:p.error('positive hz/stride required')
-    sdk=a.sdk;build=Path.home()/'.cache/loonar/cubeeye';build.mkdir(parents=True,exist_ok=True)
+    sdk=a.sdk
     libdirs=[sdk/'lib',sdk/'thirdparty/liblive555/lib/Release',*[d for d in (sdk/'thirdparty').glob('*/lib') if d.parent.name!='python']]
     env=os.environ.copy();env['LD_LIBRARY_PATH']=':'.join(map(str,libdirs))
-    binary=build/'capture_xyz';src=Path(__file__).with_name('capture_xyz.cpp')
-    subprocess.run(['g++','-std=c++17','-O2','-pthread',str(src),'-I'+str(sdk/'include/CubeEye'),'-L'+str(sdk/'lib'),'-lCubeEye',*['-Wl,-rpath-link,'+str(d) for d in libdirs],'-o',str(binary)],env=env,check=True)
+    if a.helper:
+        binary=a.helper.resolve()
+        if not binary.is_file() or not os.access(binary,os.X_OK):
+            p.error('--helper must name an executable native helper')
+    else:
+        build=Path.home()/'.cache/loonar/cubeeye';build.mkdir(parents=True,exist_ok=True)
+        binary=build/'capture_xyz';src=Path(__file__).with_name('capture_xyz.cpp')
+        subprocess.run(['g++','-std=c++17','-O2','-pthread',str(src),'-I'+str(sdk/'include/CubeEye'),'-L'+str(sdk/'lib'),'-lCubeEye',*['-Wl,-rpath-link,'+str(d) for d in libdirs],'-o',str(binary)],env=env,check=True)
     rclpy.init();node=Node('cubeeye_i200dk');pub=node.create_publisher(PointCloud2,'/tof/depth/points',rclpy.qos.qos_profile_sensor_data);diag=node.create_publisher(String,'/tof/status',10)
     broadcaster=StaticTransformBroadcaster(node);tf=TransformStamped();tf.header.stamp=node.get_clock().now().to_msg();tf.header.frame_id='base_link';tf.child_frame_id='cubeeye_optical'
     tf.transform.translation.x=a.x;tf.transform.translation.y=a.y;tf.transform.translation.z=a.z

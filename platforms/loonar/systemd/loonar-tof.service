@@ -1,0 +1,21 @@
+[Unit]
+Description=LOONAR CubeEye point cloud bridge
+After=network.target
+ConditionPathExists=/etc/loonar/tof.env
+
+[Service]
+Type=simple
+User=loonar
+Group=loonar
+SupplementaryGroups=plugdev
+Environment=ROS_DOMAIN_ID=0
+EnvironmentFile=-/etc/loonar/ros.env
+ExecStart=/opt/loonar/current/lib/run-tof.sh
+KillMode=control-group
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -24,6 +24,14 @@ cd /home/sb/LOONAR
 `READY`가 출력되면 연결한다. 실행 터미널에서 **Ctrl+C**로 전체 종료한다.
 이미 빌드했다면 `--skip-build`로 빠르게 실행할 수 있다.
 `--build-only`는 다운로드/빌드/호스트 테스트만 수행한다.
+하드웨어 준비 중 테스트와 런타임 실행을 모두 생략하고 ARM64에서 컴파일만 하려면:
+
+```bash
+./tools/run_gcs_test.sh --build-only --skip-tests --jobs 2
+```
+
+`--skip-tests`는 `--build-only`와 함께만 허용한다. 이 경로는 cFS/gateway 실행,
+포트 바인딩, synthetic telemetry 주입 및 영상 실행 전에 종료한다.
 
 ## 포트 / 설정
 
