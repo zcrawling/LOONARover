@@ -1,0 +1,19 @@
+__pycache__/
+*.pyc
+.venv/
+.runtime/
+config/local.toml
+
+# Local configuration and credentials must never be committed.
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Separate upstream checkout; add it as an explicit submodule only if required.
+openc3/
+
+# Local build dependency links created while rendering artifacts.
+**/node_modules
