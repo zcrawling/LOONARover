@@ -21,7 +21,7 @@ for file in "$CPU/core-cpu1" "$HOST/common/vehicle_gateway/vehicle_gatewayd" \
   "$ROS_INSTALL/setup.bash" "$CAM_WORK/stage$CAM_PREFIX/bin/rpicam-hello"; do
   [[ -f $file ]] || { echo "Missing artifact: $file" >&2; exit 2; }
 done
-for unit in vehicle_gatewayd loonar-cfs loonar-localization loonar-video loonar-tof; do
+for unit in vehicle_gatewayd loonar-cfs loonar-localization loonar-video loonar-tof loonar-mcu@control loonar-mcu@payload loonar-mcu-sensors; do
   if systemctl is-active --quiet "$unit.service"; then
     echo "$unit is active; this preparation installer requires an inactive stack." >&2; exit 2
   fi
@@ -42,6 +42,9 @@ install -m 755 "$DEPLOY"/run-*.sh "$DEPLOY/loonar-camera" "$DEPLOY/loonar-camera
 install -m 755 "$ROOT/common/video/loonar-video-stream" "$DEST/lib/"
 install -m 644 "$ROOT/tools/cubeeye_ros/bridge.py" "$DEST/lib/cubeeye/"
 install -m 644 "$DEPLOY"/*.env.example /etc/loonar/
+install -d "$DEST/lib/python/mcu_v2"
+install -m 644 "$ROOT/platforms/loonar/tools/mcu_v2/"*.py "$DEST/lib/python/mcu_v2/"
+install -m 644 "$ROOT/platforms/loonar/config/mcu-registry.example.json" "$ROOT/platforms/loonar/config/mcu-sensors.example.yaml" /etc/loonar/
 if [[ ! -e /etc/loonar/video.env ]]; then
   cat > /etc/loonar/video.env <<'EOF'
 # Development computer address observed during preparation; change for another GCS.
@@ -61,6 +64,8 @@ if [[ ! -e /var/lib/loonar/cfs/cf ]]; then
   cp -a "$CPU/cf" /var/lib/loonar/cfs/
   chown -R loonar:loonar /var/lib/loonar/cfs/cf
 fi
+install -m 755 "$CPU/cf/lnr_vehicle.so" "$CPU/cf/lnr_ground.so" "$CPU/cf/lnr_mcu.so" /var/lib/loonar/cfs/cf/
+install -m 644 "$CPU/cf/cfe_es_startup.scr" /var/lib/loonar/cfs/cf/cfe_es_startup.scr
 chown -R root:root "$DEST" "$CAM_PREFIX" /opt/loonar/vendor/cubeeye/2.5.9
 ln -sfn "$CAM_PREFIX" /opt/loonar/camera-stack/current
 ln -sfn "$DEST" /opt/loonar/current

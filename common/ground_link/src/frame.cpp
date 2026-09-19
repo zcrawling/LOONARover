@@ -1,6 +1,7 @@
 #include "loonar/ground_link/frame.hpp"
 
 #include <array>
+#include <algorithm>
 #include <bit>
 #include <limits>
 
@@ -43,7 +44,7 @@ bool known_type(Type type) {
     case Type::kStopCommand: case Type::kManualCommand: case Type::kAutoCommand:
     case Type::kPayloadCommand: case Type::kReactionCommand: case Type::kCommandResult:
     case Type::kGatewayStatus: case Type::kVehicleStatus: case Type::kLoonarMcuStatus:
-    case Type::kDeviceStatus: case Type::kEvent: return true;
+    case Type::kDeviceStatus: case Type::kEvent: case Type::kMcuV2Status: return true;
   }
   return false;
 }
@@ -142,6 +143,18 @@ std::optional<McuStatus> decode_mcu_status(std::span<const std::uint8_t> payload
   const auto errors = get32(payload, at);
   if (!timestamp || !uptime || !temperature || !state || !inhibits || !linear || !angular || !errors) return std::nullopt;
   return McuStatus{*timestamp, *uptime, *temperature, *state, *inhibits, *linear, *angular, *errors};
+}
+
+std::optional<McuV2Status> decode_mcu_v2_status(std::span<const std::uint8_t> payload) {
+  if (payload.size()!=128 || payload[0]!='M' || payload[1]!='C' || payload[2]!='U' || payload[3]!='2' ||
+      payload[4]<1 || payload[4]>2 || payload[5]>1 || payload[6]!=2 || payload[7]!=0) return std::nullopt;
+  McuV2Status out; out.role=payload[4]; out.online=payload[5]!=0;
+  std::size_t at=8;
+  out.boot=*get32(payload,at);out.session=*get32(payload,at);
+  out.timestamp_ms=*get64(payload,at);out.uid=*get64(payload,at);
+  out.age_ms=*get32(payload,at);out.host_errors=*get32(payload,at);
+  std::copy(payload.begin()+40,payload.end(),out.health.begin());
+  return out;
 }
 
 std::optional<DeviceStatus> decode_device_status(std::span<const std::uint8_t> payload) {

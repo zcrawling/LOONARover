@@ -1,0 +1,20 @@
+{
+  "schema": 2,
+  "devices": {
+    "control": {
+      "uid": "0000000000000000",
+      "device": "/dev/serial/by-id/REPLACE_CONTROL",
+      "transport": "usb",
+      "roboclaw": {"address": 128, "baud": 115200},
+      "geometry": {
+        "radius_m": 0.098, "track_m": 0.210, "counts_per_rev": 485681,
+        "left_sign": 1, "right_sign": 1
+      }
+    },
+    "payload": {
+      "uid": "0000000000000000",
+      "device": "/dev/serial/by-id/REPLACE_PAYLOAD",
+      "transport": "usb"
+    }
+  }
+}

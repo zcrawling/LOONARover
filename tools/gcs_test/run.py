@@ -39,7 +39,7 @@ set(SPACECRAFT_ID 0x42)
 set(MISSION_CPUNAMES cpu1)
 set(cpu1_PROCESSORID 1)
 set(cpu1_SYSTEM native)
-set(MISSION_GLOBAL_APPLIST loonar_ground_link loonar_vehicle_adapter)
+set(MISSION_GLOBAL_APPLIST loonar_ground_link loonar_vehicle_adapter loonar_mcu_bridge)
 ''')
     (defs / 'cpu1/install_custom.cmake').write_text('''install(FILES ${MISSION_DEFS}/cfe_es_startup.scr
     DESTINATION ${TGTNAME}/${INSTALL_SUBDIR})
@@ -49,7 +49,7 @@ set(MISSION_GLOBAL_APPLIST loonar_ground_link loonar_vehicle_adapter)
     (defs / 'cfe_es_startup.scr').write_text('\n'.join(
         line for line in fragment.splitlines() if line.strip().startswith('CFE_')) + '\n')
     for name, source in [('loonar_ground_link', 'ground_link'),
-                         ('loonar_vehicle_adapter', 'vehicle_adapter'), ('common', 'common')]:
+                         ('loonar_vehicle_adapter', 'vehicle_adapter'), ('loonar_mcu_bridge', 'mcu_bridge'), ('common', 'common')]:
         dest = CFS / 'apps' / name
         if not dest.is_symlink():
             dest.symlink_to(ROOT / 'cfs/apps' / source, target_is_directory=True)
@@ -109,7 +109,8 @@ def main():
     runtime.mkdir(mode=0o700, exist_ok=True)
     if runtime.is_symlink() or runtime.stat().st_uid != os.getuid():
         raise RuntimeError(f'Invalid runtime directory: {runtime}')
-    env = dict(os.environ, LOONAR_GATEWAY_SOCKET=str(runtime / 'cfs.sock'))
+    env = dict(os.environ, LOONAR_GATEWAY_SOCKET=str(runtime / 'cfs.sock'),
+               LOONAR_MCU_HEALTH_SOCKET=str(runtime / 'mcu-health.sock'))
     processes = []
     logs = []
 

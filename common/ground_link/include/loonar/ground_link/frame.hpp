@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <optional>
@@ -27,6 +28,7 @@ enum class Type : std::uint16_t {
   kLoonarMcuStatus = 0x8004,
   kDeviceStatus = 0x8005,
   kEvent = 0x8006,
+  kMcuV2Status = 0x8007,
 };
 
 struct Frame {
@@ -90,6 +92,15 @@ struct McuStatus {
   std::uint32_t rx_error_count{};
 };
 
+struct McuV2Status {
+  std::uint8_t role{};
+  bool online{};
+  std::uint32_t boot{}, session{};
+  std::uint64_t timestamp_ms{}, uid{};
+  std::uint32_t age_ms{}, host_errors{};
+  std::array<std::uint8_t,88> health{};
+};
+
 struct DeviceEntry {
   std::uint8_t state{};
   std::uint64_t last_update_ms{};
@@ -118,6 +129,7 @@ std::optional<CommandResult> decode_command_result(std::span<const std::uint8_t>
 std::optional<GatewayStatus> decode_gateway_status(std::span<const std::uint8_t> payload);
 std::optional<VehicleStatus> decode_vehicle_status(std::span<const std::uint8_t> payload);
 std::optional<McuStatus> decode_mcu_status(std::span<const std::uint8_t> payload);
+std::optional<McuV2Status> decode_mcu_v2_status(std::span<const std::uint8_t> payload);
 std::optional<DeviceStatus> decode_device_status(std::span<const std::uint8_t> payload);
 std::optional<Event> decode_event(std::span<const std::uint8_t> payload);
 

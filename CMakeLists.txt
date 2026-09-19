@@ -36,7 +36,7 @@ if(LOONAR_ENABLE_SANITIZERS)
   endif()
 endif()
 
-# This build validates retained final-rover firmware reference assets only.
+# Host builds cover the gateway and both legacy v1 and current MCU v2 control logic.
 add_subdirectory(common/vehicle_gateway)
 add_subdirectory(common/ground_link)
 add_subdirectory(common/video)

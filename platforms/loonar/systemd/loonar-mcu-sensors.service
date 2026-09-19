@@ -1,0 +1,22 @@
+[Unit]
+Description=LOONAR MCU IMU and wheel feedback to ROS 2
+After=loonar-mcu@control.service
+ConditionPathExists=/etc/loonar/mcu-sensors.yaml
+
+[Service]
+Type=simple
+User=loonar
+Group=loonar
+Environment=ROS_DOMAIN_ID=0
+EnvironmentFile=-/etc/loonar/ros.env
+Environment=PYTHONPATH=/opt/loonar/current/lib/python
+RuntimeDirectory=loonar/mcu
+RuntimeDirectoryMode=0750
+RuntimeDirectoryPreserve=yes
+ExecStart=/opt/loonar/current/lib/run-mcu-sensors.sh
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target

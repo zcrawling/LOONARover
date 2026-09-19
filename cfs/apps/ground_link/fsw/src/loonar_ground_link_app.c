@@ -296,6 +296,12 @@ GL_ForwardTelemetry(
         if (!GL_SendFrame(LOONAR_GL_DEVICE_STATUS, 0, payload, (uint32_t)at))
             GL_CloseClient();
     }
+    else if (CFE_SB_MsgId_Equal(id, CFE_SB_ValueToMsgId(LOONAR_MCU_V2_TLM_MID_VALUE)))
+    {
+        const LOONAR_McuV2Tlm_t *m = (const LOONAR_McuV2Tlm_t *)buffer;
+        if (!GL_SendFrame(LOONAR_GL_MCU_V2_STATUS, 0, m->Wire, sizeof(m->Wire)))
+            GL_CloseClient();
+    }
     else if (CFE_SB_MsgId_Equal(id, CFE_SB_ValueToMsgId(LOONAR_EVENT_TLM_MID_VALUE)))
     {
         const LOONAR_EventTlm_t *m = (const LOONAR_EventTlm_t *)buffer;
@@ -322,7 +328,7 @@ GL_Init(
     void
     ){
     static const uint32_t telemetry_mids[] = {
-        LOONAR_COMMAND_RESULT_TLM_MID_VALUE, LOONAR_GATEWAY_STATUS_TLM_MID_VALUE, LOONAR_VEHICLE_STATUS_TLM_MID_VALUE, LOONAR_MCU_STATUS_TLM_MID_VALUE, LOONAR_DEVICE_STATUS_TLM_MID_VALUE, LOONAR_EVENT_TLM_MID_VALUE
+        LOONAR_COMMAND_RESULT_TLM_MID_VALUE, LOONAR_GATEWAY_STATUS_TLM_MID_VALUE, LOONAR_VEHICLE_STATUS_TLM_MID_VALUE, LOONAR_MCU_STATUS_TLM_MID_VALUE, LOONAR_DEVICE_STATUS_TLM_MID_VALUE, LOONAR_EVENT_TLM_MID_VALUE, LOONAR_MCU_V2_TLM_MID_VALUE
     };
     struct sockaddr_in address;
     int one = 1, flags;

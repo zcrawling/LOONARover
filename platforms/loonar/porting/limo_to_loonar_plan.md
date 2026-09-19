@@ -1,5 +1,10 @@
 # LIMO → LOONAR 포팅 계획 및 검증 절차
 
+2026-09-19 MCU 추가 요구사항은 [듀얼 Teensy 구조 v2](mcu_architecture_v2.md)를 따른다.
+RoboClaw packet serial, 역할/UID 검사, RAM buffered telemetry와 90°C 모터 정지는
+로컬 코드에 반영했다. 이전 v1/pin-map 설명을 대체하며 실기 검증은 아직 수행하지 않았다.
+MCU USB 원격 업로드와 게이트웨이 벤치는 [사용자 실행 절차](motor_usb_bench.md)로 제공한다.
+
 작성일: 2026-09-18. 대상은 **Intel NUC / Ubuntu 22.04 / ROS 2 Humble →
 Raspberry Pi 5 / Ubuntu 24.04 LTS arm64 / ROS 2 Jazzy**다.
 재검토 기준은 기존 main `1f9a156`, 별도 root의 master `5049941`, 이를 연결한

@@ -23,4 +23,6 @@
 **/.history/
 *.kicad_prl
 *.lck
-/odom.save
+/odom.save/
+/I200DK_pngs/
+**/arm64-pi5-linux-ubuntu_24_04_v2.5.9_20250311/

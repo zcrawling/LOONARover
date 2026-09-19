@@ -3,8 +3,11 @@
 현재 장비의 실제 설치·빌드 결과는 [2026-09-18 준비 기록](preparation-20260918.md)에 있다.
 
 대상: `loonar@10.42.0.103`, Raspberry Pi 5, Ubuntu 24.04 arm64, ROS 2 Jazzy.
-암호는 소스/설정 파일에 저장하지 않는다. 이번 단계에서는 설치와 컴파일만 하고
-테스트·센서 열거·촬영·통신 프로브·펌웨어 업로드·로버 서비스 실행을 하지 않는다.
+암호는 소스/설정 파일에 저장하지 않는다. 사전 설치·컴파일 단계는 완료했다.
+최신 지침: **실기 테스트는 사용자가 직접 실행**한다. 에이전트는 접속·촬영·서비스 시작을
+자동 실행하지 않고 아래 명령을 제공한다. 기존 Pi 주소가 바뀌었다면 현재 주소를 사용한다.
+RoboClaw는 **M1=오른쪽, M2=왼쪽**으로 고정했고, 사용자가 Motion Studio 튜닝 및
+Write Settings를 완료했다고 확인했다. 다음 실기 단계는 카메라다.
 
 ## 설치/빌드 재현
 
@@ -104,6 +107,9 @@ udev 규칙은 reload만 하고 장치에 강제 trigger하지 않는다.
 
 ### 1. 카메라
 
+사용자 확인: 카메라 테스트 정상 동작. 영상이 왼쪽으로 90° 회전돼 표시되며,
+방향 보정은 후속 작업으로 남긴다. 이번 단계에서는 영상 설정을 변경하지 않는다.
+
 카메라 연결 후 Pi에서 아래 명령을 순서대로 실행한다. 중간 실패 시 다음 단계로
 넘어가지 않고 출력과 kernel 로그를 기록한다.
 
@@ -118,11 +124,12 @@ loonar-camera rpicam-still --nopreview --timeout 2000 -o ~/camera-first.jpg
 ffplay -fflags nobuffer -flags low_delay -framedrop 'udp://@:5600'
 ```
 
-Pi의 `/etc/loonar/video.env`에서 `GROUND_STATION_IP`를 확인한다. 최초 값은
-현재 SSH를 접속한 개발 PC의 `10.42.0.1`이며 Pi 자신의 IP가 아니다.
+Pi의 `/etc/loonar/video.env`에서 `GROUND_STATION_IP`를 현재 지상국 PC 주소로 수정한다.
+최초 저장값 `10.42.0.1`은 이전 네트워크 주소이므로 그대로 사용한다고 가정하지 않는다.
 초기 영상은 640×360/30 fps, H.264 약 1 Mbps, MPEG-TS/UDP 5600이다.
 
 ```bash
+sudo nano /etc/loonar/video.env
 sudo systemctl start loonar-video.service
 journalctl -u loonar-video.service -f
 # 종료할 때
@@ -136,8 +143,30 @@ sudo systemctl stop loonar-video.service
 
 ### 2. Teensy USB
 
-Control의 `teensy41_usb` 환경은 USB `Serial`, 기본 `teensy41`은 기존 `Serial1`을
-사용한다. binary wire/CRC는 동일하다. 빌드 명령은 다음과 같으며 업로드는 별도다.
+실제 업로드와 게이트웨이 모터 구동은 [Control USB 업로드·모터 벤치](../porting/motor_usb_bench.md)를 따른다.
+
+사용자 실행 스크립트: `platforms/loonar/tools/test-teensy-usb.sh`.
+이 스크립트는 작성만 했으며 에이전트가 실행하지 않았다.
+
+```bash
+cd ~/LOONAR
+bash platforms/loonar/tools/test-teensy-usb.sh list
+# list 출력에서 실제 장치 경로를 선택한다.
+bash platforms/loonar/tools/test-teensy-usb.sh discover control /dev/serial/by-id/ACTUAL_CONTROL_DEVICE
+# 실제 UID 등록과 해당 UID로 빌드한 LNR2 펌웨어 설치 이후에만:
+bash platforms/loonar/tools/test-teensy-usb.sh health control
+```
+
+`list`는 serial 포트를 열지 않는다. `discover`는 지정 장치에 HELLO만 전송한다.
+기존 펌웨어에 LNR2가 없으면 USB가 정상이어도 HELLO는 응답하지 않는다.
+`bound=false`이면 UID 미등록/불일치 상태로 health 단계에 진입할 수 없다.
+`health`는 새 session과 health 요청, 종료 시 STOP을 보내지만 구동 명령과 업로드는 하지 않는다.
+모터 전원은 끄고 USB 식별부터 확인한다. IMU/driver 미연결 상태는 USB 실패와 구분한다.
+
+Control의 `teensy41_usb` 환경은 USB `Serial`, 기본 `teensy41`은 `Serial3` RX15/TX14를
+사용한다. Serial1 RX0/TX1은 RoboClaw 전용이다. binary wire/CRC는 동일하다.
+UID 등록과 빌드 절차는 [MCU 설정·검증](../porting/mcu_v2_implementation.md)을 따른다.
+아래 명령은 UID 미지정 식별용 빌드이며 업로드는 별도다.
 
 ```bash
 cd ~/LOONAR/platforms/loonar/firmware/control
@@ -145,15 +174,14 @@ pio run -e teensy41_usb
 ```
 
 빌드된 hex가 있어도 자동 업로드하지 않는다. 연결 후 실제 `/dev/serial/by-id/`를
-확인하여 `/etc/loonar/control.env.example`을 복사·수정한다. Payload와 Control은
+확인하여 `/etc/loonar/mcu-registry.example.json`을 `mcu-registry.json`으로 복사·수정한다. Payload와 Control은
 각각 다른 serial ID로 지정한다. `ttyACM0` 순서에 역할을 고정하지 않는다.
 baud 2000000은 USB에서는 line coding이다. Pi HAT 연결 시 물리 baud로 맞춘다.
 호스트가 USB CDC 포트를 열 때 DTR을 올려야 Teensy의 status TX가 활성화된다.
 
 먼저 비구동 상태에서 수신, CRC, health timeout, 분리/재연결을 확인해야 한다.
-Pi backend와 실측 encoder/IMU telemetry가 아직 구현되지 않았으므로 USB enumerate나
-firmware compile 성공을 cFS↔MCU/odom 완료로 해석하지 않는다.
-`controller_tbd`의 출력은 현재 항상 0이다.
+Pi backend와 encoder/IMU telemetry는 로컬 코드에 구현돼 있다. 실제 Pi 배포 및
+실기 연동은 별도이므로 USB 열거나 firmware compile 성공을 cFS↔MCU/odom 완료로 해석하지 않는다.
 
 ### 3. 라이다/ToF
 

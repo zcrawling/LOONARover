@@ -1,0 +1,9 @@
+loonar_mcu_sensors:
+  ros__parameters:
+    registry: /etc/loonar/mcu-registry.json
+    socket: /run/loonar/mcu/samples.sock
+    imu_frame: imu_link
+    # Zero means uncalibrated. Set measured variances (SI units squared) before EKF tuning.
+    gyro_variance: 0.0
+    wheel_v_variance: 0.0
+    wheel_w_variance: 0.0

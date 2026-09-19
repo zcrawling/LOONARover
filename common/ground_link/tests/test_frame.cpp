@@ -17,5 +17,9 @@ int main(){
   std::vector<std::uint8_t> mcu(50);mcu[0]=1;mcu[8]=2;const auto temperature_bits=std::bit_cast<std::uint64_t>(42.5);for(unsigned i=0;i<8;++i)mcu[16+i]=static_cast<std::uint8_t>(temperature_bits>>(8*i));const auto mcu_status=gl::decode_mcu_status(mcu);assert(mcu_status&&mcu_status->timestamp_ms==1&&mcu_status->uptime_ms==2&&mcu_status->board_temperature_c==42.5);mcu.pop_back();assert(!gl::decode_mcu_status(mcu));
   std::vector<std::uint8_t> devices(9+7*9);devices[8]=7;const auto device_status=gl::decode_device_status(devices);assert(device_status&&device_status->devices.size()==7);devices.pop_back();assert(!gl::decode_device_status(devices));
   std::vector<std::uint8_t> event(16+3+4);event[8]=2;event[13]=3;event[14]=4;std::memcpy(event.data()+16,"cfsboom",7);const auto decoded_event=gl::decode_event(event);assert(decoded_event&&decoded_event->severity==2&&decoded_event->source=="cfs"&&decoded_event->text=="boom");
+  std::vector<std::uint8_t> v2(128);std::memcpy(v2.data(),"MCU2",4);v2[4]=2;v2[5]=1;v2[6]=2;v2[24]=0x23;v2[25]=0x01;
+  auto v2_status=gl::decode_mcu_v2_status(v2);assert(v2_status&&v2_status->role==2&&v2_status->online&&v2_status->uid==0x123);
+  const auto v2_frame=gl::decode(gl::encode({gl::Type::kMcuV2Status,0,v2}));assert(v2_frame&&v2_frame->type==gl::Type::kMcuV2Status);
+  v2[4]=3;assert(!gl::decode_mcu_v2_status(v2));v2[4]=1;v2.pop_back();assert(!gl::decode_mcu_v2_status(v2));
   return 0;
 }

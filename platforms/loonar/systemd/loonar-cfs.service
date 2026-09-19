@@ -1,5 +1,5 @@
 [Unit]
-Description=LOONAR cFS GroundLink and VehicleAdapter
+Description=LOONAR cFS GroundLink, VehicleAdapter and MCU health ingress
 Wants=vehicle_gatewayd.service
 After=vehicle_gatewayd.service network.target
 
@@ -8,6 +8,9 @@ Type=simple
 User=loonar
 Group=loonar
 StateDirectory=loonar/cfs
+RuntimeDirectory=loonar/mcu
+RuntimeDirectoryMode=0750
+RuntimeDirectoryPreserve=yes
 WorkingDirectory=/var/lib/loonar/cfs
 Environment=LOONAR_GATEWAY_SOCKET=/run/loonar/vehicle-gateway/cfs.sock
 ExecStart=/opt/loonar/current/cfs/core-cpu1

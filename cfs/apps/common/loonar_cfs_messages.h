@@ -17,6 +17,7 @@
 #define LOONAR_MCU_STATUS_TLM_MID_VALUE     0x09A3
 #define LOONAR_DEVICE_STATUS_TLM_MID_VALUE  0x09A4
 #define LOONAR_EVENT_TLM_MID_VALUE          0x09A5
+#define LOONAR_MCU_V2_TLM_MID_VALUE         0x09A6
 
 #define LOONAR_ACTIVITY_PARAMETER_MAX 64
 #define LOONAR_EVENT_SOURCE_MAX 24
@@ -159,3 +160,9 @@ enum
     LOONAR_RESULT_NOT_IMPLEMENTED = 3,
     LOONAR_RESULT_INTERNAL_ERROR = 4
 };
+
+/* Explicit little-endian MCU2 schema; no C structure padding on the wire. */
+typedef struct {
+    CFE_MSG_TelemetryHeader_t TelemetryHeader;
+    uint8_t Wire[128];
+} LOONAR_McuV2Tlm_t;
