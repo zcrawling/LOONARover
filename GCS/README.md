@@ -1,5 +1,7 @@
 # LOONAR Ground Control Station (GCS) handoff
 
+처음 설치하고 실행하는 순서는 [한국어 사용법](사용법.txt)을 참고하세요.
+
 > **현재 프로토타입 (Ubuntu 24.04 / Python 3.12):**
 > [실행 안내](docs/run-guide.md)와 [Mock 통신 초안](docs/interface-draft.md)을 먼저 읽으세요.
 > `backend/`, `cli/`, `mock/`는 사용자의 최신 요구사항에 따른 터미널 기반 Mock 전용 구현입니다.
