@@ -1,0 +1,10 @@
+# Real LOONAR launcher only. Values are sent as displayed, without scaling.
+[manual_control]
+linear_speed_mps = 0.03
+angular_speed_radps = 0.2
+repeat_interval_ms = 50
+forward_key = "PAGE_UP"
+left_key = "HOME"
+reverse_key = "PAGE_DOWN"
+right_key = "END"
+stop_key = "SPACE"

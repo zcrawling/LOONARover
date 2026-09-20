@@ -1,0 +1,21 @@
+Sep 20 04:01:23 loonar systemd[1]: Started loonar-tof-record.service - Record LOONAR ToF point clouds to a local MCAP bag.
+Sep 20 04:01:23 loonar bash[1876]: Recording to /home/loonar/loonar-bags/tof_20260920_040123; Ctrl+C stops and finalizes the bag.
+Sep 20 04:01:23 loonar bash[1876]: ToF topics plus /tf and /tf_static; extra topics can follow the output path.
+Sep 20 04:01:24 loonar bash[1876]: [INFO] [1789844484.127913570] [rosbag2_recorder]: Event publisher thread: Started
+Sep 20 04:01:24 loonar bash[1876]: [INFO] [1789844484.135584962] [rosbag2_recorder]: Starting recording to '/home/loonar/loonar-bags/tof_20260920_040123'
+Sep 20 04:01:24 loonar bash[1876]: [INFO] [1789844484.138013512] [rosbag2_recorder]: Listening for topics...
+Sep 20 04:01:24 loonar bash[1876]: [INFO] [1789844484.138138734] [rosbag2_recorder]: Recording...
+Sep 20 04:01:24 loonar bash[1876]: [INFO] [1789844484.138046623] [rosbag2_recorder]: Topics discovery started.
+Sep 20 04:01:24 loonar bash[1876]: [INFO] [1789844484.305354540] [rosbag2_recorder]: Overriding subscription profile for /tof/depth/points
+Sep 20 04:01:24 loonar bash[1876]: [INFO] [1789844484.310126790] [rosbag2_recorder]: Subscribed to topic '/tof/depth/points'
+Sep 20 04:01:24 loonar bash[1876]: [INFO] [1789844484.311005955] [rosbag2_recorder]: Overriding subscription profile for /tof/status
+Sep 20 04:01:24 loonar bash[1876]: [INFO] [1789844484.312889377] [rosbag2_recorder]: Subscribed to topic '/tof/status'
+Sep 20 04:02:26 loonar systemd[1]: Stopping loonar-tof-record.service - Record LOONAR ToF point clouds to a local MCAP bag...
+Sep 20 04:02:26 loonar bash[1876]: [INFO] [1789844546.188788308] [rosbag2_recorder]: Topics discovery stopped.
+Sep 20 04:02:26 loonar bash[1876]: [INFO] [1789844546.189839528] [rosbag2_recorder]: Pausing recording.
+Sep 20 04:02:26 loonar bash[1876]: [INFO] [1789844546.195234443] [rosbag2_cpp]: Writing remaining messages from cache to the bag. It may take a while
+Sep 20 04:02:26 loonar bash[1876]: [INFO] [1789844546.198685565] [rosbag2_recorder]: Recording stopped
+Sep 20 04:02:26 loonar bash[1876]: [INFO] [1789844546.200571691] [rosbag2_recorder]: Event publisher thread: Exited
+Sep 20 04:02:26 loonar systemd[1]: loonar-tof-record.service: Deactivated successfully.
+Sep 20 04:02:26 loonar systemd[1]: Stopped loonar-tof-record.service - Record LOONAR ToF point clouds to a local MCAP bag.
+Sep 20 04:02:26 loonar systemd[1]: loonar-tof-record.service: Consumed 6.130s CPU time, 102.1M memory peak, 0B memory swap peak.

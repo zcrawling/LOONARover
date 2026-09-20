@@ -1,0 +1,18 @@
+Recording to /home/loonar/loonar-bags/tof_verify_20260920_040018; Ctrl+C stops and finalizes the bag.
+ToF topics plus /tf and /tf_static; extra topics can follow the output path.
+stdin is not a terminal device. Keyboard handling disabled.[INFO] [1789844420.132109513] [rosbag2_recorder]: Press SPACE for pausing/resuming
+[INFO] [1789844420.132127272] [rosbag2_recorder]: Event publisher thread: Started
+[INFO] [1789844420.144060959] [rosbag2_recorder]: Starting recording to '/home/loonar/loonar-bags/tof_verify_20260920_040018'
+[INFO] [1789844420.157035167] [rosbag2_recorder]: Listening for topics...
+[INFO] [1789844420.157124889] [rosbag2_recorder]: Recording...
+[INFO] [1789844420.157063334] [rosbag2_recorder]: Topics discovery started.
+[INFO] [1789844420.199891657] [rosbag2_recorder]: Overriding subscription profile for /tof/depth/points
+[INFO] [1789844420.223508103] [rosbag2_recorder]: Subscribed to topic '/tof/depth/points'
+[INFO] [1789844420.224685181] [rosbag2_recorder]: Overriding subscription profile for /tof/status
+[INFO] [1789844420.227696116] [rosbag2_recorder]: Subscribed to topic '/tof/status'
+[INFO] [1789844439.755389748] [rosbag2_recorder]: Topics discovery stopped.
+[INFO] [1789844439.755645434] [rosbag2_recorder]: Pausing recording.
+[INFO] [1789844439.755718397] [rosbag2_cpp]: Writing remaining messages from cache to the bag. It may take a while
+[INFO] [1789844439.758871963] [rosbag2_recorder]: Recording stopped
+[WARN] [1789844439.758919760] [rosbag2_recorder]: Number of messages lost on the transport layer: 6
+[INFO] [1789844439.761436120] [rosbag2_recorder]: Event publisher thread: Exited

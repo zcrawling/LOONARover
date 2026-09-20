@@ -12,8 +12,16 @@ elif [[ -s $RUNTIME_DIR/last_ssh_target ]]; then
     DEFAULT_IP=${DEFAULT_IP#*@}
 fi
 
-ROVER_IP=$(prompt_text "LOONAR 실시간 지상국" \
-    "현재 로버 IP를 입력하세요. 예: 192.168.1.50" "$DEFAULT_IP") || exit 0
+if [[ $# -gt 1 ]]; then
+    echo 'Usage: start_gcs.sh [ROVER_IP]' >&2
+    exit 2
+fi
+if [[ $# -eq 1 ]]; then
+    ROVER_IP=$1
+else
+    ROVER_IP=$(prompt_text "LOONAR 실시간 지상국" \
+        "현재 로버 IP를 입력하세요. 예: 192.168.1.50" "$DEFAULT_IP") || exit 0
+fi
 if ! valid_host "$ROVER_IP"; then
     show_error "IP 또는 호스트 이름 형식이 올바르지 않습니다."
     exit 1
@@ -27,6 +35,10 @@ printf '[LOONAR] 실제 로버 %s에 연결합니다.\n' "$ROVER_IP"
 printf '[LOONAR] 브라우저 주소: %s\n' "$URL"
 
 open_gcs_windows() {
+    local video_options=()
+    if [[ ${GCS_VIDEO_ROTATE_LEFT:-0} == 1 ]]; then
+        video_options+=(--rotate-left)
+    fi
     xdg-open "$URL" >/dev/null 2>&1 || true
     if ! command -v gnome-terminal >/dev/null 2>&1; then
         printf '[LOONAR] gnome-terminal이 없어 별도 창을 열지 못했습니다.\n' >&2
@@ -34,7 +46,7 @@ open_gcs_windows() {
     fi
     gnome-terminal -- "$GCS_ROOT/scripts/start_diagnostics.sh" --host "$ROVER_IP" \
         >/dev/null 2>&1 || printf '[LOONAR] 진단 창 열기 실패\n' >&2
-    gnome-terminal -- "$GCS_ROOT/scripts/start_video.sh" \
+    gnome-terminal -- "$GCS_ROOT/scripts/start_video.sh" "${video_options[@]}" \
         >/dev/null 2>&1 || printf '[LOONAR] 영상 창 열기 실패\n' >&2
 }
 
@@ -54,7 +66,7 @@ if [[ -n $RUNNING_SOURCE ]]; then
     exit 1
 fi
 
-python3 -B -m webui.server --real-host "$ROVER_IP" &
+python3 -B -m webui.server --real-host "$ROVER_IP" --config "${GCS_CONFIG:-$GCS_ROOT/config/gcs.toml}" &
 SERVER_PID=$!
 cleanup() {
     kill -TERM "$SERVER_PID" 2>/dev/null || true

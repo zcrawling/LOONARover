@@ -1,0 +1,17 @@
+{
+  "bag": "/home/loonar/loonar-bags/tof_20260920_040123",
+  "cloud_frames": 295,
+  "status_frames": 295,
+  "hz": 4.996242278768818,
+  "points_min": 258152,
+  "points_max": 259323,
+  "invalid_clouds": 0,
+  "frame_ids": [
+    "cubeeye_optical"
+  ],
+  "monotonic": true,
+  "missing_clouds_between_first_last": [],
+  "max_record_age_ms": 134.811724,
+  "median_depth_m": 1.632095217704773,
+  "ok": true
+}

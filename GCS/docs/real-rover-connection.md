@@ -1,5 +1,8 @@
 # 실제 로버 통신 시작 방법
 
+**LOONAR Pi5/Teensy는 [전용 실행 안내](../../platforms/loonar/porting/ground_control_runbook.md)를 따른다.**
+아래 REMOTE/로버 시작 절차는 LIMO 기준이다. LOONAR MCU2 상태는 현재 GCS에서 수신할 수 있다.
+
 이 문서는 실제 GroundLink v1 로버에서 **상태 정보만 수신**하는 첫 연결 절차다.
 스크립트는 로버에 어떤 명령 바이트도 보내지 않는다.
 

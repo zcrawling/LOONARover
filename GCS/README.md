@@ -2,12 +2,11 @@
 
 처음 설치하고 실행하는 순서는 [한국어 사용법](사용법.txt)을 참고하세요.
 
-> **현재 프로토타입 (Ubuntu 24.04 / Python 3.12):**
-> [실행 안내](docs/run-guide.md)와 [Mock 통신 초안](docs/interface-draft.md)을 먼저 읽으세요.
-> `backend/`, `cli/`, `mock/`는 사용자의 최신 요구사항에 따른 터미널 기반 Mock 전용 구현입니다.
-> 아래 기존 GroundLink handoff는 로버 참고 문서로 남겨 두었습니다.
-> 새 프로토타입의 GCP1은 아래 LNK1 바이너리와 호환되지 않습니다.
-> 실제 로버 연동, GUI, 조이스틱, 과거 데이터 복구는 아직 구현하지 않았습니다.
+> **LOONAR 실제 조종:** [Pi 지원·PC 지상국 실행 안내](../platforms/loonar/porting/ground_control_runbook.md)를 따릅니다.
+> `scripts/start_loonar_gcs.sh PI_IP`는 실제 LNK1 백엔드와 웹 UI를 시작하며 MCU2 상태도 수신합니다.
+> `scripts/start_rover.sh`는 기존 LIMO/Humble용입니다. LOONAR Pi는 별도 지원 스크립트를 사용합니다.
+> `backend.app` / `mock.rover`의 GCP1 프로토타입은 실제 LNK1 통신과 구분합니다.
+> 아래 내용은 기존 GroundLink 계약과 개발 안내입니다.
 
 This folder is the ground-station application project. Its job is deliberately
 small: show video, send the five vehicle commands, and show the telemetry that

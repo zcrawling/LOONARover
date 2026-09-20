@@ -1,0 +1,14 @@
+[Unit]
+Description=Record LOONAR ToF point clouds to a local MCAP bag
+Requires=loonar-tof.service
+After=loonar-tof.service
+
+[Service]
+Type=simple
+User=loonar
+Group=loonar
+Environment=HOME=/home/loonar
+WorkingDirectory=/home/loonar
+ExecStart=/bin/bash /home/loonar/LOONAR/platforms/loonar/tools/record-tof.sh
+KillSignal=SIGINT
+TimeoutStopSec=30

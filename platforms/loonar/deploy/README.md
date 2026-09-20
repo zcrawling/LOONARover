@@ -1,5 +1,11 @@
 # LOONAR Pi 사전 준비와 하드웨어 검증 순서
 
+최신 사용자 확인: **Control Teensy 업로드 및 gateway를 통한 주행 성공**.
+다음 단계는 [지상국 조종 실행 안내](../porting/ground_control_runbook.md)다.
+ToF 수신과 시험주행 bag 저장은 [ToF 기록 안내](../porting/tof_recording_runbook.md)를 따른다.
+이번 cFS/gateway 갱신을 한 번 준비한 뒤 `tools/start-ground-support.sh`로 실행한다.
+아래 날짜별 사전 준비 기록은 설치 당시 상태이며 최신 실기 확인 결과와 구분한다.
+
 현재 장비의 실제 설치·빌드 결과는 [2026-09-18 준비 기록](preparation-20260918.md)에 있다.
 
 대상: `loonar@10.42.0.103`, Raspberry Pi 5, Ubuntu 24.04 arm64, ROS 2 Jazzy.

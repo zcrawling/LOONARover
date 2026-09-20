@@ -1,0 +1,15 @@
+/tof/depth/points:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 20
+/tof/status:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 20
+/tf_static:
+  reliability: reliable
+  durability: transient_local
+  history: keep_last
+  depth: 100

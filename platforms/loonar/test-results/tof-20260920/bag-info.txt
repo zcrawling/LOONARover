@@ -1,0 +1,13 @@
+
+Files:             tof_verify_20260920_040018_0.mcap
+Bag size:          237.0 MiB
+Storage id:        mcap
+ROS Distro:        jazzy
+Duration:          17.198445644s
+Start:             Sep 20 2026 04:00:22.499863717 (1789844422.499863717)
+End:               Sep 20 2026 04:00:39.698309361 (1789844439.698309361)
+Messages:          167
+Topic information: Topic: /tof/depth/points | Type: sensor_msgs/msg/PointCloud2 | Count: 80 | Serialization Format: cdr
+                   Topic: /tof/status | Type: std_msgs/msg/String | Count: 87 | Serialization Format: cdr
+Service:           0
+Service information: 

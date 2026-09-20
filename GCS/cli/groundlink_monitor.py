@@ -20,6 +20,7 @@ TYPE_NAMES = {
     0x8004: "LOONAR_MCU_STATUS",
     0x8005: "DEVICE_STATUS",
     0x8006: "EVENT",
+    0x8007: "MCU_V2_STATUS",
 }
 MODE_NAMES = {1: "AUTO", 2: "MANUAL", 3: "STOP", 4: "PAYLOAD", 5: "REACTION"}
 SOURCE_NAMES = {0: "NONE", 1: "ROS_AUTO", 2: "GROUND_MANUAL", 3: "GROUND_STOP"}
@@ -142,6 +143,24 @@ def decode_payload(frame_type, payload):
             raise ProtocolError("EVENT 문자열이 UTF-8이 아님") from exc
         return {"timestamp_ms": timestamp, "severity": severity, "code": code,
                 "source": source, "text": text}
+    if frame_type == 0x8007:
+        _exact(payload, 128, "MCU_V2_STATUS")
+        magic, role, online, version, boot, session, stamp, uid, age, errors = struct.unpack_from(
+            "<4sBBHIIQQII", payload)
+        if magic != b"MCU2" or role not in (1, 2) or online not in (0, 1) or version != 2:
+            raise ProtocolError("MCU_V2_STATUS header 오류")
+        names = ("inhibit", "last_command", "link_progress", "driver_progress", "imu_progress",
+                 "rx_errors", "sample_drops", "priority_drops", "buffer_depth", "gyro_age_ms",
+                 "driver_ack_age_ms", "imu_resets", "rejected", "latest_sequence")
+        result = dict(role="control" if role == 1 else "payload", online=bool(online),
+                      uid=f"{uid:016x}", boot=boot, session=session, host_stamp_ms=stamp,
+                      health_age_ms=age, host_errors=errors,
+                      uptime_ms=struct.unpack_from("<Q", payload, 48)[0],
+                      temperature_c=struct.unpack_from("<f", payload, 56)[0],
+                      transport=payload[116], identity_bound=bool(payload[117]),
+                      driver_failures=struct.unpack_from("<I", payload, 120)[0])
+        result.update(zip(names, struct.unpack_from("<14I", payload, 60)))
+        return result
     raise ProtocolError(f"지원하지 않는 타입: 0x{frame_type:04x}")
 
 

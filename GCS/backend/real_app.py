@@ -45,6 +45,7 @@ class RealState:
         self.events = deque(maxlen=event_limit)
         self.event_sequence = 0
         self.manual_control = dict(manual_control or {})
+        self.mcu = {}
 
     def event(self, text, request_id=None):
         self.event_sequence += 1
@@ -72,6 +73,7 @@ class RealState:
             "requests": list(self.pending.values()),
             "events": list(self.events),
             "manual_control": dict(self.manual_control),
+            "mcu": {role: dict(values) for role, values in self.mcu.items()},
         }
 
 
@@ -145,7 +147,9 @@ class GroundLinkConnection:
             entry = self.state.pending.get(request_id)
             result = data["result"]
             if entry:
-                entry["state"] = "Completed" if result == "OK" else result
+                entry["cfs_received"] = data["cfs_received"]
+                entry["adapter_forwarded"] = data["adapter_forwarded"]
+                entry["state"] = ("Forwarded" if data["adapter_forwarded"] else "Received") if result == "OK" else result
                 self.state.event(f'"{entry["command"]}" {entry["state"]}', request_id)
             else:
                 self.state.event(f"연결되지 않은 명령 결과 #{request_id}: {result}", request_id)
@@ -166,10 +170,10 @@ class GroundLinkConnection:
             }
             for source, label in mapping.items():
                 self.state.values[label] = data[source]
-                self.state.value_sources[label] = "ROS"
+                self.state.value_sources[label] = "VEHICLE"
             self.state.last_status = t
         elif frame_type == 0x8004:
-            self.state.values["라즈베리파이 내부 온도 (°C)"] = data["temperature_c"]
+            self.state.values["MCU 온도 (°C)"] = data["temperature_c"]
             self.state.values["MCU 상태"] = data["state"]
             self.state.values["MCU RX 오류"] = data["rx_errors"]
             self.state.last_status = t
@@ -179,6 +183,20 @@ class GroundLinkConnection:
             self.state.last_status = t
         elif frame_type == 0x8006:
             self.state.event(f"[{data['source']}] {data['text']}")
+        elif frame_type == 0x8007:
+            self.state.mcu[data["role"]] = data
+            name = "Control" if data["role"] == "control" else "Payload"
+            values = self.state.values
+            values[f"{name} MCU 연결"] = "ONLINE" if data["online"] else "OFFLINE"
+            values[f"{name} MCU UID"] = data["uid"] if int(data["uid"], 16) else None
+            values[f"{name} MCU 온도 (°C)"] = data["temperature_c"] if data["online"] else None
+            values[f"{name} health 경과 (ms)"] = data["health_age_ms"] if data["health_age_ms"] != 0xFFFFFFFF else None
+            values[f"{name} inhibit"] = f"0x{data['inhibit']:08x}" if data["online"] else None
+            values[f"{name} RX 오류"] = data["rx_errors"] if data["online"] else None
+            values[f"{name} 표본 누락"] = data["sample_drops"] if data["online"] else None
+            if data["role"] == "control":
+                values["Control driver ACK 경과 (ms)"] = data["driver_ack_age_ms"] if data["online"] else None
+            self.state.last_status = t
 
     async def connected(self, reader, writer):
         self.writer = writer

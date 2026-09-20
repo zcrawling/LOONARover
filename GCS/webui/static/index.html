@@ -1,16 +1,87 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LOONAR · Ground Control</title><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#161616">
+  <title>LOONAR · Ground Control</title>
+  <link rel="icon" href="/favicon.svg">
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
 <body>
-<header><div class="brand"><span class="mark">L</span><div>LOONAR <small>GROUND CONTROL</small></div></div><span id="environment" class="environment">연결 확인 중</span><div class="top-status"><span id="connection" class="badge">연결 확인 중</span><time id="clock">—</time></div></header>
-<div class="workspace">
-<main id="overview"><div class="page-heading"><div><span class="eyebrow">MISSION CONTROL / LOCAL</span><h1>로버 관제 콘솔</h1></div><div class="mode-display"><span>현재 모드</span><strong id="mode">—</strong></div></div>
-<div id="notice" class="notice" role="status">백엔드 연결을 확인하고 있습니다.</div>
-<section class="metrics" aria-label="통신 요약"><div><span>통신 상태</span><strong id="health">—</strong><small>PONG 및 로버 상태 기준</small></div><div><span>마지막 메시지</span><strong id="age">—</strong><small>수신 경과 시간</small></div><div><span>메시지 RX / TX</span><strong id="counts">—</strong><small>현재 백엔드 누적</small></div><div><span>데이터 누락 구간</span><strong id="gaps">0</strong><small>과거 데이터 복구 미지원</small></div></section>
-<div class="main-grid"><section id="commands" class="panel command-panel"><div class="panel-title"><h2>명령 전송</h2><span class="tiny">COMMAND SENDER</span></div><p class="muted">명령을 선택하고 로버 응답을 확인하세요.</p><div class="command-buttons"><button class="command stop" aria-pressed="false" data-command="STOP" disabled><b>STOP</b><span>정지 요청</span><span class="key">■</span></button><div class="command-grid"><button class="command" aria-pressed="false" data-command="MANUAL" disabled><b>MANUAL</b><span>수동 모드 전환</span></button><button class="command" aria-pressed="false" data-command="AUTO" disabled><b>AUTO</b><span>자동 모드 전환</span></button><button class="command" aria-pressed="false" data-command="PAYLOAD" disabled><b>PAYLOAD</b><span>센서 측정 요청</span></button><button class="command" aria-pressed="false" data-command="REACTION" disabled><b>REACTION</b><span>리액션휠 가동 요청</span></button></div></div><div id="speed-control" class="speed-control" tabindex="0" title="마우스 휠 또는 슬라이더로 선속도 조절"><label for="linear-speed">선속도</label><input id="linear-speed" type="range" min="0.01" max="1.00" step="0.01" value="0.10"><strong id="linear-speed-value">0.10 m/s</strong><small>마우스 휠 ±0.01</small></div><div class="command-result" aria-live="polite"><span class="tiny">LAST REQUEST</span><p id="command-message">아직 전송한 명령이 없습니다.</p><code id="request-id">—</code></div><p class="note"><b>방향키 조종:</b> ↑ 전진 · ← 좌회전 · ↓ 후진 · → 우회전<br>키를 놓으면 MANUAL 속도 0으로 정지 · STOP 모드는 STOP 버튼만 사용</p></section>
-<div class="status-stack"><section id="telemetry" class="panel"><div class="panel-title"><h2>주요 상태</h2><span id="stale" class="badge">대기</span></div><div class="telemetry-primary"><div id="battery-summary"><span id="battery-label">배터리 잔량</span><strong id="battery">—</strong><div class="battery-track"><div id="battery-fill"></div></div></div><div><span>라즈베리파이 내부 온도</span><strong id="temperature">—</strong><small>PAYLOAD 표면 온도와 별도</small></div></div><div id="devices" class="device-list"><p class="muted">로버 상태 수신 대기</p></div></section>
-<section id="payload" class="panel payload-panel"><div class="panel-title"><h2>PAYLOAD 측정값</h2><span id="payload-state" class="badge">IDLE</span></div><div class="sensor-grid"><article><span class="sensor-no">01 / NON-CONTACT</span><h3>비접촉 표면온도계</h3><strong id="sensor-0">—</strong><span id="sensor-status-0" class="muted">수신 대기</span></article><article><span class="sensor-no">02 / CONTACT</span><h3>접촉식 표면온도계</h3><strong id="sensor-1">—</strong><span id="sensor-status-1" class="muted">수신 대기</span></article><article><span class="sensor-no">03 / MAGNETIC</span><h3>자기상센서</h3><strong id="sensor-2">—</strong><span id="sensor-status-2" class="muted">수신 대기</span></article></div><div class="sample-meta"><span id="sample-time">측정값 수신 대기</span><span id="sample-number">샘플 —</span></div><div class="sample-meta"><code id="payload-id">요청 —</code><span id="sample-freshness">—</span></div></section></div>
-</div>
-<section id="ros-telemetry" class="panel ros-panel"><div class="panel-title"><h2>ROS 데이터</h2><span id="ros-stale" class="badge">대기</span></div><div id="ros-values" class="ros-values"><p class="muted">ROS 데이터 수신 대기</p></div></section>
-<section id="events" class="panel event-panel"><div class="panel-title"><h2>명령 응답 & 이벤트</h2><div><label for="event-filter" class="sr-only">이벤트 필터</label><select id="event-filter"><option value="all">전체 이벤트</option><option value="commands">명령 결과</option><option value="connection">연결 상태</option></select></div></div><div class="event-labels"><span>시간</span><span>내용</span><span>요청 ID</span></div><div id="event-list" class="event-list"><p class="muted">이벤트 수신 대기</p></div></section>
-<footer><span>LOCAL GCS · 기존 백엔드 연결</span><span id="updated">—</span></footer></main></div>
-</body></html>
+  <a class="skip-link" href="#overview">본문으로 이동</a>
+  <header class="shell-header">
+    <a class="brand" href="#overview" aria-label="LOONAR 관제 화면"><strong>LOONAR</strong><span>Ground Control</span></a>
+    <nav class="shell-nav" aria-label="화면 내 이동"><a href="#commands">조작</a><a href="#telemetry">측정값</a><a href="#events">이벤트</a></nav>
+    <div class="top-status"><span id="connection" class="badge">연결 확인 중</span><time id="clock">—</time></div>
+  </header>
+  <main id="overview" tabindex="-1">
+    <div class="page-heading">
+      <div><p class="section-path">LOONAR / 운용</p><h1>로버 관제</h1></div>
+      <div class="mode-display"><span>현재 모드</span><strong id="mode">—</strong></div>
+    </div>
+    <div id="notice" class="notice" role="status">백엔드 연결을 확인하고 있습니다.</div>
+    <section class="metrics" aria-label="통신 요약">
+      <div><span>통신 상태</span><strong id="health">—</strong><small>PONG · 로버 상태 기준</small></div>
+      <div><span>마지막 수신</span><strong id="age">—</strong><small>마지막 메시지 이후 경과</small></div>
+      <div><span>메시지 <abbr title="수신 / 송신">RX / TX</abbr></span><strong id="counts">—</strong><small>현재 백엔드 누적</small></div>
+      <div><span>데이터 누락 구간</span><strong id="gaps">0</strong><small>과거 데이터 복구 미지원</small></div>
+    </section>
+    <div class="main-grid">
+      <section id="commands" class="panel command-panel" aria-labelledby="commands-title">
+        <div class="panel-title"><h2 id="commands-title">주행 조작</h2><span class="panel-caption">명령 전송</span></div>
+        <div class="command-body">
+          <button class="command stop" aria-pressed="false" data-command="STOP" disabled><span class="button-copy"><b>STOP</b><span>정지 요청</span></span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4h8v8H4z" fill="currentColor"/></svg></button>
+          <p class="field-label">운용 명령</p>
+          <div class="command-grid">
+            <button class="command" aria-pressed="false" data-command="MANUAL" disabled><b>MANUAL</b><span>수동 모드</span></button>
+            <button class="command" aria-pressed="false" data-command="AUTO" disabled><b>AUTO</b><span>자동 모드</span></button>
+            <button class="command" aria-pressed="false" data-command="PAYLOAD" disabled><b>PAYLOAD</b><span>센서 측정 요청</span></button>
+            <button class="command" aria-pressed="false" data-command="REACTION" disabled><b>REACTION</b><span>리액션휠 요청</span></button>
+          </div>
+          <div id="speed-control" class="speed-control" tabindex="0" title="마우스 휠 또는 슬라이더로 선속도 조절">
+            <label for="linear-speed">목표 선속도</label><strong id="linear-speed-value">0.10 m/s</strong>
+            <input id="linear-speed" type="range" min="0.01" max="1.00" step="0.01" value="0.10">
+            <small>마우스 휠로 ±0.01 m/s 조절</small>
+          </div>
+          <div class="keyboard-guide"><div class="key-map" aria-hidden="true"><kbd>↑</kbd><div><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd></div></div><p>방향키로 주행<br><span>↑ 전진 · ↓ 후진 · ← → 회전</span></p></div>
+          <p class="note">키를 놓으면 속도 0을 전송합니다.<br>STOP 모드 전환은 위 정지 버튼을 사용하세요.</p>
+        </div>
+        <div class="command-result" aria-live="polite"><span class="field-label">마지막 명령 응답</span><p id="command-message">아직 전송한 명령이 없습니다.</p><code id="request-id">—</code></div>
+      </section>
+      <div class="status-stack">
+        <section id="telemetry" class="panel" aria-labelledby="telemetry-title">
+          <div class="panel-title"><h2 id="telemetry-title">시스템 상태</h2><span id="stale" class="badge">대기</span></div>
+          <div class="telemetry-primary">
+            <div id="battery-summary"><span id="battery-label">배터리 잔량</span><strong id="battery">—</strong><div class="battery-track"><div id="battery-fill"></div></div></div>
+            <div><span>제어 MCU 온도</span><strong id="temperature">—</strong><small>PAYLOAD 표면 온도와 별도</small></div>
+          </div>
+          <div id="devices" class="device-list"><p class="empty-state">로버 상태를 기다리고 있습니다.</p></div>
+        </section>
+        <section id="ros-telemetry" class="panel ros-panel" aria-labelledby="vehicle-title">
+          <div class="panel-title"><h2 id="vehicle-title">차량 측정값</h2><span id="ros-stale" class="badge">대기</span></div>
+          <div class="value-labels" aria-hidden="true"><span>항목</span><span>측정값</span></div>
+          <div id="ros-values" class="ros-values"><p class="empty-state">차량 측정값을 기다리고 있습니다.</p></div>
+        </section>
+        <section id="payload" class="panel payload-panel" aria-labelledby="payload-title">
+          <div class="panel-title"><h2 id="payload-title">PAYLOAD 측정</h2><span id="payload-state" class="badge">IDLE</span></div>
+          <div class="sensor-labels" aria-hidden="true"><span>센서</span><span>측정값</span><span>상태</span></div>
+          <div class="sensor-grid">
+            <article><h3>비접촉 표면온도계</h3><strong id="sensor-0">—</strong><span id="sensor-status-0" class="muted">수신 대기</span></article>
+            <article><h3>접촉식 표면온도계</h3><strong id="sensor-1">—</strong><span id="sensor-status-1" class="muted">수신 대기</span></article>
+            <article><h3>자기상센서</h3><strong id="sensor-2">—</strong><span id="sensor-status-2" class="muted">수신 대기</span></article>
+          </div>
+          <div class="payload-meta"><div class="sample-meta"><span id="sample-time">측정값 수신 대기</span><span id="sample-number">샘플 —</span></div><div class="sample-meta"><code id="payload-id">요청 —</code><span id="sample-freshness">—</span></div></div>
+        </section>
+      </div>
+    </div>
+    <section id="events" class="panel event-panel" aria-labelledby="events-title">
+      <div class="panel-title"><h2 id="events-title">명령 응답 및 이벤트</h2><div class="event-toolbar"><label for="event-filter">표시</label><select id="event-filter"><option value="all">전체 이벤트</option><option value="commands">명령 결과</option><option value="connection">연결 상태</option></select></div></div>
+      <div class="event-labels" aria-hidden="true"><span>시간</span><span>내용</span><span>요청 ID</span></div>
+      <div id="event-list" class="event-list" tabindex="0" aria-label="이벤트 기록"><p class="empty-state">이벤트를 기다리고 있습니다.</p></div>
+    </section>
+    <footer><span id="environment">데이터 출처 확인 중</span><span id="updated">—</span></footer>
+  </main>
+</body>
+</html>

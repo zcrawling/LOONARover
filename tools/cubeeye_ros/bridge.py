@@ -17,6 +17,8 @@ def main():
     p.add_argument('--helper',type=Path,help='Use a prebuilt native helper instead of compiling at startup')
     p.add_argument('--seconds',type=float,default=0);p.add_argument('--hz',type=float,default=5.)
     p.add_argument('--stride',type=int,default=4);p.add_argument('--output',type=Path)
+    p.add_argument('--no-base-tf',action='store_true',help='Publish in cubeeye_optical only; mounting geometry is not measured yet')
+    p.add_argument('--reliable',action='store_true',help='Use reliable ROS delivery for local bag recording')
     for key,val in [('x',.15),('y',0.),('z',.033),('roll',0.),('pitch',0.),('yaw',0.)]:p.add_argument('--'+key,type=float,default=val)
     a=p.parse_args()
     if a.hz<=0 or a.stride<1:p.error('positive hz/stride required')
@@ -31,12 +33,15 @@ def main():
         build=Path.home()/'.cache/loonar/cubeeye';build.mkdir(parents=True,exist_ok=True)
         binary=build/'capture_xyz';src=Path(__file__).with_name('capture_xyz.cpp')
         subprocess.run(['g++','-std=c++17','-O2','-pthread',str(src),'-I'+str(sdk/'include/CubeEye'),'-L'+str(sdk/'lib'),'-lCubeEye',*['-Wl,-rpath-link,'+str(d) for d in libdirs],'-o',str(binary)],env=env,check=True)
-    rclpy.init();node=Node('cubeeye_i200dk');pub=node.create_publisher(PointCloud2,'/tof/depth/points',rclpy.qos.qos_profile_sensor_data);diag=node.create_publisher(String,'/tof/status',10)
-    broadcaster=StaticTransformBroadcaster(node);tf=TransformStamped();tf.header.stamp=node.get_clock().now().to_msg();tf.header.frame_id='base_link';tf.child_frame_id='cubeeye_optical'
-    tf.transform.translation.x=a.x;tf.transform.translation.y=a.y;tf.transform.translation.z=a.z
-    optical=np.array([[0,0,1],[-1,0,0],[0,-1,0]])
-    q=Rotation.from_matrix(Rotation.from_euler('xyz',[a.roll,a.pitch,a.yaw]).as_matrix()@optical).as_quat()
-    tf.transform.rotation.x,tf.transform.rotation.y,tf.transform.rotation.z,tf.transform.rotation.w=map(float,q);broadcaster.sendTransform(tf)
+    rclpy.init();node=Node('cubeeye_i200dk')
+    cloud_qos=rclpy.qos.QoSProfile(depth=10) if a.reliable else rclpy.qos.qos_profile_sensor_data
+    pub=node.create_publisher(PointCloud2,'/tof/depth/points',cloud_qos);diag=node.create_publisher(String,'/tof/status',10)
+    if not a.no_base_tf:
+        broadcaster=StaticTransformBroadcaster(node);tf=TransformStamped();tf.header.stamp=node.get_clock().now().to_msg();tf.header.frame_id='base_link';tf.child_frame_id='cubeeye_optical'
+        tf.transform.translation.x=a.x;tf.transform.translation.y=a.y;tf.transform.translation.z=a.z
+        optical=np.array([[0,0,1],[-1,0,0],[0,-1,0]])
+        q=Rotation.from_matrix(Rotation.from_euler('xyz',[a.roll,a.pitch,a.yaw]).as_matrix()@optical).as_quat()
+        tf.transform.rotation.x,tf.transform.rotation.y,tf.transform.rotation.z,tf.transform.rotation.w=map(float,q);broadcaster.sendTransform(tf)
     readfd,writefd=os.pipe();latest=[];lock=threading.Lock();errors=[]
     def receive():
         def read_n(f,n):
@@ -60,6 +65,7 @@ def main():
     if a.output:a.output.mkdir(parents=True,exist_ok=True)
     try:
         while rclpy.ok() and (not a.seconds or time.monotonic()-begin<a.seconds):
+            tick=time.monotonic()
             if errors:raise RuntimeError(errors[-1])
             with lock:sample=latest.copy()
             if sample and sample[0]!=last:
@@ -73,12 +79,13 @@ def main():
                 if a.output and count<=30:np.save(a.output/f'cloud_{count:04d}.npy',pts)
                 if a.output:(a.output/'status.json').write_text(json.dumps(status,indent=2))
             elif not sample and time.monotonic()-begin>20:raise RuntimeError('No XYZ frame received')
-            rclpy.spin_once(node,timeout_sec=0);time.sleep(1/a.hz)
+            rclpy.spin_once(node,timeout_sec=0);time.sleep(max(0,1/a.hz-(time.monotonic()-tick)))
     except KeyboardInterrupt:pass
     finally:
         child.send_signal(signal.SIGINT)
         try:child.wait(timeout=5)
         except subprocess.TimeoutExpired:child.kill();child.wait()
-        node.destroy_node();rclpy.shutdown()
+        node.destroy_node()
+        if rclpy.ok():rclpy.shutdown()
 
 if __name__=='__main__':main()
