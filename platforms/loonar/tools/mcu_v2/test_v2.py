@@ -5,6 +5,9 @@ import struct
 import subprocess
 import tempfile
 import unittest
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
+from . import backend
 from .wire import Frame, Kind, Parser, crc32c
 from .buffer import ReceiveBuffer
 from .config import load, geometry, driver_packet, wheel_command
@@ -212,6 +215,62 @@ class Tests(unittest.TestCase):
             (values[0], values[1], values[2], values[7], values[8]),
             (b"MCU2", 2, 0, 123, 0xFFFFFFFF),
         )
+
+    def test_missing_health_reports_without_stopping_motion(self):
+        # Test both initial silence and loss after a valid response, then recovery
+        # and a second outage. No serial port, network or wall-clock wait is used.
+        for initial_health in (False, True):
+            with self.subTest(initial_health=initial_health):
+                ticks = iter((10.25, 11.0, 11.25, 11.5, 12.5))
+                clock = SimpleNamespace(now=10.0)
+                stop = [False]
+                health_frame = Frame(1, Kind.HEALTH, payload=bytes(88))
+                link = Mock(boot=1, oldest=1, session=2, offset_ns=None,
+                            parser=SimpleNamespace(errors=0),
+                            last_health=10.0 if initial_health else 0.0,
+                            health=health_frame if initial_health else None)
+
+                def poll():
+                    if clock.now == 11.5:
+                        link.health = health_frame
+                        link.last_health = clock.now
+                    return []
+
+                def advance(_):
+                    try:
+                        clock.now = next(ticks)
+                    except StopIteration:
+                        stop[0] = True
+
+                link.poll.side_effect = poll
+                gateway = Mock()
+                gateway.latest.return_value = (0.03, 0.0)
+                health, samples = Mock(), Mock()
+                device = dict(role="control", role_id=1, uid_int=1,
+                              geometry=dict(radius_m=.098, track_m=.210,
+                                            counts_per_rev=485681,
+                                            left_sign=1, right_sign=1))
+                args = SimpleNamespace(gateway="fake", health="fake", samples="fake")
+                with patch.object(backend, "Link", return_value=link) as constructor, \
+                     patch.object(backend, "Gateway", return_value=gateway), \
+                     patch.object(backend, "Sink", side_effect=(health, samples)), \
+                     patch.object(backend.time, "monotonic", side_effect=lambda: clock.now), \
+                     patch.object(backend.time, "sleep", side_effect=advance), \
+                     patch.object(backend.logging, "warning") as warning:
+                    backend.serve(device, args, stop, ReceiveBuffer())
+                constructor.assert_called_once()
+                self.assertTrue(stop[0]) # No early exit on either health outage.
+                motions = [c.args[1] for c in link.send.call_args_list
+                           if c.args[0] == Kind.MOTION]
+                self.assertEqual(len(motions), 6)
+                self.assertEqual([struct.unpack("<IiiI", p)[3] for p in motions], [200] * 6)
+                self.assertTrue(all(c.args[0] != Kind.STOP for c in link.send.call_args_list))
+                link.close.assert_called_once() # Normal shutdown only.
+                self.assertEqual(warning.call_count, 2) # One report per outage.
+                online = [HEALTH_HEADER.unpack_from(c.args[0])[2]
+                          for c in health.send.call_args_list]
+                self.assertEqual(online[2:6], [0, 0, 1, 0])
+                self.assertEqual(online[-1], 0) # Normal final offline report.
 
     def test_gateway_handshake_and_no_command_refresh(self):
         with tempfile.TemporaryDirectory() as tmp:

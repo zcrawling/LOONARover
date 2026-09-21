@@ -426,10 +426,7 @@ void io_task(void *) {
     if (now - last_step >= 10) {
       ++link_progress;
       if (control) {
-        const bool driver_ok =
-            driver_state.ack_seen && age(now, driver_state.ack_ms) < 100 &&
-            (driver_state.valid(now) & (1U << 6)) && driver_state.error == 0;
-        gate.step(now, driver_ok, tempmonGetTemp());
+        gate.step(now, tempmonGetTemp());
       } else {
         const float temperature = tempmonGetTemp();
         gate.stop();

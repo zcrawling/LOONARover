@@ -134,9 +134,10 @@ python3 -m mcu_v2.motor_bench \
 센서 표본은 계속 수신해 RAM 버퍼가 막히지 않게 하고, 1초마다 health/모터 피드백을 출력한다.
 시작 자체는 주행 명령을 보내지 않는다.
 
-진행 조건: `online=true`, `motor age_ms`가 작고 `valid`에 count/speed bit가 켜져 있어야 한다.
-명령 전 `inhibit=8`은 명령 만료/정지 상태로 정상이다. 32는 driver 통신/오류,
-128은 CPU 온도 90°C 이상, 1/2는 identity/session 문제다. `error`도 함께 확인한다.
+피드백 확인: `online`, `motor age_ms`, `valid`의 count/speed bit와 `error`를 관찰한다.
+이 조회값이나 health 미수신으로 주행을 차단하지는 않는다.
+명령 전 `inhibit=8`은 명령 만료/정지 상태로 정상이다.
+128은 CPU 온도 90°C 이상, 1/2는 identity/session 문제다. 기존 driver bit 32는 사용하지 않는다.
 현재 firmware의 driver error 명령90은 32bit 응답을 전제로 한다.
 
 로그는 `~/loonar-motor-bench/runtime/gateway.log`, `backend.log`다.
@@ -169,7 +170,7 @@ SOCK="$HOME/loonar-motor-bench/runtime/gateway/cfs.sock"
 모두 한꺼번에 붙여넣지 말고 한 동작씩 확인한다.
 터미널 A의 `left(M2)`/`right(M1)`에서 command와 speed가 따라가는지, count가 변하는지 본다.
 전진 명령에서는 두 출력축이 각각 로봇 전진 방향으로 회전해야 한다.
-정지 명령이 누락돼도 마지막 새 주행 명령 후 150ms에 MCU 명령 lease가 만료된다.
+정지 명령이 누락돼도 마지막 새 주행 명령 후 200ms 이상 지나면 MCU 목표 속도가 0이 된다.
 실제 모터 정지 지연은 드라이버 응답과 기계 관성에 따라 달라진다.
 벤치를 끝낼 때 터미널 B에서 STOP, 터미널 A에서 Ctrl-C를 실행한다.
 

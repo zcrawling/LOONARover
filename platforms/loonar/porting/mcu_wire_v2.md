@@ -48,6 +48,8 @@ CRC/nonce는 오접속·지연 패킷 구분용이며 암호학적 링크 인증
 
 HELLO flags bit0=UID binding 정상, bit4=control 기능.
 COMMAND RESULT는 도착/수락 확인이며 실제 모터 회전 완료를 의미하지 않는다.
+MOTION lease의 허용 범위는 20–200 ms이며 현재 Pi backend는 200 ms를 보낸다.
+마지막 새 명령에서 lease 이상 경과하면 MCU 목표 속도를 0으로 한다.
 SESSION 성공 후 CONFIGURE는 정지 상태에서만 허용한다. 허용되지 않는 role/type 조합은 거부한다.
 ACK는 실제 TX한 sample의 상한을 넘지 못한다. 누락된 record는 ACK하지 않고 재전송을 기다린다.
 MCU가 이미 보유하지 않은 구간은 Pi missing counter와 로그에 남긴 뒤 진행한다.
@@ -66,7 +68,8 @@ Type 13은 사용하지 않으며 업로드 요청은 제공하지 않는다.
 | 76 / 77 / 78 | transport u8(USB1/UART2), identity_bound u8, reserved u16 |
 | 80 / 84 | driver failures / oldest retained sequence u32 |
 
-age FFFFFFFF는 미수신이다. inhibit bit: identity1, session2, motion8, driver32, overtemperature128.
+age FFFFFFFF는 미수신이다. inhibit bit: identity1, session2, motion8, overtemperature128.
+기존 driver32는 더 이상 설정하지 않는다. 다른 bit 번호와 wire 배치는 그대로 유지한다.
 온도 조건은 MCU CPU 90°C 이상이다. IMU 및 health age는 주행 허가 조건이 아니다.
 
 ## IMU (36 bytes)
@@ -94,7 +97,7 @@ Pi는 RTT 20 ms 이하의 TIME 교환으로 MCU 시간을 host 시간으로 변�
 
 valid mask bits0..7 = count, speed, current, main V, logic V, temperature, error, PWM.
 모든 L/R 쌍은 왼쪽·오른쪽 순서이며 물리 채널은 M2/M1이다. RoboClaw 드라이버에서 변환한다.
-각 측정이 500 ms 이내일 때 valid이다. 제어 허용 ACK는 이보다 엄격하게 100 ms 이내다.
+각 측정이 500 ms 미만일 때 valid이다. ACK age·failures·error는 보고용이며 주행 허가 조건이 아니다.
 RoboClaw packet serial 명령37/78/79/49/24/25/82/90/48을 사용한다.
 명령90의 32bit error 응답을 지원하는 펌웨어가 필요하다.
 

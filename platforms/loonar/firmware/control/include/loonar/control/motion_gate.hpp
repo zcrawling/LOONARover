@@ -6,12 +6,11 @@ enum Inhibit : std::uint32_t {
   Identity = 1U,
   NoSession = 2U,
   MotionExpired = 8U,
-  DriverStale = 32U,
   Overtemp = 128U
 };
 
-// The Pi supplies left/right qpps. No IMU, vehicle geometry or acceleration
-// policy here.
+// The Pi supplies left/right qpps. Driver feedback and IMU health are reported
+// independently; neither gates motion. No geometry or acceleration policy here.
 struct MotionGate {
   bool identity = false, session = false, motion_seen = false;
   std::uint32_t motion_ms = 0, command = 0, lease_ms = 0;
@@ -40,13 +39,12 @@ struct MotionGate {
     motion_seen = true;
     return true;
   }
-  void step(std::uint32_t now, bool driver_ok, float temperature) {
+  void step(std::uint32_t now, float temperature) {
     inhibit = (!identity ? std::uint32_t(Identity) : 0U) |
               (!session ? std::uint32_t(NoSession) : 0U) |
               (!motion_seen || now - motion_ms >= lease_ms
                    ? std::uint32_t(MotionExpired)
                    : 0U) |
-              (!driver_ok ? std::uint32_t(DriverStale) : 0U) |
               (temperature >= 90.0F ? std::uint32_t(Overtemp) : 0U);
     if (inhibit)
       stop();

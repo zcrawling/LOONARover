@@ -71,41 +71,71 @@ static void parser_test() {
 static void gate_test() {
   MotionGate g;
   g.session = true;
-  assert(!g.motion(1, 1234, -5678, 150, 100));
+  assert(!g.motion(1, 1234, -5678, 200, 100));
   g.identity = true;
-  assert(g.motion(1, 1234, -5678, 150, 100));
-  g.step(110, true, 89.99F);
+  assert(g.motion(1, 1234, -5678, 200, 100));
+  g.step(110, 89.99F);
   // Direct command: no acceleration ramp, geometry or IMU dependency.
   assert(g.left == 1234 && g.right == -5678 && g.inhibit == 0);
-  assert(!g.motion(1, 9999, 9999, 150, 230));
+  assert(!g.motion(1, 9999, 9999, 200, 230));
   assert(g.motion_ms == 100);
-  g.step(250, true, 40);
+  g.step(299, 40);
+  assert(g.left == 1234 && g.right == -5678);
+  g.step(300, 40);
   assert(g.left == 0 && !g.motion_seen);
-  assert(!g.motion(2, 1, 2, 201, 260));
-  assert(g.motion(2, 1, 2, 150, 260));
-  g.step(270, true, 90.0F);
+  assert(!g.motion(2, 1, 2, 201, 310));
+  assert(g.motion(2, 1, 2, 200, 310));
+  g.step(320, 90.0F);
   assert((g.inhibit & Overtemp) && g.left == 0 && g.right == 0);
-  assert(!g.motion(3, 1, 2, 150, 280));
-  g.step(290, true, 89.0F);
+  assert(!g.motion(3, 1, 2, 200, 330));
+  g.step(340, 89.0F);
   assert(g.left == 0 && !g.motion_seen);
-  assert(g.motion(3, 1000, 2000, 150, 290));
-  g.step(300, true, 89.0F);
+  assert(g.motion(3, 1000, 2000, 200, 340));
+  g.step(350, 89.0F);
   assert(g.left == 1000 && g.right == 2000);
-  g.step(310, true, 90.1F);
+  g.step(360, 90.1F);
   assert(g.inhibit & Overtemp);
-  g.step(320, true, 40);
-  assert(g.motion(4, 1, 2, 150, 320));
-  g.step(330, false, 40);
-  assert(g.inhibit & DriverStale);
-  assert(g.left == 0);
-  g.step(360, true, 40);
-  assert(g.motion(6, 100, 200, 150, 0xfffffff0U));
-  g.step(10, true, 40);
+  g.step(370, 40);
+  assert(g.motion(4, 1, 2, 200, 370));
+  assert(g.motion(5, 3, 4, 200, 569));
+  g.step(570, 40);
+  assert(g.left == 3 && g.right == 4); // A new command renews the deadline.
+  assert(g.motion(6, 100, 200, 200, 0xfffffff0U));
+  g.step(183, 40); // 199 ms across millis() wrap.
   assert(g.left == 100);
-  g.step(150, true, 40);
+  g.step(184, 40); // Exactly 200 ms across wrap.
   assert(g.inhibit & MotionExpired);
   g.resetSession();
-  assert(!g.motion(1, 100, 200, 150, 200));
+  assert(!g.motion(1, 100, 200, 200, 200));
+}
+static void feedback_failure_does_not_stop_test() {
+  MotionGate gate;
+  gate.identity = gate.session = true;
+  assert(gate.motion(1, 123, 456, 200, 20));
+  RoboClaw driver(write_packet);
+  driver.target(gate.left, gate.right);
+  driver.tick(20);
+  driver.receive(0xff, 21);
+  driver.tick(22); // Start encoder query, then let its response time out.
+  assert(written[1] == 78);
+  driver.tick(32);
+  assert(!driver.feedback.ack_seen && driver.feedback.failures == 1);
+  gate.step(40, 40);
+  assert(gate.inhibit == 0 && gate.left == 123 && gate.right == 456);
+  driver.target(gate.left, gate.right);
+  driver.tick(52); // After the serial quiet interval, resend the same speeds.
+  assert(written[1] == 37);
+  driver.receive(0xff, 53);
+  assert(driver.feedback.sent[0] == 123 && driver.feedback.sent[1] == 456);
+  driver.tick(54);
+  for (int i = 0; i < 10; ++i)
+    driver.receive(0, 55); // Deliberately invalid query CRC.
+  assert(driver.feedback.failures == 2 && !driver.feedback.ack_seen);
+  gate.step(60, 40);
+  assert(gate.inhibit == 0 && gate.left == 123 && gate.right == 456);
+  gate.step(220, 40); // Only motion expiry zeros this otherwise valid command.
+  assert(gate.inhibit & MotionExpired);
+  assert(gate.left == 0 && gate.right == 0);
 }
 static void driver_test() {
   RoboClaw d(write_packet);
@@ -202,6 +232,7 @@ int main(int argc, char **argv) {
   parser_test();
   gate_test();
   driver_test();
+  feedback_failure_does_not_stop_test();
   feedback_side_test();
   std::cout << "MCU v2 wire, motion lease and RoboClaw tests passed\n";
 }

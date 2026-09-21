@@ -150,6 +150,7 @@ def serve(device, args, stop, received):
         command = 0
         heartbeat = sync = last_ack = health_sent = 0.0
         started = time.monotonic()
+        health_missing = False
         reported_missing = reported_full = 0
         while not stop[0]:
             now = time.monotonic()
@@ -221,12 +222,12 @@ def serve(device, args, stop, received):
                     else:
                         command += 1
                         link.send(
-                            Kind.MOTION, struct.pack("<IiiI", command, left, right, 150)
+                            Kind.MOTION, struct.pack("<IiiI", command, left, right, 200)
                         )
-            if (link.last_health and now - link.last_health > 1) or (
-                not link.last_health and now - started > 1
-            ):
-                raise TimeoutError("MCU health stopped")
+            missing = now - (link.last_health or started) >= 1
+            if missing and not health_missing:
+                logging.warning("MCU health missing for 1s; reporting only")
+            health_missing = missing
             time.sleep(0.001)
     finally:
         health.send(health_packet(device, link, False))
