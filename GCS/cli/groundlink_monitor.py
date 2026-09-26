@@ -107,6 +107,7 @@ def decode_payload(frame_type, payload):
         result = {"timestamp_ms": timestamp_ms, "valid_flags": f"0x{flags:08x}"}
         result.update({name: value if flags & (1 << bit) else None
                        for name, value, bit in zip(names, numbers, valid_bits)})
+        result['imu_reference'] = 'gyro_relative' if flags & 32 else 'unspecified'
         return result
     if frame_type == 0x8004:
         _exact(payload, 50, "LOONAR_MCU_STATUS")

@@ -46,6 +46,8 @@ class RealState:
         self.event_sequence = 0
         self.manual_control = dict(manual_control or {})
         self.mcu = {}
+        self.imu_attitude = None
+        self.last_imu = None
 
     def event(self, text, request_id=None):
         self.event_sequence += 1
@@ -74,6 +76,8 @@ class RealState:
             "events": list(self.events),
             "manual_control": dict(self.manual_control),
             "mcu": {role: dict(values) for role, values in self.mcu.items()},
+            "imu_attitude": (dict(self.imu_attitude, age_s=age(self.last_imu))
+                             if self.imu_attitude is not None else None),
         }
 
 
@@ -90,23 +94,35 @@ class GroundLinkConnection:
         self.state.sequence = 1 if self.state.sequence >= 0xFFFFFFFF else self.state.sequence + 1
         return self.state.sequence
 
-    async def command(self, name, linear_speed_mps=None):
+    async def command(self, name, linear_speed_mps=None, angular_speed_radps=None,
+                      *, linear_mps=None, angular_radps=None):
         name = name.upper()
         if name in {"PAYLOAD", "REACTION"}:
             return {"ok": False, "text": f'"{name}" Not Sent — opcode 명세가 필요합니다.'}
         if name not in COMMAND_TYPES and name not in MOTION_NAMES:
             return {"ok": False, "text": f'"{name}" NOT_SUPPORTED'}
+        vector = linear_mps is not None or angular_radps is not None
+        if vector and (name != "MANUAL" or any(
+                type(value) not in (int, float) or not math.isfinite(value) or abs(value) > 1.0
+                for value in (linear_mps, angular_radps))):
+            return {"ok": False, "text": "MANUAL 벡터는 두 유한한 -1~1 속도가 필요합니다."}
         if linear_speed_mps is not None and (
                 type(linear_speed_mps) not in (int, float)
                 or not math.isfinite(linear_speed_mps)
                 or not 0.01 <= linear_speed_mps <= 1.0):
             return {"ok": False, "text": "선속도는 0.01~1.00 m/s여야 합니다."}
+        if angular_speed_radps is not None and (
+                type(angular_speed_radps) not in (int, float)
+                or not math.isfinite(angular_speed_radps)
+                or not 0.01 <= angular_speed_radps <= 1.0):
+            return {"ok": False, "text": "각속도는 0.01~1.00 rad/s여야 합니다."}
         if self.state.connection != "CONNECTED" or self.writer is None:
             return {"ok": False, "text": f'"{name}" Not Sent — 실제 로버 TCP 연결 없음'}
         sequence = self.next_sequence()
         linear = (float(linear_speed_mps) if linear_speed_mps is not None
                   else self.manual_control["linear_speed_mps"])
-        angular = self.manual_control["angular_speed_radps"]
+        angular = (float(angular_speed_radps) if angular_speed_radps is not None
+                   else self.manual_control["angular_speed_radps"])
         motions = {
             "FORWARD": (linear, 0.0), "LEFT": (0.0, angular),
             "REVERSE": (-linear, 0.0), "RIGHT": (0.0, -angular),
@@ -114,6 +130,8 @@ class GroundLinkConnection:
         wire_name = "MANUAL" if name in MOTION_NAMES else name
         payload = struct.pack("<dd", *motions[name]) if name in motions else (
             struct.pack("<dd", 0.0, 0.0) if name == "MANUAL" else b"")
+        if vector:
+            payload = struct.pack("<dd", linear_mps, angular_radps)
         frame = HEADER.pack(b"LNK1", 1, COMMAND_TYPES[wire_name], sequence, len(payload)) + payload
         request_id = str(sequence)
         entry = {"request_id": request_id, "command": name, "state": "Pending",
@@ -161,6 +179,14 @@ class GroundLinkConnection:
             self.state.values["마지막 각속도 (rad/s)"] = data["last_angular_radps"]
             self.state.last_status = t
         elif frame_type == 0x8003:
+            rpy = [data[key] for key in ('imu_roll', 'imu_pitch', 'imu_yaw')]
+            if all(value is not None and math.isfinite(value) for value in rpy):
+                self.state.imu_attitude = dict(rpy_rad=rpy, timestamp_ms=data['timestamp_ms'],
+                                              reference=data['imu_reference'])
+                self.state.last_imu = t
+            else:
+                self.state.imu_attitude = None
+                self.state.last_imu = None
             mapping = {
                 "battery_voltage": "배터리 전압 (V)", "battery_percent": "배터리 잔량 (%)",
                 "odom_x": "Odometry X (m)", "odom_y": "Odometry Y (m)",
@@ -263,7 +289,10 @@ async def serve(host, port, config_path=DEFAULT_CONFIG, local_socket=LOCAL_SOCKE
                 response = state.snapshot()
             elif request.get("action") == "command" and isinstance(request.get("command"), str):
                 response = await connection.command(
-                    request["command"], request.get("linear_speed_mps"))
+                    request["command"], request.get("linear_speed_mps"),
+                    request.get("angular_speed_radps"),
+                    linear_mps=request.get("linear_mps"),
+                    angular_radps=request.get("angular_radps"))
             else:
                 response = {"ok": False, "text": "Unknown local request"}
             writer.write(json.dumps(response, ensure_ascii=False).encode() + b"\n")

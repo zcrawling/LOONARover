@@ -2,6 +2,9 @@
 
 처음 설치하고 실행하는 순서는 [한국어 사용법](사용법.txt)을 참고하세요.
 
+USB Xbox Series 컨트롤러(045e:0b12)의 별도 터미널 조종은
+[Xbox 사용법](docs/xbox-controller.md)을 참고하세요. 기존 키보드 주행은 유지됩니다.
+
 > **LOONAR 실제 조종:** [Pi 지원·PC 지상국 실행 안내](../platforms/loonar/porting/ground_control_runbook.md)를 따릅니다.
 > `scripts/start_loonar_gcs.sh PI_IP`는 실제 LNK1 백엔드와 웹 UI를 시작하며 MCU2 상태도 수신합니다.
 > `scripts/start_rover.sh`는 기존 LIMO/Humble용입니다. LOONAR Pi는 별도 지원 스크립트를 사용합니다.

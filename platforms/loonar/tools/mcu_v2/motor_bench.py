@@ -4,6 +4,7 @@ import argparse
 import fcntl
 import json
 import ipaddress
+import logging
 import os
 from pathlib import Path
 import select
@@ -16,6 +17,7 @@ import time
 
 from .config import load, geometry
 from .inspect import decode_health
+from .ros_samples import RosSamples
 
 
 def main():
@@ -25,6 +27,7 @@ def main():
     parser.add_argument("--gateway-bin", type=Path, default=Path("/opt/loonar/current/bin/vehicle_gatewayd"))
     parser.add_argument("--cfs-dir", type=Path, help="Start real cFS from this prepared cpu1 directory")
     parser.add_argument("--video-ip", help="Also stream camera video to this GCS IPv4 address")
+    parser.add_argument("--ros-samples", action="store_true", help="Publish MCU samples to ROS (no recording)")
     args = parser.parse_args()
     device = load(args.registry, "control")
     if geometry(device) is None:
@@ -52,6 +55,7 @@ def main():
     gateway_dir = runtime / "gateway"
     gateway_dir.mkdir(exist_ok=True)
     sockets, children, logs = [], [], []
+    ros_samples = None
     stop = [False]
     for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
         signal.signal(sig, lambda *_: stop.__setitem__(0, True))
@@ -70,6 +74,14 @@ def main():
         environment["PYTHONPATH"] = str(Path(__file__).resolve().parents[1]) + os.pathsep + environment.get("PYTHONPATH", "")
         environment["LOONAR_GATEWAY_SOCKET"] = str(gateway_dir / "cfs.sock")
         environment["LOONAR_MCU_HEALTH_SOCKET"] = str(runtime / "cfs-health.sock")
+        if args.ros_samples:
+            ros_samples = RosSamples(runtime, args.registry.resolve(), environment)
+            try:
+                ros_samples.start()
+            except OSError:
+                logging.exception("Could not start ROS publisher; driving processes will continue")
+                ros_samples.close()
+                ros_samples = None
         commands = [
             ("gateway", [str(args.gateway_bin.resolve()), "--runtime-dir", str(gateway_dir)], None),
         ]
@@ -98,6 +110,8 @@ def main():
                   "No motion command sent. Wait for online health before using the GCS.", flush=True)
         last_motor = last_health = 0.0
         while not stop[0]:
+            if ros_samples:
+                ros_samples.poll()
             if any(child.poll() is not None for child in children):
                 raise RuntimeError(f"A bench process exited; inspect {runtime}/*.log")
             ready, _, _ = select.select(sockets, [], [], 0.1)
@@ -116,6 +130,8 @@ def main():
                               ("online", "uid", "temperature_c", "inhibit", "driver_ack_age_ms", "sample_drops")}), flush=True)
                         last_health = now
                 else:
+                    if ros_samples:
+                        ros_samples.forward(raw)
                     sample = json.loads(raw)
                     # Drain all IMU/motor samples so RAM queues keep advancing.
                     if sample["kind"] == 33 and now - last_motor >= 1:
@@ -136,6 +152,8 @@ def main():
                 except subprocess.TimeoutExpired:
                     child.kill()
                     child.wait()
+        if ros_samples:
+            ros_samples.close()
         for sock in sockets:
             path = Path(sock.getsockname())
             sock.close()

@@ -81,12 +81,17 @@ class Handler(BaseHTTPRequestHandler):
             speed = body.get('linear_speed_mps')
             if speed is not None and (type(speed) not in (int, float) or not 0.01 <= speed <= 1.0):
                 raise ValueError('선속도 범위 오류')
+            angular = body.get('angular_speed_radps')
+            if angular is not None and (type(angular) not in (int, float) or not 0.01 <= angular <= 1.0):
+                raise ValueError('각속도 범위 오류')
         except (ValueError, OSError, TypeError):
             return self.reply(400, {'error': '명령 형식이 올바르지 않습니다.'})
         try:
             local_request = {'action': 'command', 'command': body['command']}
             if body.get('linear_speed_mps') is not None:
                 local_request['linear_speed_mps'] = body['linear_speed_mps']
+            if body.get('angular_speed_radps') is not None:
+                local_request['angular_speed_radps'] = body['angular_speed_radps']
             result = request(local_request)
             return self.reply(200, result)
         except (OSError, ValueError):

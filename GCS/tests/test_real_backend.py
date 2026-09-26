@@ -68,6 +68,22 @@ class RealBackendTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(struct.unpack("<dd", writer.data[-1][HEADER.size:]), (0.37, 0.0))
         self.assertFalse((await connection.command("FORWARD", 1.01))["ok"])
 
+    async def test_adjustable_angular_speed(self):
+        state = RealState("rover.test")
+        state.connection = "CONNECTED"
+        connection = GroundLinkConnection("rover.test", 7443, state)
+        writer = Writer()
+        connection.writer = writer
+        for name, expected in (("LEFT", (0.0, 0.37)), ("RIGHT", (0.0, -0.37)),
+                               ("MANUAL", (0.0, 0.0)), ("FORWARD", (0.1, 0.0))):
+            self.assertTrue((await connection.command(name, angular_speed_radps=0.37))["ok"])
+            self.assertEqual(HEADER.unpack_from(writer.data[-1])[2], 0x0002)
+            self.assertEqual(struct.unpack("<dd", writer.data[-1][HEADER.size:]), expected)
+        count = len(writer.data)
+        for invalid in (True, "0.3", 0, -0.1, 1.01, float('nan'), float('inf')):
+            self.assertFalse((await connection.command("LEFT", angular_speed_radps=invalid))["ok"])
+        self.assertEqual(len(writer.data), count)
+
     def test_real_telemetry_updates_web_snapshot(self):
         state = RealState("192.0.2.10")
         connection = GroundLinkConnection("192.0.2.10", 7443, state)

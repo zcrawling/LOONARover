@@ -33,6 +33,9 @@ class WindowsTests(unittest.TestCase):
             self.assertEqual(calls[0], 'browser')
             self.assertIn('start_diagnostics.sh --host 192.168.1.50', calls[1])
             self.assertIn('start_video.sh', calls[2])
+            self.assertIn('--record', calls[2])
+            self.assertIn('--compass', calls[2])
+            self.assertIn('start_controller.sh', calls[3])
 
 if __name__ == '__main__':
     unittest.main()

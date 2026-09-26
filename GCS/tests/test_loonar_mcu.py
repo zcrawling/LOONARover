@@ -20,6 +20,17 @@ def health(role=1, online=1):
 
 
 class LoonarMcuTests(unittest.TestCase):
+    def test_battery_voltage_without_percentage_or_wheel_feedback(self):
+        state = RealState("pi")
+        connection = GroundLinkConnection("pi", 7443, state)
+        connection.handle(0x8003, struct.pack("<QI10d", 123, 1, 16.7, *([0.0] * 9)))
+        values = state.snapshot()["status"]["values"]
+        self.assertAlmostEqual(values["배터리 전압 (V)"], 16.7)
+        self.assertIsNone(values["배터리 잔량 (%)"])
+        self.assertIsNone(values["선속도 (m/s)"])
+        connection.handle(0x8003, struct.pack("<QI10d", 124, 0, *([0.0] * 10)))
+        self.assertIsNone(state.snapshot()["status"]["values"]["배터리 전압 (V)"])
+
     def test_loonar_launcher_uses_confirmed_initial_speed(self):
         config = load_manual_control(Path(__file__).resolve().parents[1] / "config/loonar.toml")
         self.assertEqual(config["linear_speed_mps"], 0.03)

@@ -13,7 +13,7 @@ def main():
     import rclpy
     from rclpy.node import Node
     from rclpy.qos import qos_profile_sensor_data
-    from sensor_msgs.msg import Imu, MagneticField
+    from sensor_msgs.msg import Imu, MagneticField, BatteryState
     from nav_msgs.msg import Odometry
     from geometry_msgs.msg import Vector3Stamped
     from .config import load, geometry
@@ -65,6 +65,7 @@ def main():
             self.wheel = self.create_publisher(
                 Odometry, "/wheel/odom", qos_profile_sensor_data
             )
+            self.battery = self.create_publisher(BatteryState, "/battery_state", 10)
             self.path = Path(self.get_parameter("socket").value)
             self.path.parent.mkdir(parents=True, exist_ok=True)
             # A second bridge must not steal the first bridge's live socket.
@@ -170,10 +171,19 @@ def main():
                     msg.vector.y = y
                     msg.vector.z = z
                     (self.linear if sensor == 4 else self.gravity).publish(msg)
-            elif kind == 33 and len(p) == 64 and self.geometry:
+            elif kind == 33 and len(p) == 64:
                 valid = struct.unpack_from("<I", p)[0]
+                if valid & 8:
+                    battery = BatteryState()
+                    self.header(battery, stamp, "base_link")
+                    battery.voltage = struct.unpack_from("<H", p, 36)[0] / 10.0
+                    battery.present = True
+                    for field in ("temperature", "current", "charge", "capacity",
+                                  "design_capacity", "percentage"):
+                        setattr(battery, field, float("nan"))
+                    self.battery.publish(battery)
                 age = struct.unpack_from("<I", p, 60)[0]
-                if not valid & 2 or age >= 100:
+                if not self.geometry or not valid & 2 or age >= 100:
                     return
                 left, right = struct.unpack_from("<ii", p, 12)
                 g = self.geometry

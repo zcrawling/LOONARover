@@ -35,7 +35,7 @@ printf '[LOONAR] 실제 로버 %s에 연결합니다.\n' "$ROVER_IP"
 printf '[LOONAR] 브라우저 주소: %s\n' "$URL"
 
 open_gcs_windows() {
-    local video_options=()
+    local video_options=(--record --compass)
     if [[ ${GCS_VIDEO_ROTATE_LEFT:-0} == 1 ]]; then
         video_options+=(--rotate-left)
     fi
@@ -48,6 +48,10 @@ open_gcs_windows() {
         >/dev/null 2>&1 || printf '[LOONAR] 진단 창 열기 실패\n' >&2
     gnome-terminal -- "$GCS_ROOT/scripts/start_video.sh" "${video_options[@]}" \
         >/dev/null 2>&1 || printf '[LOONAR] 영상 창 열기 실패\n' >&2
+    if [[ ${GCS_XBOX:-1} == 1 ]] && python3 -B -m cli.xbox_control --inspect >/dev/null 2>&1; then
+        gnome-terminal -- "$GCS_ROOT/scripts/start_controller.sh" \
+            >/dev/null 2>&1 || printf '[LOONAR] Xbox 조종 창 열기 실패\n' >&2
+    fi
 }
 
 RUNNING_SOURCE=$(python3 - "$URL/api/state" <<'PY' 2>/dev/null || true

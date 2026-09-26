@@ -3,9 +3,9 @@ import socket
 from backend.config import LOCAL_SOCKET
 
 
-def request(data):
+def request(data, timeout=7):
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
-        sock.settimeout(7)
+        sock.settimeout(timeout)
         sock.connect(str(LOCAL_SOCKET))
         sock.sendall(json.dumps(data).encode() + b"\n")
         with sock.makefile("rb") as stream:

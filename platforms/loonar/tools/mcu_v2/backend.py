@@ -14,6 +14,7 @@ from .config import load, driver_packet, geometry, wheel_command
 from .buffer import ReceiveBuffer
 from .link import Link
 from .wire import Kind
+from .gyro_attitude import GyroAttitude
 
 HEALTH_HEADER = struct.Struct("<4sBBHIIQQII")
 GATEWAY_HEADER = struct.Struct("<IHHI")
@@ -43,6 +44,7 @@ class Gateway:
         self.path = path
         self.socket = None
         self.retry = 0
+        self.attitude = GyroAttitude()
 
     def close(self):
         if self.socket:
@@ -91,6 +93,9 @@ class Gateway:
         return (0.0, 0.0)
 
     def status(self, frame, geometry):
+        if frame.kind == Kind.IMU:
+            self.attitude.update(frame, time.monotonic())
+            return
         if not self.socket or frame.kind != Kind.MOTOR or len(frame.payload) != 64:
             return
         p = frame.payload
@@ -108,6 +113,10 @@ class Gateway:
             values[5] = (left + right) / 2
             values[6] = (right - left) / geometry["track_m"]
             flags |= 8
+        attitude = self.attitude.rpy(time.monotonic())
+        if attitude is not None:
+            values[7:10] = attitude
+            flags |= 16 | 32  # IMU valid + gyro-relative attitude (no magnetic north).
         raw = struct.pack("<QI10d", time.time_ns() // 1_000_000, flags, *values)
         try:
             self.socket.send(GATEWAY_HEADER.pack(0x4C4E5247, 1, 9, len(raw)) + raw)

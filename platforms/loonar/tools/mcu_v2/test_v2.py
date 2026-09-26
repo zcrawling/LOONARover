@@ -216,6 +216,22 @@ class Tests(unittest.TestCase):
             (b"MCU2", 2, 0, 123, 0xFFFFFFFF),
         )
 
+    def test_roboclaw_main_voltage_forwarded_without_wheel_data(self):
+        gateway = Gateway("unused")
+        gateway.socket = Mock()
+        payload = bytearray(64)
+        struct.pack_into("<I", payload, 0, 8) # Main battery voltage valid.
+        struct.pack_into("<H", payload, 36, 167) # RoboClaw uses 0.1 V units.
+        gateway.status(Frame(1, Kind.MOTOR, payload=bytes(payload)), None)
+        raw = gateway.socket.send.call_args.args[0]
+        self.assertEqual(struct.unpack_from("<IHHI", raw), (0x4C4E5247, 1, 9, 92))
+        _, flags, voltage, percent, *_ = struct.unpack_from("<QI10d", raw, 12)
+        self.assertEqual(flags, 1) # Voltage only; no invented battery percentage.
+        self.assertAlmostEqual(voltage, 16.7)
+        struct.pack_into("<I", payload, 0, 0)
+        gateway.status(Frame(1, Kind.MOTOR, payload=bytes(payload)), None)
+        self.assertEqual(struct.unpack_from("<QI10d", gateway.socket.send.call_args.args[0], 12)[1], 0)
+
     def test_missing_health_reports_without_stopping_motion(self):
         # Test both initial silence and loss after a valid response, then recovery
         # and a second outage. No serial port, network or wall-clock wait is used.
