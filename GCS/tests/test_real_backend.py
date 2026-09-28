@@ -30,16 +30,23 @@ class RealBackendTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(writer.data[-1][HEADER.size:], expected_payload)
             self.assertEqual(length, len(expected_payload))
 
-    async def test_undefined_activity_commands_are_not_sent(self):
+    async def test_payload_start_stop_opcodes(self):
         state = RealState("rover.test")
         state.connection = "CONNECTED"
         connection = GroundLinkConnection("rover.test", 7443, state)
         writer = Writer()
         connection.writer = writer
-        for command in ("PAYLOAD", "REACTION"):
+        for command, opcode in (("PAYLOAD_START", 1), ("PAYLOAD_STOP", 2)):
             result = await connection.command(command)
-            self.assertFalse(result["ok"])
-        self.assertEqual(writer.data, [])
+            self.assertTrue(result["ok"])
+            header = HEADER.unpack_from(writer.data[-1])
+            request_id, actual_opcode, parameter_length = struct.unpack(
+                "<QHH", writer.data[-1][HEADER.size:])
+            self.assertEqual(header[2], 0x0004)
+            self.assertEqual((request_id, actual_opcode, parameter_length),
+                             (header[3], opcode, 0))
+        self.assertFalse((await connection.command("PAYLOAD"))["ok"])
+        self.assertFalse((await connection.command("REACTION"))["ok"])
 
     async def test_web_keyboard_motion_frames(self):
         state = RealState("rover.test")
@@ -95,6 +102,20 @@ class RealBackendTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(snapshot["status"]["mode"], "STOP")
         self.assertEqual(snapshot["status"]["values"]["배터리 전압 (V)"], 12.4)
         self.assertIsNone(snapshot["status"]["values"]["배터리 잔량 (%)"])
+
+    def test_payload_pca_event_updates_snapshot(self):
+        state = RealState("rover.test")
+        connection = GroundLinkConnection("rover.test", 7443, state)
+        def event(text):
+            source = b"payload-pca"
+            encoded = text.encode()
+            return struct.pack("<QBIBH", 1, 0, 0x5001, len(source), len(encoded)) + source + encoded
+        connection.handle(0x8006, event("STATE,7,RUNNING,power_on"))
+        connection.handle(0x8006, event(
+            "PCA,2,16.599285,23.949991,22.623278,2.013446,114.069168,114.069168,1,DEMO_ONLY,DEMO_ONLY_260927"))
+        snapshot = state.snapshot()
+        self.assertEqual(snapshot["status"]["payload"]["state"], "MEASURING")
+        self.assertEqual(snapshot["payload_sample"]["values"]["PCA candidate"]["value"], 1)
 
 
 if __name__ == "__main__": unittest.main()

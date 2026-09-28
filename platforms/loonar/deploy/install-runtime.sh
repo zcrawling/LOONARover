@@ -21,7 +21,7 @@ for file in "$CPU/core-cpu1" "$HOST/common/vehicle_gateway/vehicle_gatewayd" \
   "$ROS_INSTALL/setup.bash" "$CAM_WORK/stage$CAM_PREFIX/bin/rpicam-hello"; do
   [[ -f $file ]] || { echo "Missing artifact: $file" >&2; exit 2; }
 done
-for unit in vehicle_gatewayd loonar-cfs loonar-localization loonar-video loonar-tof loonar-mcu@control loonar-mcu@payload loonar-mcu-sensors; do
+for unit in vehicle_gatewayd loonar-cfs loonar-localization loonar-video loonar-tof loonar-mcu@control loonar-mcu@payload loonar-mcu-sensors loonar-payload-pca; do
   if systemctl is-active --quiet "$unit.service"; then
     echo "$unit is active; this preparation installer requires an inactive stack." >&2; exit 2
   fi
@@ -30,7 +30,7 @@ for group in dialout video render plugdev; do
   getent group "$group" >/dev/null || groupadd --system "$group"
   usermod -aG "$group" loonar
 done
-install -d "$DEST/bin" "$DEST/lib/cubeeye" "$DEST/ros/install" "$DEST/cfs" \
+install -d "$DEST/bin" "$DEST/lib/cubeeye" "$DEST/ros/install" "$DEST/cfs" "$DEST/tools" \
   /etc/loonar /opt/loonar/vendor/cubeeye/2.5.9/release "$CAM_PREFIX"
 install -m 755 "$HOST/common/vehicle_gateway/vehicle_gatewayd" \
   "$HOST/common/vehicle_gateway/vehicle_gatewayctl" "$ROOT/build/loonar/capture_xyz" "$DEST/bin/"
@@ -41,6 +41,7 @@ cp -a "$CAM_WORK/stage$CAM_PREFIX/." "$CAM_PREFIX/"
 install -m 755 "$DEPLOY"/run-*.sh "$DEPLOY/loonar-camera" "$DEPLOY/loonar-camera-env.sh" "$DEST/lib/"
 install -m 755 "$ROOT/common/video/loonar-video-stream" "$DEST/lib/"
 install -m 644 "$ROOT/tools/cubeeye_ros/bridge.py" "$DEST/lib/cubeeye/"
+install -m 755 "$ROOT/platforms/loonar/tools/payload_pca_service.py" "$DEST/tools/"
 install -m 644 "$DEPLOY"/*.env.example /etc/loonar/
 install -d "$DEST/lib/python/mcu_v2"
 install -m 644 "$ROOT/platforms/loonar/tools/mcu_v2/"*.py "$DEST/lib/python/mcu_v2/"
@@ -64,7 +65,7 @@ if [[ ! -e /var/lib/loonar/cfs/cf ]]; then
   cp -a "$CPU/cf" /var/lib/loonar/cfs/
   chown -R loonar:loonar /var/lib/loonar/cfs/cf
 fi
-install -m 755 "$CPU/cf/lnr_vehicle.so" "$CPU/cf/lnr_ground.so" "$CPU/cf/lnr_mcu.so" /var/lib/loonar/cfs/cf/
+install -m 755 "$CPU/cf/lnr_vehicle.so" "$CPU/cf/lnr_ground.so" "$CPU/cf/lnr_mcu.so" "$CPU/cf/lnr_payload.so" /var/lib/loonar/cfs/cf/
 install -m 644 "$CPU/cf/cfe_es_startup.scr" /var/lib/loonar/cfs/cf/cfe_es_startup.scr
 chown -R root:root "$DEST" "$CAM_PREFIX" /opt/loonar/vendor/cubeeye/2.5.9
 ln -sfn "$CAM_PREFIX" /opt/loonar/camera-stack/current

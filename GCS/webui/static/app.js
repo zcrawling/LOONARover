@@ -44,6 +44,7 @@ function draw(s){
  badge('ros-stale',rosCount?(s.status_stale?'이전 상태':'수신 중'):'대기',rosCount?(s.status_stale?'warn':'good'):'');
  const p=s.status?.payload||{};badge('payload-state',p.state||'IDLE',p.state==='MEASURING'?'good':'');
  const sample=s.payload_sample;const same=sample&&sample.request_id===p.request_id;const keys=['비접촉 표면온도계','접촉식 표면온도계','자기상센서'];keys.forEach((key,i)=>{const reading=same?sample.values[key]:null;set('sensor-'+i,reading?number(reading.value,reading.unit==='TBD'?'':' '+reading.unit):'—');set('sensor-status-'+i,reading?.status||'수신 대기');});
+ const novelty=same?sample.values['PCA novelty']:null,candidate=same?sample.values['PCA candidate']:null,model=same?sample.values['PCA model']:null;set('pca-novelty',novelty?number(novelty.value):'—');set('pca-candidate',candidate?String(candidate.value):'—');set('pca-model',model?.value||'모델 대기');set('pca-status',candidate?.status||'판정 대기');
  set('sample-time',same?`측정 시각 ${sample.time}`:'측정값 수신 대기');set('sample-number',same?`샘플 #${sample.sample}`:'샘플 —');set('payload-id',`요청 ${p.request_id||'—'}`);set('sample-freshness',same?(s.sample_stale?'이전 측정값':'실시간 갱신'):'—');
  if(latestRequest){const r=s.requests.find(r=>r.request_id===latestRequest);if(r&&r.state!=='Pending')set('command-message',`"${r.command}" ${r.state}`);}
  set('updated','갱신 '+clockTime());controls();drawEvents();
