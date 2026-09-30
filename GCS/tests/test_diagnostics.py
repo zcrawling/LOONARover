@@ -57,5 +57,16 @@ class DiagnosticsTests(unittest.TestCase):
         for pattern in ('/[l]imo_base/lib/limo_base/limo_base', '/[v]ehicle_gatewayd( |$)'):
             self.assertIsNone(re.search(pattern, REMOTE))
 
+    def test_password_auth_uses_file_and_preserves_host_key_check(self):
+        import subprocess
+        result = subprocess.CompletedProcess([], 0, '', '')
+        with patch('cli.diagnostics.subprocess.run', return_value=result) as run, \
+             patch('cli.diagnostics.socket.create_connection'):
+            probe('host', 'loonar@host', None, '/private/rover.password')
+        args = run.call_args.args[0]
+        self.assertEqual(args[:4], ['sshpass', '-f', '/private/rover.password', 'ssh'])
+        self.assertIn('StrictHostKeyChecking=accept-new', args)
+        self.assertIn('BatchMode=no', args)
+
 if __name__ == '__main__':
     unittest.main()

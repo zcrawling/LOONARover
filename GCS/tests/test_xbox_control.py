@@ -29,19 +29,22 @@ class MappingTests(unittest.TestCase):
         self.assertEqual(stick(-.02, .08), 0)
         self.assertAlmostEqual(stick(.08000001, .08), .01, places=6)
         self.assertEqual(stick(1, .08), 1)
+        self.assertEqual(stick(1, .08, .4), .4)
+        self.assertAlmostEqual(stick(.08000001, .08, .4), .01, places=6)
+        self.assertAlmostEqual(stick(.54, .08, .4), .205)
         self.assertEqual(stick(-1, .08), -1)
         self.assertGreater(stick(.75, .08), stick(.25, .08))
 
     def test_a_separates_translation_and_turning(self):
         self.arm()
         self.control.update(axes(LY=-1, LX=1, RY=1))
-        self.assertEqual(self.control.motion(), (1, 0))
+        self.assertEqual(self.control.motion(), (.4, 0))
         self.control.update(axes(LY=1))
-        self.assertEqual(self.control.motion(), (-1, 0))
+        self.assertEqual(self.control.motion(), (-.4, 0))
         self.control.update(axes(LY=-1, RX=-1))
-        self.assertEqual(self.control.motion(), (0, 1))
+        self.assertEqual(self.control.motion(), (0, 3.8))
         self.control.update(axes(RX=1))
-        self.assertEqual(self.control.motion(), (0, -1))
+        self.assertEqual(self.control.motion(), (0, -3.8))
         self.control.update(axes())
         self.assertEqual(self.control.motion(), (0, 0))
 
@@ -50,9 +53,11 @@ class MappingTests(unittest.TestCase):
         self.control.update(axes(LT=1))
         self.assertEqual(self.control.mode, 'B')
         self.control.update(axes(LY=-1, LX=-1, RX=1, RY=1))
-        self.assertEqual(self.control.motion(), (1, 1))
+        self.assertAlmostEqual(self.control.motion()[0], .4 * .4 / .799)
+        self.assertAlmostEqual(self.control.motion()[1], 3.8 * .4 / .799)
         self.control.update(axes(LY=1, LX=1))
-        self.assertEqual(self.control.motion(), (-1, -1))
+        self.assertAlmostEqual(self.control.motion()[0], -.4 * .4 / .799)
+        self.assertAlmostEqual(self.control.motion()[1], -3.8 * .4 / .799)
         self.control.update(axes(LX=1, RX=1))
         self.assertEqual(self.control.motion(), (0, 0))
 
@@ -122,7 +127,7 @@ class VectorTests(unittest.IsolatedAsyncioTestCase):
             async def drain(self): pass
         writer = Writer()
         connection.writer = writer
-        for v, w in ((1, -1), (-.01, .25), (0, 0)):
+        for v, w in ((.2, -1), (-.01, .25), (0, 0)):
             self.assertTrue((await connection.command('MANUAL', linear_mps=v, angular_radps=w))['ok'])
             self.assertEqual(HEADER.unpack_from(writer.frames[-1])[2], 2)
             self.assertEqual(struct.unpack('<dd', writer.frames[-1][16:]), (v, w))
@@ -130,8 +135,16 @@ class VectorTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(struct.unpack('<dd', writer.frames[-1][16:]), (0, 0))
         self.assertTrue((await connection.command('FORWARD'))['ok'])
         self.assertEqual(struct.unpack('<dd', writer.frames[-1][16:]), (.1, 0))
+        for v, w, expected in ((2, 0, (.4, 0)), (-2, 0, (-.4, 0)),
+                               (0, 10, (0, 3.8)), (0, -10, (0, -3.8))):
+            self.assertTrue((await connection.command('MANUAL', linear_mps=v, angular_radps=w))['ok'])
+            self.assertEqual(struct.unpack('<dd', writer.frames[-1][16:]), expected)
+        self.assertTrue((await connection.command('FORWARD', linear_speed_mps=2))['ok'])
+        self.assertEqual(struct.unpack('<dd', writer.frames[-1][16:]), (.4, 0))
+        self.assertTrue((await connection.command('LEFT', angular_speed_radps=10))['ok'])
+        self.assertEqual(struct.unpack('<dd', writer.frames[-1][16:]), (0, 3.8))
         count = len(writer.frames)
-        for v, w in ((None, 0), (0, None), (True, 0), ('1', 0), (1.1, 0),
+        for v, w in ((None, 0), (0, None), (True, 0), ('1', 0),
                      (math.nan, 0), (0, math.inf)):
             self.assertFalse((await connection.command('MANUAL', linear_mps=v, angular_radps=w))['ok'])
         self.assertFalse((await connection.command('STOP', linear_mps=0, angular_radps=0))['ok'])

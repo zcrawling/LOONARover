@@ -1,4 +1,5 @@
 """Focused-terminal Xbox Series USB controller; shares the running real GCS backend."""
+from motion_limits import MAX_ANGULAR, normalize_motion
 import argparse
 import fcntl
 import math
@@ -95,10 +96,10 @@ def discover():
     return matches[0]
 
 
-def stick(value, deadzone):
+def stick(value, deadzone, maximum=1.0):
     if abs(value) <= deadzone:
         return 0.0
-    magnitude = .01 + .99 * (min(abs(value), 1.0) - deadzone) / (1.0 - deadzone)
+    magnitude = .01 + (maximum - .01) * (min(abs(value), 1.0) - deadzone) / (1.0 - deadzone)
     return math.copysign(magnitude, value)
 
 
@@ -138,12 +139,12 @@ class Controls:
     def motion(self):
         if not self.focused or not self.manual:
             return 0.0, 0.0
-        linear = -stick(self.axes[LY], self.deadzone)
+        linear = -stick(self.axes[LY], self.deadzone, maximum=0.4)
         if self.mode == 'A':
-            angular = -stick(self.axes[RX], self.deadzone)
+            angular = -stick(self.axes[RX], self.deadzone, maximum=MAX_ANGULAR)
             return (0.0, angular) if angular else (linear, 0.0)
-        angular = -stick(self.axes[LX], self.deadzone) if linear else 0.0
-        return linear, angular
+        angular = -stick(self.axes[LX], self.deadzone, maximum=MAX_ANGULAR) if linear else 0.0
+        return normalize_motion(linear, angular)
 
 
 class TerminalInput:

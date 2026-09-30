@@ -57,12 +57,12 @@ const driveKeys={
  PageUp:'FORWARD',Home:'LEFT',PageDown:'REVERSE',End:'RIGHT'
 };
 const speedInput=el('linear-speed');
-function updateSpeedDisplay(){linearSpeed=Math.max(0.01,Math.min(1,Math.round(linearSpeed*100)/100));speedInput.value=linearSpeed.toFixed(2);set('linear-speed-value',linearSpeed.toFixed(2)+' m/s');}
+function updateSpeedDisplay(){linearSpeed=Math.max(0.01,Math.min(0.4,Math.round(linearSpeed*100)/100));speedInput.value=linearSpeed.toFixed(2);set('linear-speed-value',linearSpeed.toFixed(2)+' m/s');}
 speedInput.addEventListener('input',()=>{linearSpeed=Number(speedInput.value);speedInitialized=true;updateSpeedDisplay();});
 el('speed-control').addEventListener('wheel',event=>{event.preventDefault();linearSpeed+=event.deltaY<0?0.01:-0.01;speedInitialized=true;updateSpeedDisplay();},{passive:false});
 updateSpeedDisplay();
 const angularSpeedInput=el('angular-speed');
-function updateAngularSpeedDisplay(){angularSpeed=Math.max(0.01,Math.min(1,Math.round(angularSpeed*100)/100));angularSpeedInput.value=angularSpeed.toFixed(2);set('angular-speed-value',angularSpeed.toFixed(2)+' rad/s');}
+function updateAngularSpeedDisplay(){angularSpeed=Math.max(0.01,Math.min(3.8,Math.round(angularSpeed*100)/100));angularSpeedInput.value=angularSpeed.toFixed(2);set('angular-speed-value',angularSpeed.toFixed(2)+' rad/s');}
 angularSpeedInput.addEventListener('input',()=>{angularSpeed=Number(angularSpeedInput.value);angularSpeedInitialized=true;updateAngularSpeedDisplay();});
 el('angular-speed-control').addEventListener('wheel',event=>{event.preventDefault();angularSpeed+=event.deltaY<0?0.01:-0.01;angularSpeedInitialized=true;updateAngularSpeedDisplay();},{passive:false});
 updateAngularSpeedDisplay();

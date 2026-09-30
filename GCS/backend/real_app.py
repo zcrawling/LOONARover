@@ -1,5 +1,7 @@
 """Real GroundLink backend exposed through the existing local Unix API."""
 
+from motion_limits import MAX_LINEAR, MAX_ANGULAR, normalize_motion
+
 import argparse
 import asyncio
 import fcntl
@@ -103,26 +105,21 @@ class GroundLinkConnection:
             return {"ok": False, "text": f'"{name}" NOT_SUPPORTED'}
         vector = linear_mps is not None or angular_radps is not None
         if vector and (name != "MANUAL" or any(
-                type(value) not in (int, float) or not math.isfinite(value) or abs(value) > 1.0
+                type(value) not in (int, float) or not math.isfinite(value)
                 for value in (linear_mps, angular_radps))):
-            return {"ok": False, "text": "MANUAL 벡터는 두 유한한 -1~1 속도가 필요합니다."}
-        if linear_speed_mps is not None and (
-                type(linear_speed_mps) not in (int, float)
-                or not math.isfinite(linear_speed_mps)
-                or not 0.01 <= linear_speed_mps <= 1.0):
-            return {"ok": False, "text": "선속도는 0.01~1.00 m/s여야 합니다."}
-        if angular_speed_radps is not None and (
-                type(angular_speed_radps) not in (int, float)
-                or not math.isfinite(angular_speed_radps)
-                or not 0.01 <= angular_speed_radps <= 1.0):
-            return {"ok": False, "text": "각속도는 0.01~1.00 rad/s여야 합니다."}
+            return {"ok": False, "text": "MANUAL 벡터는 두 유한한 숫자가 필요합니다."}
+        for value in (linear_speed_mps, angular_speed_radps):
+            if value is not None and (type(value) not in (int, float) or not math.isfinite(value)):
+                return {"ok": False, "text": "속도는 유한한 숫자여야 합니다."}
         if self.state.connection != "CONNECTED" or self.writer is None:
             return {"ok": False, "text": f'"{name}" Not Sent — 실제 로버 TCP 연결 없음'}
         sequence = self.next_sequence()
         linear = (float(linear_speed_mps) if linear_speed_mps is not None
-                  else self.manual_control["linear_speed_mps"])
+                  else min(0.4, max(0.01, self.manual_control["linear_speed_mps"])))
         angular = (float(angular_speed_radps) if angular_speed_radps is not None
                    else self.manual_control["angular_speed_radps"])
+        linear = min(MAX_LINEAR, max(0.0, linear))
+        angular = min(MAX_ANGULAR, max(0.0, angular))
         motions = {
             "FORWARD": (linear, 0.0), "LEFT": (0.0, angular),
             "REVERSE": (-linear, 0.0), "RIGHT": (0.0, -angular),
@@ -131,7 +128,7 @@ class GroundLinkConnection:
         payload = struct.pack("<dd", *motions[name]) if name in motions else (
             struct.pack("<dd", 0.0, 0.0) if name == "MANUAL" else b"")
         if vector:
-            payload = struct.pack("<dd", linear_mps, angular_radps)
+            payload = struct.pack("<dd", *normalize_motion(linear_mps, angular_radps))
         frame = HEADER.pack(b"LNK1", 1, COMMAND_TYPES[wire_name], sequence, len(payload)) + payload
         request_id = str(sequence)
         entry = {"request_id": request_id, "command": name, "state": "Pending",

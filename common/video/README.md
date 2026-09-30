@@ -16,6 +16,8 @@ Both sources use the same profiles and downstream pipeline:
 selects a UVC/V4L2 camera such as the LIMO Orbbec-integrated RGB camera. The
 V4L2 default input is MJPEG so USB 2.0 can sustain 30 fps before software H.264
 encoding. A two-frame leaky queue bounds latency if encoding falls behind.
+The libcamera path feeds NV12 directly to x264; it does not convert to I420.
+V4L2 sources retain conversion to I420 for camera-format compatibility.
 The UDP sink is clock-paced and requests a 2 MiB send buffer so encoded bursts
 do not unnecessarily overflow the LAN socket.
 

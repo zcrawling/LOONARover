@@ -42,7 +42,7 @@ def local_time(value):
         return '—'
 
 
-def probe(host, target, control):
+def probe(host, target, control, password_file=None):
     rows = {}
     try:
         p = subprocess.run(['ping', '-c', '1', '-W', '1', host], capture_output=True, timeout=2)
@@ -60,6 +60,10 @@ def probe(host, target, control):
     else:
         args = ['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=3',
                 '-o', 'StrictHostKeyChecking=yes']
+        if password_file:
+            args = ['sshpass', '-f', str(password_file), 'ssh', '-o', 'BatchMode=no',
+                    '-o', 'ConnectTimeout=3', '-o', 'StrictHostKeyChecking=accept-new',
+                    '-o', 'NumberOfPasswordPrompts=1']
         if control:
             args += ['-S', str(control)]
         try:
@@ -185,6 +189,13 @@ def run(args):
         raise ValueError('SSH 주소는 user@host 형식이어야 합니다.')
     if target and target.split('@')[-1] != host:
         target = None  # Never inspect another rover with stale saved SSH information.
+    password_file = None
+    credentials = runtime / ('ssh-' + host + '.json')
+    if credentials.exists():
+        saved = json.loads(credentials.read_text())
+        if saved.get('target', '').split('@')[-1] == host and (not target or target == saved['target']):
+            target = saved['target']
+            password_file = Path(saved['password_file'])
     control = runtime / ('ssh-control-' + target.replace('@', '_')) if target else None
     with open(runtime / 'diagnostics.lock', 'a') as lock:
         try:
@@ -201,7 +212,7 @@ def run(args):
             next_probe = 0
             while True:
                 if pending_probe is None and time.monotonic() >= next_probe:
-                    pending_probe = pool.submit(probe, host, target, control)
+                    pending_probe = pool.submit(probe, host, target, control, password_file)
                 if pending_probe is not None and pending_probe.done():
                     for name, (status, detail, checked) in pending_probe.result().items():
                         screen.update(name, status, detail, checked)

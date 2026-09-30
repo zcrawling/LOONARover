@@ -131,6 +131,11 @@ ip -4 addr
 
 ## Verify camera video first
 
+The compass viewer (`cli/video_compass.py`, used by `start_loonar_gcs.sh`)
+sets FFmpeg's input `-flags low_delay` to reduce decoder frame buffering.
+Recording still copies the received H.264 stream without re-encoding. Restart
+the GCS viewer after updating this file to use the new decoder settings.
+
 Video is independent from the command/telemetry path. On the GCS PC, run:
 
 ```bash

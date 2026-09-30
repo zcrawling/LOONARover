@@ -62,6 +62,7 @@ class Player:
             'scale=960:720:force_original_aspect_ratio=decrease']
         self.decoder = subprocess.Popen([
             'ffmpeg', '-hide_banner', '-loglevel', 'warning', '-nostdin',
+            '-flags', 'low_delay',
             '-probesize', '32768', '-analyzeduration', '100000', '-i', 'pipe:0',
             '-an', '-vf', ','.join(filters), '-fpsmax', '30', '-f', 'image2pipe',
             '-c:v', 'ppm', 'pipe:1'], stdin=sys.stdin.buffer, stdout=subprocess.PIPE)

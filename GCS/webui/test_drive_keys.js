@@ -130,3 +130,23 @@ test('real rover battery summary shows voltage without an invented percentage', 
   assert.equal(b.node('battery-label').textContent, '배터리 전압');
   assert.equal(b.node('battery').textContent, '—');
 });
+
+test('linear slider and wheel stop at 0.40 m/s', async () => {
+  const b = browser();
+  b.node('linear-speed').value = '1.00';
+  b.node('linear-speed').input();
+  assert.equal(b.node('linear-speed').value, '0.40');
+  b.node('speed-control').wheel({deltaY:-1, preventDefault(){}});
+  assert.equal(b.node('linear-speed').value, '0.40');
+  b.events.get('keydown')(key);
+  await tick();
+  assert.equal(b.requests[0].body.linear_speed_mps, .4);
+});
+
+test('angular slider and wheel stop at 3.80 rad/s', () => {
+  const b = browser();
+  b.node('angular-speed').value = '10.00';
+  b.node('angular-speed').input();
+  b.node('angular-speed-control').wheel({deltaY:-1, preventDefault(){}});
+  assert.equal(b.node('angular-speed').value, '3.80');
+});

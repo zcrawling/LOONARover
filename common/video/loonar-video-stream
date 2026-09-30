@@ -9,7 +9,15 @@ CONFIG_FILE="${LOONAR_VIDEO_CONFIG:-/etc/loonar/video.env}"
 # shellcheck disable=SC1090
 source "$CONFIG_FILE"
 
-: "${GROUND_STATION_IP:?GROUND_STATION_IP is required}"
+: "${VIDEO_STREAM_ENABLED:=1}"
+: "${VIDEO_RECORD_PATH:=}"
+: "${GROUND_STATION_IP:=}"
+if [[ "$VIDEO_STREAM_ENABLED" == 1 ]]; then
+  : "${GROUND_STATION_IP:?GROUND_STATION_IP is required for streaming}"
+elif [[ "$VIDEO_STREAM_ENABLED" != 0 || -z "$VIDEO_RECORD_PATH" ]]; then
+  echo "Select streaming and/or VIDEO_RECORD_PATH" >&2
+  exit 2
+fi
 : "${VIDEO_PORT:=5600}"
 : "${VIDEO_PROFILE:=medium}"
 : "${VIDEO_SOURCE:?VIDEO_SOURCE must be libcamera or v4l2}"
@@ -96,17 +104,37 @@ case "$VIDEO_SOURCE" in
     ;;
 esac
 
+# libcamera already produces NV12, which x264 accepts directly. Keep conversion
+# for UVC sources, whose decoded/raw formats differ by camera.
+CONVERSION_PIPELINE=()
+if [[ "$VIDEO_SOURCE" == v4l2 ]]; then
+  CONVERSION_PIPELINE=(! videoconvert ! video/x-raw,format=I420)
+fi
+
 PIPELINE=(
   "${SOURCE_PIPELINE[@]}"
   ! queue max-size-buffers=2 leaky=downstream
-  ! videoconvert ! video/x-raw,format=I420
+  "${CONVERSION_PIPELINE[@]}"
   ! x264enc tune=zerolatency speed-preset=ultrafast
     "threads=$VIDEO_ENCODER_THREADS" "bitrate=$BITRATE_KBPS"
     "key-int-max=$FPS" bframes=0
   ! h264parse config-interval=1
   ! mpegtsmux alignment=7
-  ! udpsink "host=$GROUND_STATION_IP" "port=$VIDEO_PORT" buffer-size=2097152 sync=true async=false
 )
+REQUIRED_OUTPUT_ELEMENTS=(mpegtsmux)
+if [[ -n "$VIDEO_RECORD_PATH" ]]; then
+  # One encoder, independent bounded queues. TS remains readable after abrupt stop.
+  PIPELINE+=(! tee name=outputs outputs. ! queue max-size-time=2000000000 max-size-bytes=0 max-size-buffers=0 leaky=downstream
+    ! filesink "location=$VIDEO_RECORD_PATH" sync=false async=false)
+  REQUIRED_OUTPUT_ELEMENTS+=(tee filesink)
+  if [[ "$VIDEO_STREAM_ENABLED" == 1 ]]; then
+    PIPELINE+=(outputs. ! queue max-size-buffers=2 leaky=downstream)
+  fi
+fi
+if [[ "$VIDEO_STREAM_ENABLED" == 1 ]]; then
+  PIPELINE+=(! udpsink "host=$GROUND_STATION_IP" "port=$VIDEO_PORT" buffer-size=2097152 sync=true async=false)
+  REQUIRED_OUTPUT_ELEMENTS+=(udpsink)
+fi
 
 if [[ "${LOONAR_VIDEO_DRY_RUN:-0}" == 1 ]]; then
   printf '%q ' gst-launch-1.0 -e "${PIPELINE[@]}"
@@ -118,7 +146,10 @@ command -v gst-launch-1.0 >/dev/null || {
   echo "gst-launch-1.0 is required" >&2
   exit 127
 }
-for element in "${REQUIRED_SOURCE_ELEMENTS[@]}" videoconvert x264enc h264parse mpegtsmux udpsink; do
+if [[ "$VIDEO_SOURCE" == v4l2 ]]; then
+  REQUIRED_SOURCE_ELEMENTS+=(videoconvert)
+fi
+for element in "${REQUIRED_SOURCE_ELEMENTS[@]}" x264enc h264parse queue "${REQUIRED_OUTPUT_ELEMENTS[@]}"; do
   gst-inspect-1.0 "$element" >/dev/null || {
     echo "GStreamer element is required: $element" >&2
     exit 127
@@ -129,5 +160,11 @@ if [[ "$VIDEO_SOURCE" == v4l2 && ! -e "$VIDEO_DEVICE" ]]; then
   exit 2
 fi
 
+if [[ -n "$VIDEO_RECORD_PATH" ]]; then
+  mkdir -p -- "$(dirname -- "$VIDEO_RECORD_PATH")"
+  # Refuse to overwrite a previous recording.
+  ( set -o noclobber; : > "$VIDEO_RECORD_PATH" )
+  echo "Recording H.264 MPEG-TS: $VIDEO_RECORD_PATH"
+fi
 echo "video source=$VIDEO_SOURCE profile=$VIDEO_PROFILE ${WIDTH}x${HEIGHT}@${FPS} bitrate=${BITRATE_KBPS}kbps destination=$GROUND_STATION_IP:$VIDEO_PORT"
 exec gst-launch-1.0 -e "${PIPELINE[@]}"

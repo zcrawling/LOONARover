@@ -72,7 +72,7 @@ class TerminalTests(unittest.TestCase):
                 report(RT, 0)
                 report(RT, 1023)
                 report(LY, -32768)
-                wait_for(lambda: any(c.get('linear_mps') == 1 for c in commands()))
+                wait_for(lambda: any(c.get('linear_mps') == .4 for c in commands()))
                 os.write(master, b'\x1b[O')
                 wait_for(lambda: commands()[-1]['command'] == 'STOP')
                 count = len(commands())
@@ -82,7 +82,7 @@ class TerminalTests(unittest.TestCase):
                 self.assertEqual(len(commands()), count, 'focus return must not resume motion')
                 report(RT, 0)
                 report(RT, 1023)
-                wait_for(lambda: any(c.get('linear_mps') == -1 for c in commands()[count:]))
+                wait_for(lambda: any(c.get('linear_mps') == -.4 for c in commands()[count:]))
                 os.close(write_fd)
                 write_fd = None
                 wait_for(lambda: process.poll() is not None)

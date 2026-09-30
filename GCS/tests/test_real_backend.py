@@ -66,7 +66,8 @@ class RealBackendTests(unittest.IsolatedAsyncioTestCase):
         connection.writer = writer
         self.assertTrue((await connection.command("FORWARD", 0.37))["ok"])
         self.assertEqual(struct.unpack("<dd", writer.data[-1][HEADER.size:]), (0.37, 0.0))
-        self.assertFalse((await connection.command("FORWARD", 1.01))["ok"])
+        self.assertTrue((await connection.command("FORWARD", 1.01))["ok"])
+        self.assertEqual(struct.unpack("<dd", writer.data[-1][HEADER.size:]), (0.4, 0.0))
 
     async def test_adjustable_angular_speed(self):
         state = RealState("rover.test")
@@ -80,7 +81,7 @@ class RealBackendTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(HEADER.unpack_from(writer.data[-1])[2], 0x0002)
             self.assertEqual(struct.unpack("<dd", writer.data[-1][HEADER.size:]), expected)
         count = len(writer.data)
-        for invalid in (True, "0.3", 0, -0.1, 1.01, float('nan'), float('inf')):
+        for invalid in (True, "0.3", float('nan'), float('inf')):
             self.assertFalse((await connection.command("LEFT", angular_speed_radps=invalid))["ok"])
         self.assertEqual(len(writer.data), count)
 
