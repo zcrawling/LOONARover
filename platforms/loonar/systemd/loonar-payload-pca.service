@@ -1,0 +1,19 @@
+[Unit]
+Description=LOONAR payload PCA USB service
+After=local-fs.target
+
+[Service]
+Type=simple
+# Physical USB/GPIO power switching normally requires root-owned device access.
+User=root
+Group=loonar
+EnvironmentFile=/etc/loonar/payload-pca.env
+ExecStart=/usr/bin/python3 /opt/loonar/current/tools/payload_pca_service.py
+Restart=on-failure
+RestartSec=2
+RuntimeDirectory=loonar
+StateDirectory=loonar/payload
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

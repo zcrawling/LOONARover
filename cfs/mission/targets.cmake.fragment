@@ -2,4 +2,5 @@
 list(APPEND MISSION_GLOBAL_APPLIST
   loonar_ground_link
   loonar_vehicle_adapter
+  loonar_payload_adapter
   loonar_mcu_bridge)

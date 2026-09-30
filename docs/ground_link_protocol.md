@@ -28,6 +28,9 @@ delivery, so v1 does not add a separate frame CRC.
 | `REACTION_CMD` | `0x0005` | request_id:u64, opcode:u16, parameter_length:u16, parameters | Reaction route after explicit STOP |
 
 `parameter_length` is 0 through 64 bytes in the current cFS applications.
+The payload PCA bench integration reserves opcode `1` for mission START and
+opcode `2` for mission STOP. START enables physical sensor power before opening
+USB acquisition; STOP closes acquisition before removing power.
 `PAYLOAD_CMD` and `REACTION_CMD` are discrete requests. They receive a command
 result and later progress/result telemetry. The `REACTION_CMD` envelope and
 route are defined, but its opcode meanings and actuator/recovery behaviour are

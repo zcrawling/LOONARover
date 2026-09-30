@@ -18,7 +18,8 @@ from cli.groundlink_monitor import FrameParser, ProtocolError, decode_payload
 
 
 HEADER = struct.Struct("<4sHHII")
-COMMAND_TYPES = {"STOP": 0x0001, "MANUAL": 0x0002, "AUTO": 0x0003}
+COMMAND_TYPES = {"STOP": 0x0001, "MANUAL": 0x0002, "AUTO": 0x0003,
+                 "PAYLOAD_START": 0x0004, "PAYLOAD_STOP": 0x0004}
 MOTION_NAMES = {"FORWARD", "LEFT", "REVERSE", "RIGHT"}
 
 
@@ -43,6 +44,8 @@ class RealState:
         self.values = {}
         self.value_sources = {}
         self.payload = {"state": "—", "request_id": None}
+        self.payload_sample = None
+        self.last_sample = None
         self.pending = OrderedDict()
         self.events = deque(maxlen=event_limit)
         self.event_sequence = 0
@@ -65,12 +68,13 @@ class RealState:
             "connection": self.connection,
             "error": self.error,
             "status": {"mode": self.mode, "values": dict(self.values), "value_sources": dict(self.value_sources), "payload": dict(self.payload)},
-            "payload_sample": None,
+            "payload_sample": self.payload_sample,
             "status_age": age(self.last_status),
-            "sample_age": None,
+            "sample_age": age(self.last_sample),
             "last_rx_age": age(self.last_rx),
             "status_stale": not active or self.last_status is None or t - self.last_status > self.stale_after,
-            "sample_stale": True,
+            "sample_stale": (self.last_sample is None or t - self.last_sample > self.stale_after
+                             or self.payload.get("state") != "MEASURING"),
             "rx_messages": self.rx,
             "tx_messages": self.tx,
             "data_gaps": self.gaps,
@@ -99,7 +103,7 @@ class GroundLinkConnection:
     async def command(self, name, linear_speed_mps=None, angular_speed_radps=None,
                       *, linear_mps=None, angular_radps=None):
         name = name.upper()
-        if name in {"PAYLOAD", "REACTION"}:
+        if name == "REACTION":
             return {"ok": False, "text": f'"{name}" Not Sent — opcode 명세가 필요합니다.'}
         if name not in COMMAND_TYPES and name not in MOTION_NAMES:
             return {"ok": False, "text": f'"{name}" NOT_SUPPORTED'}
@@ -127,6 +131,9 @@ class GroundLinkConnection:
         wire_name = "MANUAL" if name in MOTION_NAMES else name
         payload = struct.pack("<dd", *motions[name]) if name in motions else (
             struct.pack("<dd", 0.0, 0.0) if name == "MANUAL" else b"")
+        if name in {"PAYLOAD_START", "PAYLOAD_STOP"}:
+            payload = struct.pack("<QHH", sequence,
+                                  1 if name == "PAYLOAD_START" else 2, 0)
         if vector:
             payload = struct.pack("<dd", *normalize_motion(linear_mps, angular_radps))
         frame = HEADER.pack(b"LNK1", 1, COMMAND_TYPES[wire_name], sequence, len(payload)) + payload
@@ -206,6 +213,32 @@ class GroundLinkConnection:
             self.state.last_status = t
         elif frame_type == 0x8006:
             self.state.event(f"[{data['source']}] {data['text']}")
+            if data["source"] == "payload-pca":
+                fields = data["text"].split(",")
+                if len(fields) >= 4 and fields[0] == "STATE":
+                    self.state.payload = {
+                        "state": "MEASURING" if fields[2] == "RUNNING" else fields[2],
+                        "request_id": fields[1],
+                    }
+                    self.state.last_status = t
+                elif len(fields) == 11 and fields[0] == "PCA":
+                    try:
+                        self.state.payload_sample = {
+                            "request_id": self.state.payload.get("request_id"),
+                            "sample": int(fields[1]),
+                            "time": data["timestamp_ms"],
+                            "values": {
+                                "비접촉 표면온도계": {"value": float(fields[3]), "unit": "°C", "status": "정상"},
+                                "접촉식 표면온도계": {"value": float(fields[4]), "unit": "°C", "status": "정상"},
+                                "자기상센서": {"value": float(fields[2]), "unit": "µT", "status": "정상"},
+                                "PCA novelty": {"value": float(fields[7]), "unit": "", "status": fields[9]},
+                                "PCA candidate": {"value": int(fields[8]), "unit": "", "status": fields[9]},
+                                "PCA model": {"value": fields[10], "unit": "", "status": fields[9]},
+                            },
+                        }
+                        self.state.last_sample = t
+                    except (ValueError, IndexError):
+                        self.state.event("[payload-pca] malformed PCA event")
         elif frame_type == 0x8007:
             self.state.mcu[data["role"]] = data
             name = "Control" if data["role"] == "control" else "Payload"
