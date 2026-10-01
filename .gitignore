@@ -33,3 +33,6 @@
 **/.pytest_cache/
 **/.mypy_cache/
 **/.ruff_cache/
+# Trained mission model is installed on each GCS, never committed to the team repository.
+/GCS/models/mission02/*.pt
+/GCS/.venv-vision/

@@ -482,6 +482,7 @@ run the stated tests, and show `git diff` before committing.
 
 ## Related source documents
 
+- [Mission 02 RGB detection in the existing GCS video window](docs/mission02-object-detection.md)
 - [GroundLink protocol](../docs/ground_link_protocol.md)
 - [Ground-control implementation plan](../docs/ground_control_implementation_plan.md)
 - [cFS GroundLink integration](../cfs/README.md)

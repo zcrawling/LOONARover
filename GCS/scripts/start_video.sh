@@ -47,12 +47,13 @@ fi
 PLAYER=(ffplay -hide_banner -loglevel warning -fflags nobuffer -flags low_delay
         -framedrop -probesize 32 -analyzeduration 0 "${VIDEO_FILTER[@]}" -i pipe:0)
 if [[ $COMPASS == 1 ]]; then
-    if ! /usr/bin/python3 -c 'import tkinter; from PIL import Image, ImageTk' 2>/dev/null; then
+    VIDEO_PYTHON=${LOONAR_VIDEO_PYTHON:-/usr/bin/python3}
+    if ! "$VIDEO_PYTHON" -c 'import tkinter; from PIL import Image, ImageTk' 2>/dev/null; then
         show_error "방위 표시: sudo apt install python3-tk python3-pil python3-pil.imagetk"
         exit 1
     fi
     export PYTHONPATH="$GCS_ROOT${PYTHONPATH:+:$PYTHONPATH}"
-    PLAYER=(/usr/bin/python3 -m cli.video_compass)
+    PLAYER=("$VIDEO_PYTHON" -m cli.video_compass)
     if [[ $ROTATE_LEFT == 1 ]]; then PLAYER+=(--rotate-left); fi
 fi
 RECORD_OUTPUT=()
