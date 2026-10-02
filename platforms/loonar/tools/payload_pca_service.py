@@ -149,12 +149,12 @@ class Service:
                 self.log_file.flush()
             if line.startswith("PCA,"):
                 fields = line.split(",")
-                if len(fields) == 17:
+                if len(fields) == 16:
                     # Fit the existing bounded GroundLink EVENT text field.
                     self.broadcast(",".join(("PCA", fields[2], fields[8],
                                              fields[9], fields[10], fields[11],
-                                             fields[12], fields[14], fields[15],
-                                             fields[16], fields[1])))
+                                             fields[12], fields[13], fields[14],
+                                             fields[15], fields[1])))
                 else:
                     self.broadcast("ERROR,0,PCA,bad_field_count")
 
