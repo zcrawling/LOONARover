@@ -32,6 +32,16 @@ class WebInterfaceTests(unittest.TestCase):
                 self.assertTrue(json.load(response)['ok'])
             backend.assert_called_once_with({'action': 'command', 'command': 'STOP'})
 
+    def test_payload_station_buttons_reach_backend(self):
+        with patch('webui.server.request', return_value={'ok': True}) as backend:
+            for command in ('PAYLOAD_START', 'PAYLOAD_STOP'):
+                with self.subTest(command=command), self.post(self.server.token, command) as response:
+                    self.assertTrue(json.load(response)['ok'])
+            self.assertEqual(backend.call_args_list, [
+                unittest.mock.call({'action': 'command', 'command': 'PAYLOAD_START'}),
+                unittest.mock.call({'action': 'command', 'command': 'PAYLOAD_STOP'}),
+            ])
+
     def test_invalid_token_never_reaches_backend(self):
         with patch('webui.server.request') as backend:
             with self.assertRaises(urllib.error.HTTPError) as error:
