@@ -45,10 +45,11 @@ sudo apt install python3-venv python3-tk python3-pil python3-pil.imagetk ffmpeg
 cd /path/to/LOONARover-main/GCS
 python3 -m venv --system-site-packages .venv-vision
 .venv-vision/bin/python -m pip install ultralytics==8.4.145
-LOONAR_VIDEO_PYTHON="$PWD/.venv-vision/bin/python" bash scripts/start_loonar_gcs.sh
+bash scripts/start_loonar_gcs.sh
 ```
 
-Set `LOONAR_VIDEO_PYTHON` in the launch environment for later sessions too.
+The desktop shortcuts automatically use `GCS/.venv-vision/bin/python` when it
+exists. `LOONAR_VIDEO_PYTHON` remains an optional override.
 The launcher checks Tk/Pillow and the vision worker reports any missing model
 or runtime in the video status bar while the video and compass remain usable.
 The model runs on the GCS CPU with 640-pixel YOLO input and confidence 0.35;

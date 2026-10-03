@@ -55,7 +55,11 @@ fi
 PLAYER=(ffplay -hide_banner -loglevel warning -fflags nobuffer -flags low_delay
         -framedrop -probesize 32 -analyzeduration 0 "${VIDEO_FILTER[@]}" -i pipe:0)
 if [[ $COMPASS == 1 ]]; then
-    VIDEO_PYTHON=${LOONAR_VIDEO_PYTHON:-/usr/bin/python3}
+    VIDEO_PYTHON=${LOONAR_VIDEO_PYTHON:-}
+    if [[ -z $VIDEO_PYTHON && -x "$GCS_ROOT/.venv-vision/bin/python" ]]; then
+        VIDEO_PYTHON="$GCS_ROOT/.venv-vision/bin/python"
+    fi
+    VIDEO_PYTHON=${VIDEO_PYTHON:-/usr/bin/python3}
     if ! "$VIDEO_PYTHON" -c 'import tkinter; from PIL import Image, ImageTk' 2>/dev/null; then
         show_error "방위 표시: sudo apt install python3-tk python3-pil python3-pil.imagetk"
         exit 1
