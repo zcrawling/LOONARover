@@ -36,7 +36,7 @@ printf '[LOONAR] 브라우저 주소: %s\n' "$URL"
 
 open_gcs_windows() {
     local video_options=(--record --compass)
-    if [[ ${GCS_VIDEO_ROTATE_LEFT:-0} == 1 ]]; then
+    if [[ ${GCS_VIDEO_ROTATE_LEFT:-1} == 1 ]]; then
         video_options+=(--rotate-left)
     fi
     xdg-open "$URL" >/dev/null 2>&1 || true

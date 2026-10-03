@@ -7,7 +7,7 @@ import time
 
 CLASSES = {0: 'target_rover', 1: 'obstacle'}
 MAX_RESULT_AGE_S = 0.5
-DEFAULT_MODEL = Path(__file__).resolve().parents[1] / 'models' / 'mission02' / 'yolo26n.pt'
+DEFAULT_MODEL = Path(__file__).resolve().parents[1] / 'models' / 'mission02' / 'best.pt'
 
 
 @dataclass(frozen=True)

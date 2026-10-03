@@ -61,6 +61,7 @@ class Player:
         self.vision_results = deque(maxlen=1)
         self.vision_ready = threading.Event()
         self.vision_state = '모델 로딩 중'
+        self.vision_mode = '모델 미확인'
         self.model_path = model_path
         self.frame = self.photo = None
         self.last_size = None
@@ -111,6 +112,11 @@ class Player:
             from ultralytics import YOLO
             model = YOLO(str(self.model_path), task='detect')
             class_map = check_classes(model.names)
+            names = model.names
+            ordered_names = ([names[index] for index in sorted(names, key=int)]
+                             if isinstance(names, dict) else list(names))
+            self.vision_mode = ('목표 모델' if ordered_names == ['target_rover', 'obstacle']
+                                else '범용 모델 데모')
         except Exception as error:
             self.vision_state = f'인식 사용 불가: {error}'
             print(self.vision_state, file=sys.stderr)
@@ -180,10 +186,10 @@ class Player:
                                         anchor='sw', fill=color, tags='vision')
             labels = {'LEFT': '좌', 'CENTER': '중앙', 'RIGHT': '우',
                       'NOT_DETECTED': '미검출'}
-            vision_text = (f"목표: {labels[result.direction]} · "
+            vision_text = (f"{self.vision_mode} · 목표: {labels[result.direction]} · "
                            f"결과 나이 {(time.monotonic()-result.frame_time)*1000:.0f}ms")
         elif self.vision_state == '인식 중':
-            vision_text = '인식 갱신 지연'
+            vision_text = f'{self.vision_mode} · 인식 갱신 지연'
         else:
             vision_text = self.vision_state
         self.canvas.create_rectangle(*box, outline='#525252', width=1, tags='compass')

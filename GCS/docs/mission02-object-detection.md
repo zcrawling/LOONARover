@@ -35,6 +35,11 @@ window runs `/usr/bin/python3`. Install `ultralytics` and its dependencies in
 the Python environment used by that window. On Ubuntu, a dedicated venv can
 reuse the existing system Tk/Pillow packages:
 
+The desktop `영상 수신` shortcut (no arguments) now opens this same portrait
+camera/compass/detection window. The `실시간 지상국` launcher also rotates the
+received stream by default. Its terminal prints the GCS checkout and model
+path it actually uses; close old video windows before starting the updated one.
+
 ```bash
 sudo apt install python3-venv python3-tk python3-pil python3-pil.imagetk ffmpeg
 cd /path/to/LOONARover-main/GCS
@@ -53,8 +58,10 @@ video recording and driving.
 
 ## Install the temporary YOLO26n weight
 
-The current `main` includes `GCS/models/mission02/yolo26n.pt`. Pull that
-version on the GCS and restart the video window. `LOONAR_VISION_MODEL=/absolute/path/model.pt`
+The current `main` includes `GCS/models/mission02/best.pt`, which is presently
+the same COCO demo weight as `yolo26n.pt`. Pull that version on the GCS and
+restart the video window. Later replace **only `best.pt`** with the trained
+two-class weight and restart again. `LOONAR_VISION_MODEL=/absolute/path/model.pt`
 can override the slot. The model runs on the GCS and is not deployed to the
 Pi or Payload Teensy. The GCS accepts the model's detection classes: `rover` or
 `target_rover` is displayed as `target_rover` (class 0), and every other

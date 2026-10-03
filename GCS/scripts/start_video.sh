@@ -7,6 +7,10 @@ VIDEO_FILTER=()
 RECORD=0
 COMPASS=0
 ROTATE_LEFT=0
+if [[ $# == 0 ]]; then
+    # The desktop "영상 수신" launcher passes no options. Show the mission viewer.
+    set -- --compass --rotate-left
+fi
 for option in "$@"; do
     case "$option" in
         --rotate-left) VIDEO_FILTER=(-vf transpose=cclock); ROTATE_LEFT=1 ;;
@@ -35,6 +39,10 @@ fi
 
 printf '[LOONAR] UDP 5600 영상 수신을 기다립니다. 종료: Ctrl+C\n'
 printf '[LOONAR] 영상이 나오지 않으면 로버의 송신 대상 IP를 확인하세요.\n'
+if [[ $COMPASS == 1 ]]; then
+    printf '[LOONAR] 객체 인식 창: %s\n' "$GCS_ROOT"
+    printf '[LOONAR] 모델 파일: %s\n' "${LOONAR_VISION_MODEL:-$GCS_ROOT/models/mission02/best.pt}"
+fi
 if [[ $RECORD == 0 && $COMPASS == 0 ]]; then
     exec ffplay -hide_banner -loglevel warning -fflags nobuffer -flags low_delay \
         -framedrop -probesize 32 -analyzeduration 0 "${VIDEO_FILTER[@]}" udp://@:5600
