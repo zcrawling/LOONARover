@@ -1,5 +1,7 @@
 # MCU wire v2 구현 명세
 
+현재 Control 링크의 명세다. Payload 센서 앱은 별도의 USB ASCII 프로토콜이다.
+
 모든 정수/IEEE-754 float는 little endian이다. 기존 wire v1과 호환되지 않는다.
 `firmware/control/include/loonar/control/wire_v2.hpp`와 `tools/mcu_v2/wire.py`가 구현이다.
 
@@ -74,12 +76,15 @@ age FFFFFFFF는 미수신이다. inhibit bit: identity1, session2, motion8, over
 
 ## IMU (36 bytes)
 
-`BBBBQ5fI`: SH-2 sensor ID, accuracy status, sensor sequence, gap count,
-SH-2 timestamp µs, values[5], reset count.
+`BBBBQ5fI`: sensor ID, calibration status, sequence, gap count,
+timestamp µs, values[5], reset count. ID 번호는 기존 SH-2 호환 배치를 유지한다.
 
-ID1 accel(m/s²), ID2 calibrated gyro(rad/s), ID3 mag(µT), ID4 linear acceleration(m/s²),
-ID5 rotation vector(x,y,z,w,accuracy rad), ID6 gravity(m/s²).
-프레임 timestamp는 MCU가 report를 수신한 시간이다. SH-2 내부 timestamp도 원본으로 보관한다.
+현재 BNO055는 ID1 accel(m/s²), ID2 gyro(rad/s), ID4 linear acceleration(m/s²),
+ID5 quaternion(x,y,z,w,accuracy), ID6 gravity(m/s²)를 약 50Hz 폴링으로 보낸다.
+ID3 mag(µT)는 예약된 배치이며 현재 BNO055 경로에서는 송신하지 않는다.
+프레임과 표본 timestamp는 Teensy UART 수신 완료 시각이며 센서 내부 시각이 아니다.
+sequence는 폴링 번호, gap=0은 센서 내부 누락이 없다는 보장이 아니다.
+status는 해당 센서 보정 레벨 0..3, quaternion accuracy는 미측정 0이다.
 Pi는 RTT 20 ms 이하의 TIME 교환으로 MCU 시간을 host 시간으로 변환하고,
 200 ms보다 오래된 재전송 데이터는 ROS 제어용 topic에 재발행하지 않는다.
 표본은 RAM으로만 처리하며 별도 archive를 만들지 않는다.

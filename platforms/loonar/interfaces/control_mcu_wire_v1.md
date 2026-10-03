@@ -1,6 +1,9 @@
 # Control MCU-MPU Minimal Wire Protocol v1
 
-상태: **현 LOONAR HW v1 기준자료 — Gateway 이관 전 개정 필요**  
+> 이전 C control core의 회귀시험용 명세다. 현재 Control 실행 경로는
+> [wire v2](../porting/mcu_wire_v2.md)이며 아래 board TBD는 당시 설계 상태다.
+
+상태: **현 LOONAR HW v1 기준자료 — Gateway 이관 전 개정 필요**
 확정일: 2026-08-25
 
 ## 1. 범위와 원칙
@@ -16,7 +19,7 @@ v1에는 다음 세 메시지만 존재한다.
 3. MCU가 실제 적용 상태를 돌려주는 `MCU_STATUS`
 
 v1에는 time sync, epoch, TTL, mode, trace, ACK, command result와 fault event가 없다.
-`project.md`가 요구하는 독립 MCU command lease를 충족하려면 기존 payload를 바꾸지 않고
+`docs/architecture.md`가 요구하는 독립 MCU command lease를 충족하려면 기존 payload를 바꾸지 않고
 protocol version을 올려야 한다.
 
 ## 2. 물리 링크

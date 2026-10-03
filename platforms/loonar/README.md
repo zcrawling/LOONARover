@@ -1,31 +1,14 @@
-# Final LOONAR Rover Platform
+# LOONAR 로버
 
-The [dual-Teensy MCU requirements and v2 architecture](porting/mcu_architecture_v2.md)
-defines the 2026-09-19 design for role identification, unattended firmware recovery,
-BNO085/RoboClaw control, buffered telemetry and cFS health reporting. It is a design,
-not a claim that those firmware features have been implemented.
+Raspberry Pi 5 / Ubuntu 24.04 / ROS 2 Jazzy와 두 Teensy 4.1을 사용한다.
+Control은 FreeRTOS·LNR2 USB, Payload는 별도 센서 펌웨어·USB ASCII 경로다.
 
-This is the final-rover platform, not a legacy archive. It retains the PCB,
-Control MCU firmware, RS-485 wire implementation, hardware baselines and HIL
-references needed for migration from LIMO.
+- [실행·로그·기록](porting/ground_control_runbook.md)
+- [Pi 설치](deploy/README.md)
+- [배선](hardware/hardware_baseline.md)
+- [Control 펌웨어](firmware/control/README.md) · [wire v2](porting/mcu_wire_v2.md)
+- [Payload 펌웨어](firmware/payload/README.md) · [운용](porting/payload_pca_runbook.md)
+- [CubeEye 공급 SDK](vendor-assets.md) · [ToF 기록](porting/tof_recording_runbook.md)
 
-See the [LIMO → LOONAR porting and acceptance plan](porting/limo_to_loonar_plan.md)
-for Raspberry Pi 5 / Ubuntu 24.04 / ROS 2 Jazzy, systemd/cFS deployment,
-minimal EKF with motion restrictions, CubeEye, camera streaming, and operator tests.
-The [Pi preparation guide](deploy/README.md) contains native build/deployment commands
-and the current camera → Teensy USB → lidar/ToF → driving verification sequence.
-
-The retained Control MCU wire protocol is **v1 hardware reference**. Before a
-vehicle is driven through this platform, `TeensyRs485Backend` and the MCU protocol
-must implement the Gateway contract and independent MCU command lease required by
-`project.md`.
-
-| Path | Content |
-| --- | --- |
-| `hardware/` | PCB, physical configuration, Pi camera reference |
-| `firmware/control/` | Teensy 4.1 FreeRTOS Control MCU reference |
-| `interfaces/` | Control/Payload MCU protocol references |
-| `libs/wire_c/` | framing, CRC and codec implementation |
-| `tests/` | codec/firmware and HIL reference tests |
-
-MCU 구현: [펌웨어](firmware/control/README.md), [Pi/ROS/cFS 설정과 검증](porting/mcu_v2_implementation.md), [wire v2](porting/mcu_wire_v2.md).
+`interfaces/control_mcu_wire_v1.md`와 C 기반 control core는 이전 프로토콜의
+회귀시험 자료다. 현재 `src/v2/runtime.cpp`와 혼동하지 않는다.

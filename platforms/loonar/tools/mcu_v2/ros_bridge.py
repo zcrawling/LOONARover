@@ -156,7 +156,7 @@ def main():
                         msg.orientation_covariance = [0.0] * 9
                         self.orientation.publish(
                             msg
-                        )  # Raw SH-2 convention; ENU verification is mandatory before fusion.
+                        )  # Sensor-native convention (BNO055/BNO08x); verify mounting and ENU before fusion.
                 elif sensor == 3:
                     msg = MagneticField()
                     self.header(msg, stamp, self.frame)

@@ -4,10 +4,9 @@
 #include "loonar/control/runtime_v2.hpp"
 #include "loonar/control/wire_v2.hpp"
 #include "loonar_board_config.h"
-#include <Adafruit_BNO08x.h>
+#include "loonar/control/bno055.hpp"
 #include <Arduino.h>
 #include <EEPROM.h>
-#include <SPI.h>
 #include <Watchdog_t4.h>
 #include <arduino_freertos.h>
 #include <cmath>
@@ -349,8 +348,8 @@ void transmit() {
   }
 }
 bool driver_write(const std::uint8_t *bytes, std::size_t size) {
-  return Serial1.availableForWrite() >= int(size) &&
-         Serial1.write(bytes, size) == size;
+  return Serial2.availableForWrite() >= int(size) &&
+         Serial2.write(bytes, size) == size;
 }
 void motor_sample(const DriverFeedback &d, std::uint32_t now) {
   std::uint8_t p[64]{};
@@ -379,17 +378,17 @@ void poll_driver(std::uint32_t now) {
   static RoboClaw driver(driver_write);
   static std::uint32_t config = 0xffffffffU, last_sample = 0;
   if (config != driver_config) {
-    Serial1.end();
-    Serial1.setRX(pins::kRoboClawRx);
-    Serial1.setTX(pins::kRoboClawTx);
-    Serial1.begin(driver_baud);
+    Serial2.end();
+    Serial2.setRX(pins::kRoboClawRx);
+    Serial2.setTX(pins::kRoboClawTx);
+    Serial2.begin(driver_baud);
     driver = RoboClaw(driver_write);
     driver.address = driver_address;
     config = driver_config;
   }
   driver.target(gate.left, gate.right);
-  for (unsigned budget = 0; budget < 64 && Serial1.available() > 0; ++budget) {
-    const int b = Serial1.read();
+  for (unsigned budget = 0; budget < 64 && Serial2.available() > 0; ++budget) {
+    const int b = Serial2.read();
     if (b >= 0)
       driver.receive(std::uint8_t(b), now);
   }
@@ -441,127 +440,70 @@ void io_task(void *) {
     vTaskDelayUntil(&wake, pdMS_TO_TICKS(1));
   }
 }
+struct BnoUart {
+  int available() { return Serial6.available(); }
+  int read() { return Serial6.read(); }
+  std::size_t write(const std::uint8_t *p, std::size_t n) { return Serial6.write(p,n); }
+  std::uint32_t now() { return millis(); }
+  void sleep(unsigned ms) { vTaskDelay(pdMS_TO_TICKS(ms)); }
+};
 void imu_task(void *) {
-  if (!control || !gate.identity) {
-    vTaskDelete(nullptr);
-    return;
-  }
-  Adafruit_BNO08x bno(pins::kBnoReset);
-  bool ready = false;
-  std::uint32_t retry = 0, configured_at = 0;
-  std::uint8_t previous[256]{};
-  bool seen[256]{};
+  if (!control || !gate.identity) { vTaskDelete(nullptr); return; }
+  Serial6.setTX(pins::kBno055Tx);
+  Serial6.setRX(pins::kBno055Rx);
+  Serial6.begin(115200, SERIAL_8N1);
+  BnoUart uart;
+  loonar::control::Bno055<BnoUart> bno(uart);
+  uart.sleep(5000);
+  uart.sleep(250);
+  std::uint8_t sequence=0;
   for (;;) {
-    if (!ready) {
-      if (millis() - retry < 2000) {
-        vTaskDelay(pdMS_TO_TICKS(10));
-        continue;
-      }
-      retry = millis();
-      SPI.setMOSI(pins::kBnoMosi);
-      SPI.setMISO(pins::kBnoMiso);
-      SPI.setSCK(pins::kBnoSck);
-      ready = bno.begin_SPI(pins::kBnoCs, pins::kBnoInterrupt, &SPI);
-      if (!ready)
-        continue;
-      bno.wasReset();
-      configured_at = millis();
-      std::memset(seen, 0, sizeof(seen));
-      ready = bno.enableReport(SH2_GYROSCOPE_CALIBRATED, 5000) &&
-              bno.enableReport(SH2_ACCELEROMETER, 5000) &&
-              bno.enableReport(SH2_ROTATION_VECTOR, 10000) &&
-              bno.enableReport(SH2_LINEAR_ACCELERATION, 20000) &&
-              bno.enableReport(SH2_GRAVITY, 20000) &&
-              bno.enableReport(SH2_MAGNETIC_FIELD_CALIBRATED, 50000);
-      taskENTER_CRITICAL();
-      ++imu_resets;
-      gyro_ms = 0;
-      taskEXIT_CRITICAL();
+    bool ready=false;
+    for (unsigned attempt=0;attempt<5 && !ready;++attempt) {
+      ready=bno.begin();
+      if (!ready) uart.sleep(150);
     }
+    if (!ready) { uart.sleep(2000); continue; }
     taskENTER_CRITICAL();
-    const auto last_gyro = gyro_ms;
+    ++imu_resets;
     taskEXIT_CRITICAL();
-    if (ready && millis() - configured_at > 2000 &&
-        age(millis(), last_gyro) > 2000) {
-      ready = false;
-      retry = millis();
-      continue;
-    }
-    if (bno.wasReset()) {
-      ready = false;
-      retry = 0;
-      continue;
-    }
-    sh2_SensorValue_t v;
-    if (ready && bno.getSensorEvent(&v)) {
-      const auto received = clock_us();
-      float values[5]{};
-      switch (v.sensorId) {
-      case SH2_GYROSCOPE_CALIBRATED:
-        values[0] = v.un.gyroscope.x;
-        values[1] = v.un.gyroscope.y;
-        values[2] = v.un.gyroscope.z;
-        break;
-      case SH2_ACCELEROMETER:
-        values[0] = v.un.accelerometer.x;
-        values[1] = v.un.accelerometer.y;
-        values[2] = v.un.accelerometer.z;
-        break;
-      case SH2_LINEAR_ACCELERATION:
-        values[0] = v.un.linearAcceleration.x;
-        values[1] = v.un.linearAcceleration.y;
-        values[2] = v.un.linearAcceleration.z;
-        break;
-      case SH2_GRAVITY:
-        values[0] = v.un.gravity.x;
-        values[1] = v.un.gravity.y;
-        values[2] = v.un.gravity.z;
-        break;
-      case SH2_MAGNETIC_FIELD_CALIBRATED:
-        values[0] = v.un.magneticField.x;
-        values[1] = v.un.magneticField.y;
-        values[2] = v.un.magneticField.z;
-        break;
-      case SH2_ROTATION_VECTOR:
-        values[0] = v.un.rotationVector.i;
-        values[1] = v.un.rotationVector.j;
-        values[2] = v.un.rotationVector.k;
-        values[3] = v.un.rotationVector.real;
-        values[4] = v.un.rotationVector.accuracy;
-        break;
-      default:
-        continue;
+    const auto configured_at=millis();
+    while (ready) {
+      const auto poll_started=millis();
+      std::uint8_t raw[51]{};
+      if (!bno.read(0x08,raw,sizeof(raw))) break;
+      const auto received=clock_us(); // UART receipt time; no sensor exposure timestamp
+      const auto v=loonar::control::decodeBno055(raw);
+      // SYS_STATUS=5 is fusion running; never publish reset/failed-fusion data.
+      if (v.error) break;
+      if (v.status!=5) {
+        if (millis()-configured_at>2000) break;
+        uart.sleep(20); continue;
       }
-      bool finite = true;
-      for (float value : values)
-        finite = finite && std::isfinite(value);
-      if (!finite)
-        continue;
-      const auto id = std::uint8_t(v.sensorId);
-      if (seen[id] && v.sequence == previous[id])
-        continue;
-      const auto lost =
-          seen[id] ? std::uint8_t(v.sequence - previous[id] - 1) : 0;
-      previous[id] = v.sequence;
-      seen[id] = true;
-      std::uint8_t p[36]{};
-      p[0] = id;
-      p[1] = v.status;
-      p[2] = v.sequence;
-      p[3] = lost;
-      put64(p + 4, std::uint64_t(v.timestamp));
-      for (unsigned i = 0; i < 5; ++i)
-        putFloat(p + 12 + i * 4, values[i]);
+      const std::uint8_t ids[]={1,2,5,4,6}; // Existing wire-v2 report types
+      const float *vectors[]={v.accel,v.gyro,v.quaternion,v.linear,v.gravity};
+      const std::uint8_t quality[]={std::uint8_t((v.calibration>>2)&3),
+        std::uint8_t((v.calibration>>4)&3),std::uint8_t((v.calibration>>6)&3),
+        std::uint8_t((v.calibration>>2)&3),std::uint8_t((v.calibration>>2)&3)};
       taskENTER_CRITICAL();
-      ++imu_progress;
-      if (id == SH2_GYROSCOPE_CALIBRATED)
-        gyro_ms = millis();
-      const auto resets = imu_resets;
+      gyro_ms=millis();
+      const auto resets=imu_resets;
       taskEXIT_CRITICAL();
-      put32(p + 32, resets);
-      sample(Type::Imu, p, 36, received);
+      for (unsigned report=0;report<5;++report) {
+        std::uint8_t p[36]{};
+        p[0]=ids[report]; p[1]=quality[report]; p[2]=sequence;
+        put64(p+4,received);
+        for (unsigned i=0;i<(report==2?4U:3U);++i) putFloat(p+12+i*4,vectors[report][i]);
+        put32(p+32,resets);
+        sample(Type::Imu,p,sizeof(p),received);
+        taskENTER_CRITICAL(); ++imu_progress; taskEXIT_CRITICAL();
+      }
+      ++sequence;
+      const auto elapsed=millis()-poll_started;
+      uart.sleep(elapsed<20?20-elapsed:1);
     }
-    vTaskDelay(pdMS_TO_TICKS(1));
+    taskENTER_CRITICAL(); gyro_ms=0; taskEXIT_CRITICAL();
+    uart.sleep(2000);
   }
 }
 } // namespace
@@ -598,9 +540,17 @@ bool start() {
       xQueueCreateStatic(16, sizeof(Frame), priority_bytes, &priority_store);
   if (!priority)
     return false;
-  return xTaskCreateStatic(io_task, "mcu-io", 4096, nullptr, 2, io_stack,
-                           &task_store[0]) &&
-         xTaskCreateStatic(imu_task, "bno085", 4096, nullptr, 1, imu_stack,
+  const bool io_started = xTaskCreateStatic(io_task, "mcu-io", 4096, nullptr, 2, io_stack,
+                           &task_store[0]) != nullptr;
+#if defined(LOONAR_ENCODER_VERIFY)
+#ifdef LOONAR_ENCODER_VERIFY
+  static_assert(LOONAR_EXPECTED_UID != 0, "Set LOONAR_BOARD_UID for encoder verification");
+#endif
+  return io_started;
+#else
+  return io_started &&
+         xTaskCreateStatic(imu_task, "bno055", 4096, nullptr, 1, imu_stack,
                            &task_store[1]);
+#endif
 }
 } // namespace loonar::mcu

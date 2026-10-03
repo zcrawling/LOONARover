@@ -1,19 +1,9 @@
-# LOONAR Pi 사전 준비와 하드웨어 검증 순서
+# Pi 설치
 
-최신 사용자 확인: **Control Teensy 업로드 및 gateway를 통한 주행 성공**.
-다음 단계는 [지상국 조종 실행 안내](../porting/ground_control_runbook.md)다.
-ToF 수신과 시험주행 bag 저장은 [ToF 기록 안내](../porting/tof_recording_runbook.md)를 따른다.
-이번 cFS/gateway 갱신을 한 번 준비한 뒤 `tools/start-ground-support.sh`로 실행한다.
-아래 날짜별 사전 준비 기록은 설치 당시 상태이며 최신 실기 확인 결과와 구분한다.
-
-현재 장비의 실제 설치·빌드 결과는 [2026-09-18 준비 기록](preparation-20260918.md)에 있다.
-
-대상: `loonar@10.42.0.103`, Raspberry Pi 5, Ubuntu 24.04 arm64, ROS 2 Jazzy.
-암호는 소스/설정 파일에 저장하지 않는다. 사전 설치·컴파일 단계는 완료했다.
-최신 지침: **실기 테스트는 사용자가 직접 실행**한다. 에이전트는 접속·촬영·서비스 시작을
-자동 실행하지 않고 아래 명령을 제공한다. 기존 Pi 주소가 바뀌었다면 현재 주소를 사용한다.
-RoboClaw는 **M1=오른쪽, M2=왼쪽**으로 고정했고, 사용자가 Motion Studio 튜닝 및
-Write Settings를 완료했다고 확인했다. 다음 실기 단계는 카메라다.
+대상은 Raspberry Pi 5 / Ubuntu 24.04 arm64 / ROS 2 Jazzy다.
+일상 실행은 [ground-support 안내](../porting/ground_control_runbook.md)를 따른다.
+아래는 신규 설치 또는 전체 runtime 배포용이며 MCU 빌드·업로드는
+[Control 안내](../firmware/control/README.md)와 별개다.
 
 ## 설치/빌드 재현
 
@@ -27,8 +17,7 @@ sudo bash platforms/loonar/deploy/install-deps.sh
 
 Ubuntu sources에는 `noble`, `noble-updates`, `noble-security` 및 `universe`가
 필요하다. 업데이트된 runtime과 오래된 `-dev` 패키지가 충돌하면 강제 downgrade하지
-말고 저장소 설정을 복구한다. 이번 Pi는 `noble-updates`가 누락되어 있었으며
-`ubuntu.sources.loonar-backup`을 남기고 복구했다. 전체 OS upgrade/재부팅은 하지 않았다.
+말고 저장소 설정을 복구한다.
 
 ```bash
 cd ~/LOONAR
@@ -71,140 +60,33 @@ colcon build --base-paths ~/LOONAR/platforms/loonar/ros2/loonar_localization \
   --merge-install --cmake-args -DBUILD_TESTING=OFF
 ```
 
-완성된 build artifact는 새 release ID로 배치한다. 같은 release를 덮어쓰지 않는다.
+## 전체 systemd runtime 설치
+
+위 gateway/cFS, 카메라, CubeEye helper, ROS 빌드 산출물이 모두 필요하다.
+관련 서비스가 실행 중이면 설치 스크립트가 거부한다. 새 release 이름으로 실행한다.
 
 ```bash
-sudo bash ~/LOONAR/platforms/loonar/deploy/install-runtime.sh 20260918-pre-camera
+sudo bash ~/LOONAR/platforms/loonar/deploy/install-runtime.sh 20261003-local
 ```
 
-설치 파일과 서비스 상태만 기록하려면 다음을 실행한다. 센서/서비스를 시작하지 않는다.
-
-```bash
-python3 ~/LOONAR/platforms/loonar/deploy/record-preparation.py
-```
-
-설치 위치:
+이미 존재하는 release 이름은 재사용하지 않는다. 설치는 서비스를 enable/start하지 않는다.
+`/opt/loonar/current` symlink를 새 release로 바꾸며 `/var/lib/loonar/cfs/cf/`의
+네 앱과 startup 파일도 갱신한다. 설정 예제는 `/etc/loonar/`에 복사한다.
+기존 설정의 장치 경로·IP는 별도로 확인한다.
 
 | 경로 | 내용 |
 | --- | --- |
-| `/opt/loonar/current` | 선택한 release symlink |
-| `/opt/loonar/current/bin` | ARM64 gateway/ctl 및 CubeEye helper |
-| `/opt/loonar/current/cfs` | cFS core와 app startup/runtime 파일 |
-| `/var/lib/loonar/cfs` | cFS writable working directory와 `cf` |
-| `/opt/loonar/current/ros/install` | 최소 Jazzy EKF launch/config |
-| `/opt/loonar/camera-stack/current` | 전용 libcamera/rpicam |
-| `/opt/loonar/vendor/cubeeye/2.5.9/release` | 별도 배치한 ARM64 SDK |
-| `/etc/loonar` | 영상/ROS 설정, Control/Payload/ToF 설정 예시 |
-| `/home/loonar/loonar-staging` | 설치·빌드 로그와 준비 기록 |
+| `/opt/loonar/current` | 선택한 runtime |
+| `/opt/loonar/camera-stack/current` | libcamera/rpicam 별도 설치 |
+| `/opt/loonar/vendor/cubeeye/2.5.9/release` | ARM64 SDK |
+| `/etc/loonar` | registry·센서·영상·Payload 설정 |
+| `/var/lib/loonar/cfs` | cFS 실행 디렉터리 |
 
-서비스 `vehicle_gatewayd`, `loonar-cfs`, `loonar-localization`, `loonar-video`,
-`loonar-tof`와 `loonar-core.target`은 **disabled/inactive**로 설치한다.
-`loonar-core.target`을 수동 시작하면 gateway와 cFS만 시작한다.
-영상, EKF, ToF는 독립 서비스다. Control/Payload backend와 motion restrict는
-구현이 완료되지 않았으므로 존재하는 것처럼 서비스만 만들어 두지 않는다.
-처음 설치하는 `cf`만 복사하므로 후속 cFS release 교체 시 startup/app 파일은
-기존 상태를 백업하고 별도로 갱신해야 한다.
+`vehicle_gatewayd`, `loonar-cfs`, `loonar-mcu@`, `loonar-mcu-sensors`,
+`loonar-payload-pca`, `loonar-video`, `loonar-tof`, `loonar-localization` unit이 설치된다.
+checkout bench와 같은 장치·포트를 사용하는 서비스를 중복 실행하지 않는다.
+그룹 권한을 새로 추가했다면 SSH에 재접속한다.
 
-`loonar` 사용자에 `dialout,video,render,plugdev`를 추가한다. 기존 SSH 세션은
-그룹 변경이 바로 반영되지 않으므로 다음 실기 단계 전에 재접속한다.
-udev 규칙은 reload만 하고 장치에 강제 trigger하지 않는다.
-
-## 이후 사용자가 실행할 실기 단계 — 이번 작업에서는 실행하지 않음
-
-### 1. 카메라
-
-사용자 확인: 카메라 테스트 정상 동작. 영상이 왼쪽으로 90° 회전돼 표시되며,
-방향 보정은 후속 작업으로 남긴다. 이번 단계에서는 영상 설정을 변경하지 않는다.
-
-카메라 연결 후 Pi에서 아래 명령을 순서대로 실행한다. 중간 실패 시 다음 단계로
-넘어가지 않고 출력과 kernel 로그를 기록한다.
-
-```bash
-loonar-camera rpicam-hello --list-cameras
-loonar-camera rpicam-still --nopreview --timeout 2000 -o ~/camera-first.jpg
-```
-
-지상국 PC에서 먼저 수신기를 실행한다.
-
-```bash
-ffplay -fflags nobuffer -flags low_delay -framedrop 'udp://@:5600'
-```
-
-Pi의 `/etc/loonar/video.env`에서 `GROUND_STATION_IP`를 현재 지상국 PC 주소로 수정한다.
-최초 저장값 `10.42.0.1`은 이전 네트워크 주소이므로 그대로 사용한다고 가정하지 않는다.
-초기 영상은 640×360/30 fps, H.264 약 1 Mbps, MPEG-TS/UDP 5600이다.
-
-```bash
-sudo nano /etc/loonar/video.env
-sudo systemctl start loonar-video.service
-journalctl -u loonar-video.service -f
-# 종료할 때
-sudo systemctl stop loonar-video.service
-```
-
-합격 조건은 지상국에 실제 새 프레임이 표시되고 손/시계의 움직임을 확인하는 것이다.
-패킷 수신만으로 합격 처리하지 않는다. fps/지연/CPU/온도를 기록한 뒤 다음 단계로 간다.
-카메라가 열거되지 않으면 케이블 방향, device-tree, kernel/libcamera 조합을 조사한다.
-부팅 설정이나 kernel을 사전에 임의 교체하지 않는다.
-
-### 2. Teensy USB
-
-실제 업로드와 게이트웨이 모터 구동은 [Control USB 업로드·모터 벤치](../porting/motor_usb_bench.md)를 따른다.
-
-사용자 실행 스크립트: `platforms/loonar/tools/test-teensy-usb.sh`.
-이 스크립트는 작성만 했으며 에이전트가 실행하지 않았다.
-
-```bash
-cd ~/LOONAR
-bash platforms/loonar/tools/test-teensy-usb.sh list
-# list 출력에서 실제 장치 경로를 선택한다.
-bash platforms/loonar/tools/test-teensy-usb.sh discover control /dev/serial/by-id/ACTUAL_CONTROL_DEVICE
-# 실제 UID 등록과 해당 UID로 빌드한 LNR2 펌웨어 설치 이후에만:
-bash platforms/loonar/tools/test-teensy-usb.sh health control
-```
-
-`list`는 serial 포트를 열지 않는다. `discover`는 지정 장치에 HELLO만 전송한다.
-기존 펌웨어에 LNR2가 없으면 USB가 정상이어도 HELLO는 응답하지 않는다.
-`bound=false`이면 UID 미등록/불일치 상태로 health 단계에 진입할 수 없다.
-`health`는 새 session과 health 요청, 종료 시 STOP을 보내지만 구동 명령과 업로드는 하지 않는다.
-모터 전원은 끄고 USB 식별부터 확인한다. IMU/driver 미연결 상태는 USB 실패와 구분한다.
-
-Control의 `teensy41_usb` 환경은 USB `Serial`, 기본 `teensy41`은 `Serial3` RX15/TX14를
-사용한다. Serial1 RX0/TX1은 RoboClaw 전용이다. binary wire/CRC는 동일하다.
-UID 등록과 빌드 절차는 [MCU 설정·검증](../porting/mcu_v2_implementation.md)을 따른다.
-아래 명령은 UID 미지정 식별용 빌드이며 업로드는 별도다.
-
-```bash
-cd ~/LOONAR/platforms/loonar/firmware/control
-pio run -e teensy41_usb
-```
-
-빌드된 hex가 있어도 자동 업로드하지 않는다. 연결 후 실제 `/dev/serial/by-id/`를
-확인하여 `/etc/loonar/mcu-registry.example.json`을 `mcu-registry.json`으로 복사·수정한다. Payload와 Control은
-각각 다른 serial ID로 지정한다. `ttyACM0` 순서에 역할을 고정하지 않는다.
-baud 2000000은 USB에서는 line coding이다. Pi HAT 연결 시 물리 baud로 맞춘다.
-호스트가 USB CDC 포트를 열 때 DTR을 올려야 Teensy의 status TX가 활성화된다.
-
-먼저 비구동 상태에서 수신, CRC, health timeout, 분리/재연결을 확인해야 한다.
-Pi backend와 encoder/IMU telemetry는 로컬 코드에 구현돼 있다. 실제 Pi 배포 및
-실기 연동은 별도이므로 USB 열거나 firmware compile 성공을 cFS↔MCU/odom 완료로 해석하지 않는다.
-
-### 3. 라이다/ToF
-
-현재 확보된 드라이버는 CubeEye I200DK용이다. 별도 라이다를 의미한다면 모델과
-인터페이스 확정 후 그 드라이버를 추가한다. 장착 실측값을 `/etc/loonar/tof.env`에
-입력하기 전에는 ToF 서비스를 시작하지 않는다. 기존 LIMO의 mount offset을 복사하지 않는다.
-XYZ 수신 → ROS 점군/timestamp → 분리/재연결 순서로 확인한다.
-
-### 4. 모터 및 주행 / 전체 파이프라인
-
-Control backend, encoder/BNO085 측정, 실제 제어기와 health/motion freshness 보호,
-실측 TF, motion restrict 실행기를 먼저 완성해야 한다. EKF에는 명령 속도가 아닌
-실측 `/wheel/odom` vx와 `/imu/data` gyro-z만 입력한다.
-최소 EKF의 서비스 설치는 실제 odom 입력을 만들어 주지 않는다.
-
-이후 비구동 MCU 확인 → 최소 구동 → 정지/직진/회전/취소 →
-cFS 지상국 상태와 독립 영상 동시 운용을 검증한다.
-[포팅 계획의 acceptance 항목](../porting/limo_to_loonar_plan.md)을 사용하고
-실행 시각, 로그, rosbag, 영상, PASS/FAIL을 남긴다.
-Payload의 `PAYLOAD_EXEC` MID 이후 앱/transport는 여전히 별도 구현 대상이다.
+- [Payload 설정](../porting/payload_pca_runbook.md)
+- [ToF 실행과 기록](../porting/tof_recording_runbook.md)
+- [2026-09-18 설치 기록](preparation-20260918.md): 당시 설치 증거이며 현재 상태표가 아니다.

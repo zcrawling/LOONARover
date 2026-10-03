@@ -1,6 +1,6 @@
 # LOONAR ToF 수신 및 시험주행 기록
 
-Pi: `loonar@192.168.0.99`, Ubuntu 24.04 / ROS 2 Jazzy.
+Pi 주소 예시(현재 주소로 변경): `loonar@192.168.0.14`, Ubuntu 24.04 / ROS 2 Jazzy.
 CubeEye I200D의 XYZ를 `/tof/depth/points` (`sensor_msgs/msg/PointCloud2`)로 기록한다.
 2D `/scan`이나 카메라 동영상은 이 bag에 들어가지 않는다.
 
@@ -81,7 +81,7 @@ PC에서 실제 기록 폴더명을 넣는다.
 
 ```bash
 mkdir -p ~/loonar-bags
-scp -r loonar@192.168.0.99:/home/loonar/loonar-bags/tof_YYYYMMDD_HHMMSS ~/loonar-bags/
+scp -r loonar@192.168.0.14:/home/loonar/loonar-bags/tof_YYYYMMDD_HHMMSS ~/loonar-bags/
 ```
 
 ## 배치 위치

@@ -8,15 +8,14 @@ PWM/DIR·Teensy 엔코더 입력·BNO I²C HAL은 폐기했다.
 
 | 기능 | Teensy 핀 / 인터페이스 |
 |---|---|
-| RoboClaw RX / TX | 0 / 1, Serial1 packet serial |
-| BNO085 RESET / INT | 8 / 9 |
-| BNO085 CS / MOSI / MISO / SCK | 10 / 11 / 12 / 13 |
+| RoboClaw RX / TX | 7 / 8, Serial2 packet serial |
+| BNO055 UART RX / TX | 25 / 24, Serial6 115200 8N1; PS1 HIGH, PS0 LOW |
 | Pi 초기 연결 | USB CDC, USB Serial |
 | Pi 후속 UART | Serial3 RX15 / TX14, 2 Mbaud, 8N1; **배선 확정 필요** |
 
-0/1은 Pi 연결에 쓰지 않는다. 8번을 쓰는 Serial2와 13번 LED blink도 사용하지 않는다.
-엔코더는 RoboClaw의 count/speed 명령으로 읽는다. BNO 보드는 SPI 모드 strap과
-3.3 V 신호 조건을 맞춰야 한다. 현재 UART 구현은 full duplex이며 RS-485 half duplex의
+모터는 Serial2 RX7/TX8을 사용한다. 기존 BNO RESET8 배선은 분리한다.
+Control 역할에서는 BNO055 UART 작업을 실행한다. 기존 BNO085 SPI 작업은 사용하지 않는다.
+엔코더는 RoboClaw의 count/speed 명령으로 읽는다. 현재 UART 구현은 full duplex이며 RS-485 half duplex의
 DE/RE 전환은 포함하지 않는다.
 
 모터 채널은 **M1=오른쪽, M2=왼쪽**으로 고정한다. Pi/MCU 프로토콜과
@@ -25,65 +24,62 @@ count/speed/current/PWM 응답을 함께 변환한다.
 사용자가 Motion Studio 튜닝 및 Write Settings를 완료했다고 확인했다.
 이후 실기 시험은 사용자가 직접 실행한다.
 
-## 빌드
+## 빌드·업로드
 
-개발 PC의 저장소 루트에서 실행한다. 아래 예시는 장치에 연결하지 않는 컴파일 명령이다.
-현재 FreeRTOS 포트는 전용 newlib 툴체인이 필요하므로 Pi의 Ubuntu 기본 컴파일러로 빌드하지 않는다.
+기본 환경 `teensy41_usb`는 USB CDC와 BNO055를 포함한다.
+`teensy41`는 Pi 링크를 Serial3으로 선택한다. `teensy41_encoder_verify`는
+IMU를 제외하는 진단 환경이다. `payload41_usb`는 역할 식별용 공통 기반이며
+[실제 Payload 센서 펌웨어](../payload/README.md)와 다르다.
 
-```bash
-# UID 미지정: HELLO discovery만 가능한 이미지. 센서/모터 핀 구동 금지.
-pio run -d platforms/loonar/firmware/control -e teensy41_usb
+현재 `board_config.py`는 Linux ARM 빌드를 차단한다. Pi 빌드를 해결한 상태가
+아니므로 아래는 개발 PC 빌드 → Pi 업로드 절차다.
+UID 미지정 이미지는 HELLO 식별용이며 센서·모터를 구동하지 않는다.
+대상 보드 UID와 Pi registry를 일치시켜 빌드한다.
 
-# 실제로 확인한 16자리 UID를 넣는다. 임의 예시 UID를 설치하지 않는다.
-LOONAR_BOARD_UID="$CONTROL_UID" pio run -d platforms/loonar/firmware/control -e teensy41_usb
-LOONAR_BOARD_UID="$CONTROL_UID" pio run -d platforms/loonar/firmware/control -e teensy41
-LOONAR_BOARD_UID="$PAYLOAD_UID" pio run -d platforms/loonar/firmware/control -e payload41_usb
-```
+Pi에 업로더가 없으면 `bash ~/LOONAR/platforms/loonar/deploy/prepare-control-upload.sh`로
+설치한다. 기존 ground-support와 시리얼 모니터는 업로드 전에 종료한다.
+`~/.local/bin/tycmd list --verbose`에서 Control 보드의 tag를 확인한다.
+아래 UID/tag는 기존 Control 보드 예시이며 보드를 바꿨으면 다시 확인한다.
 
-각 환경의 `.pio/build/<env>/firmware.hex`가 생성된다. 대상 UID와 역할만 빌드 설정에 넣는다.
-PC 빌드 후 SSH로 Pi에 HEX를 전달하는 [Control 업로드·모터 벤치 절차](../../porting/motor_usb_bench.md)를 제공한다.
-정상 USB의 software reboot와 TyTools의 대상 지정 업로드를 사용한다.
+## 동작과 제한
 
-`payload41_usb`는 역할 식별과 health를 제공하는 공통 기반이다.
-개별 payload 센서 앱은 포함하지 않으므로 기존 payload 펌웨어를 대체하는 완성본이 아니다.
+- IO 태스크: USB/UART, RoboClaw 명령·피드백, health. IMU는 별도 태스크다.
+- 차체 속도 → 바퀴 qpps 변환은 Pi backend에서 한다. 엔코더는 RoboClaw에서 읽는다.
+- 장치·세션 불일치, 명령 만료(backend 200ms), MCU CPU 90°C 이상이면 목표 속도 0.
+  냉각 후에도 새 명령이 필요하다. IO watchdog은 2초다.
+- IMU 오류, RoboClaw ACK·조회 지연·오류는 보고하지만 주행 허가 조건으로 사용하지 않는다.
+- 표본은 RAM 버퍼와 ACK/replay를 사용한다. 전원 차단·버퍼 초과의 무손실을 보장하지 않는다.
+- IMU 수신은 구현되어 있으나 IMU 기반 직진 피드백 제어는 포함하지 않는다.
 
-## 구현 범위
+[wire v2](../../porting/mcu_wire_v2.md), [Pi 실행·기록](../../porting/ground_control_runbook.md).
 
-- FreeRTOS 태스크 두 개: IO(통신·RoboClaw·health), IMU(BNO085 SPI).
-- BNO 요청률: gyro/accel 200 Hz, quaternion 100 Hz, linear acceleration/gravity 50 Hz,
-  magnetic field 20 Hz. 실제 취득률은 실기 확인 항목이다.
-- RoboClaw: signed qpps 목표, count/speed/current/PWM/전압/온도/error 피드백.
-  엔코더 입력을 Teensy가 직접 처리하지 않는다.
-- 차체 속도→바퀴 qpps 계산은 Pi에서 한다. MCU 자체 속도·가속도 제한과 IMU 오류 주행 금지를 제거했다.
-- Teensy CPU 온도 90°C 이상이면 모터 목표를 0으로 한다.
-  health·센서 통신은 유지한다. 냉각 후에는 새 주행 명령이 필요하다.
-- 기본 정지 조건은 장치/세션 불일치와 명령 만료(20–200 ms, backend 200 ms)다.
-  마지막 새 주행 명령 후 200 ms 이상 지나면 목표를 0으로 한다.
-  RoboClaw ACK·조회 만료·오류는 보고만 하며 주행을 차단하지 않는다.
-  Pi에서도 health 1초 미수신은 보고만 하고 연결이나 주행을 중단하지 않는다.
-- IO 태스크에 2초 watchdog을 둔다. IMU 이상은 watchdog feed나 모터 제어를 막지 않는다.
-- MCU 표본 2,048건·우선 응답 16건, Pi 수신 표본 2,048건을 RAM에 둔다.
-  RAM 수신 후 ACK하며 sequence·재전송·중복 제거를 사용한다. 초과는 drop/gap으로 보고한다.
-  프로세스 종료·전원 차단·용량 초과까지 무손실을 보장하지는 않는다.
-- EEPROM 마지막 8바이트는 boot counter용이다. UID 미등록/불일치 시 변경하지 않는다.
+## BNO055 통합 빌드
 
-## Pi · ROS · cFS
+`teensy41_usb`가 BNO055를 포함한 기본 제어기 빌드다.
+`teensy41_encoder_verify`는 IMU 작업을 제외하는 진단 빌드이므로 BNO055 시험에는 사용하지 않는다.
 
-[설정과 검증 절차](../../porting/mcu_v2_implementation.md),
-[wire v2 명세](../../porting/mcu_wire_v2.md)를 따른다.
-`tools/mcu_v2`의 backend가 연결을 소유하고 ROS bridge와 cFS에 전달한다.
-`/wheel/odom`은 twist 측정이며 pose 추정은 robot_localization이 담당한다.
-`/imu/orientation_raw`는 장착 TF와 축 확인 후 사용한다.
-
-## 장치 없는 시험
+- TX24 → BNO055 RX, RX25 ← BNO055 TX, GND 공통. PS1 HIGH/PS0 LOW는 전원 인가 전에 설정한다.
+- NDOF 0x0C, 기본 축 매핑, 가속도 m/s², 송신 각속도 rad/s, 쿼터니언 xyzw.
+- 부팅 5000ms + 버스 250ms 대기. 초기화 최대 5회(실패 간격 150ms), 이후 2초 뒤 재시도.
+- UART 트랜잭션 150ms 제한, 최대 3회/실패 간격 200ms. IMU 작업에서 RTOS 대기하므로 모터 작업은 계속 실행된다.
+- 약 50Hz로 51바이트 레지스터 블록을 읽어 기존 Type32/36바이트 보고서 5개(1,2,5,4,6)를 송신한다.
+- 상태가 fusion running(5), SYS_ERR=0일 때만 송신한다. 통신/센서 오류 시 2초 뒤 재초기화한다.
+- 타임스탬프는 센서 노출 시각이 아닌 Teensy UART 수신 완료 시각이다. sequence는 호스트 폴링 번호이며 lost=0은 센서 내부 샘플 손실이 없다는 뜻이 아니다.
+- calibration은 각 보고서에 대응하는 BNO 보정 레벨 0..3이다. 쿼터니언 accuracy 필드는 미측정으로 0이다.
+- 기존 Pi ROS bridge가 `/imu` 계열 보고서를 수신한다. 센서 축은 장착/ENU 검증 전까지 위치추정에 바로 융합하지 않는다.
+- 자력계 원시 보고서와 EEPROM 보정값 저장은 이번 통합에 포함하지 않는다.
 
 ```bash
-cmake -S . -B build/mcu-v2-check -DBUILD_TESTING=ON
-cmake --build build/mcu-v2-check -j2
-ctest --test-dir build/mcu-v2-check --output-on-failure
-PYTHONPATH=platforms/loonar/tools python3 -m unittest mcu_v2.test_v2 -v
-python3 tools/gcs_test/run.py --build-only --skip-tests --jobs 2
+# 노트북: 빌드 및 Pi 복사
+cd /home/sb/LOONAR
+LOONAR_BOARD_UID=000004e9e51e7948 ~/.local/bin/pio run -d platforms/loonar/firmware/control -e teensy41_usb
+scp platforms/loonar/firmware/control/.pio/build/teensy41_usb/firmware.hex loonar@192.168.0.14:~/control-bno055.hex
+scp platforms/loonar/tools/mcu_v2/{motor_bench,imu,ros_bridge}.py loonar@192.168.0.14:~/LOONAR/platforms/loonar/tools/mcu_v2/
+# Pi: 기존 ground-support 종료 후 업로드
+~/.local/bin/tycmd upload --board 19971280-Teensy ~/control-bno055.hex
+bash ~/LOONAR/platforms/loonar/tools/start-ground-support.sh --ros-samples
 ```
 
-마지막 명령은 cFS를 빌드만 한다. 실제 SPI/UART/USB, firmware upload,
-watchdog 복구, motor stop 시간, ROS 실측 covariance는 하드웨어 인수시험 항목이다.
+Pi 콘솔의 `imu`에서 gyro_radps, accel_mps2, quaternion_xyzw 등을 확인한다.
+health의 imu_progress 증가와 gyro_age_ms 최신값을 확인한다. `--record`를 추가하면 ROS 기록도 가능하다.
+실제 하드웨어 수신 성공 여부는 업로드 후 확인해야 한다.

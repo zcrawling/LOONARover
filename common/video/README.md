@@ -21,10 +21,12 @@ V4L2 sources retain conversion to I420 for camera-format compatibility.
 The UDP sink is clock-paced and requests a 2 MiB send buffer so encoded bursts
 do not unnecessarily overflow the LAN socket.
 
-Install `loonar-video-stream` as
-`/usr/local/lib/loonar/loonar-video-stream`, install `loonar-video.service` in
-`/etc/systemd/system`, and provide the platform-specific
-`/etc/loonar/video.env`.
+For Pi installation and recording, use the
+[Pi runbook](../../platforms/loonar/porting/ground_control_runbook.md).
+The standalone sender defaults to `medium`; the Pi bench explicitly selects `low`.
+`VIDEO_RECORD_PATH` enables local MPEG-TS recording after the shared encoder.
+`VIDEO_STREAM_ENABLED=0` selects recording without UDP. Recording branches use
+bounded queues and may drop data under load.
 
 Receive without involving ROS:
 

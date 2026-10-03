@@ -1,490 +1,66 @@
-# LOONAR Ground Control Station (GCS) handoff
+# 지상국
 
-처음 설치하고 실행하는 순서는 [한국어 사용법](사용법.txt)을 참고하세요.
+## 실제 LOONAR 연결
 
-USB Xbox Series 컨트롤러(045e:0b12)의 별도 터미널 조종은
-[Xbox 사용법](docs/xbox-controller.md)을 참고하세요. 기존 키보드 주행은 유지됩니다.
-
-> **LOONAR 실제 조종:** [Pi 지원·PC 지상국 실행 안내](../platforms/loonar/porting/ground_control_runbook.md)를 따릅니다.
-> `scripts/start_loonar_gcs.sh PI_IP`는 실제 LNK1 백엔드와 웹 UI를 시작하며 MCU2 상태도 수신합니다.
-> `scripts/start_rover.sh`는 기존 LIMO/Humble용입니다. LOONAR Pi는 별도 지원 스크립트를 사용합니다.
-> `backend.app` / `mock.rover`의 GCP1 프로토타입은 실제 LNK1 통신과 구분합니다.
-> 아래 내용은 기존 GroundLink 계약과 개발 안내입니다.
-
-This folder is the ground-station application project. Its job is deliberately
-small: show video, send the five vehicle commands, and show the telemetry that
-comes back. It does **not** run ROS, cFS, or motor-control code. Those live on
-the rover.
-
-This document is written so that someone new to Linux and programming can build
-the first usable version with Codex. Do the stages in order and keep each stage
-working before starting the next one.
-
-## What you are building
-
-The finished GCS PC runs two independent data paths:
-
-```text
-camera:  rover -- UDP 5600 / H.264 MPEG-TS --> video player on GCS PC
-control: GCS UI -- local HTTP/WebSocket --> GCS backend -- TCP 7443 --> rover cFS
-```
-
-The GCS backend keeps the one persistent TCP connection to the rover. The UI
-must never open its own connection to port 7443. Video is not sent through the
-backend, cFS, or ROS.
-
-### What is already implemented on the rover
-
-- TCP GroundLink server: `<ROVER_IP>:7443`
-- five commands: `STOP`, `MANUAL`, `AUTO`, `PAYLOAD`, `REACTION`
-- periodic `GatewayStatus` and `VehicleStatus` telemetry, nominally once per
-  second
-- UDP camera sender to `<GCS_IP>:5600`, using H.264 in MPEG-TS
-
-The validated LIMO test setup uses the configured `<GCS_IP>`, UDP port
-`5600`, and TCP port `7443`. Do not hard-code these values in source code;
-place them in a local `.env` configuration file.
-
-## Important behaviour to understand first
-
-1. The rover owns mode selection. The GCS sends an explicit command and displays
-   the result returned by the rover.
-2. Do not add client-side command limits, command expiry timers, authority
-   systems, hidden command rewriting, or automatic mode changes. The UI sends
-   the value the operator selected. The rover's explicit command routes decide
-   the final action.
-3. `STOP` is an explicit command and must always be visible as a button. It is
-   not an emergency feature implemented by the UI; it is simply forwarded to
-   the rover.
-4. A TCP reconnect does **not** change rover mode. After reconnecting, wait for
-   status telemetry and redraw the UI from it.
-5. `PAYLOAD` and `REACTION` command envelopes already exist. Their final LOONAR
-   MCU functionality is not implemented yet. In particular, `REACTION` currently
-   returns `NOT_IMPLEMENTED`; display that as an honest result, not as a broken
-   TCP connection.
-6. TCP is a byte stream. One `recv()` call may contain half a frame, exactly one
-   frame, or several frames. A correct buffer/parser is mandatory.
-
-## Recommended first-version technology
-
-Use a small Python application. It is the easiest path for a beginner to read,
-run, and modify with Codex.
-
-- Python 3.10 or newer
-- `FastAPI` + `uvicorn`: local PC backend and HTTP/WebSocket API
-- plain HTML, CSS and JavaScript: initial UI (no React/Electron required)
-- Python standard-library `socket`: rover TCP connection and binary protocol
-- `ffplay` or GStreamer: first video receiver, outside the web UI
-
-Do not start with a packaged desktop application, React, Docker, ROS 2, or a
-database. They do not help the first working control path.
-
-## PC setup (Ubuntu example)
-
-Run these commands in the GCS PC terminal, not through SSH on the rover.
+Pi의 [지원 프로그램](../platforms/loonar/porting/ground_control_runbook.md)을 먼저 실행한다.
+PC에서:
 
 ```bash
-sudo apt update
-sudo apt install -y python3 python3-venv ffmpeg gstreamer1.0-tools gstreamer1.0-libav
-
-cd /path/to/LOONAR/GCS
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install fastapi 'uvicorn[standard]'
+cd ~/LOONAR
+bash GCS/scripts/start_loonar_gcs.sh 192.168.0.14
 ```
 
-Create `.env` locally and do not commit it:
+웹 UI `http://127.0.0.1:8080`, 진단·영상 창과 감지된 Xbox 입력 창을 연다.
+Pi 주소는 실제 주소로 바꾼다. 이미 실행 중인 GCS는 종료하고 다시 실행해야
+코드·설정 변경이 반영된다. 설정은 [config/loonar.toml](config/loonar.toml)이다.
 
-```text
-ROVER_HOST=<ROVER_IP>
-GROUNDLINK_PORT=7443
-VIDEO_PORT=5600
-BACKEND_HOST=127.0.0.1
-BACKEND_PORT=8000
-```
+Python 3.11 이상, SSH, ffmpeg/ffplay, gnome-terminal, xdg-open이 필요하다.
+영상 테두리 표시는 tkinter와 Pillow를 사용한다. Xbox 장치 접근은
+[설정 안내](docs/xbox-controller.md)를 따른다.
 
-`ROVER_HOST` is the Raspberry Pi/LIMO computer IP, not the camera IP. The GCS
-PC must have the IP configured as the video sender's destination. If the GCS PC
-IP changes, the rover video service configuration must be updated too.
+| 연결 | 기본값 |
+| --- | --- |
+| PC 웹 UI | TCP 8080, localhost |
+| Pi GroundLink | TCP 7443 |
+| PC 영상 수신 | UDP 5600, H.264/MPEG-TS |
+| PC backend | `GCS/.runtime/backend.sock` |
 
-## First network checks
+방향키로 주행하며 키 해제·포커스 상실 시 속도 0을 요청한다.
+STOP은 별도 모드 명령이다. Xbox LT는 A/B, RT는 STOP/MANUAL을 전환하며
+Xbox 터미널에 포커스가 있을 때만 입력한다. [상세 조작](docs/xbox-controller.md).
+종료 전 STOP을 누르고 PC와 Pi의 실행 터미널에서 Ctrl+C한다.
 
-From the GCS PC:
+선속도 상한은 0.4m/s, 회전 상한은 3.8rad/s다. 혼합 주행은 바퀴 속도가
+0.4m/s를 넘지 않도록 정규화한다. **남은 불일치:** 웹 HTTP 입력 검사는 아직
+각속도 1.0rad/s 초과를 거부한다(`webui/server.py`). 이 문서 정리에서 코드는 수정하지 않았다.
+
+Payload 버튼은 [별도 Pi 서비스](../platforms/loonar/porting/payload_pca_runbook.md)가 필요하다.
+영상 탐지는 [Mission02 안내](docs/mission02-object-detection.md)를 참고한다.
+
+## 개별 실행
 
 ```bash
-ping -c 3 <ROVER_IP>
-nc -vz <ROVER_IP> 7443
+cd ~/LOONAR/GCS
+python3 -B -m webui.server --real-host 192.168.0.14
+bash scripts/start_diagnostics.sh --host 192.168.0.14
+bash scripts/start_video.sh --rotate-left --record --compass
 ```
 
-The TCP port is open only while the rover cFS GroundLink application is running.
-Do not run `ground_link_mock` at the same time as the real GCS backend: the
-first version of GroundLink is designed for one connected ground client.
+각 명령은 별도 터미널에서 실행한다. 영상 수신기는 UDP 포트를 중복 사용하지 않도록
+기존 창을 종료한다. PC 녹화는 `~/Videos/LOONAR/`에 저장되며 Pi 녹화와 별개다.
+상대 방위는 자이로 적분 기준으로, 절대 북쪽을 보장하지 않는다.
 
-If UDP video does not arrive, check the GCS PC firewall and Wi-Fi network before
-changing application code:
+## 장치 없는 Mock
+
+각 터미널에서 `cd ~/LOONAR/GCS` 후 하나씩 실행한다.
 
 ```bash
-sudo ufw status
-ip -4 addr
+python3 -m mock.rover
+python3 -m backend.app
+python3 -m cli.commands
+python3 -m cli.monitor
 ```
 
-## Verify camera video first
-
-The compass viewer (`cli/video_compass.py`, used by `start_loonar_gcs.sh`)
-sets FFmpeg's input `-flags low_delay` to reduce decoder frame buffering.
-Recording still copies the received H.264 stream without re-encoding. Restart
-the GCS viewer after updating this file to use the new decoder settings.
-
-Video is independent from the command/telemetry path. On the GCS PC, run:
-
-```bash
-ffplay -fflags nobuffer -flags low_delay -framedrop udp://@:5600
-```
-
-Or use GStreamer:
-
-```bash
-gst-launch-1.0 -v \
-  udpsrc port=5600 caps='video/mpegts,systemstream=(boolean)true,packetsize=(int)188' \
-  ! tsdemux ! h264parse ! avdec_h264 ! videoconvert ! autovideosink sync=false
-```
-
-If GStreamer says `no element "avdec_h264"`, install
-`gstreamer1.0-libav` on the **GCS PC**, then rerun the command. A video window
-proves only the video path; it says nothing about GroundLink TCP.
-
-For the first UI version, launch the video player separately. Browser playback
-of MPEG-TS/H.264 is not a first-stage requirement. Embedding video can be added
-later only if it is genuinely needed.
-
-## Create this folder structure
-
-Ask Codex to create these files one small stage at a time:
-
-```text
-GCS/
-  README.md                    # this handoff
-  .gitignore                   # .venv/, .env, __pycache__/
-  requirements.txt             # fastapi, uvicorn
-  .env.example                 # no private IP/password values
-  backend/
-    __init__.py
-    config.py                  # reads .env
-    protocol.py                # GroundLink frame encode/decode only
-    rover_client.py            # one reconnecting TCP client
-    state.py                   # latest telemetry and command results
-    app.py                     # FastAPI routes and WebSocket
-  web/
-    index.html
-    app.js
-    style.css
-  tests/
-    test_protocol.py
-    test_stream_parser.py
-```
-
-Keep the binary protocol independent from FastAPI and the web UI. It must be
-unit-testable with no rover connected.
-
-## GroundLink protocol: exact contract
-
-The authoritative detailed document is
-[`../docs/ground_link_protocol.md`](../docs/ground_link_protocol.md). Read it
-before writing `protocol.py`.
-
-Every TCP frame is:
-
-```text
-magic:u32 | version:u16 | type:u16 | sequence:u32 | payload_length:u32 | payload
-```
-
-- Header size: 16 bytes
-- magic bytes on the wire: ASCII `LNK1`
-- protocol version: `1`
-- byte order: little-endian for all integers and `float64` values
-- maximum payload length: 512 bytes
-- `sequence`: nonzero increasing value selected by the GCS for every command
-- periodic telemetry has sequence `0`
-
-Python header helpers should use this exact layout:
-
-```python
-import struct
-
-HEADER = struct.Struct("<4sHHII")
-MAGIC = b"LNK1"
-VERSION = 1
-MAX_PAYLOAD = 512
-
-def encode_frame(frame_type: int, sequence: int, payload: bytes = b"") -> bytes:
-    if len(payload) > MAX_PAYLOAD:
-        raise ValueError("payload too large")
-    return HEADER.pack(MAGIC, VERSION, frame_type, sequence, len(payload)) + payload
-```
-
-Do not use native C structure layouts, `pickle`, JSON, or network-byte-order
-(`!`) struct formats for this rover TCP connection.
-
-### Command frames to send
-
-| UI action | Type | Type ID | Payload encoder |
-| --- | ---: | ---: | --- |
-| STOP button | `STOP_CMD` | `0x0001` | empty bytes |
-| Manual joystick/value | `MANUAL_CMD` | `0x0002` | `struct.pack("<dd", linear_mps, angular_radps)` |
-| AUTO button | `AUTO_CMD` | `0x0003` | empty bytes |
-| Payload activity | `PAYLOAD_CMD` | `0x0004` | `<QHH` + parameters |
-| Reaction activity | `REACTION_CMD` | `0x0005` | `<QHH` + parameters |
-
-`PAYLOAD_CMD` / `REACTION_CMD` header inside their payload is:
-
-```text
-request_id:u64 | opcode:u16 | parameter_length:u16 | parameters
-```
-
-The current allowed parameter length is 0–64 bytes. Start with a UI that can
-send an integer request ID and integer opcode. Do not invent payload/reaction
-opcode meanings; they will be supplied with their MCU specifications.
-
-### Frames received from rover
-
-| Type | ID | Show in UI |
-| --- | ---: | --- |
-| `COMMAND_RESULT` | `0x8001` | command sequence, accepted/forwarded flags, mode, result |
-| `GATEWAY_STATUS` | `0x8002` | current mode and last linear/angular command |
-| `VEHICLE_STATUS` | `0x8003` | battery, odometry, velocity, IMU, field validity |
-| `LOONAR_MCU_STATUS` | `0x8004` | future MCU state, temperature, errors, applied motion |
-| `DEVICE_STATUS` | `0x8005` | IMU/motor/payload/LiDAR/camera/MCU link/Wi-Fi connection state |
-| `EVENT` | `0x8006` | timestamped source, severity, code and text |
-
-The fixed payload sizes are useful parser checks:
-
-| Type | Expected payload size |
-| --- | ---: |
-| `COMMAND_RESULT` | 10 bytes |
-| `GATEWAY_STATUS` | 20 bytes |
-| `VEHICLE_STATUS` | 92 bytes |
-| `LOONAR_MCU_STATUS` | 50 bytes |
-| `DEVICE_STATUS` | `9 + 9 * device_count` bytes |
-| `EVENT` | variable, validate its two string lengths |
-
-### Enum values to display
-
-```text
-mode:          1=AUTO, 2=MANUAL, 3=STOP, 4=PAYLOAD, 5=REACTION
-result:        0=OK, 1=BAD_PAYLOAD, 2=GATEWAY_DISCONNECTED,
-               3=NOT_IMPLEMENTED, 4=INTERNAL_ERROR
-device state:  0=UNKNOWN, 1=CONNECTED, 2=DISCONNECTED, 3=ERROR
-```
-
-For `VEHICLE_STATUS`, only display a field if its bit is set in `valid_flags`:
-
-```text
-bit 0: battery voltage       bit 1: battery percentage
-bit 2: odometry pose         bit 3: odometry linear/angular velocity
-bit 4: IMU roll/pitch/yaw
-```
-
-An unavailable field is not zero. Show `—` (unknown) instead. LIMO currently
-provides battery voltage, odometry and IMU; battery percentage can be unknown.
-
-## TCP client rules
-
-Implement `rover_client.py` as one background task/thread with this behaviour:
-
-1. Connect to `ROVER_HOST:GROUNDLINK_PORT`.
-2. Mark `tcp_connected=True` in shared state.
-3. Continuously append received bytes to a buffer.
-4. While the buffer contains a full valid frame, decode it and update state.
-5. On disconnect/error, mark `tcp_connected=False`, preserve the last received
-   rover mode as stale display data, wait briefly, and reconnect.
-6. Do not send any automatic STOP, AUTO, or MANUAL command on connect or
-   reconnect.
-7. Give each user-requested command the next nonzero sequence number. Store it
-   as pending until its matching `COMMAND_RESULT.ground_sequence` arrives.
-
-The parser must reject a wrong magic/version, unknown type, payload length over
-512, or malformed fixed payload. On malformed input, close and reconnect rather
-than trying to guess byte alignment.
-
-Suggested state object:
-
-```text
-connection: connected/disconnected + last connection error
-gateway: current mode, last command, last update time
-vehicle: decoded latest VehicleStatus + last update time
-mcu: latest McuStatus + last update time
-devices: seven decoded device entries + last update time
-events: last 100 events, newest first
-pending_commands: sequence -> requested command/time
-last_command_result: decoded CommandResult
-```
-
-Use a lock around this state if the TCP client runs in a Python thread. WebSocket
-messages should be snapshots made from that state, not raw socket data.
-
-## Local backend API to implement
-
-Keep this API on `127.0.0.1:8000` initially. The browser UI and backend are on
-the same GCS PC.
-
-| Method/path | Request | Result |
-| --- | --- | --- |
-| `GET /api/health` | none | backend alive, rover TCP connected/disconnected |
-| `GET /api/state` | none | one JSON snapshot of latest display state |
-| `POST /api/command/stop` | none | accepted sequence number |
-| `POST /api/command/manual` | `{ "linear_mps": 0.5, "angular_radps": 0.0 }` | accepted sequence number |
-| `POST /api/command/auto` | none | accepted sequence number |
-| `POST /api/command/payload` | request ID/opcode/parameters | accepted sequence number |
-| `POST /api/command/reaction` | request ID/opcode/parameters | accepted sequence number |
-| `WS /ws` | none | push a state snapshot whenever telemetry/result changes |
-
-The POST response means only that the local backend accepted the UI request. The
-UI must show the later `COMMAND_RESULT` from the rover separately. Never label a
-button press as “vehicle completed” just because the HTTP request succeeded.
-
-For the first stage, it is acceptable for the browser to poll `/api/state` once
-per second instead of using WebSocket. Add WebSocket only after command sending
-and parsing work.
-
-## UI: required first screen
-
-Make one simple page. Plain and obvious is better than a polished dashboard.
-
-1. **Connection strip**: backend status, rover TCP status, and last telemetry
-   receive time.
-2. **Mode strip**: large current mode from `GatewayStatus`; do not infer it from
-   the last pressed UI button.
-3. **Command panel**:
-   - STOP button
-   - AUTO button
-   - manual selected label
-   - linear and angular numeric fields plus a small joystick or arrow controls
-   - show the exact linear/angular values most recently sent
-4. **Command result panel**: sequence, command, `OK`/error result, current mode.
-5. **Vehicle panel**: battery voltage/percent, odometry, velocity, IMU; use `—`
-   for invalid fields.
-6. **Device panel**: IMU, motor, payload sensor, LiDAR, camera, MCU link, Wi-Fi.
-7. **Event panel**: timestamp, severity, source and text.
-8. **Payload/Reaction panel**: placeholders that show the current mode and
-   received events/results. Do not claim that payload/reaction hardware works
-   before its MCU protocol exists.
-
-Manual control UI rule: a joystick movement sends a `MANUAL_CMD` with exactly
-the displayed `linear_mps` and `angular_radps`. The UI should not secretly send
-another value or automatically change mode. A separate explicit STOP button is
-always available.
-
-## Development stages and acceptance tests
-
-### Stage 1 — project starts locally
-
-- Create the virtual environment and a FastAPI `/api/health` endpoint.
-- Run `uvicorn backend.app:app --reload --host 127.0.0.1 --port 8000`.
-- Open `http://127.0.0.1:8000/docs` and verify the health route.
-
-### Stage 2 — protocol unit tests
-
-- Implement header encode/decode and buffered frame parser.
-- Write tests for: split header, split payload, two frames in one receive,
-  wrong magic, wrong version, payload length 513, and MANUAL payload round trip.
-- Run `python -m unittest discover -s tests -v` until all pass.
-
-### Stage 3 — live telemetry monitor
-
-- Implement TCP connection/reconnection and parse only received telemetry.
-- Connect to the rover with no command buttons wired yet.
-- Verify `GatewayStatus` and `VehicleStatus` appear in `/api/state`.
-- Disconnect Wi-Fi briefly; verify UI shows disconnected and reconnects without
-  changing displayed rover mode after telemetry resumes.
-
-### Stage 4 — discrete commands
-
-- Add STOP, AUTO, then MANUAL APIs and buttons.
-- For each click, show a pending sequence then show its matching
-  `COMMAND_RESULT`.
-- Start with `MANUAL(0.0, 0.0)` during bench testing.
-- When a physical motion test is authorized, use a small value chosen by the
-  operator and finish with explicit STOP.
-
-### Stage 5 — complete display
-
-- Add fields guarded by `valid_flags`, device states, event log, and activity
-  placeholders.
-- Add WebSocket push updates only if one-second polling is no longer sufficient.
-
-### Stage 6 — video convenience
-
-- Keep `ffplay`/GStreamer working as the reference receiver.
-- Optional: add a UI button that launches the known video-player command, or
-  document it next to the UI. Do not couple it to GroundLink TCP.
-
-## Use the existing rover-side mock to diagnose
-
-The rover repository includes `ground_link_mock`, which is useful to prove the
-rover path before blaming GCS code. Run it on the rover, not on the GCS PC:
-
-```bash
-MOCK=~/loonar_ws/build/ground_link/ground_link_mock
-timeout 5 "$MOCK" 127.0.0.1 7443 monitor
-```
-
-It prints frames such as:
-
-```text
-type=GATEWAY_STATUS ... mode=3 linear=0 angular=0
-type=VEHICLE_STATUS ... valid=0x1d battery_voltage=11.6 odom=(...)
-```
-
-It intentionally keeps receiving status frames, so `timeout` exit code `124`
-is expected and is not a failure.
-
-## How to work with Codex effectively
-
-Use small, testable requests. Before every request, tell Codex which stage you
-are on and paste the exact terminal error if there is one.
-
-Good prompts:
-
-```text
-Read GCS/README.md. Implement only Stage 2 in GCS/backend/protocol.py and
-GCS/tests. Do not create a UI or connect to the rover. Run the unit tests.
-```
-
-```text
-Read GCS/README.md and inspect the existing Stage 2 code. Implement only the
-read-only TCP telemetry client from Stage 3. Do not send any command. Add a
-small terminal log and tests for split TCP frames.
-```
-
-```text
-Read GCS/README.md. Add only the STOP endpoint and UI button. Keep the protocol
-format unchanged. Show the returned COMMAND_RESULT separately from local HTTP
-success. Run tests.
-```
-
-Avoid prompts such as “make the full GCS.” They are too broad and make it hard
-to inspect what changed. Ask Codex to explain every new file after each stage,
-run the stated tests, and show `git diff` before committing.
-
-## Definition of done for the first GCS version
-
-- Video displays from UDP 5600 on the GCS PC.
-- GCS backend holds one TCP connection to port 7443 and reconnects cleanly.
-- UI accurately displays rover-reported mode, command results, battery/odom/IMU
-  when valid, and device/event data when available.
-- STOP, MANUAL and AUTO produce correctly encoded GroundLink commands and show
-  their matching rover result.
-- PAYLOAD and REACTION envelopes can be sent/displayed, but their future MCU
-  execution is clearly labelled TBD/NOT_IMPLEMENTED until implemented.
-- Protocol tests cover TCP fragmentation and invalid frames.
-- No GCS code changes ROS topics, runs cFS, or silently changes a user command.
-
-## Related source documents
-
-- [Mission 02 RGB detection in the existing GCS video window](docs/mission02-object-detection.md)
-- [GroundLink protocol](../docs/ground_link_protocol.md)
-- [Ground-control implementation plan](../docs/ground_control_implementation_plan.md)
-- [cFS GroundLink integration](../cfs/README.md)
-- [Direct video pipeline](../common/video/README.md)
-- [LIMO camera validation notes](../platforms/limo/video/README.md)
+Mock은 [GCP1 계약](docs/interface-draft.md)을 사용한다. 실제 로버의
+[LNK1](../docs/ground_link_protocol.md)과 호환되지 않으며 Mock 결과는 실기 검증이 아니다.
+cFS까지 포함하는 PC 시험은 [통합 시험 도구](../tools/gcs_test/README.md)를 사용한다.

@@ -19,4 +19,4 @@ permission to redistribute the vendor bundle has been established here.
 The source bridge lives in `tools/cubeeye_ros/`. SDK shared libraries must be
 loaded only in its isolated acquisition helper, not globally into ROS Python
 or the camera-streaming service. See the
-[porting plan](porting/limo_to_loonar_plan.md) for the runtime checks.
+[porting plan](porting/ground_control_runbook.md) for the runtime checks.

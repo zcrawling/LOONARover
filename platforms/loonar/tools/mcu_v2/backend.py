@@ -10,7 +10,7 @@ import signal
 import socket
 import struct
 import time
-from .config import load, driver_packet, geometry, wheel_command
+from .config import load, driver_packet, geometry, wheel_command, limit_motion
 from .buffer import ReceiveBuffer
 from .link import Link
 from .wire import Kind
@@ -224,7 +224,7 @@ def serve(device, args, stop, received):
                     link.send(Kind.STOP)
                 elif wheels:
                     try:
-                        left, right = wheel_command(wheels, *motion)
+                        left, right = wheel_command(wheels, *limit_motion(*motion, track_m=wheels["track_m"]))
                     except ValueError as error:
                         link.send(Kind.STOP)
                         logging.warning("Rejected motion: %s", error)

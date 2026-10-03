@@ -80,3 +80,16 @@ def wheel_command(g, linear, angular):
     ):
         raise ValueError("wheel command exceeds the RoboClaw signed 32-bit field")
     return round(left), round(right)
+
+
+def limit_motion(linear, angular, track_m=0.21):
+    """Normalize body commands to the 0.4 m/s wheel-speed envelope."""
+    if not math.isfinite(linear) or not math.isfinite(angular):
+        raise ValueError("nonfinite motion command")
+    if not math.isfinite(track_m) or track_m <= 0:
+        raise ValueError("positive track required")
+    linear = max(-0.4, min(0.4, linear))
+    angular = max(-3.8, min(3.8, angular))
+    peak = abs(linear) + abs(angular) * track_m / 2
+    scale = min(1.0, 0.4 / peak) if peak else 1.0
+    return linear * scale, angular * scale

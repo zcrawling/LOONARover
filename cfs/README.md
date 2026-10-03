@@ -1,69 +1,38 @@
-# LOONAR minimal cFS integration
+# cFS 통합
 
-This directory contains the two cFS applications needed for the first ground
-control integration. It does not vendor or fork NASA cFS.
+NASA cFS 자체는 외부에서 가져오며 이 디렉터리는 LOONAR 앱과 mission 설정을 제공한다.
 
-- `loonar_ground_link`: TCP `0.0.0.0:7443` endpoint, GroundLink frame parsing,
-  five command publications, and six telemetry subscriptions.
-- `loonar_vehicle_adapter`: cFS Software Bus to `vehicle_gatewayd` adapter.
-  MANUAL is forwarded directly; PAYLOAD and REACTION issue STOP before selecting
-  their mode and publishing their dedicated execution MID.
+| 앱 | 설치 모듈 | 역할 |
+| --- | --- | --- |
+| GroundLink | `lnr_ground.so` | TCP 7443 명령·텔레메트리 |
+| VehicleAdapter | `lnr_vehicle.so` | Software Bus ↔ Gateway |
+| McuBridge | `lnr_mcu.so` | MCU health 전달 |
+| PayloadAdapter | `lnr_payload.so` | Payload PCA 서비스 명령·이벤트 |
 
-The TCP connection carries no video and no ROS 2 data. Reconnecting the TCP
-client does not change the selected vehicle mode.
+앱 목록과 로딩 순서는 [startup fragment](mission/cfe_es_startup.scr.fragment),
+빌드 목록은 [targets fragment](mission/targets.cmake.fragment),
+MID는 [loonar_cfs_messages.h](apps/common/loonar_cfs_messages.h)에 있다.
 
-For a one-command PC integration test without ROS, use
-[`tools/run_gcs_test.sh`](../tools/gcs_test/README.md). It builds an isolated
-NASA cFS runtime, starts the gateway and both LOONAR apps, and optionally sends
-test-pattern or V4L2 video to a GCS IP supplied on the command line.
+## 빌드·실행
 
-## Add to a cFS mission
+저장소 루트에서:
 
-Make these application directories visible in the mission's `apps/` directory:
-
-```text
-apps/loonar_ground_link     -> <LOONAR>/cfs/apps/ground_link
-apps/loonar_vehicle_adapter -> <LOONAR>/cfs/apps/vehicle_adapter
-apps/common                 -> <LOONAR>/cfs/apps/common
+```bash
+bash tools/run_gcs_test.sh --build-only --skip-tests --jobs 2
 ```
 
-Apply [targets.cmake.fragment](mission/targets.cmake.fragment) to the mission
-targets file and apply
-[cfe_es_startup.scr.fragment](mission/cfe_es_startup.scr.fragment) to the CPU
-startup generator/script. Then run the normal cFS `make prep`, build, and
-install flow.
+산출물은 `build/gcs-test/cFS/build-native_std/exe/cpu1`이다.
+Pi에서는 [ground-support](../platforms/loonar/porting/ground_control_runbook.md)가
+Gateway와 cFS를 함께 실행한다. 장치 없는 실행은 [PC 통합 시험](../tools/gcs_test/README.md)을 따른다.
 
-The CMake target names are descriptive, but their installed modules are the
-short `lnr_ground.so` and `lnr_vehicle.so`; the short names satisfy cFS/OSAL
-module filename limits.
+`LOONAR_GATEWAY_SOCKET`은 Gateway의 `cfs.sock` 위치다. 시스템 기본값은
+`/run/loonar/vehicle-gateway/cfs.sock`이며 bench는 runtime 경로를 지정한다.
 
-The default Software Bus message IDs are in
-[`loonar_cfs_messages.h`](apps/common/loonar_cfs_messages.h). A mission with an
-existing MID allocation must change those values before integration.
+## Payload
 
-## Runtime order
+VehicleAdapter가 정지·PAYLOAD 모드를 선택한 뒤 PayloadAdapter가
+`/run/loonar/payload-pca.sock`으로 명령을 보낸다. 별도
+[Payload 서비스](../platforms/loonar/porting/payload_pca_runbook.md)가 필요하다.
+센서 전원은 켠 채 측정을 시작·종료한다. REACTION 액추에이터는 `NOT_IMPLEMENTED`다.
 
-1. Start `vehicle_gatewayd`; it creates
-   `/run/loonar/vehicle-gateway/cfs.sock`.
-2. Start cFS with both LOONAR apps in the startup script.
-3. Connect the ground mock with
-   `ground_link_mock <PI_IP> 7443 monitor`, or send one of `stop`, `manual`,
-   `auto`, `payload`, `reaction`.
-
-Without ROS hardware, the common status relay can be exercised with
-`vehicle_gatewayctl vehicle-status <backend.sock> 11.7` while GroundLink mock
-is monitoring. This injects only a test battery-voltage field.
-
-The adapter retries its local gateway connection. A missing gateway produces
-`GATEWAY_DISCONNECTED`; it does not invent a mode change or silently turn the
-command into a different command.
-
-For a user service or test runtime, set `LOONAR_GATEWAY_SOCKET` to the exact
-`cfs.sock` path before starting cFS. The default remains the system path above.
-
-## Current boundary
-
-The PAYLOAD execution MID is implemented, but its final MCU transport is a
-LOONAR hardware-porting item. REACTION has the same complete route but returns
-`NOT_IMPLEMENTED`; its actuator protocol and recovery/post-recovery logic are
-explicitly TBD.
+[GroundLink 계약](../docs/ground_link_protocol.md), [Gateway 계약](../docs/vehicle_gatewayd_if.md).

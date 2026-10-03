@@ -3,15 +3,12 @@
 #include <cstdint>
 namespace loonar::control::pins {
 // User-confirmed wiring. Pin 13 is SPI SCK, never a status LED.
-inline constexpr std::uint8_t kRoboClawRx = 0, kRoboClawTx = 1;
-inline constexpr std::uint8_t kBnoReset = 8, kBnoInterrupt = 9;
-inline constexpr std::uint8_t kBnoCs = 10, kBnoMosi = 11, kBnoMiso = 12,
-                              kBnoSck = 13;
+inline constexpr std::uint8_t kRoboClawRx = 7, kRoboClawTx = 8;
+inline constexpr std::uint8_t kBno055Rx = 25, kBno055Tx = 24;
 // Serial3 is a software option; verify HAT wiring before selecting UART.
 inline constexpr std::uint8_t kPiUartRx = 15, kPiUartTx = 14;
-inline constexpr std::array<std::uint8_t, 10> kAssignedPins = {
-    kRoboClawRx, kRoboClawTx, kBnoReset, kBnoInterrupt, kBnoCs,
-    kBnoMosi,    kBnoMiso,    kBnoSck,   kPiUartRx,     kPiUartTx};
+inline constexpr std::array<std::uint8_t, 6> kAssignedPins = {
+    kRoboClawRx, kRoboClawTx, kPiUartRx, kPiUartTx, kBno055Rx, kBno055Tx};
 constexpr bool unique() {
   for (unsigned i = 0; i < kAssignedPins.size(); ++i)
     for (unsigned j = i + 1; j < kAssignedPins.size(); ++j)

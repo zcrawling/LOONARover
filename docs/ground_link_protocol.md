@@ -29,8 +29,9 @@ delivery, so v1 does not add a separate frame CRC.
 
 `parameter_length` is 0 through 64 bytes in the current cFS applications.
 The payload PCA bench integration reserves opcode `1` for mission START and
-opcode `2` for mission STOP. START enables physical sensor power before opening
-USB acquisition; STOP closes acquisition before removing power.
+opcode `2` for mission STOP. START opens USB acquisition and reinitializes the sensors. STOP waits for the
+minimum five-second station measurement, receives PCA/completion, then closes
+USB acquisition. Sensor power remains on.
 `PAYLOAD_CMD` and `REACTION_CMD` are discrete requests. They receive a command
 result and later progress/result telemetry. The `REACTION_CMD` envelope and
 route are defined, but its opcode meanings and actuator/recovery behaviour are

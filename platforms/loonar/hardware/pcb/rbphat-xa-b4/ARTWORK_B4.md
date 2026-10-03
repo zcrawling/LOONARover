@@ -17,4 +17,4 @@ CAD 검증은 완료했지만 실물 전원 차단·역급전·2Mbps 통신·냉
 - `manufacturing/RBPHAT-B4-fabrication.zip`: PCB 제조 파일
 - `manufacturing/RBPHAT-B4-project.zip`: 편집 원본 및 조립 자료 포함
 
-B3에서 복사된 과거 검토 자료는 history-b3 폴더에 보관하며 이번 발주 기준에 포함하지 않는다. 생성/배선 스크립트는 중간 작업 도구이며, 일괄 재실행하면 수동 마감 배선이 사라질 수 있다. 현재 PCB와 검증 결과가 납품 기준이다.
+B3 검토 원본은 [rbphat-rebuild](../rbphat-rebuild/README.md)에 보관하며 이번 발주 기준에 포함하지 않는다. 생성/배선 스크립트는 중간 작업 도구이며, 일괄 재실행하면 수동 마감 배선이 사라질 수 있다. 현재 PCB와 검증 결과가 납품 기준이다.

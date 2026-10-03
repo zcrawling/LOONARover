@@ -1,6 +1,6 @@
 # ROS 없는 PC 지상국 통합 테스트
 
-이 PC를 로버 역할로 사용한다. **실제 NASA cFS v7.0.1 + LOONAR 앱 두 개 +
+이 PC를 로버 역할로 사용한다. **실제 NASA cFS v7.0.1 + LOONAR 앱 네 개 +
 vehicle_gatewayd**를 실행한다. 실제 모터/ROS backend는 실행하지 않는다.
 
 ```bash
@@ -60,7 +60,8 @@ ffplay -fflags nobuffer -flags low_delay -framedrop 'udp://@:5600'
   `--battery-voltage 12.0`으로 변경할 수 있다. 다른 VehicleStatus 필드는 미측정이다.
 - STOP/MANUAL/AUTO 모드 선택과 명령 전달을 확인한다. ROS 없이 AUTO의
   실제 주행 명령은 발생하지 않는다. 물리 모터는 연결하지 않는다.
-- PAYLOAD/REACTION 경로는 기존 구현 그대로이며 실제 MCU 동작은 구현되지 않았다.
+- PAYLOAD/REACTION 경로는 기존 구현 그대로이며 이 PC 시험은 Payload 서비스나 실제 MCU를 실행하지 않는다.
+  실제 측정 경로는 [Payload 안내](../../platforms/loonar/porting/payload_pca_runbook.md)를 따른다.
   REACTION은 `NOT_IMPLEMENTED`를 반환한다.
 - 지상국 연결은 한 개만 허용한다. 실제 GCS와 아래 mock을 동시에 실행하지 않는다.
 

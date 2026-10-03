@@ -18,19 +18,18 @@ ToF, map, GPS, and command velocity는 **이 단계에서 fuse하지 않는다**
 ```text
 Control MCU encoder --USB CDC/UART--> Pi bridge -- /wheel/odom (vx only) --+
                                                                          +--> EKF --> odom -> base_link
-BNO085 --Control MCU--USB CDC/UART--> Pi bridge -- /imu/data (wz only) ----+
+BNO055 --Control MCU--USB CDC/UART--> Pi bridge -- /imu/data (wz only) ----+
 ```
 
-초기 bench는 Teensy USB CDC, 이후 Pi HAT UART/RS485를 사용한다.
-BNO085와 encoder는 모두 Control MCU 소유다. 여기서 말하는 Pi bridge는
-실측 telemetry를 ROS 메시지로 옮기는 구현 대상으로, 현재 패키지에 포함되지 않는다.
-아래의 RS485 bridge 표현은 이 transport 독립 경계를 가리킨다.
+현재 Control 링크는 USB CDC이며 `tools/mcu_v2/ros_bridge.py`가 표본을 ROS로 전달한다.
+UART는 별도 빌드 옵션이다. BNO055의 기본 센서 축을 사용하므로 실제 장착 TF와
+회전 부호를 검증한 뒤 융합한다. 아래 공분산은 설정 기준값이며 실측 보정값이 아니다.
 
 ## 실행 전 메시지 계약
 
 ### `/wheel/odom`
 
-RS485 bridge가 만든 `nav_msgs/Odometry`여야 한다. pose는 이 EKF가 읽지
+MCU ROS bridge가 만든 `nav_msgs/Odometry`여야 한다. pose는 이 EKF가 읽지
 않으므로 0으로 두어도 된다. 단, 아래는 필수다.
 
 ```text
@@ -75,11 +74,11 @@ odom --(EKF, dynamic)--> base_link --(robot_state_publisher, fixed)--> imu_link
 ```
 
 - `base_link`: 차체 기준, x 전방, y 좌측, z 위쪽.
-- `imu_link`: 실제 BNO085 중심. 장착 위치와 회전은 URDF의 fixed joint로
+- `imu_link`: 실제 BNO055 중심. 장착 위치와 회전은 URDF의 fixed joint로
   정확히 넣는다.
 - `odom`: EKF가 시작할 때의 local world frame. 장기 drift와 yaw drift는
   정상이다.
-- RS485 bridge, BNO driver, gateway, Nav2는 `odom -> base_link` TF를
+- MCU ROS bridge, BNO driver, gateway, Nav2는 `odom -> base_link` TF를
   publish하지 않는다.
 
 검증 명령:
@@ -98,10 +97,10 @@ ros2 run robot_localization ekf_node --ros-args --params-file \
 `base_link`이면 TF 소유권이 맞다. `view_frames` 결과에 `odom -> base_link`
 publisher가 둘 이상이면 실행을 중단하고 중복 publisher를 제거한다.
 
-## BNO085 좌표계와 ENU
+## BNO055 좌표계와 ENU
 
 ROS body frame은 FLU(x forward, y left, z up), ROS world frame은 ENU(x east,
-y north, z up) 규약을 쓴다. BNO085 driver가 내는 raw chip axes나 Android/NED
+y north, z up) 규약을 쓴다. BNO055 driver가 내는 raw chip axes나 Android/NED
 orientation을 가정해서는 안 된다.
 
 초기 구성은 gyro z만 쓰지만, 다음을 bench에서 확인해야 한다.
@@ -119,7 +118,7 @@ orientation을 가정해서는 안 된다.
 MCU uptime를 ROS stamp로 직접 쓰면 안 된다. 두 clock epoch가 다르기
 때문이다.
 
-초기 구현은 RS485 bridge가 Pi에서 frame을 받은 순간 `rclcpp::Clock(RCL_ROS_TIME)`
+초기 구현은 MCU ROS bridge가 Pi에서 frame을 받은 순간 `rclcpp::Clock(RCL_ROS_TIME)`
 으로 stamp한다. MCU의 `measurement_time_us`는 payload에 보존해 지연 진단에만
 쓴다. 50 Hz 기준으로 receive-time jitter가 5 ms 이상이면 그 측정치를 bag으로
 확인한다.
@@ -150,7 +149,7 @@ scale bias는 알 수 있어도 50 Hz `vx` variance는 알 수 없다. slip은 �
 
 ## 다음 단계의 추가 조건
 
-### BNO085 orientation yaw
+### BNO055 orientation yaw
 
 다음 조건을 모두 충족할 때만 추가한다.
 
@@ -160,7 +159,7 @@ scale bias는 알 수 있어도 50 Hz `vx` variance는 알 수 없다. slip은 �
 4. gyro 적분 drift보다 orientation yaw 보정 이득이 큼.
 
 추가 시에는 yaw만 fuse하고, yaw와 gyro-z covariance를 독립 측정값으로
-설정한다. BNO085 orientation이 자계 기반이면 모터 전류/철 구조물 근처에서
+설정한다. BNO055 orientation이 자계 기반이면 모터 전류/철 구조물 근처에서
 jump할 수 있으므로 무조건 absolute truth로 두지 않는다.
 
 ### Wheel yaw-rate

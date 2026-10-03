@@ -1,4 +1,7 @@
-# 2026-09-18 Pi 사전 준비 기록
+# 2026-09-18 Pi 설치 기록
+
+이하 상태·주소·버전은 2026-09-18 당시 기록이다. 현재 설치·실행 방법은
+[배포 안내](README.md)와 [운용 안내](../porting/ground_control_runbook.md)를 따른다.
 
 요청 범위: 하드웨어 제작 중, 카메라 검증 전에 가능한 설치·빌드·배포.
 이번 작업에서는 자동 테스트, 실기 통신 시험, 카메라 열거/촬영, ROS 노드 실행,
@@ -62,15 +65,3 @@ Noble FFmpeg 6.1과 rpicam 1.13 libav encoder의 API 불일치 때문에 후자�
 `tof-build.log`, `tof-linkage.txt`, `camera-build.log`, `runtime-install.log`,
 `systemd-verify.log`, `runtime-linkage.txt`에 보관한다.
 cFS 세부 build log는 `~/LOONAR/build/gcs-test/build.log`다.
-
-## 후속 순서와 남은 구현
-
-1. 카메라: CSI 열거 → 단독 이미지 → 별도 UDP 영상의 지상국 표시.
-2. Teensy USB: 실제 serial ID 지정, 비구동 통신/재연결 확인.
-3. 라이다/ToF: 현재 확보된 것은 I200DK SDK. 다른 라이다 모델은 별도 확정 필요.
-4. 모터/주행: Control backend, encoder/BNO085 수집, 실제 제어기, command freshness,
-   측정 TF, motion restrict 실행기와 상태 연결을 완성한 뒤 검증.
-
-독립 Payload Transport/cFS payload app은 아직 없다. 기존 command MID 발행과
-relay 코드만으로 payload 왕복이 구현됐다고 판단하지 않는다.
-[실행 명령과 기록 방법](README.md)을 다음 하드웨어 단계에서 사용한다.

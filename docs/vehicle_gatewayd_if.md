@@ -13,7 +13,7 @@ All endpoints are local `SOCK_SEQPACKET` sockets in
 | --- | --- | --- |
 | `cfs.sock` | cFS ground-station adapter or ground mock | `STOP`, `AUTO select`, `MANUAL(v,w)` |
 | `ros.sock` | ROS vehicle client | `AUTO(v,w)` |
-| `backend.sock` | LIMO or future LOONAR backend | receives selected motion; sends common `VehicleStatus` |
+| `backend.sock` | LIMO or LOONAR backend | receives selected motion; sends common `VehicleStatus` |
 
 ## Motion and selection
 
@@ -44,9 +44,8 @@ watchdog, or authority mechanism.
 
 The LIMO backend maps the selected motion directly to `/cmd_vel`:
 `linear_mps -> Twist.linear.x`, `angular_radps -> Twist.angular.z`.  It does
-not inspect `/limo_status` before publishing.  Future LOONAR serial work must
-implement the same two-field backend input and map it to `MOTION_CMD`; that
-serial backend is intentionally not implemented in the LIMO phase.
+not inspect `/limo_status` before publishing.  The LOONAR `mcu_v2.backend` converts the two fields to left/right wheel qpps,
+limits wheel speed, and sends LNR2 MOTION with a 200ms lease to the Control MCU.
 
 ## Status telemetry
 
@@ -57,10 +56,8 @@ clamps, or changes a command. The LIMO backend produces it once per second from
 fields, so battery percentage remains invalid rather than being estimated from
 voltage.
 
-The final LOONAR backend must additionally publish MCU uptime, board
-temperature, MCU state, inhibit flags, applied linear/angular command, RX error
-count, and device connection states. Their cFS messages and GroundLink
-serialization exist; the final serial producer remains a porting task.
+LOONAR MCU health is also forwarded through McuBridge / GroundLink type 0x8007;
+its layout is documented in [MCU wire v2](../platforms/loonar/porting/mcu_wire_v2.md).
 
 ## Debugger
 

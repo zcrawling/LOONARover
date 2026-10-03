@@ -1,7 +1,7 @@
 # 기준 odometry / localization architecture
 
 기준일: 2026-09-11. 이 문서는 프로젝트의 odometry/localization 설계 기준이다.
-시스템 전체 책임은 [project.md](../project.md)를 따른다.
+시스템 전체 책임은 [시스템 구조](architecture.md)를 따른다.
 **설계 기준 확정과 실제 구현·배포 완료를 구분한다.** 현재 상태는 아래 구현 표에 기록한다.
 
 ## 목표와 플랫폼 경계

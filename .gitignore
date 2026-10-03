@@ -12,6 +12,7 @@
 /data/apriltag_gt/*
 /data/imu_vibration/*
 /data/cubeeye/*
+/output
 # Data manifests and documentation are versioned; recordings stay local.
 !/data/apriltag_gt/README.md
 !/data/imu_vibration/README.md
