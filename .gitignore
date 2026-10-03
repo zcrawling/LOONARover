@@ -7,6 +7,7 @@
 **/__pycache__/
 *.pyc
 /.venv*/
+*.log
 /tmp/
 /data/apriltag_gt/*
 /data/imu_vibration/*

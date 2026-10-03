@@ -6,7 +6,10 @@ import os
 import selectors
 import socket
 import struct
-import termios
+try:
+    import termios
+except ImportError:
+    termios = None  # Windows desktop adapter uses pyserial.
 import time
 from pathlib import Path
 
@@ -84,9 +87,7 @@ class Service:
 
     def close_capture(self):
         if self.serial_fd is not None:
-            self.selector.unregister(self.serial_fd)
-            os.close(self.serial_fd)
-            self.serial_fd = None
+            self.close_serial()
         self.serial_buffer.clear()
         if self.log_file:
             self.log_file.close()
@@ -96,6 +97,14 @@ class Service:
         self.stopping_request = None
         self.active_station = None
         self.command_deadline = None
+
+    def close_serial(self):
+        self.selector.unregister(self.serial_fd)
+        os.close(self.serial_fd)
+        self.serial_fd = None
+
+    def read_serial(self):
+        return os.read(self.serial_fd, 4096)
 
     def send_serial(self, command):
         data = (command + "\n").encode("ascii")
@@ -159,7 +168,7 @@ class Service:
 
     def serial_event(self):
         try:
-            data = os.read(self.serial_fd, 4096)
+            data = self.read_serial()
         except OSError as exc:
             self.fail_capture(self.request_id, f"USB:{type(exc).__name__}:{exc}")
             return
