@@ -216,9 +216,14 @@ class GroundLinkConnection:
             if data["source"] == "payload-pca":
                 fields = data["text"].split(",")
                 if len(fields) >= 4 and fields[0] == "STATE":
+                    station_text = fields[3].split("_", 2)
+                    station = (int(station_text[1]) if len(station_text) >= 2
+                               and station_text[0] == "station" and station_text[1].isdigit()
+                               else None)
                     self.state.payload = {
                         "state": "MEASURING" if fields[2] == "RUNNING" else fields[2],
                         "request_id": fields[1],
+                        "station": station,
                     }
                     self.state.last_status = t
                 elif len(fields) == 11 and fields[0] == "PCA":

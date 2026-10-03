@@ -37,8 +37,8 @@
           <div class="command-grid">
             <button class="command" aria-pressed="false" data-command="MANUAL" disabled><b>MANUAL</b><span>수동 모드</span></button>
             <button class="command" aria-pressed="false" data-command="AUTO" disabled><b>AUTO</b><span>자동 모드</span></button>
-            <button class="command" aria-pressed="false" data-command="PAYLOAD_START" disabled><b>PAYLOAD START</b><span>센서 전원·측정 시작</span></button>
-            <button class="command stop" aria-pressed="false" data-command="PAYLOAD_STOP" disabled><b>PAYLOAD STOP</b><span>측정 종료·전원 차단</span></button>
+            <button class="command" aria-pressed="false" data-command="PAYLOAD_START" disabled><b>PAYLOAD START</b><span>센서 재초기화·지점 측정 시작</span></button>
+            <button class="command stop" aria-pressed="false" data-command="PAYLOAD_STOP" disabled><b>PAYLOAD STOP</b><span>5초 이상 측정 후 PCA 확정</span></button>
             <button class="command" aria-pressed="false" data-command="REACTION" disabled><b>REACTION</b><span>리액션휠 요청</span></button>
           </div>
           <div id="speed-control" class="speed-control" tabindex="0" title="마우스 휠 또는 슬라이더로 선속도 조절">
@@ -80,7 +80,7 @@
             <article><h3>PCA novelty</h3><strong id="pca-novelty">—</strong><span id="pca-model" class="muted">모델 대기</span></article>
             <article><h3>PCA candidate</h3><strong id="pca-candidate">—</strong><span id="pca-status" class="muted">판정 대기</span></article>
           </div>
-          <div class="payload-meta"><div class="sample-meta"><span id="sample-time">측정값 수신 대기</span><span id="sample-number">샘플 —</span></div><div class="sample-meta"><code id="payload-id">요청 —</code><span id="sample-freshness">—</span></div></div>
+          <div class="payload-meta"><div class="sample-meta"><span id="sample-time">측정값 수신 대기</span><span id="sample-number">지점 —</span></div><div class="sample-meta"><code id="payload-id">요청 —</code><span id="sample-freshness">—</span></div></div>
         </section>
       </div>
     </div>

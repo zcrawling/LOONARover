@@ -51,17 +51,18 @@ this does **not** square-crop the portrait display. Actual detection rate and
 display latency must be measured on the team's laptop during simultaneous
 video recording and driving.
 
-## Replace the trained weight
+## Install the temporary YOLO26n weight
 
-From the separate Mission 02 training repository, use a `best.pt` whose class
-IDs are exactly `0: target_rover`, `1: obstacle`. Copy it to
-`GCS/models/mission02/best.pt` on the GCS and restart the video window.
-No source edit, export, or Pi deployment is required for this GCS path.
-The team repository ignores `best.pt` because model binaries are distributed
-separately. `LOONAR_VISION_MODEL=/absolute/path/best.pt` can override the slot.
-COCO `yolo26n.pt` is rejected by the class check and will not be presented
-as a target-rover detector. No trained model has been supplied yet, so live
-target recognition and detection accuracy remain unverified.
+The current `main` includes `GCS/models/mission02/yolo26n.pt`. Pull that
+version on the GCS and restart the video window. `LOONAR_VISION_MODEL=/absolute/path/model.pt`
+can override the slot. The model runs on the GCS and is not deployed to the
+Pi or Payload Teensy. The GCS accepts the model's detection classes: `rover` or
+`target_rover` is displayed as `target_rover` (class 0), and every other
+detected class is displayed as `obstacle` (class 1). The generic COCO YOLO26n
+model has no rover class, so it can demonstrate boxes for its supported
+objects but cannot identify a rover. This mapping is for the demonstration;
+it does not validate obstacle semantics or detection accuracy. The model
+still runs on the GCS CPU, and its actual rate and latency must be measured.
 
 For a recorded-stream input check without the rover, run from `GCS`:
 

@@ -111,11 +111,15 @@ class RealBackendTests(unittest.IsolatedAsyncioTestCase):
             source = b"payload-pca"
             encoded = text.encode()
             return struct.pack("<QBIBH", 1, 0, 0x5001, len(source), len(encoded)) + source + encoded
-        connection.handle(0x8006, event("STATE,7,RUNNING,power_on"))
+        connection.handle(0x8006, event("STATE,7,RUNNING,station_02"))
+        connection.handle(0x8006, event("STATE,8,STOPPING,station_02"))
         connection.handle(0x8006, event(
             "PCA,2,16.599285,23.949991,22.623278,2.013446,114.069168,114.069168,1,DEMO_ONLY,DEMO_ONLY_260927"))
+        connection.handle(0x8006, event("STATE,8,IDLE,station_02_complete"))
         snapshot = state.snapshot()
-        self.assertEqual(snapshot["status"]["payload"]["state"], "MEASURING")
+        self.assertEqual(snapshot["status"]["payload"]["state"], "IDLE")
+        self.assertEqual(snapshot["status"]["payload"]["station"], 2)
+        self.assertEqual(snapshot["payload_sample"]["request_id"], "8")
         self.assertEqual(snapshot["payload_sample"]["values"]["PCA candidate"]["value"], 1)
 
 

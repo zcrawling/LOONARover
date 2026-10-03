@@ -4,7 +4,7 @@ After=local-fs.target
 
 [Service]
 Type=simple
-# Physical USB/GPIO power switching normally requires root-owned device access.
+# USB CDC access uses the device named in payload-pca.env; START/STOP do not switch power.
 User=root
 Group=loonar
 EnvironmentFile=/etc/loonar/payload-pca.env

@@ -57,11 +57,15 @@ bool nanRecoveryArmed = true;
 
 // Match data_io.py's station features: median of valid per-row magnetic
 // magnitudes, IR object temperatures and RTD temperatures. A score is emitted
-// only with >=5 valid triples and >=80% valid rows in the five-second window.
+// only with >=5 valid triples and >=80% valid rows in a manual station interval.
 constexpr uint32_t PCA_STATION_MS = 5000;
-constexpr uint8_t PCA_MAX_SAMPLES = 16;
+constexpr uint8_t PCA_MAX_SAMPLES = 120;
 uint32_t stationId = 1;
 uint32_t stationStartMs = 0;
+bool stationActive = false;
+bool stationStopRequested = false;
+char stationCommand[16] = {};
+uint8_t stationCommandLength = 0;
 uint8_t stationSamples = 0;
 uint8_t stationValid = 0;
 bool stationOverflow = false;
@@ -126,7 +130,6 @@ void finishStation(uint32_t endMs) {
 
 void addStationSample(uint32_t now, float magNorm, float irObject,
                       float rtdTemp, bool valid) {
-  if (now - stationStartMs >= PCA_STATION_MS) finishStation(now);
   if (stationSamples == 255) {
     stationOverflow = true;
     return;
@@ -397,6 +400,41 @@ void reinitializeSensors(const char* reason) {
   printCsvHeader();
 }
 
+void pollStationCommand() {
+  while (Serial.available() > 0) {
+    const char ch = static_cast<char>(Serial.read());
+    if (ch == '\r') continue;
+    if (ch == '\n') {
+      stationCommand[stationCommandLength] = '\0';
+      if (strcmp(stationCommand, "START") == 0) {
+        if (stationActive) {
+          Serial.println("CTRL,ERROR,already_measuring");
+        } else {
+          reinitializeSensors("station_start");
+          stationSamples = stationValid = 0;
+          stationOverflow = false;
+          stationStopRequested = false;
+          stationStartMs = millis();
+          stationActive = true;
+          Serial.print("CTRL,START,");
+          Serial.println(stationId);
+        }
+      } else if (strcmp(stationCommand, "STOP") == 0) {
+        if (!stationActive) Serial.println("CTRL,ERROR,not_measuring");
+        else stationStopRequested = true;
+      } else if (stationCommandLength > 0) {
+        Serial.println("CTRL,ERROR,unknown_command");
+      }
+      stationCommandLength = 0;
+    } else if (stationCommandLength < sizeof(stationCommand) - 1) {
+      stationCommand[stationCommandLength++] = ch;
+    } else {
+      stationCommandLength = 0;
+      Serial.println("CTRL,ERROR,command_too_long");
+    }
+  }
+}
+
 void retryMissingSensors(uint32_t now) {
   if (now - lastRetryMs < RETRY_INTERVAL_MS) return;
   lastRetryMs = now;
@@ -498,10 +536,12 @@ void setup() {
   lastRetryMs = millis();
   mlxNextRetryMs = infraredReady ? 0 : millis() + MLX90614_COOLDOWN_MS;
   lastPeriodicReinitMs = millis();
-  stationStartMs = millis();
+  stationStartMs = 0;
 }
 
 void loop() {
+  pollStationCommand();
+  if (!stationActive) return;
   const uint32_t now = millis();
   if (now - lastPeriodicReinitMs >= PERIODIC_REINIT_INTERVAL_MS) {
     reinitializeSensors("periodic_5min");
@@ -575,6 +615,16 @@ void loop() {
   addStationSample(now, magNorm, irObjectC, rtdC,
                    magValid && irValid && rtdValid && rtdFault == 0 &&
                    isfinite(magNorm) && isfinite(irObjectC) && isfinite(rtdC));
+
+  if (stationStopRequested && now - stationStartMs >= PCA_STATION_MS) {
+    const uint32_t completedStation = stationId;
+    finishStation(now);
+    stationActive = false;
+    stationStopRequested = false;
+    Serial.print("CTRL,STOP,");
+    Serial.println(completedStation);
+    return;
+  }
 
   const bool sampleHasNan = !isfinite(magX) || !isfinite(magY) ||
                             !isfinite(magZ) || !isfinite(magNorm) ||

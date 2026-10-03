@@ -4,7 +4,7 @@ const el=id=>document.getElementById(id);
 const set=(id,text)=>{el(id).textContent=text;};
 const connectionLabels={CONNECTED:'정상 연결',CONNECTING:'연결 중',RECONNECTING:'재연결 중',DISCONNECTED:'연결 끊김',DEGRADED:'통신 불안정'};
 function badge(id,text,kind=''){set(id,text);el(id).className='badge '+kind;}
-function controls(){document.querySelectorAll('[data-command]').forEach(b=>{b.disabled=!current||current.connection!=='CONNECTED'||busy;});}
+ function controls(){document.querySelectorAll('[data-command]').forEach(b=>{const state=current?.status?.payload?.state||'IDLE';b.disabled=!current||current.connection!=='CONNECTED'||busy||(b.dataset.command==='PAYLOAD_START'&&['STARTING','MEASURING','STOPPING'].includes(state))||(b.dataset.command==='PAYLOAD_STOP'&&state!=='MEASURING');});}
 function selectCommand(command){document.querySelectorAll('[data-command]').forEach(button=>{const selected=button.dataset.command===command;button.classList.toggle('selected',selected);button.setAttribute('aria-pressed',String(selected));});}
 function number(value,unit=''){return typeof value==='number'&&Number.isFinite(value)?`${value}${unit}`:'—';}
 function clockTime(date=new Date()){return date.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});}
@@ -45,7 +45,7 @@ function draw(s){
  const p=s.status?.payload||{};badge('payload-state',p.state||'IDLE',p.state==='MEASURING'?'good':'');
  const sample=s.payload_sample;const same=sample&&sample.request_id===p.request_id;const keys=['비접촉 표면온도계','접촉식 표면온도계','자기상센서'];keys.forEach((key,i)=>{const reading=same?sample.values[key]:null;set('sensor-'+i,reading?number(reading.value,reading.unit==='TBD'?'':' '+reading.unit):'—');set('sensor-status-'+i,reading?.status||'수신 대기');});
  const novelty=same?sample.values['PCA novelty']:null,candidate=same?sample.values['PCA candidate']:null,model=same?sample.values['PCA model']:null;set('pca-novelty',novelty?number(novelty.value):'—');set('pca-candidate',candidate?String(candidate.value):'—');set('pca-model',model?.value||'모델 대기');set('pca-status',candidate?.status||'판정 대기');
- set('sample-time',same?`측정 시각 ${sample.time}`:'측정값 수신 대기');set('sample-number',same?`샘플 #${sample.sample}`:'샘플 —');set('payload-id',`요청 ${p.request_id||'—'}`);set('sample-freshness',same?(s.sample_stale?'이전 측정값':'실시간 갱신'):'—');
+ set('sample-time',same?`측정 시각 ${sample.time}`:'측정값 수신 대기');const station=same?sample.sample:p.station;set('sample-number',station?`STATION${String(station).padStart(2,'0')}`:'지점 —');set('payload-id',`요청 ${p.request_id||'—'}`);set('sample-freshness',same?(p.state==='IDLE'?'측정 완료':s.sample_stale?'이전 측정값':'실시간 갱신'):'—');
  if(latestRequest){const r=s.requests.find(r=>r.request_id===latestRequest);if(r&&r.state!=='Pending')set('command-message',`"${r.command}" ${r.state}`);}
  set('updated','갱신 '+clockTime());controls();drawEvents();
 }

@@ -110,7 +110,7 @@ class Player:
         try:
             from ultralytics import YOLO
             model = YOLO(str(self.model_path), task='detect')
-            check_classes(model.names)
+            class_map = check_classes(model.names)
         except Exception as error:
             self.vision_state = f'인식 사용 불가: {error}'
             print(self.vision_state, file=sys.stderr)
@@ -128,7 +128,7 @@ class Player:
                 prediction = model.predict(source=frame, imgsz=640,
                                            conf=0.35, verbose=False, device='cpu')[0]
                 result = extract_result(prediction, frame.size, received_at,
-                                        (time.monotonic() - started) * 1000)
+                                        (time.monotonic() - started) * 1000, class_map)
             except Exception as error:
                 self.vision_state = f'인식 사용 불가: {error}'
                 print(self.vision_state, file=sys.stderr)
