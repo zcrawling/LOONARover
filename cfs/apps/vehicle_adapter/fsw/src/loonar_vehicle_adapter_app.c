@@ -206,8 +206,14 @@ VA_Activity(
     uint8_t result;
     if (selected)
     {
-        LOONAR_ActivityCmd_t exec = *cmd;
+        LOONAR_ActivityCmd_t exec;
         CFE_MSG_Init(CFE_MSG_PTR(exec.CommandHeader), CFE_SB_ValueToMsgId(reaction?LOONAR_REACTION_EXEC_CMD_MID_VALUE:LOONAR_PAYLOAD_EXEC_CMD_MID_VALUE), sizeof(exec));
+        /* CFE_MSG_Init clears the full message, including its command payload. */
+        exec.GroundSequence = cmd->GroundSequence;
+        exec.RequestId = cmd->RequestId;
+        exec.Opcode = cmd->Opcode;
+        exec.ParameterLength = cmd->ParameterLength;
+        memcpy(exec.Parameters, cmd->Parameters, sizeof(exec.Parameters));
         routed = CFE_SB_TransmitMsg(CFE_MSG_PTR(exec.CommandHeader), true) == CFE_SUCCESS;
     }
     if (!selected)

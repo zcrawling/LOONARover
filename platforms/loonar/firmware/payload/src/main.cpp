@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <Wire.h>
+#include <EEPROM.h>
 
 #include <Adafruit_LIS3MDL.h>
 #include <Adafruit_MAX31865.h>
@@ -64,7 +65,23 @@ uint32_t stationId = 1;
 uint32_t stationStartMs = 0;
 bool stationActive = false;
 bool stationStopRequested = false;
-char stationCommand[16] = {};
+char stationCommand[80] = {};
+bool commandOverflow = false;
+bool initializing = false;
+uint8_t initStage = 0, initAttempt = 0;
+uint32_t initDue = 0, bootId = 0, sampleSequence = 0;
+uint8_t sampleValidMask = 0;
+uint32_t lastDataMs = 0;
+bool startPending = false;
+char startRequest[21] = {}, stopRequest[21] = {};
+String lastResult;
+uint32_t lastResultStation = 0;
+struct ReplyCache { char id[21] = {}; char operation[6] = {}; String reply; };
+ReplyCache replies[8];
+uint8_t replyNext = 0;
+char boardId[17];
+void pollStationCommand();
+void completeCommand(const char*, const char*, uint32_t);
 uint8_t stationCommandLength = 0;
 uint8_t stationSamples = 0;
 uint8_t stationValid = 0;
@@ -98,30 +115,37 @@ void finishStation(uint32_t endMs) {
     features[1] = medianOf(stationIr, stationValid);
     features[2] = medianOf(stationRtd, stationValid);
   }
-  Serial.print("PCA,");
-  Serial.print(loonar_pca::kModelId);
-  Serial.print(','); Serial.print(stationId);
-  Serial.print(','); Serial.print(stationStartMs);
-  Serial.print(','); Serial.print(endMs);
-  Serial.print(','); Serial.print(stationSamples);
-  Serial.print(','); Serial.print(stationValid);
-  Serial.print(','); Serial.print(usable ? 1 : 0);
+  struct ResultPrint : Print {
+    String value;
+    size_t write(uint8_t c) override { value += static_cast<char>(c); return 1; }
+  } result;
+  result.print("PCA,");
+  result.print(loonar_pca::kModelId);
+  result.print(','); result.print(stationId);
+  result.print(','); result.print(stationStartMs);
+  result.print(','); result.print(endMs);
+  result.print(','); result.print(stationSamples);
+  result.print(','); result.print(stationValid);
+  result.print(','); result.print(usable ? 1 : 0);
   for (float feature : features) {
-    Serial.print(',');
-    if (usable) Serial.print(feature, 6);
-    else Serial.print("nan");
+    result.print(',');
+    if (usable) result.print(feature, 6);
+    else result.print("nan");
   }
   if (usable) {
-    const loonar_pca::PcaResult result =
+    const loonar_pca::PcaResult score =
         loonar_pca::score(loonar_pca::kModel, features);
-    Serial.print(','); Serial.print(result.q_residual, 6);
-    Serial.print(','); Serial.print(result.t2_distance, 6);
-    Serial.print(','); Serial.print(result.novelty, 6);
-    Serial.print(','); Serial.print(result.candidate ? 1 : 0);
-    Serial.println(loonar_pca::kDemoModel ? ",DEMO_ONLY" : ",TRAINED_MODEL");
+    result.print(','); result.print(score.q_residual, 6);
+    result.print(','); result.print(score.t2_distance, 6);
+    result.print(','); result.print(score.novelty, 6);
+    result.print(','); result.print(score.candidate ? 1 : 0);
+    result.println(loonar_pca::kDemoModel ? ",DEMO_ONLY" : ",TRAINED_MODEL");
   } else {
-    Serial.println(",nan,nan,nan,0,INVALID_STATION");
+    result.println(",nan,nan,nan,0,INVALID_STATION");
   }
+  lastResult = result.value;
+  lastResultStation = stationId;
+  Serial.print(lastResult);
   ++stationId;
   stationStartMs = endMs;
   stationSamples = stationValid = 0;
@@ -342,96 +366,142 @@ bool beginRtd() {
 
 void printCsvHeader();
 
-bool beginWithRetries(const char* name, bool (*beginSensor)()) {
-  for (uint8_t attempt = 1; attempt <= BEGIN_MAX_ATTEMPTS; ++attempt) {
-    Serial.print("# ");
-    Serial.print(name);
-    Serial.print(" begin attempt ");
-    Serial.print(attempt);
-    Serial.print('/');
-    Serial.println(BEGIN_MAX_ATTEMPTS);
-    if (beginSensor()) return true;
-    if (attempt < BEGIN_MAX_ATTEMPTS) delay(BEGIN_RETRY_DELAY_MS);
-  }
-  Serial.print("# ");
-  Serial.print(name);
-  Serial.println(" unavailable after 5 attempts");
-  return false;
-}
-
+// One sensor begin per loop iteration; retry and bus delays never block USB polling.
 void reinitializeSensors(const char* reason) {
-  Serial.println();
-  Serial.print("# SENSOR REINITIALIZATION BEGIN reason=");
-  Serial.println(reason);
-
-  pinMode(PIN_MAX31865_CS, OUTPUT);
-  digitalWrite(PIN_MAX31865_CS, HIGH);
-  SPI.begin();
-
-  Wire2.setSDA(PIN_LIS3MDL_SDA);
-  Wire2.setSCL(PIN_LIS3MDL_SCL);
-  Wire2.begin();
-  Wire2.setClock(I2C_CLOCK_HZ);
-  Wire1.setSDA(PIN_MLX90614_SDA);
-  Wire1.setSCL(PIN_MLX90614_SCL);
-  Wire1.begin();
-  Wire1.setClock(MLX90614_I2C_CLOCK_HZ);
-  delay(BUS_STABILIZE_MS);
-  delay(WIRE_STABILIZE_MS - BUS_STABILIZE_MS);
-  printLis3mdlLineState("after_wire2_reinit");
-
-  magnetometerReady = beginWithRetries("LIS3MDL", beginMagnetometer);
-  infraredReady = beginWithRetries("MLX90614", beginInfrared);
-  rtdReady = beginWithRetries("MAX31865", beginRtd);
-
-  mlxRuntimeFailures = 0;
-  const uint32_t completedMs = millis();
-  mlxNextRetryMs = infraredReady ? 0 : completedMs + MLX90614_COOLDOWN_MS;
-  lastRetryMs = completedMs;
-  lastSampleMs = completedMs;
-  lastPeriodicReinitMs = completedMs;
-
-  Serial.print("# SENSOR REINITIALIZATION END LIS3MDL=");
-  Serial.print(magnetometerReady ? 1 : 0);
-  Serial.print(" MLX90614=");
-  Serial.print(infraredReady ? 1 : 0);
-  Serial.print(" MAX31865=");
-  Serial.println(rtdReady ? 1 : 0);
-  printCsvHeader();
+  Serial.print("# INIT "); Serial.println(reason);
+  initializing = true;
+  initStage = initAttempt = 0;
+  initDue = millis();
 }
 
+void serviceInitialization() {
+  if (!initializing || static_cast<int32_t>(millis() - initDue) < 0) return;
+  if (initStage == 0) {
+    pinMode(PIN_MAX31865_CS, OUTPUT); digitalWrite(PIN_MAX31865_CS, HIGH);
+    SPI.begin();
+    Wire2.setSDA(PIN_LIS3MDL_SDA); Wire2.setSCL(PIN_LIS3MDL_SCL);
+    Wire2.begin(); Wire2.setClock(I2C_CLOCK_HZ);
+    Wire1.setSDA(PIN_MLX90614_SDA); Wire1.setSCL(PIN_MLX90614_SCL);
+    Wire1.begin(); Wire1.setClock(MLX90614_I2C_CLOCK_HZ);
+    magnetometerReady = infraredReady = rtdReady = false;
+    sampleValidMask = 0;
+    initStage = 1; initDue = millis() + WIRE_STABILIZE_MS;
+    return;
+  }
+  bool ok = initStage == 1 ? beginMagnetometer() :
+            initStage == 2 ? beginInfrared() : beginRtd();
+  if (initStage == 1) magnetometerReady = ok;
+  if (initStage == 2) infraredReady = ok;
+  if (initStage == 3) rtdReady = ok;
+  if (ok || ++initAttempt >= BEGIN_MAX_ATTEMPTS) { ++initStage; initAttempt = 0; }
+  initDue = millis() + BEGIN_RETRY_DELAY_MS;
+  if (initStage <= 3) return;
+  initializing = false;
+  mlxRuntimeFailures = 0;
+  lastRetryMs = lastSampleMs = lastPeriodicReinitMs = millis();
+  mlxNextRetryMs = infraredReady ? 0 : millis() + MLX90614_COOLDOWN_MS;
+  printCsvHeader();
+  if (startPending) {
+    startPending = false; stationActive = true; stationStartMs = millis();
+    completeCommand(startRequest, "START", stationId);
+  }
+}
+
+const char* measurementState() {
+  if (startPending) return "STARTING";
+  if (stationStopRequested) return "STOPPING";
+  if (initializing) return "INITIALIZING";
+  return stationActive ? "MEASURING" : "IDLE";
+}
+void completeCommand(const char* id, const char* op, uint32_t station) {
+  if (!id[0]) { Serial.print("CTRL,"); Serial.print(op); Serial.print(','); Serial.println(station); return; }
+  String line = String("DONE,") + id + "," + op + "," + station;
+  for (auto &r : replies) if (!strcmp(r.id, id)) r.reply = line;
+  Serial.println(line);
+}
+void executeCommand(char* line) {
+  if (!strcmp(line, "HELLO")) {
+    Serial.print("HELLO,1,PAYLOAD,"); Serial.print(boardId);
+    Serial.print(",payload-1,"); Serial.println(bootId); return;
+  }
+  if (!strncmp(line, "STATUS,", 7)) {
+    const char* id = line + 7;
+    if (!*id || strlen(id) > 20 || strspn(id, "0123456789") != strlen(id)) return;
+    Serial.print("HEALTH,1,"); Serial.print(id); Serial.print(','); Serial.print(boardId);
+    Serial.print(','); Serial.print(bootId); Serial.print(','); Serial.print(measurementState());
+    Serial.print(','); Serial.print(stationId); Serial.print(','); Serial.print(millis());
+    Serial.print(','); Serial.print(sampleSequence ? sampleValidMask :
+      (magnetometerReady | (infraredReady << 1) | (rtdReady << 2)));
+    Serial.print(','); Serial.print(sampleSequence ? millis() - lastDataMs : UINT32_MAX);
+    Serial.print(','); Serial.print(sampleSequence); Serial.println(",payload-1"); return;
+  }
+  char* id = nullptr; char* op = line;
+  if (!strncmp(line, "CMD,", 4)) {
+    id = line + 4; op = strchr(id, ',');
+    if (!op) return;
+    *op++ = 0;
+    if (!*id || strlen(id) > 20 || strspn(id, "0123456789") != strlen(id)) return;
+    if (strcmp(op,"START") && strcmp(op,"STOP") && strcmp(op,"RESULT")) {
+      Serial.print("ERROR,"); Serial.print(id); Serial.println(",unknown_command"); return;
+    }
+    for (auto &r : replies) if (!strcmp(r.id, id)) {
+      if (strcmp(r.operation, op)) { Serial.print("ERROR,"); Serial.print(id); Serial.println(",request_conflict"); }
+      else Serial.println(r.reply);
+      return;
+    }
+    if (!strcmp(op,"RESULT")) {
+      if (lastResult.length()) {
+        Serial.print(lastResult); completeCommand(id,"RESULT",lastResultStation);
+      } else { Serial.print("ERROR,"); Serial.print(id); Serial.println(",no_result"); }
+      return;
+    }
+    auto &r = replies[replyNext++ % 8];
+    strncpy(r.id,id,sizeof(r.id)); strncpy(r.operation,op,sizeof(r.operation));
+    r.reply = String("ACK,") + id + "," + op;
+  }
+  auto error = [&](const char* why) {
+    String reply = id ? String("ERROR,") + id + "," + why : String("CTRL,ERROR,") + why;
+    if (id) for (auto &r : replies) if (!strcmp(r.id,id)) r.reply = reply;
+    Serial.println(reply);
+  };
+  if (!strcmp(op,"START")) {
+    if (stationActive || startPending || initializing) { error("busy"); return; }
+    strncpy(startRequest,id ? id : "",sizeof(startRequest));
+    stationSamples = stationValid = 0; stationOverflow = false; stationStopRequested = false;
+    startPending = true;
+    if (id) { Serial.print("ACK,"); Serial.print(id); Serial.println(",START"); }
+    reinitializeSensors("station_start");
+  } else if (!strcmp(op,"STOP")) {
+    if (id) { Serial.print("ACK,"); Serial.print(id); Serial.println(",STOP"); }
+    if (startPending) {
+      startPending = initializing = false;
+      if (startRequest[0]) {
+        String reply = String("ERROR,") + startRequest + ",cancelled";
+        for (auto &r : replies) if (!strcmp(r.id,startRequest)) r.reply = reply;
+        Serial.println(reply);
+      }
+      completeCommand(id ? id : "","STOP",0); return;
+    }
+    if (!stationActive) { completeCommand(id ? id : "","STOP",0); return; }
+    if (stationStopRequested) { error("stop_pending"); return; }
+    strncpy(stopRequest,id ? id : "",sizeof(stopRequest)); stationStopRequested = true;
+    // Stop must remain possible even while recovering a failed sensor.
+    initializing = false;
+  } else error("unknown_command");
+}
 void pollStationCommand() {
-  while (Serial.available() > 0) {
-    const char ch = static_cast<char>(Serial.read());
+  unsigned budget = 256;
+  while (budget-- && Serial.available() > 0) {
+    const char ch = Serial.read();
     if (ch == '\r') continue;
     if (ch == '\n') {
-      stationCommand[stationCommandLength] = '\0';
-      if (strcmp(stationCommand, "START") == 0) {
-        if (stationActive) {
-          Serial.println("CTRL,ERROR,already_measuring");
-        } else {
-          reinitializeSensors("station_start");
-          stationSamples = stationValid = 0;
-          stationOverflow = false;
-          stationStopRequested = false;
-          stationStartMs = millis();
-          stationActive = true;
-          Serial.print("CTRL,START,");
-          Serial.println(stationId);
-        }
-      } else if (strcmp(stationCommand, "STOP") == 0) {
-        if (!stationActive) Serial.println("CTRL,ERROR,not_measuring");
-        else stationStopRequested = true;
-      } else if (stationCommandLength > 0) {
-        Serial.println("CTRL,ERROR,unknown_command");
-      }
-      stationCommandLength = 0;
-    } else if (stationCommandLength < sizeof(stationCommand) - 1) {
+      stationCommand[stationCommandLength] = 0;
+      if (!commandOverflow && stationCommandLength) executeCommand(stationCommand);
+      else if (commandOverflow) Serial.println("CTRL,ERROR,command_too_long");
+      stationCommandLength = 0; commandOverflow = false;
+    } else if (!commandOverflow && stationCommandLength < sizeof(stationCommand)-1)
       stationCommand[stationCommandLength++] = ch;
-    } else {
-      stationCommandLength = 0;
-      Serial.println("CTRL,ERROR,command_too_long");
-    }
+    else commandOverflow = true; // discard the entire line, never execute its suffix
   }
 }
 
@@ -439,8 +509,8 @@ void retryMissingSensors(uint32_t now) {
   if (now - lastRetryMs < RETRY_INTERVAL_MS) return;
   lastRetryMs = now;
   if (!magnetometerReady)
-    magnetometerReady = beginWithRetries("LIS3MDL", beginMagnetometer);
-  if (!rtdReady) rtdReady = beginWithRetries("MAX31865", beginRtd);
+    magnetometerReady = beginMagnetometer();
+  if (!rtdReady) rtdReady = beginRtd();
 }
 
 bool retryInfrared(uint32_t now) {
@@ -478,78 +548,30 @@ void printCsvHeader() {
 
 void setup() {
   Serial.begin(115200);
-  delay(POWER_STABILIZE_MS);
-
-  pinMode(PIN_MAX31865_CS, OUTPUT);
-  digitalWrite(PIN_MAX31865_CS, HIGH);
-  SPI.begin();
-  Wire2.setSDA(PIN_LIS3MDL_SDA);
-  Wire2.setSCL(PIN_LIS3MDL_SCL);
-  Wire2.begin();
-  Wire2.setClock(I2C_CLOCK_HZ);
-  Wire1.setSDA(PIN_MLX90614_SDA);
-  Wire1.setSCL(PIN_MLX90614_SCL);
-  Wire1.begin();
-  Wire1.setClock(MLX90614_I2C_CLOCK_HZ);
-  delay(BUS_STABILIZE_MS);
-  delay(WIRE_STABILIZE_MS - BUS_STABILIZE_MS);
-  printLis3mdlLineState("after_wire2_setup");
-
-  Serial.println();
-  Serial.println("# TEENSY 4.1 THREE-SENSOR LOGGER");
-  Serial.print("# SPI MAX31865: CS=");
-  Serial.print(PIN_MAX31865_CS);
-  Serial.print(" MOSI=");
-  Serial.print(BOARD_SPI_MOSI);
-  Serial.print(" MISO=");
-  Serial.print(BOARD_SPI_MISO);
-  Serial.print(" SCK=");
-  Serial.println(BOARD_SPI_SCK);
-  Serial.print("# MAX31865 SPI: clock=");
-  Serial.print(MAX31865_SPI_CLOCK_HZ);
-  Serial.print("Hz mode=");
-  Serial.println(MAX31865_SPI_MODE);
-  Serial.print("# I2C LIS3MDL Wire2: SDA=");
-  Serial.print(PIN_LIS3MDL_SDA);
-  Serial.print(" SCL=");
-  Serial.print(PIN_LIS3MDL_SCL);
-  Serial.print(" clock=");
-  Serial.println(I2C_CLOCK_HZ);
-  Serial.print("# I2C MLX90614 Wire1: SDA=");
-  Serial.print(PIN_MLX90614_SDA);
-  Serial.print(" SCL=");
-  Serial.print(PIN_MLX90614_SCL);
-  Serial.print(" clock=");
-  Serial.println(MLX90614_I2C_CLOCK_HZ);
-
-  magnetometerReady = beginWithRetries("LIS3MDL", beginMagnetometer);
-  infraredReady = beginWithRetries("MLX90614", beginInfrared);
-  rtdReady = beginWithRetries("MAX31865", beginRtd);
-
-  printCsvHeader();
-  Serial.println("PCA_HEADER,model_id,station_id,start_ms,end_ms,sample_count,valid_count,usable,mag_norm_uT,ir_object_C,rtd_C,q_residual,t2_distance,novelty,candidate,status");
-  Serial.print("# PCA model=");
-  Serial.print(loonar_pca::kModelId);
-  Serial.println(loonar_pca::kDemoModel
-                     ? " DEMO_ONLY; candidate is a calculation test"
-                     : " TRAINED_MODEL; inspect report.json before interpretation");
-  lastRetryMs = millis();
-  mlxNextRetryMs = infraredReady ? 0 : millis() + MLX90614_COOLDOWN_MS;
-  lastPeriodicReinitMs = millis();
-  stationStartMs = 0;
+  snprintf(boardId,sizeof(boardId),"%08lx%08lx",(unsigned long)HW_OCOTP_CFG0,(unsigned long)HW_OCOTP_CFG1);
+  uint32_t magic = 0; const int base = EEPROM.length()-8;
+  EEPROM.get(base,magic); EEPROM.get(base+4,bootId);
+  bootId = magic == 0x504C4431 ? bootId + 1 : 1;
+  if (!bootId) bootId = 1;
+  EEPROM.put(base,(uint32_t)0x504C4431); EEPROM.put(base+4,bootId);
+  reinitializeSensors("boot");
+  initDue = millis() + POWER_STABILIZE_MS;
 }
 
 void loop() {
   pollStationCommand();
-  if (!stationActive) return;
+  serviceInitialization();
+  if (initializing || !stationActive) return;
   const uint32_t now = millis();
-  if (now - lastPeriodicReinitMs >= PERIODIC_REINIT_INTERVAL_MS) {
+  if (!stationStopRequested && now - lastPeriodicReinitMs >= PERIODIC_REINIT_INTERVAL_MS) {
     reinitializeSensors("periodic_5min");
     return;
   }
   // Do not read other sensors while MLX90614 initialization is running.
-  if (retryInfrared(now)) return;
-  retryMissingSensors(now);
+  if (!stationStopRequested) {
+    if (retryInfrared(now)) return;
+    retryMissingSensors(now);
+  }
   if (now - lastSampleMs < SAMPLE_INTERVAL_MS) return;
   lastSampleMs = now;
 
@@ -612,6 +634,10 @@ void loop() {
   Serial.print(",0x"); printHexByte(rtdFault);
   Serial.println();
 
+  ++sampleSequence;
+  lastDataMs = now;
+  sampleValidMask = magValid | (irValid << 1) | ((rtdValid && rtdFault == 0) << 2);
+  Serial.print("SAMPLE_META,"); Serial.print(sampleSequence); Serial.print(','); Serial.println(now);
   addStationSample(now, magNorm, irObjectC, rtdC,
                    magValid && irValid && rtdValid && rtdFault == 0 &&
                    isfinite(magNorm) && isfinite(irObjectC) && isfinite(rtdC));
@@ -621,8 +647,7 @@ void loop() {
     finishStation(now);
     stationActive = false;
     stationStopRequested = false;
-    Serial.print("CTRL,STOP,");
-    Serial.println(completedStation);
+    completeCommand(stopRequest, "STOP", completedStation);
     return;
   }
 

@@ -31,3 +31,9 @@ Control의 BNO055 핀과 번호가 같아도 **서로 다른 Teensy**다.
 
 [Pi 서비스와 GCS 연동](../../porting/payload_pca_runbook.md),
 [PC 직접 수집](../../tools/payload_pca_desktop.md).
+
+## Pi 연동
+
+[USB 프로토콜 v1](../../porting/payload_protocol.md): STATUS health, 요청 번호, ACK/DONE,
+마지막 결과 조회를 지원한다. 초기화 대기·재시도는 단계별 실행하며 USB 폴링을 유지한다.
+[배포와 실행](../../porting/payload_pca_runbook.md).

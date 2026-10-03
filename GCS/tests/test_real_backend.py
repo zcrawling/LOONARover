@@ -43,8 +43,8 @@ class RealBackendTests(unittest.IsolatedAsyncioTestCase):
             request_id, actual_opcode, parameter_length = struct.unpack(
                 "<QHH", writer.data[-1][HEADER.size:])
             self.assertEqual(header[2], 0x0004)
-            self.assertEqual((request_id, actual_opcode, parameter_length),
-                             (header[3], opcode, 0))
+            self.assertEqual((actual_opcode, parameter_length), (opcode, 0))
+            self.assertTrue(0 <= request_id < 2**64)
         self.assertFalse((await connection.command("PAYLOAD"))["ok"])
         self.assertFalse((await connection.command("REACTION"))["ok"])
 

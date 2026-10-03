@@ -23,10 +23,6 @@ class DesktopService(Service):
         self.port = serial.Serial(self.device, 115200, timeout=0, write_timeout=1)
         self.serial_fd = self.port
         self.port.reset_input_buffer()
-        self.log_dir.mkdir(parents=True, exist_ok=True)
-        path = self.log_dir / f"payload-pca-{time.time_ns()}.csv"
-        self.log_file = path.open("x", encoding="utf-8", newline="")
-        self.emit(f"LOG,{path.resolve()}")
 
     def close_serial(self):
         self.port.close()
@@ -47,7 +43,7 @@ class DesktopService(Service):
                 if self.port.in_waiting:
                     self.serial_event()
             except OSError as exc:
-                self.fail_capture(self.request_id, f"USB:{exc}")
+                self.disconnect("read_failed")
         self.check_deadline()
 
 
@@ -97,7 +93,10 @@ def main():
         service.poll()
         root.after(50, poll)
 
+    close_deadline = [None]
+
     def close():
+        close_deadline[0] = time.monotonic() + 22
         if service.serial_fd is not None:
             command(STOP)
             # Keep polling until STOP/PCA completes or the shared timeout fires.
@@ -106,10 +105,12 @@ def main():
             root.destroy()
 
     def finish_close():
-        if service.serial_fd is None:
+        if (not service.pending and not service.running) or time.monotonic() >= close_deadline[0]:
+            service.close_capture()
+            service.close_serial()
             root.destroy()
         else:
-            if service.running and service.stopping_request is None:
+            if service.running and not any(item[1] == "STOP" for item in service.pending.values()):
                 command(STOP)
             root.after(100, finish_close)
 

@@ -16,6 +16,7 @@
 - [GroundLink](ground_link_protocol.md)
 - [Gateway 소켓](vehicle_gatewayd_if.md)
 - [Control MCU wire v2](../platforms/loonar/porting/mcu_wire_v2.md)
+- [Payload USB·health](../platforms/loonar/porting/payload_protocol.md)
 - [cFS 앱](../cfs/README.md)
 - [장치 없는 통합 시험](../tools/gcs_test/README.md)
 

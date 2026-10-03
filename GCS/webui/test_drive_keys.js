@@ -16,7 +16,7 @@ function browser() {
     });
     return nodes.get(id);
   }
-  const buttons = ['STOP', 'AUTO', 'MANUAL'].map(node);
+  const buttons = ['STOP', 'AUTO', 'MANUAL', 'PAYLOAD_START', 'PAYLOAD_STOP'].map(node);
   const context = vm.createContext({
     document: {getElementById: node, querySelectorAll: () => buttons,
                createElement: () => node(Symbol())},
@@ -149,4 +149,14 @@ test('angular slider and wheel stop at 3.80 rad/s', () => {
   b.node('angular-speed').input();
   b.node('angular-speed-control').wheel({deltaY:-1, preventDefault(){}});
   assert.equal(b.node('angular-speed').value, '3.80');
+});
+
+
+test('Payload STOP remains available during initialization', () => {
+  const b = browser();
+  b.draw({connection: 'CONNECTED', status: {values: {}, payload: {state: 'STARTING'}}});
+  assert.equal(b.node('PAYLOAD_STOP').disabled, false);
+  assert.equal(b.node('PAYLOAD_START').disabled, true);
+  b.draw({connection: 'CONNECTED', status: {values: {}, payload: {state: 'STOPPING'}}});
+  assert.equal(b.node('PAYLOAD_STOP').disabled, true);
 });

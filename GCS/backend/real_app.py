@@ -8,6 +8,7 @@ import fcntl
 import json
 import math
 import os
+import secrets
 import struct
 import time
 from collections import OrderedDict, deque
@@ -53,6 +54,8 @@ class RealState:
         self.mcu = {}
         self.imu_attitude = None
         self.last_imu = None
+        self.payload_health_at = None
+        self.payload_ascii = False
 
     def event(self, text, request_id=None):
         self.event_sequence += 1
@@ -61,6 +64,10 @@ class RealState:
 
     def snapshot(self):
         t = time.monotonic()
+        if self.payload_ascii and (self.connection != "CONNECTED" or self.payload_health_at is None
+                                   or t - self.payload_health_at >= 3):
+            self.values["Payload MCU 연결"] = "OFFLINE"
+            self.values["Payload 서비스"] = "OFFLINE"
         age = lambda stamp: None if stamp is None else round(t - stamp, 2)
         active = self.connection == "CONNECTED"
         return {
@@ -132,7 +139,7 @@ class GroundLinkConnection:
         payload = struct.pack("<dd", *motions[name]) if name in motions else (
             struct.pack("<dd", 0.0, 0.0) if name == "MANUAL" else b"")
         if name in {"PAYLOAD_START", "PAYLOAD_STOP"}:
-            payload = struct.pack("<QHH", sequence,
+            payload = struct.pack("<QHH", secrets.randbits(64),
                                   1 if name == "PAYLOAD_START" else 2, 0)
         if vector:
             payload = struct.pack("<dd", *normalize_motion(linear_mps, angular_radps))
@@ -212,7 +219,35 @@ class GroundLinkConnection:
                 self.state.values[f"{device['name']} 연결"] = device["state"]
             self.state.last_status = t
         elif frame_type == 0x8006:
-            self.state.event(f"[{data['source']}] {data['text']}")
+            if data["source"] != "payload-health":
+                self.state.event(f"[{data['source']}] {data['text']}")
+            if data["source"] == "payload-health":
+                fields = data["text"].split(",")
+                try:
+                    if len(fields) != 11 or fields[:2] != ["HEALTH", "1"]:
+                        raise ValueError("health format")
+                    online, boot = int(fields[2]), int(fields[3])
+                    station, mask, age, sample_age, seq = map(int, fields[5:10])
+                    if online not in (0, 1) or not 0 <= mask <= 7 or any(
+                        x < 0 or x > 0xffffffff for x in (boot, station, age, sample_age, seq)):
+                        raise ValueError("health range")
+                    if len(fields[10]) != 16: raise ValueError("uid")
+                    int(fields[10], 16)
+                    values = self.state.values
+                    self.state.payload_ascii = True
+                    self.state.payload_health_at = t
+                    values["Payload 서비스"] = "OFFLINE" if fields[4] == "UNAVAILABLE" else "ONLINE"
+                    values["Payload MCU 연결"] = "ONLINE" if online and age < 3000 else "OFFLINE"
+                    values["Payload MCU UID"] = fields[10]
+                    values["Payload 측정 상태"] = fields[4]
+                    values["Payload health 경과 (ms)"] = age
+                    values["Payload 표본 경과 (ms)"] = None if sample_age == 0xffffffff else sample_age
+                    values["Payload 표본 번호"] = seq
+                    for bit, sensor in enumerate(("LIS3MDL", "MLX90614", "MAX31865")):
+                        values[f"Payload {sensor}"] = ("정상" if mask & (1 << bit) else "미확인/오류") if online else "미확인"
+                    self.state.last_status = t
+                except (ValueError, IndexError):
+                    self.state.event("[payload-health] malformed health event")
             if data["source"] == "payload-pca":
                 fields = data["text"].split(",")
                 if len(fields) >= 4 and fields[0] == "STATE":
@@ -245,6 +280,8 @@ class GroundLinkConnection:
                     except (ValueError, IndexError):
                         self.state.event("[payload-pca] malformed PCA event")
         elif frame_type == 0x8007:
+            if data["role"] == "payload" and self.state.payload_ascii:
+                return
             self.state.mcu[data["role"]] = data
             name = "Control" if data["role"] == "control" else "Payload"
             values = self.state.values

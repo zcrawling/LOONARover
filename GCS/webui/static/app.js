@@ -4,7 +4,7 @@ const el=id=>document.getElementById(id);
 const set=(id,text)=>{el(id).textContent=text;};
 const connectionLabels={CONNECTED:'정상 연결',CONNECTING:'연결 중',RECONNECTING:'재연결 중',DISCONNECTED:'연결 끊김',DEGRADED:'통신 불안정'};
 function badge(id,text,kind=''){set(id,text);el(id).className='badge '+kind;}
- function controls(){document.querySelectorAll('[data-command]').forEach(b=>{const state=current?.status?.payload?.state||'IDLE';b.disabled=!current||current.connection!=='CONNECTED'||busy||(b.dataset.command==='PAYLOAD_START'&&['STARTING','MEASURING','STOPPING'].includes(state))||(b.dataset.command==='PAYLOAD_STOP'&&state!=='MEASURING');});}
+ function controls(){document.querySelectorAll('[data-command]').forEach(b=>{const state=current?.status?.payload?.state||'IDLE';b.disabled=!current||current.connection!=='CONNECTED'||busy||(b.dataset.command==='PAYLOAD_START'&&['STARTING','MEASURING','STOPPING'].includes(state))||(b.dataset.command==='PAYLOAD_STOP'&&!['STARTING','MEASURING'].includes(state));});}
 function selectCommand(command){document.querySelectorAll('[data-command]').forEach(button=>{const selected=button.dataset.command===command;button.classList.toggle('selected',selected);button.setAttribute('aria-pressed',String(selected));});}
 function number(value,unit=''){return typeof value==='number'&&Number.isFinite(value)?`${value}${unit}`:'—';}
 function clockTime(date=new Date()){return date.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});}

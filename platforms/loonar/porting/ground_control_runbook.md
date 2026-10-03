@@ -71,7 +71,8 @@ GCS STOP 후 Pi 터미널에서 Ctrl+C한다. backend는 STOP을 요청하고 �
 
 ## Payload와 systemd
 
-이 스크립트는 Payload 서비스나 전체 localization을 시작하지 않는다.
+`--payload-device /dev/serial/by-id/...`를 주면 Payload 서비스를 함께 시작한다.
+이 인자가 없으면 별도 Payload 서비스가 필요하다. 전체 localization은 별도 실행한다.
 Payload는 [별도 안내](payload_pca_runbook.md)에 따라 `loonar-payload-pca.service`를
 준비한다. checkout bench를 사용할 때 systemd gateway/cFS/Control을 중복 실행하지 않는다.
 `loonar-mcu@control.service`가 없으면 systemd runtime이 설치되지 않은 것이다.

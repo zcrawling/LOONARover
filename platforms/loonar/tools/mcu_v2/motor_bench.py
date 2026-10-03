@@ -31,6 +31,7 @@ def main():
     parser.add_argument("--record", action="store_true", help="Publish MCU ROS samples and record available ROS topics to ~/loonar-bags")
     parser.add_argument("--record-video", action="store_true", help="Record Pi camera H.264 video locally, with or without --video")
     parser.add_argument("--video-record-dir", type=Path, default=Path.home() / "loonar-videos")
+    parser.add_argument("--payload-device", type=Path, help="Run Payload ASCII service for this USB by-id device")
     args = parser.parse_args()
     if args.record:
         args.ros_samples = True
@@ -54,6 +55,10 @@ def main():
             probe.bind(("0.0.0.0", 7443))
     if subprocess.run(["systemctl", "is-active", "--quiet", "loonar-mcu@control.service"]).returncode == 0:
         raise ValueError("Stop loonar-mcu@control.service before starting this bench")
+    if args.payload_device and args.cfs_dir and not (args.cfs_dir / "cf/lnr_payload.so").is_file():
+        raise ValueError("Rebuild cFS with PayloadAdapter before using --payload-device")
+    if args.payload_device and subprocess.run(["systemctl", "is-active", "--quiet", "loonar-payload-pca.service"]).returncode == 0:
+        raise ValueError("Stop loonar-payload-pca.service before using --payload-device")
     runtime = args.runtime.expanduser().resolve()
     runtime.mkdir(parents=True, exist_ok=True)
     lock = open(runtime / "bench.lock", "a")
@@ -88,6 +93,8 @@ def main():
         environment["PYTHONPATH"] = str(Path(__file__).resolve().parents[1]) + os.pathsep + environment.get("PYTHONPATH", "")
         environment["LOONAR_GATEWAY_SOCKET"] = str(gateway_dir / "cfs.sock")
         environment["LOONAR_MCU_HEALTH_SOCKET"] = str(runtime / "cfs-health.sock")
+        if args.payload_device:
+            environment["LOONAR_PAYLOAD_PCA_SOCKET"] = str(runtime / "payload-pca.sock")
         if args.ros_samples:
             from .ros_samples import RosSamples
 
@@ -101,6 +108,11 @@ def main():
         commands = [
             ("gateway", [str(args.gateway_bin.resolve()), "--runtime-dir", str(gateway_dir)], None),
         ]
+        if args.payload_device:
+            commands.append(("payload", [sys.executable,
+                str(Path(__file__).resolve().parents[1] / "payload_pca_service.py"),
+                "--device", str(args.payload_device), "--socket", str(runtime / "payload-pca.sock"),
+                "--log-dir", str(runtime / "payload")], None))
         if args.cfs_dir:
             commands.append(("cfs", [str(args.cfs_dir / "core-cpu1")], args.cfs_dir))
         commands.append(("backend", [sys.executable, "-m", "mcu_v2.backend", "--role", "control",
@@ -150,7 +162,7 @@ def main():
                 if code is None or name in reported_exits:
                     continue
                 reported_exits.add(name)
-                if name in ("video", "record"):
+                if name in ("video", "record", "payload"):
                     logging.error("%s exited (code=%s); inspect %s/%s.log. "
                                   "Control continues; this optional output is unavailable.", name, code, runtime, name)
                 else:

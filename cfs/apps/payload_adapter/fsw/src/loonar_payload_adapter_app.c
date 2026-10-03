@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
+#include <time.h>
 
 #define PA_PIPE_DEPTH 8
 #define PA_DEFAULT_SOCKET "/run/loonar/payload-pca.sock"
@@ -79,7 +80,8 @@ static void PA_Event(const char *text, uint8_t severity, uint32_t code)
     message.TimestampMs = (uint64_t)now.Seconds * 1000U + now.Subseconds / 4294967U;
     message.Severity = severity;
     message.Code = code;
-    strncpy(message.Source, "payload-pca", sizeof(message.Source) - 1);
+    strncpy(message.Source, strncmp(text, "HEALTH,", 7) == 0 ? "payload-health" : "payload-pca",
+            sizeof(message.Source) - 1);
     strncpy(message.Text, text, sizeof(message.Text) - 1);
     CFE_SB_TransmitMsg(CFE_MSG_PTR(message.TelemetryHeader), true);
 }
@@ -115,9 +117,10 @@ static void PA_Read(void)
 {
     char text[LOONAR_EVENT_TEXT_MAX];
     ssize_t count;
-    for (;;)
+    unsigned budget;
+    for (budget = 0; budget < 32; ++budget)
     {
-        count = recv(PA.SocketFd, text, sizeof(text) - 1, 0);
+        count = recv(PA.SocketFd, text, sizeof(text) - 1, MSG_TRUNC);
         if (count < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
             return;
         if (count < 0 && errno == EINTR)
@@ -126,6 +129,10 @@ static void PA_Read(void)
         {
             PA_Close();
             return;
+        }
+        if (count >= (ssize_t)sizeof(text)) {
+            PA_Event("ERROR,0,TRANSPORT,event_too_long", 2, 0x5004);
+            continue;
         }
         text[count] = '\0';
         PA_Event(text, strncmp(text, "ERROR,", 6) == 0 ? 2 : 0,
@@ -161,6 +168,7 @@ static CFE_Status_t PA_Init(void)
 void LNR_PayloadMain(void)
 {
     CFE_SB_Buffer_t *buffer;
+    time_t last_offline = 0;
     CFE_Status_t status = PA_Init();
     if (status != CFE_SUCCESS)
         PA.RunStatus = CFE_ES_RunStatus_APP_ERROR;
@@ -170,6 +178,14 @@ void LNR_PayloadMain(void)
             PA_Command((const LOONAR_ActivityCmd_t *)buffer);
         if (PA_Connect())
             PA_Read();
+        if (PA.SocketFd < 0) {
+            struct timespec now;
+            clock_gettime(CLOCK_MONOTONIC, &now);
+            if (now.tv_sec != last_offline) {
+                last_offline = now.tv_sec;
+                PA_Event("HEALTH,1,0,0,UNAVAILABLE,0,0,4294967295,4294967295,0,0000000000000000", 0, 0x5005);
+            }
+        }
         OS_TaskDelay(10);
     }
     PA_Close();
