@@ -15,6 +15,7 @@ from cli.common import request
 
 STATIC = Path(__file__).parent / 'static'
 COMMANDS = {'STOP', 'MANUAL', 'AUTO', 'PAYLOAD', 'REACTION',
+            'PAYLOAD_START', 'PAYLOAD_STOP',
             'FORWARD', 'LEFT', 'REVERSE', 'RIGHT'}
 
 

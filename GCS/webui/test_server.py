@@ -20,9 +20,9 @@ class WebInterfaceTests(unittest.TestCase):
         self.server.server_close()
         self.thread.join()
 
-    def post(self, token):
+    def post(self, token, command='STOP'):
         return urllib.request.urlopen(urllib.request.Request(
-            self.url + '/api/command', data=b'{"command":"STOP"}',
+            self.url + '/api/command', data=json.dumps({'command': command}).encode(),
             headers={'Origin': self.url, 'X-GCS-Token': token,
                      'Content-Type': 'application/json'}))
 
@@ -38,6 +38,15 @@ class WebInterfaceTests(unittest.TestCase):
                 self.post('invalid')
             self.assertEqual(error.exception.code, 403)
             backend.assert_not_called()
+
+    def test_payload_commands_forwarded_once(self):
+        for command in ('PAYLOAD_START', 'PAYLOAD_STOP'):
+            with self.subTest(command=command):
+                with patch('webui.server.request', return_value={'ok': True}) as backend:
+                    with self.post(self.server.token, command) as response:
+                        self.assertEqual(response.status, 200)
+                        self.assertTrue(json.load(response)['ok'])
+                    backend.assert_called_once_with({'action': 'command', 'command': command})
 
     def test_backend_failure_is_not_retried(self):
         with patch('webui.server.request', side_effect=OSError('offline')) as backend:
