@@ -14,12 +14,7 @@ from backend.config import ROOT, DEFAULT_CONFIG, load
 from cli.common import request
 
 STATIC = Path(__file__).parent / 'static'
-<<<<<<< HEAD
-COMMANDS = {'STOP', 'MANUAL', 'AUTO', 'PAYLOAD', 'REACTION',
-            'PAYLOAD_START', 'PAYLOAD_STOP',
-=======
 COMMANDS = {'STOP', 'MANUAL', 'AUTO', 'PAYLOAD', 'PAYLOAD_START', 'PAYLOAD_STOP', 'REACTION',
->>>>>>> 933c56d32a98859401513df91b3c9343894417cb
             'FORWARD', 'LEFT', 'REVERSE', 'RIGHT'}
 
 
