@@ -22,6 +22,18 @@ fi
 : "${VIDEO_PROFILE:=medium}"
 : "${VIDEO_SOURCE:?VIDEO_SOURCE must be libcamera or v4l2}"
 : "${VIDEO_ENCODER_THREADS:=1}"
+: "${VISION_ENABLED:=0}"
+: "${VISION_SOCKET:=/run/loonar/vision.sock}"
+: "${VISION_SHM_BYTES:=33554432}"
+: "${VISION_FPS:=10}"
+if [[ "$VISION_ENABLED" != 0 && "$VISION_ENABLED" != 1 ]]; then
+  echo "VISION_ENABLED must be 0 or 1" >&2; exit 2
+fi
+if [[ "$VISION_ENABLED" == 1 ]]; then
+  [[ "$VISION_FPS" =~ ^[0-9]+$ && "$VISION_FPS" -ge 1 && "$VISION_FPS" -le 30 ]] || {
+    echo "VISION_FPS must be between 1 and 30" >&2; exit 2;
+  }
+fi
 
 case "$VIDEO_PROFILE" in
   low)
@@ -111,8 +123,11 @@ if [[ "$VIDEO_SOURCE" == v4l2 ]]; then
   CONVERSION_PIPELINE=(! videoconvert ! video/x-raw,format=I420)
 fi
 
-PIPELINE=(
-  "${SOURCE_PIPELINE[@]}"
+PIPELINE=("${SOURCE_PIPELINE[@]}")
+if [[ "$VISION_ENABLED" == 1 ]]; then
+  PIPELINE+=(! tee name=loonar_raw loonar_raw.)
+fi
+PIPELINE+=(
   ! queue max-size-buffers=2 leaky=downstream
   "${CONVERSION_PIPELINE[@]}"
   ! x264enc tune=zerolatency speed-preset=ultrafast
@@ -134,6 +149,16 @@ fi
 if [[ "$VIDEO_STREAM_ENABLED" == 1 ]]; then
   PIPELINE+=(! udpsink "host=$GROUND_STATION_IP" "port=$VIDEO_PORT" buffer-size=2097152 sync=true async=false)
   REQUIRED_OUTPUT_ELEMENTS+=(udpsink)
+fi
+if [[ "$VISION_ENABLED" == 1 ]]; then
+  # Only this branch converts NV12 to BGR. Encoding and recording keep their
+  # original pipeline; a slow detector drops frames rather than blocking it.
+  PIPELINE+=(loonar_raw. ! queue max-size-buffers=1 leaky=downstream
+    ! videorate drop-only=true ! "video/x-raw,framerate=$VISION_FPS/1"
+    ! videoconvert ! "video/x-raw,format=BGR,width=$WIDTH,height=$HEIGHT"
+    ! shmsink "socket-path=$VISION_SOCKET" "shm-size=$VISION_SHM_BYTES"
+      perms=432 wait-for-connection=false sync=false)
+  REQUIRED_OUTPUT_ELEMENTS+=(tee videorate videoconvert shmsink)
 fi
 
 if [[ "${LOONAR_VIDEO_DRY_RUN:-0}" == 1 ]]; then

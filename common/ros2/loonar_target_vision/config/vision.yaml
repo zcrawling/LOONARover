@@ -1,0 +1,17 @@
+loonar_target_vision:
+  ros__parameters:
+    # Keep dimensions equal to VIDEO_PROFILE, fps equal to VISION_FPS.
+    source_width: 640
+    source_height: 360
+    source_fps: 10
+    vision_socket: /run/loonar/vision.sock
+    # Replace this file with the trained two-class weight and restart vision.
+    model_path: /var/lib/loonar/vision/best.pt
+    model_sha256: ""
+    input_height: 640
+    input_width: 384
+    confidence: 0.35
+    cpu_threads: 2
+    max_result_age_ms: 500.0
+    ground_station_ip: 10.42.0.1
+    udp_port: 5601

@@ -18,10 +18,11 @@ CAM_PREFIX=$(cat "$CAM_WORK/prefix.txt")
 id loonar >/dev/null
 for file in "$CPU/core-cpu1" "$HOST/common/vehicle_gateway/vehicle_gatewayd" \
   "$HOST/common/vehicle_gateway/vehicle_gatewayctl" "$ROOT/build/loonar/capture_xyz" \
-  "$ROS_INSTALL/setup.bash" "$CAM_WORK/stage$CAM_PREFIX/bin/rpicam-hello"; do
+  "$ROS_INSTALL/setup.bash" "$ROS_INSTALL/share/loonar_target_vision/package.xml" \
+  "$CAM_WORK/stage$CAM_PREFIX/bin/rpicam-hello"; do
   [[ -f $file ]] || { echo "Missing artifact: $file" >&2; exit 2; }
 done
-for unit in vehicle_gatewayd loonar-cfs loonar-localization loonar-video loonar-tof loonar-mcu@control loonar-mcu@payload loonar-mcu-sensors loonar-payload-pca; do
+for unit in vehicle_gatewayd loonar-cfs loonar-localization loonar-video loonar-vision loonar-tof loonar-mcu@control loonar-mcu@payload loonar-mcu-sensors loonar-payload-pca; do
   if systemctl is-active --quiet "$unit.service"; then
     echo "$unit is active; this preparation installer requires an inactive stack." >&2; exit 2
   fi
@@ -43,6 +44,9 @@ install -m 755 "$ROOT/common/video/loonar-video-stream" "$DEST/lib/"
 install -m 644 "$ROOT/tools/cubeeye_ros/bridge.py" "$DEST/lib/cubeeye/"
 install -m 755 "$ROOT/platforms/loonar/tools/payload_pca_service.py" "$DEST/tools/"
 install -m 644 "$DEPLOY"/*.env.example /etc/loonar/
+if [[ ! -e /etc/loonar/vision.yaml ]]; then
+  install -m 644 "$ROOT/common/ros2/loonar_target_vision/config/vision.yaml" /etc/loonar/vision.yaml
+fi
 install -d "$DEST/lib/python/mcu_v2"
 install -m 644 "$ROOT/platforms/loonar/tools/mcu_v2/"*.py "$DEST/lib/python/mcu_v2/"
 install -m 644 "$ROOT/platforms/loonar/config/mcu-registry.example.json" "$ROOT/platforms/loonar/config/mcu-sensors.example.yaml" /etc/loonar/
@@ -54,7 +58,16 @@ VIDEO_PORT=5600
 VIDEO_SOURCE=libcamera
 VIDEO_PROFILE=low
 VIDEO_ENCODER_THREADS=1
+VISION_ENABLED=1
+VISION_FPS=10
 EOF
+fi
+if ! grep -q '^VISION_ENABLED=' /etc/loonar/video.env; then
+  printf '\nVISION_ENABLED=1\nVISION_FPS=10\n' >> /etc/loonar/video.env
+fi
+install -d -o loonar -g loonar /var/lib/loonar/vision
+if [[ ! -e /var/lib/loonar/vision/best.pt ]]; then
+  install -o loonar -g loonar -m 644 "$ROOT/GCS/models/mission02/best.pt" /var/lib/loonar/vision/best.pt
 fi
 if [[ ! -e /etc/loonar/ros.env ]]; then
   printf 'ROS_DOMAIN_ID=0\n' > /etc/loonar/ros.env

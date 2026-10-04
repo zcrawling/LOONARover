@@ -45,7 +45,16 @@ bash ~/LOONAR/platforms/loonar/deploy/build-tof-helper.sh
 SDK의 구형 OpenCV/FFmpeg library path는 helper 자식 프로세스에만 적용한다.
 ROS/카메라 서비스의 전역 library path로 등록하지 않는다.
 
-ROS는 중복 이름의 실험 패키지를 포함하지 않고 Pi 최소 EKF 패키지만 빌드한다.
+ROS는 중복 이름의 실험 패키지를 포함하지 않고 Pi 최소 EKF와 RGB 인식
+패키지만 빌드한다. 객체 인식용 Python은 arm64 Pi에 별도 venv로 설치한다.
+
+```bash
+sudo bash ~/LOONAR/platforms/loonar/deploy/install-vision-runtime.sh
+```
+
+이 스크립트는 Ultralytics와 의존성의 바이너리 wheel만 설치하며 소스 컴파일을
+허용하지 않는다. Pi에서 wheel을 구할 수 없으면 설치가 실패하므로 그 경우
+실행 환경을 확인해야 한다. GCS에는 YOLO/PyTorch가 필요 없다.
 
 ```bash
 # rosdep 초기화는 /etc/ros/rosdep/sources.list.d/20-default.list가 없을 때만 실행
@@ -53,10 +62,12 @@ test -f /etc/ros/rosdep/sources.list.d/20-default.list || sudo rosdep init
 rosdep update --rosdistro jazzy
 source /opt/ros/jazzy/setup.bash
 rosdep install --from-paths ~/LOONAR/platforms/loonar/ros2/loonar_localization \
+  ~/LOONAR/common/ros2/loonar_target_vision \
   --ignore-src --rosdistro jazzy -y
 mkdir -p ~/loonar_jazzy_ws
 cd ~/loonar_jazzy_ws
 colcon build --base-paths ~/LOONAR/platforms/loonar/ros2/loonar_localization \
+  ~/LOONAR/common/ros2/loonar_target_vision \
   --merge-install --cmake-args -DBUILD_TESTING=OFF
 ```
 
@@ -83,9 +94,23 @@ sudo bash ~/LOONAR/platforms/loonar/deploy/install-runtime.sh 20261003-local
 | `/var/lib/loonar/cfs` | cFS 실행 디렉터리 |
 
 `vehicle_gatewayd`, `loonar-cfs`, `loonar-mcu@`, `loonar-mcu-sensors`,
-`loonar-payload-pca`, `loonar-video`, `loonar-tof`, `loonar-localization` unit이 설치된다.
+`loonar-payload-pca`, `loonar-video`, `loonar-vision`, `loonar-tof`,
+`loonar-localization` unit이 설치된다.
 checkout bench와 같은 장치·포트를 사용하는 서비스를 중복 실행하지 않는다.
 그룹 권한을 새로 추가했다면 SSH에 재접속한다.
+
+RGB 인식은 기존 영상 서비스가 카메라를 단독 캡처한 후 분기한다. 설치기가
+`/etc/loonar/video.env`에 `VISION_ENABLED=1`, `VISION_FPS=10`을 추가한다.
+실제 사용 프로필은 `VIDEO_PROFILE=low`(640×360)여야 하고
+`/etc/loonar/vision.yaml`의 source 크기와 맞아야 한다. 기존 설정 파일은
+덮어쓰지 않는다. Pi 모델 슬롯 `/var/lib/loonar/vision/best.pt`가 없으면
+현재 범용 COCO 데모 가중치를 복사한다. 현장 모델로 교체해도 다음 release
+설치는 그 파일을 덮어쓰지 않는다. 영상은 UDP 5600, 박스/방향은 UDP 5601로
+지상국에 전송한다. `loonar-vision`을 실행해도 `/cmd_vel`을 발행하지 않는다.
+
+카메라/GStreamer 빌드의 `libav`·OpenCV·TFLite·Hailo·IMX500·GUI 옵션은
+비활성화되어 있다. Pi APT 목록에서도 사용하지 않는 FFmpeg 개발 헤더와
+GStreamer libav 플러그인을 제외했다. `ffmpeg` 실행 파일은 진단용으로 남긴다.
 
 - [Payload 설정](../porting/payload_pca_runbook.md)
 - [ToF 실행과 기록](../porting/tof_recording_runbook.md)

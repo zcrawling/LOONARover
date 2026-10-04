@@ -40,8 +40,7 @@ fi
 printf '[LOONAR] UDP 5600 영상 수신을 기다립니다. 종료: Ctrl+C\n'
 printf '[LOONAR] 영상이 나오지 않으면 로버의 송신 대상 IP를 확인하세요.\n'
 if [[ $COMPASS == 1 ]]; then
-    printf '[LOONAR] 객체 인식 창: %s\n' "$GCS_ROOT"
-    printf '[LOONAR] 모델 파일: %s\n' "${LOONAR_VISION_MODEL:-$GCS_ROOT/models/mission02/best.pt}"
+    printf '[LOONAR] Pi 인식 결과 UDP 5601 수신; 모델은 Pi에서 실행됩니다.\n'
 fi
 if [[ $RECORD == 0 && $COMPASS == 0 ]]; then
     exec ffplay -hide_banner -loglevel warning -fflags nobuffer -flags low_delay \
@@ -55,11 +54,7 @@ fi
 PLAYER=(ffplay -hide_banner -loglevel warning -fflags nobuffer -flags low_delay
         -framedrop -probesize 32 -analyzeduration 0 "${VIDEO_FILTER[@]}" -i pipe:0)
 if [[ $COMPASS == 1 ]]; then
-    VIDEO_PYTHON=${LOONAR_VIDEO_PYTHON:-}
-    if [[ -z $VIDEO_PYTHON && -x "$GCS_ROOT/.venv-vision/bin/python" ]]; then
-        VIDEO_PYTHON="$GCS_ROOT/.venv-vision/bin/python"
-    fi
-    VIDEO_PYTHON=${VIDEO_PYTHON:-/usr/bin/python3}
+    VIDEO_PYTHON=${LOONAR_VIDEO_PYTHON:-/usr/bin/python3}
     if ! "$VIDEO_PYTHON" -c 'import tkinter; from PIL import Image, ImageTk' 2>/dev/null; then
         show_error "방위 표시: sudo apt install python3-tk python3-pil python3-pil.imagetk"
         exit 1
@@ -67,6 +62,7 @@ if [[ $COMPASS == 1 ]]; then
     export PYTHONPATH="$GCS_ROOT${PYTHONPATH:+:$PYTHONPATH}"
     PLAYER=("$VIDEO_PYTHON" -m cli.video_compass)
     if [[ $ROTATE_LEFT == 1 ]]; then PLAYER+=(--rotate-left); fi
+    if [[ -n ${LOONAR_VISION_SENDER_IP:-} ]]; then PLAYER+=(--vision-sender "$LOONAR_VISION_SENDER_IP"); fi
 fi
 RECORD_OUTPUT=()
 if [[ $RECORD == 1 ]]; then
