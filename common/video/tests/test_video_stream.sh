@@ -51,3 +51,16 @@ grep -q 'filesink' <<<"$BOTH_PIPELINE"
 grep -q 'udpsink' <<<"$BOTH_PIPELINE"
 [[ $(grep -o 'libcamerasrc' <<<"$BOTH_PIPELINE" | wc -l) == 1 ]]
 [[ $(grep -o 'x264enc' <<<"$BOTH_PIPELINE" | wc -l) == 1 ]]
+VISION_PIPELINE="$(VISION_ENABLED=1 LOONAR_VIDEO_CONFIG="$TMP_DIR/limo.env" LOONAR_VIDEO_DRY_RUN=1 bash "$STREAM")"
+grep -q 'shmsink' <<<"$VISION_PIPELINE"
+grep -q 'format=BGR' <<<"$VISION_PIPELINE"
+grep -q 'format=I420' <<<"$VISION_PIPELINE"
+grep -q 'max-size-buffers=1' <<<"$VISION_PIPELINE"
+[[ $(grep -o 'v4l2src' <<<"$VISION_PIPELINE" | wc -l) == 1 ]]
+[[ $(grep -o 'x264enc' <<<"$VISION_PIPELINE" | wc -l) == 1 ]]
+VISION_BOTH="$(VISION_ENABLED=1 VIDEO_RECORD_PATH="$TMP_DIR/vision.ts" LOONAR_VIDEO_CONFIG="$TMP_DIR/pi.env" LOONAR_VIDEO_DRY_RUN=1 bash "$STREAM")"
+grep -q 'filesink' <<<"$VISION_BOTH"
+grep -q 'udpsink' <<<"$VISION_BOTH"
+grep -q 'shmsink' <<<"$VISION_BOTH"
+[[ $(grep -o 'libcamerasrc' <<<"$VISION_BOTH" | wc -l) == 1 ]]
+[[ $(grep -o 'x264enc' <<<"$VISION_BOTH" | wc -l) == 1 ]]

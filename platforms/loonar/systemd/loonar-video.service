@@ -15,6 +15,8 @@ Restart=on-failure
 RestartSec=3
 Nice=10
 NoNewPrivileges=yes
+RuntimeDirectory=loonar
+RuntimeDirectoryMode=0750
 
 [Install]
 WantedBy=multi-user.target

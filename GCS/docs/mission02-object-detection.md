@@ -1,78 +1,68 @@
-# Mission 02: GCS RGB object detection
+# Mission 02: Raspberry Pi RGB detection
 
-## Live input and display
+## Data path
 
 ```text
-Pi Camera Module 3 Wide → existing H.264/MPEG-TS → UDP 5600
-  → one GCS receiver → optional .ts recording → FFmpeg portrait decode
-    ├─ newest frame → existing camera/compass window for driving
-    └─ newest frame (one-slot queue) → YOLO worker → boxes and target cue
-                                           └─ overlay in that same window
+Camera Module 3 Wide (Pi, 640x360 at 30 fps)
+  └─ one loonar-video-stream capture
+       ├─ unchanged H.264 MPEG-TS → UDP 5600 → GCS portrait viewer
+       └─ leaky one-frame branch → shared memory → Pi ROS 2 YOLO node
+            └─ 90° counterclockwise, 360x640 detection coordinates
+                 ├─ /vision/detections and /vision/target_cue (JSON String)
+                 └─ UDP 5601 metadata → boxes/direction in that same GCS viewer
 ```
 
-The supplied `camera-1790692539219661618.ts` stores H.264 at 640×360 and
-30 fps. The GCS's existing counterclockwise 90° rotation makes its normal
-preview 360×640. Detection sees those **same decoded portrait RGB pixels**;
-its boxes use the 360×640 coordinate system. Other camera profiles are handled
-using their decoded frame dimensions. The GCS does not open the Pi camera and
-no second network video receiver is started. Recording remains the encoded
-stream without rotation. ToF, ROS 2, the Gateway, and rover motion controls
-are outside this detector path.
+Video display never waits for the detector. The GCS does not run YOLO or need
+Ultralytics, PyTorch, or CUDA. Recording stays in the original 640x360 encoded
+format. ToF and motor commands are not part of this path.
 
-The video receiver and display never wait for inference. While the model is
-busy, newly decoded frames replace the older pending inference frame. The
-highest-confidence `target_rover` box gives LEFT/CENTER/RIGHT by dividing the
-portrait frame width into thirds; obstacle boxes are displayed separately.
-With no target, the cue is `미검출`. Boxes are hidden 500 ms after the GCS
-received/decoded their source frame; then the window says `인식 갱신 지연`.
-This timestamp is **not** the camera exposure time, so it does not establish
-end-to-end optical latency.
-
-## One-time GCS setup
-
-Use the normal `bash scripts/start_loonar_gcs.sh` launcher. The default video
-window uses `GCS/.venv-vision/bin/python` when present, otherwise `/usr/bin/python3`.
-`LOONAR_VIDEO_PYTHON` overrides this selection. Install `ultralytics` and its dependencies in
-the Python environment used by that window. On Ubuntu, a dedicated venv can
-reuse the existing system Tk/Pillow packages:
+The Pi model path is `/var/lib/loonar/vision/best.pt`. The deployment installer
+copies the current COCO demo weight there only when the file is absent. This
+weight can draw generic object boxes (`obstacle`) but cannot identify the
+target rover. The status bar says `범용 모델 데모`. After training and field
+validation, replace this **Pi file** with a two-class model whose class names
+are `target_rover` and `obstacle`, then restart `loonar-vision.service`. The
+status bar then says `목표 모델`; its boxes remain advisory.
 
 ```bash
-sudo apt install python3-venv python3-tk python3-pil python3-pil.imagetk ffmpeg
-cd /path/to/LOONARover-main/GCS
-python3 -m venv --system-site-packages .venv-vision
-.venv-vision/bin/python -m pip install ultralytics==8.4.145
-LOONAR_VIDEO_PYTHON="$PWD/.venv-vision/bin/python" bash scripts/start_loonar_gcs.sh
+# On the Pi, after validating the trained two-class checkpoint:
+sudo install -o loonar -g loonar -m 644 /path/to/trained/best.pt /var/lib/loonar/vision/best.pt
+sudo systemctl restart loonar-vision.service
 ```
 
-The standard `.venv-vision` environment is selected automatically on later launches.
-Close the existing video window before relaunching to change its Python environment.
-The launcher checks Tk/Pillow and the vision worker reports any missing model
-or runtime in the video status bar while the video and compass remain usable.
-The model runs on the GCS CPU with 640-pixel YOLO input and confidence 0.35;
-this does **not** square-crop the portrait display. Actual detection rate and
-display latency must be measured on the team's laptop during simultaneous
-video recording and driving.
+The node accepts `/etc/loonar/vision.yaml` for confidence, input size, model
+path and optional SHA-256 gate. Set `model_sha256` only if a pinned artifact is
+desired; an empty value allows a weight swap at the same path. The GCS scales
+portrait source-pixel boxes onto the shown frame and hides them when the known
+processing plus GCS arrival age exceeds 500 ms. This is not a measured optical
+capture-to-display delay, and rapid motion may misalign boxes.
 
-## Install the temporary YOLO26n weight
+## Bring-up and checks
 
-The current `main` includes `GCS/models/mission02/yolo26n.pt`. Pull that
-version on the GCS and restart the video window. `LOONAR_VISION_MODEL=/absolute/path/model.pt`
-can override the slot. The model runs on the GCS and is not deployed to the
-Pi or Payload Teensy. The GCS accepts the model's detection classes: `rover` or
-`target_rover` is displayed as `target_rover` (class 0), and every other
-detected class is displayed as `obstacle` (class 1). The generic COCO YOLO26n
-model has no rover class, so it can demonstrate boxes for its supported
-objects but cannot identify a rover. This mapping is for the demonstration;
-it does not validate obstacle semantics or detection accuracy. The model
-still runs on the GCS CPU, and its actual rate and latency must be measured.
-
-For a recorded-stream input check without the rover, run from `GCS`:
+Follow [Pi deployment](../../platforms/loonar/deploy/README.md), then on Pi:
 
 ```bash
-ffmpeg -re -i /path/to/camera-1790692539219661618.ts -c:v copy -f mpegts \
-  'udp://127.0.0.1:5600?pkt_size=1316'
+sudo systemctl enable --now loonar-video.service loonar-vision.service
+systemctl status loonar-video.service loonar-vision.service
+journalctl -u loonar-vision.service -f
+source /opt/ros/jazzy/setup.bash
+source /opt/loonar/current/ros/install/setup.bash
+ros2 topic echo /vision/target_cue
 ```
 
-Start `bash scripts/start_video.sh --compass --rotate-left` in a second
-terminal first. The provided clip is an indoor format sample, not a labeled
-target-rover or white-sand accuracy test set.
+On the GCS, the existing `bash scripts/start_video.sh --compass --rotate-left`
+receives UDP 5600 and 5601. Set `LOONAR_VISION_SENDER_IP` to the Pi's IPv4
+address to accept detection packets only from that host. Allow inbound UDP
+5601 through the GCS firewall. The camera/compass viewer needs only system
+Tk, Pillow and FFmpeg. The launcher defaults to `/usr/bin/python3`; an old
+`.venv-vision` is not selected automatically. `LOONAR_VIDEO_PYTHON` can override
+the viewer's Python. Close the existing video window before changing it.
+
+For a replay of the supplied `.ts` file, FFmpeg can send its video to UDP
+5600, but Pi detection requires a live shared-memory branch or a separate
+Pi-side replay harness. A video-only replay therefore shows `인식 갱신 지연`.
+
+Measure Pi CPU and memory during video plus vision with `htop` or
+`pidstat -u -r -p $(pgrep -f loonar_target_vision.node | head -n 1) 1`.
+No FPS, latency, target accuracy, or Pi hardware result is claimed from code
+tests alone.

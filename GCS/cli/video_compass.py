@@ -2,8 +2,6 @@
 import argparse
 from collections import deque
 import math
-import os
-from pathlib import Path
 import signal
 import subprocess
 import sys
@@ -14,7 +12,7 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from cli.common import request
 from cli.compass import Heading, border_positions
-from cli.target_vision import DEFAULT_MODEL, extract_result, check_classes, result_is_fresh
+from cli.vision_overlay import VisionCache, canvas_box, receive_packets
 
 
 def read_ppm(stream):
@@ -40,7 +38,7 @@ def read_ppm(stream):
 class Player:
     BORDER = 48
 
-    def __init__(self, root, rotate_left=False, model_path=DEFAULT_MODEL):
+    def __init__(self, root, rotate_left=False, vision_port=5601, vision_sender=''):
         self.root = root
         root.title('LOONAR · Camera / Relative compass')
         root.geometry('1056x760')
@@ -57,11 +55,7 @@ class Player:
         self.heading = Heading()
         self.samples = deque(maxlen=1)
         self.frames = deque(maxlen=1)
-        self.vision_frames = deque(maxlen=1)
-        self.vision_results = deque(maxlen=1)
-        self.vision_ready = threading.Event()
-        self.vision_state = '모델 로딩 중'
-        self.model_path = model_path
+        self.vision = VisionCache()
         self.frame = self.photo = None
         self.last_size = None
         self.stop = threading.Event()
@@ -76,7 +70,8 @@ class Player:
             '-c:v', 'ppm', 'pipe:1'], stdin=sys.stdin.buffer, stdout=subprocess.PIPE)
         self.video_thread = threading.Thread(target=self.receive_video, daemon=True)
         self.video_thread.start()
-        self.vision_thread = threading.Thread(target=self.run_vision, daemon=True)
+        self.vision_thread = threading.Thread(target=receive_packets,
+            args=(self.vision, self.stop, vision_port, vision_sender), daemon=True)
         self.vision_thread.start()
         threading.Thread(target=self.receive_imu, daemon=True).start()
         root.protocol('WM_DELETE_WINDOW', root.quit)
@@ -93,48 +88,11 @@ class Player:
                 frame = read_ppm(self.decoder.stdout)
                 if frame is None:
                     break
-                received_at = time.monotonic()
                 self.frames.append(frame)
-                self.vision_frames.append((frame, received_at))
-                self.vision_ready.set()
         except (OSError, ValueError) as error:
             print(f'Video decode: {error}', file=sys.stderr)
         finally:
             self.video_done.set()
-
-    def run_vision(self):
-        """Infer on the latest decoded portrait frame without delaying the preview."""
-        if not self.model_path.is_file():
-            self.vision_state = '모델 없음'
-            return
-        try:
-            from ultralytics import YOLO
-            model = YOLO(str(self.model_path), task='detect')
-            class_map = check_classes(model.names)
-        except Exception as error:
-            self.vision_state = f'인식 사용 불가: {error}'
-            print(self.vision_state, file=sys.stderr)
-            return
-        self.vision_state = '인식 대기 중'
-        while not self.stop.is_set():
-            if not self.vision_ready.wait(0.1):
-                continue
-            self.vision_ready.clear()
-            if not self.vision_frames:
-                continue
-            frame, received_at = self.vision_frames.pop()
-            started = time.monotonic()
-            try:
-                prediction = model.predict(source=frame, imgsz=640,
-                                           conf=0.35, verbose=False, device='cpu')[0]
-                result = extract_result(prediction, frame.size, received_at,
-                                        (time.monotonic() - started) * 1000, class_map)
-            except Exception as error:
-                self.vision_state = f'인식 사용 불가: {error}'
-                print(self.vision_state, file=sys.stderr)
-                return
-            self.vision_results.append(result)
-            self.vision_state = '인식 중'
 
     def receive_imu(self):
         while not self.stop.is_set():
@@ -167,25 +125,28 @@ class Player:
             self.canvas.create_image(x, y, image=self.photo, anchor='nw', tags='video')
         self.canvas.delete('compass')
         self.canvas.delete('vision')
-        result = self.vision_results[-1] if self.vision_results else None
-        if self.frame is not None and result_is_fresh(result) and result.size == self.frame.size:
-            for detection in result.boxes:
-                x1, y1, x2, y2 = detection.xyxy
-                color = '#59ef9b' if detection.name == 'target_rover' else '#ffb454'
-                self.canvas.create_rectangle(x+x1*scale, y+y1*scale,
-                                             x+x2*scale, y+y2*scale,
-                                             outline=color, width=2, tags='vision')
-                self.canvas.create_text(x+x1*scale, y+y1*scale,
-                                        text=f'{detection.name} {detection.confidence:.2f}',
-                                        anchor='sw', fill=color, tags='vision')
-            labels = {'LEFT': '좌', 'CENTER': '중앙', 'RIGHT': '우',
-                      'NOT_DETECTED': '미검출'}
-            vision_text = (f"목표: {labels[result.direction]} · "
-                           f"결과 나이 {(time.monotonic()-result.frame_time)*1000:.0f}ms")
-        elif self.vision_state == '인식 중':
-            vision_text = '인식 갱신 지연'
-        else:
-            vision_text = self.vision_state
+        snapshot = self.vision.snapshot()
+        vision_text = 'Pi 인식 연결 대기/갱신 지연'
+        if snapshot is not None:
+            result, age_ms = snapshot
+            mode = '목표 모델' if result.get('model_mode') == 'MISSION' else '범용 모델 데모'
+            if result['state'] in ('DETECTED', 'NOT_DETECTED'):
+                if self.frame is not None and (result['width'], result['height']) == self.frame.size:
+                    for detection in result['detections']:
+                        color = '#59ef9b' if detection['class_name'] == 'target_rover' else '#ffb454'
+                        coordinates = canvas_box(detection['xyxy'], result['width'],
+                                                 result['height'], box)
+                        self.canvas.create_rectangle(*coordinates, outline=color, width=2, tags='vision')
+                        self.canvas.create_text(coordinates[0], coordinates[1],
+                            text=f"{detection['class_name']} {detection['confidence']:.2f}",
+                            anchor='sw', fill=color, tags='vision')
+                    labels = {'LEFT': '좌', 'CENTER': '중앙', 'RIGHT': '우'}
+                    vision_text = (f"{mode} · 목표: {labels.get(result['direction'], '미검출')} · "
+                                   f"결과 나이 {age_ms:.0f}ms")
+                else:
+                    vision_text = 'Pi 인식 영상 크기 불일치'
+            elif result['state'] == 'MODEL_UNAVAILABLE':
+                vision_text = 'Pi 인식 모델 사용 불가'
         self.canvas.create_rectangle(*box, outline='#525252', width=1, tags='compass')
         sample = self.samples[-1] if self.samples else None
         yaw = self.heading.update(sample[1]) if sample and time.monotonic()-sample[0] < 0.5 else None
@@ -210,7 +171,6 @@ class Player:
                 self.decoder.kill()
                 self.decoder.wait()
         self.video_thread.join(timeout=1)
-        self.vision_ready.set()
         self.vision_thread.join(timeout=1)
         self.decoder.stdout.close()
 
@@ -218,10 +178,11 @@ class Player:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--rotate-left', action='store_true')
-    parser.add_argument('--model', default=os.environ.get('LOONAR_VISION_MODEL', str(DEFAULT_MODEL)))
+    parser.add_argument('--vision-port', type=int, default=5601)
+    parser.add_argument('--vision-sender', default='')
     args = parser.parse_args()
     root = tk.Tk()
-    player = Player(root, args.rotate_left, model_path=Path(args.model))
+    player = Player(root, args.rotate_left, args.vision_port, args.vision_sender)
     for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
         signal.signal(sig, lambda *_: root.quit())
     try:

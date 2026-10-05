@@ -36,7 +36,7 @@ printf '[LOONAR] 브라우저 주소: %s\n' "$URL"
 
 open_gcs_windows() {
     local video_options=(--record --compass)
-    if [[ ${GCS_VIDEO_ROTATE_LEFT:-0} == 1 ]]; then
+    if [[ ${GCS_VIDEO_ROTATE_LEFT:-1} == 1 ]]; then
         video_options+=(--rotate-left)
     fi
     xdg-open "$URL" >/dev/null 2>&1 || true
@@ -48,7 +48,7 @@ open_gcs_windows() {
         >/dev/null 2>&1 || printf '[LOONAR] 진단 창 열기 실패\n' >&2
     gnome-terminal -- env \
         "LOONAR_VIDEO_PYTHON=${LOONAR_VIDEO_PYTHON:-}" \
-        "LOONAR_VISION_MODEL=${LOONAR_VISION_MODEL:-$GCS_ROOT/models/mission02/yolo26n.pt}" \
+        "LOONAR_VISION_SENDER_IP=${LOONAR_VISION_SENDER_IP:-}" \
         "$GCS_ROOT/scripts/start_video.sh" "${video_options[@]}" \
         >/dev/null 2>&1 || printf '[LOONAR] 영상 창 열기 실패\n' >&2
     if [[ ${GCS_XBOX:-1} == 1 ]] && python3 -B -m cli.xbox_control --inspect >/dev/null 2>&1; then

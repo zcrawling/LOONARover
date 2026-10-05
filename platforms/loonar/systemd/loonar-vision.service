@@ -1,0 +1,25 @@
+[Unit]
+Description=LOONAR RGB-only target and obstacle detection
+After=network-online.target loonar-video.service
+Wants=network-online.target
+Requires=loonar-video.service
+ConditionPathExists=/etc/loonar/vision.yaml
+
+[Service]
+Type=simple
+User=loonar
+Group=loonar
+SupplementaryGroups=video render
+Environment=ROS_DOMAIN_ID=0
+Environment=OMP_NUM_THREADS=2
+Environment=OPENBLAS_NUM_THREADS=1
+EnvironmentFile=-/etc/loonar/ros.env
+EnvironmentFile=-/etc/loonar/vision.env
+ExecStart=/opt/loonar/current/lib/run-vision.sh
+Restart=on-failure
+RestartSec=3
+Nice=15
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target
