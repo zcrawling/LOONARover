@@ -71,9 +71,10 @@ GCS STOP 후 Pi 터미널에서 Ctrl+C한다. backend는 STOP을 요청하고 �
 
 ## Payload와 systemd
 
-`--payload-device /dev/serial/by-id/...`를 주면 Payload 서비스를 함께 시작한다.
-이 인자가 없으면 별도 Payload 서비스가 필요하다. 전체 localization은 별도 실행한다.
-Payload는 [별도 안내](payload_pca_runbook.md)에 따라 `loonar-payload-pca.service`를
-준비한다. checkout bench를 사용할 때 systemd gateway/cFS/Control을 중복 실행하지 않는다.
+Payload 서비스는 기본으로 함께 시작하며 `20356570` 보드의 USB by-id 경로를 사용한다.
+미연결 상태에서는 OFFLINE을 보고하고 1초마다 연결을 재시도한다. 주행·영상은 계속 실행된다.
+다른 보드는 `--payload-device /dev/serial/by-id/...` 또는 `PAYLOAD_DEVICE` 환경변수로 지정한다.
+전체 localization은 별도 실행한다. Payload 설정은 [별도 안내](payload_pca_runbook.md)를 따른다.
+checkout bench를 사용할 때 systemd Payload/gateway/cFS/Control을 중복 실행하지 않는다.
 `loonar-mcu@control.service`가 없으면 systemd runtime이 설치되지 않은 것이다.
 checkout 실행에는 그 unit이 필요하지 않다.

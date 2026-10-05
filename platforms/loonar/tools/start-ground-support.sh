@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# User-started Pi stack with ROS sample publishing. Recording is a separate command.
+# User-started Pi stack with ROS samples and an optional, reconnecting Payload MCU.
 set -euo pipefail
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 export PYTHONPATH="$ROOT/platforms/loonar/tools${PYTHONPATH:+:$PYTHONPATH}"
@@ -11,5 +11,6 @@ fi
 exec python3 -m mcu_v2.motor_bench \
   --ros-samples \
   --registry "$HOME/loonar-motor-bench/control.json" \
+  --payload-device "${PAYLOAD_DEVICE:-/dev/serial/by-id/usb-Teensyduino_USB_Serial_20356570-if00}" \
   --gateway-bin "$ROOT/build/gcs-test/host/common/vehicle_gateway/vehicle_gatewayd" \
   --cfs-dir "$ROOT/build/gcs-test/cFS/build-native_std/exe/cpu1" "$@"

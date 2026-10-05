@@ -39,12 +39,15 @@ journalctl -u loonar-payload-pca.service -f
 ## Checkout에서 함께 실행
 
 systemd Payload 서비스 대신 bench에서 실행할 수 있다. 같은 USB를 두 프로세스가 열지 않는다.
+기본 Payload 보드는 `20356570`이며 장치 인자 없이도 서비스를 시작한다.
+미연결 시 OFFLINE으로 대기하고 1초마다 재접속을 시도하므로 주행·영상 실행을 막지 않는다.
 
 ```bash
-bash ~/LOONAR/platforms/loonar/tools/start-ground-support.sh --payload-device /dev/serial/by-id/usb-Teensyduino_USB_Serial_20356570-if00
+bash ~/LOONAR/platforms/loonar/tools/start-ground-support.sh --video
 ```
 
-기존 `--video`, `--record` 등과 함께 사용 가능하다(`--video`는 맨 앞).
+다른 보드는 `--payload-device /dev/serial/by-id/...` 또는 `PAYLOAD_DEVICE` 환경변수로 지정한다.
+기존 `--record` 등과 함께 사용 가능하다(`--video`는 맨 앞).
 이 방식은 runtime/payload-pca.sock과 runtime/payload/ CSV를 사용한다.
 서비스 실패는 보고하되 Control 프로세스는 유지한다. 종료 시 MCU 측정 자동 STOP은 없으므로
 완료 결과가 필요하면 GCS에서 Payload STOP을 누르고 완료 응답 후 종료한다.

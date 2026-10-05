@@ -46,7 +46,10 @@ open_gcs_windows() {
     fi
     gnome-terminal -- "$GCS_ROOT/scripts/start_diagnostics.sh" --host "$ROVER_IP" \
         >/dev/null 2>&1 || printf '[LOONAR] 진단 창 열기 실패\n' >&2
-    gnome-terminal -- "$GCS_ROOT/scripts/start_video.sh" "${video_options[@]}" \
+    gnome-terminal -- env \
+        "LOONAR_VIDEO_PYTHON=${LOONAR_VIDEO_PYTHON:-}" \
+        "LOONAR_VISION_MODEL=${LOONAR_VISION_MODEL:-$GCS_ROOT/models/mission02/yolo26n.pt}" \
+        "$GCS_ROOT/scripts/start_video.sh" "${video_options[@]}" \
         >/dev/null 2>&1 || printf '[LOONAR] 영상 창 열기 실패\n' >&2
     if [[ ${GCS_XBOX:-1} == 1 ]] && python3 -B -m cli.xbox_control --inspect >/dev/null 2>&1; then
         gnome-terminal -- "$GCS_ROOT/scripts/start_controller.sh" \

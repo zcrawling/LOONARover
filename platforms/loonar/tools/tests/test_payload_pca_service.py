@@ -130,6 +130,33 @@ class PayloadServiceTests(unittest.TestCase):
         self.assertIn('ERROR,7,STATION,START:result_unknown',self.events)
 
 class PtyTransportTests(unittest.TestCase):
+    def test_absent_device_waits_then_connects_without_restart(self):
+        master, slave = pty.openpty()
+        with tempfile.TemporaryDirectory() as directory:
+            device = Path(directory) / 'payload-usb'
+            s = module.Service(Path(directory) / 'socket', device, directory)
+            events = []
+            s.broadcast = events.append
+            try:
+                for _ in range(3):
+                    s.next_open = s.next_health = 0
+                    s.check_deadline()
+                    self.assertIsNone(s.serial_fd)
+                    self.assertFalse(s.online())
+                self.assertTrue(any(e.startswith('HEALTH,1,0,') for e in events))
+                device.symlink_to(os.ttyname(slave))
+                s.next_open = 0
+                s.check_deadline()
+                command = os.read(master, 512).decode().strip()
+                self.assertTrue(command.startswith('STATUS,'))
+                nonce = command.split(',')[1]
+                os.write(master, f'HEALTH,1,{nonce},0000000000000001,1,IDLE,1,10,7,4294967295,0,payload-1\n'.encode())
+                s.serial_event()
+                self.assertTrue(s.online())
+            finally:
+                s.close_capture(); s.close_serial(); s.selector.close()
+                os.close(master); os.close(slave)
+
     def test_split_lines_status_and_exclusive_port(self):
         master, slave=pty.openpty()
         with tempfile.TemporaryDirectory() as directory:

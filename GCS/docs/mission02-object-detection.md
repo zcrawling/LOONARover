@@ -31,7 +31,8 @@ end-to-end optical latency.
 ## One-time GCS setup
 
 Use the normal `bash scripts/start_loonar_gcs.sh` launcher. The default video
-window runs `/usr/bin/python3`. Install `ultralytics` and its dependencies in
+window uses `GCS/.venv-vision/bin/python` when present, otherwise `/usr/bin/python3`.
+`LOONAR_VIDEO_PYTHON` overrides this selection. Install `ultralytics` and its dependencies in
 the Python environment used by that window. On Ubuntu, a dedicated venv can
 reuse the existing system Tk/Pillow packages:
 
@@ -43,7 +44,8 @@ python3 -m venv --system-site-packages .venv-vision
 LOONAR_VIDEO_PYTHON="$PWD/.venv-vision/bin/python" bash scripts/start_loonar_gcs.sh
 ```
 
-Set `LOONAR_VIDEO_PYTHON` in the launch environment for later sessions too.
+The standard `.venv-vision` environment is selected automatically on later launches.
+Close the existing video window before relaunching to change its Python environment.
 The launcher checks Tk/Pillow and the vision worker reports any missing model
 or runtime in the video status bar while the video and compass remain usable.
 The model runs on the GCS CPU with 640-pixel YOLO input and confidence 0.35;

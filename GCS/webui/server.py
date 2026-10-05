@@ -109,6 +109,17 @@ def reachable(host, port):
 
 def start_services(config_path, children, log, real_host=None):
     if real_host:
+        try:
+            state = request({'action': 'state'}, timeout=0.5)
+        except (OSError, ValueError):
+            pass
+        else:
+            source = state.get('source') if isinstance(state, dict) else None
+            if source != f'REAL ROVER / {real_host}':
+                raise RuntimeError(f'다른 백엔드가 실행 중입니다: {source!r}. '
+                                   '기존 백엔드를 종료한 뒤 다시 실행하세요.')
+            print(f'실행 중인 실제 백엔드를 재사용합니다: {real_host}', flush=True)
+            return
         env = dict(__import__('os').environ, PYTHONDONTWRITEBYTECODE='1', PYTHONUNBUFFERED='1')
         child = subprocess.Popen([sys.executable, '-B', '-m', 'backend.real_app', '--host', real_host,
                                   '--config', str(config_path)], cwd=ROOT, env=env, stdout=log,
@@ -120,7 +131,8 @@ def start_services(config_path, children, log, real_host=None):
         deadline = time.monotonic()+7
         while True:
             if child.poll() is not None:
-                raise RuntimeError('실제 백엔드 실행 실패. 이전 지상국 백엔드가 남아 있는지 확인하세요.')
+                raise RuntimeError(f'실제 백엔드 종료(code={child.returncode}). '
+                                   f'로그: {Path(__file__).parent / "runtime/services.log"}')
             try:
                 request({'action': 'state'})
                 return
@@ -171,6 +183,7 @@ def main():
     def terminate(*_):
         raise KeyboardInterrupt
     signal.signal(signal.SIGTERM, terminate)
+    signal.signal(signal.SIGHUP, terminate)
     try:
         # Bind before starting child processes so a second launcher is harmless.
         server = Server(('127.0.0.1', args.port))
