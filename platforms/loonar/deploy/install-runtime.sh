@@ -66,9 +66,7 @@ if ! grep -q '^VISION_ENABLED=' /etc/loonar/video.env; then
   printf '\nVISION_ENABLED=1\nVISION_FPS=10\n' >> /etc/loonar/video.env
 fi
 install -d -o loonar -g loonar /var/lib/loonar/vision
-if [[ ! -e /var/lib/loonar/vision/best.pt ]]; then
-  install -o loonar -g loonar -m 644 "$ROOT/GCS/models/mission02/best.pt" /var/lib/loonar/vision/best.pt
-fi
+# Models are validated and installed separately by install-vision-runtime.sh MODEL_DIR.
 if [[ ! -e /etc/loonar/ros.env ]]; then
   printf 'ROS_DOMAIN_ID=0\n' > /etc/loonar/ros.env
 fi

@@ -8,11 +8,64 @@ from __future__ import annotations
 
 import ipaddress
 import json
+import os
 import socket
 import time
 from pathlib import Path
 
 from .contract import class_mapping, cue_from_detections, make_detection, model_sha256
+
+
+def load_ncnn(path, height, width, threads, expected=""):
+    """Validate and warm up the pinned CPU backend without opening a camera."""
+    os.environ["YOLO_AUTOINSTALL"] = "false"
+    import yaml
+    import numpy as np
+    import torch
+    import ncnn
+    import ultralytics
+    from ultralytics import YOLO
+    from ultralytics.models.yolo.detect import DetectionPredictor
+
+    if ultralytics.__version__ != "8.4.145" or ncnn.__version__ != "1.0.20260526":
+        raise ValueError("install the pinned vision runtime before loading NCNN")
+    path = Path(path)
+    if not path.is_dir() or not path.name.endswith("_ncnn_model"):
+        raise ValueError("model_path must be a *_ncnn_model directory (not a .pt file)")
+    for name in ("model.ncnn.param", "model.ncnn.bin", "metadata.yaml"):
+        if not (path / name).is_file() or not (path / name).stat().st_size:
+            raise ValueError(f"missing/empty NCNN artifact: {name}")
+    if not 1 <= threads <= 4 or min(height, width) <= 0 or height % 32 or width % 32:
+        raise ValueError("invalid NCNN dimensions or CPU thread count")
+    metadata = yaml.safe_load((path / "metadata.yaml").read_text(encoding="utf-8"))
+    if metadata.get("task") != "detect" or metadata.get("batch") != 1:
+        raise ValueError("NCNN requires detect task and batch=1")
+    if metadata.get("imgsz") != [height, width]:
+        raise ValueError("NCNN export dimensions differ from vision.yaml")
+    mapping, mode = class_mapping(metadata["names"])
+    actual = model_sha256(path)
+    if expected and actual != expected.lower():
+        raise ValueError("model SHA-256 differs from vision.yaml")
+    torch.set_num_threads(threads)
+    model = YOLO(str(path), task="detect")
+    predictor = DetectionPredictor(overrides={"device": "cpu", "imgsz": [height, width],
+                                              "rect": False, "verbose": False, "save": False})
+    predictor.setup_model(str(path), verbose=False)
+    backend = predictor.model.backend
+    if predictor.model.format != "ncnn":
+        raise ValueError("unexpected inference backend")
+    # Options must be set before weights are loaded, not just on torch's pool.
+    backend.net.clear()
+    backend.net.opt.num_threads = threads
+    backend.net.opt.use_vulkan_compute = False
+    if backend.net.load_param(str(path / "model.ncnn.param")) != 0:
+        raise ValueError("NCNN param load failed")
+    if backend.net.load_model(str(path / "model.ncnn.bin")) != 0:
+        raise ValueError("NCNN weights load failed")
+    model.predictor = predictor
+    model.predict(np.zeros((640, 360, 3), dtype=np.uint8), imgsz=(height, width),
+                  device="cpu", rect=False, verbose=False)
+    return model, actual, mapping, mode
 
 
 def main():
@@ -35,7 +88,7 @@ def main():
             defaults = {
                 "source_width": 640, "source_height": 360, "source_fps": 10,
                 "vision_socket": "/run/loonar/vision.sock",
-                "model_path": "/var/lib/loonar/vision/best.pt",
+                "model_path": "/var/lib/loonar/vision/best_ncnn_model",
                 "model_sha256": "", "input_height": 640, "input_width": 384,
                 "confidence": 0.35, "max_result_age_ms": 500.0,
                 "cpu_threads": 2,
@@ -89,20 +142,20 @@ def main():
                 return
             path = Path(path_string)
             try:
-                actual = model_sha256(path)
-                if expected and actual != expected:
-                    raise ValueError("model SHA-256 differs from vision.yaml")
-                import torch
-                torch.set_num_threads(int(self.cfg["cpu_threads"]))
-                from ultralytics import YOLO
-                model = YOLO(str(path), task="detect")
-                self.class_map, self.model_mode = class_mapping(model.names)
+                model, actual, self.class_map, self.model_mode = load_ncnn(
+                    path, int(self.cfg["input_height"]), int(self.cfg["input_width"]),
+                    int(self.cfg["cpu_threads"]), expected)
             except Exception as error:
                 # A broken backend must not produce a target cue. Video is separate.
                 self.get_logger().error(f"vision model unavailable: {error}")
                 return
             self.model = model
             self.model_id = actual[:16]
+            opt = model.predictor.model.backend.net.opt
+            self.get_logger().info(
+                f"NCNN / CPU / {path} / threads={opt.num_threads} / "
+                f"model={self.model_id} / mode={self.model_mode} / "
+                f"fp16_storage={opt.use_fp16_storage},fp16_arithmetic={opt.use_fp16_arithmetic}")
 
         def _image(self, sample):
             info = GstVideo.VideoInfo()
@@ -168,7 +221,7 @@ def main():
                 received_unix_ns = time.time_ns()
                 result = self.model.predict(
                     frame, imgsz=(int(self.cfg["input_height"]), int(self.cfg["input_width"])),
-                    conf=float(self.cfg["confidence"]), device="cpu", verbose=False,
+                    conf=float(self.cfg["confidence"]), device="cpu", rect=False, verbose=False,
                 )[0]
                 height, width = frame.shape[:2]
                 detections = []
