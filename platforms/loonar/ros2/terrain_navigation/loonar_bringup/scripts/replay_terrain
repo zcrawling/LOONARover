@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+if [[ $# != 1 ]]; then echo 'usage: replay_terrain BAG (start replay nodes separately; see README)' >&2; exit 2; fi
+# Intentionally replay only measurements and state, never recorded drive commands.
+exec ros2 bag play "$1" --clock --topics \
+ /loonar/tof/depth /loonar/tof/amplitude /loonar/tof/camera_info \
+ /imu/data /imu/accel /imu/gravity /odom/raw /wheel_states \
+ /motion_primitive/status /loonar/base/state /tf_static

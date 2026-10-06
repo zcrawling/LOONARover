@@ -199,6 +199,10 @@ def serve(device, args, stop, received):
                             seq=f.sequence,
                             kind=f.kind,
                             stamp_ns=f.stamp_us * 1000 + link.offset_ns,
+                            mcu_stamp_us=f.stamp_us,
+                            clock_offset_ns=link.offset_ns,
+                            sync_rtt_ns=link.time_rtt_ns,
+                            host_forward_ns=time.time_ns(),
                             payload=f.payload.hex(),
                         )
                     ).encode()

@@ -1,0 +1,247 @@
+{
+  "source": "261004rover.step",
+  "sha256": "f37f89109957e3958b048365ac146ca31686b54c6dc067ca424b6cc132ddbc6b",
+  "cad_to_base": [
+    [
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      -1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      -0.057
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "mounts": [
+    {
+      "name": "left_motor_cad",
+      "xyz_m": [
+        0.0,
+        0.123,
+        -0.006999999999999999
+      ],
+      "rpy_rad": [
+        0.0,
+        0.0,
+        -1.5707963267948966
+      ],
+      "source_occurrence": 19050
+    },
+    {
+      "name": "chassis_cad",
+      "xyz_m": [
+        0.0,
+        0.0,
+        -0.057
+      ],
+      "rpy_rad": [
+        0.0,
+        0.0,
+        -1.5707963267948966
+      ],
+      "source_occurrence": 19051
+    },
+    {
+      "name": "right_motor_cad",
+      "xyz_m": [
+        0.0,
+        -0.123,
+        -0.006999999999999999
+      ],
+      "rpy_rad": [
+        0.0,
+        0.0,
+        1.5707963267948966
+      ],
+      "source_occurrence": 19052
+    },
+    {
+      "name": "reaction_wheel_assembly_cad",
+      "xyz_m": [
+        -0.00999999984044975,
+        -0.005,
+        -0.055
+      ],
+      "rpy_rad": [
+        0.0,
+        0.0,
+        -1.5707963267948966
+      ],
+      "source_occurrence": 19053
+    },
+    {
+      "name": "battery_cad",
+      "xyz_m": [
+        -0.0252392788170428,
+        0.050225795859112604,
+        -0.05119216883209987
+      ],
+      "rpy_rad": [
+        1.5707963267949032,
+        2.220446049250313e-16,
+        -1.5707963267948966
+      ],
+      "source_occurrence": 19054
+    },
+    {
+      "name": "tail_mount_cad",
+      "xyz_m": [
+        -0.052000000000000005,
+        -4.44089209850063e-18,
+        -0.1059155481853196
+      ],
+      "rpy_rad": [
+        0.0,
+        0.0,
+        -1.5707963267948966
+      ],
+      "source_occurrence": 19055
+    },
+    {
+      "name": "motor_driver_cad",
+      "xyz_m": [
+        -0.0797975385956835,
+        0.11098924279610399,
+        -0.06700950956742001
+      ],
+      "rpy_rad": [
+        0.0,
+        0.0,
+        -1.5707963267948966
+      ],
+      "source_occurrence": 19056
+    },
+    {
+      "name": "reaction_esc_cad",
+      "xyz_m": [
+        -0.025,
+        -0.009999999999999981,
+        0.038
+      ],
+      "rpy_rad": [
+        3.141592653589793,
+        1.5707963267948934,
+        0.0
+      ],
+      "source_occurrence": 19057
+    },
+    {
+      "name": "raspberry_pi_cad",
+      "xyz_m": [
+        0.042,
+        -0.071085512482193,
+        -0.006999999999999999
+      ],
+      "rpy_rad": [
+        -1.5707963267948966,
+        2.220446049250313e-16,
+        1.5707963267948966
+      ],
+      "source_occurrence": 19058
+    },
+    {
+      "name": "tof_assembly_cad",
+      "xyz_m": [
+        0.0371499999999999,
+        5.0000033316584005e-05,
+        0.08400000000000002
+      ],
+      "rpy_rad": [
+        -3.1415926535897927,
+        -1.570796326794895,
+        0.0
+      ],
+      "source_occurrence": 19059
+    },
+    {
+      "name": "camera_assembly_cad",
+      "xyz_m": [
+        0.04629896,
+        -0.0255999998674031,
+        -0.019499998779296902
+      ],
+      "rpy_rad": [
+        1.5707963267948966,
+        0.0,
+        -1.5707963267948966
+      ],
+      "source_occurrence": 19060
+    },
+    {
+      "name": "sensor_mcu_cad",
+      "xyz_m": [
+        0.046,
+        0.147,
+        0.07300000000000001
+      ],
+      "rpy_rad": [
+        1.5707963267948966,
+        0.0,
+        -1.5707963267948966
+      ],
+      "source_occurrence": 19061
+    },
+    {
+      "name": "motor_bracket_cad",
+      "xyz_m": [
+        -0.05,
+        0.093,
+        -0.05699999999999998
+      ],
+      "rpy_rad": [
+        1.570796326794904,
+        0.0,
+        0.0
+      ],
+      "source_occurrence": 19062
+    }
+  ],
+  "imu": {
+    "rotation_status": "user_confirmed_2026-10-06",
+    "rpy_rad": [
+      0,
+      0,
+      1.5707963267948966
+    ],
+    "position_status": "nominal_floor_reference_not_measured_chip_center",
+    "xyz_m": [
+      0.03575,
+      0,
+      -0.057
+    ],
+    "note": "ToF-underfloor centre. CAD floor datum z=0 assumed; floor thickness + board/chip height must be measured."
+  },
+  "tof": {
+    "position_status": "CAD_MS22MF005-B_component_origin_not_calibrated_optical_center",
+    "xyz_m": [
+      0.03575,
+      5.00000471e-05,
+      -0.0075
+    ],
+    "rpy_rad": [
+      0,
+      0,
+      0
+    ]
+  },
+  "camera": {
+    "position_status": "assembly_origin_only_optical_offset_unmeasured"
+  },
+  "wheel_note": "spindle origins, not tyre contact centres; do not use 0.257 m as encoder track calibration",
+  "inactive_cad_occurrence": 19063
+}

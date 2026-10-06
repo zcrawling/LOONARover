@@ -41,6 +41,7 @@ cp -a "$SDK/." /opt/loonar/vendor/cubeeye/2.5.9/release/
 cp -a "$CAM_WORK/stage$CAM_PREFIX/." "$CAM_PREFIX/"
 install -m 755 "$DEPLOY"/run-*.sh "$DEPLOY/loonar-camera" "$DEPLOY/loonar-camera-env.sh" "$DEST/lib/"
 install -m 755 "$ROOT/common/video/loonar-video-stream" "$DEST/lib/"
+install -m 644 "$ROOT/common/video/camera_ros.py" "$DEST/lib/"
 install -m 644 "$ROOT/tools/cubeeye_ros/bridge.py" "$DEST/lib/cubeeye/"
 install -m 755 "$ROOT/platforms/loonar/tools/payload_pca_service.py" "$DEST/tools/"
 install -m 644 "$DEPLOY"/*.env.example /etc/loonar/

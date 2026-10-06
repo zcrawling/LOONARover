@@ -7,7 +7,7 @@ struct Port {
   std::uint32_t time=0;
   std::deque<unsigned char> rx;
   std::vector<unsigned char> regs=std::vector<unsigned char>(256,0);
-  unsigned pending=0, requests=0;
+  unsigned pending=0, requests=0, busy_replies=0;
   bool silent=false, malformed=false;
   int available(){return rx.size();}
   int read(){int x=rx.front();rx.pop_front();return x;}
@@ -17,6 +17,7 @@ struct Port {
     if(n==4){
       assert(p[0]==0xAA);++requests;
       if(silent)return n;
+      if(p[1] && busy_replies){--busy_replies;rx.push_back(0xEE);rx.push_back(7);return n;}
       if(p[1]){rx.push_back(malformed?0xCC:0xBB);rx.push_back(p[3]);
         for(unsigned i=0;i<p[3];++i)rx.push_back(regs[p[2]+i]);}
       else pending=p[2];
@@ -37,6 +38,9 @@ int main(){
   Port port;port.regs[0]=0xA0;
   loonar::control::Bno055<Port> bno(port);
   assert(bno.begin());assert(port.regs[0x3D]==12);assert(port.regs[0x3B]==0);
+  port.busy_replies=1;auto busy_start=port.time;std::uint8_t probe=0;
+  assert(bno.read(0,&probe,1) && probe==0xA0);assert(port.time-busy_start==5);
+  bno.errors=0;
   port.silent=true;auto start=port.time;std::uint8_t id;
   assert(!bno.read(0,&id,1));assert(port.time-start==1050);assert(bno.errors==3);
   port.silent=false;port.rx={0xBB,1,0x99}; // discard late reply

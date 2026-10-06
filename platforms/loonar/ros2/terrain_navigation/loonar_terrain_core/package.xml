@@ -1,0 +1,16 @@
+<?xml version="1.0"?><package format="3">
+<name>loonar_terrain_core</name><version>0.1.0</version><description>LOONAR stop-and-go terrain navigation MVP</description>
+<maintainer email="maintainers@loonar.local">LOONAR</maintainer><license>Apache-2.0</license>
+<buildtool_depend>ament_cmake</buildtool_depend><buildtool_depend>ament_cmake_python</buildtool_depend>
+<depend>rclpy</depend>
+<depend>sensor_msgs</depend>
+<depend>geometry_msgs</depend>
+<depend>tf2_ros</depend>
+<depend>python3-numpy</depend>
+<depend>rcl_interfaces</depend>
+<depend>diagnostic_msgs</depend>
+<depend>loonar_msgs</depend>
+<build_depend>eigen</build_depend>
+<test_depend>ament_cmake_gtest</test_depend>
+<test_depend>ament_cmake_pytest</test_depend>
+<export><build_type>ament_cmake</build_type></export></package>

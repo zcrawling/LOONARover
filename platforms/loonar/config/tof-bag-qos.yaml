@@ -13,3 +13,18 @@
   durability: transient_local
   history: keep_last
   depth: 100
+/camera/image_raw/compressed:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 30
+/mcu/control/raw:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 100
+/motor/feedback:
+  reliability: reliable
+  durability: volatile
+  history: keep_last
+  depth: 50

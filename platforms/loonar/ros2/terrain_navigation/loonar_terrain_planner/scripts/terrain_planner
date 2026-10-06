@@ -1,0 +1,210 @@
+#!/usr/bin/env python3
+import math
+from collections import Counter
+import numpy as np
+from loonar_msgs.msg import TerrainMap, TerrainDecision
+from loonar_msgs.srv import PlanTerrain
+from visualization_msgs.msg import Marker, MarkerArray
+from geometry_msgs.msg import Point
+from loonar_terrain_core.ros import Runtime, STATUS, MAP, spin, seconds
+from loonar_terrain_core.algorithms import (
+    evaluate,
+    command_distance,
+    fresh,
+    depression_regions,
+)
+
+
+class Planner(Runtime):
+    def __init__(self):
+        keys = (
+            "sensor_timeout",
+            "max_step_up",
+            "max_step_down",
+            "max_slope",
+            "max_cross_slope",
+            "max_roughness",
+            "max_drop_depth",
+            "max_unknown_ratio",
+            "min_confidence",
+            "robot_width",
+            "robot_length",
+            "wheel_track",
+            "wheel_radius",
+            "tail_offset",
+            "safety_margin",
+            "heading_min",
+            "heading_max",
+            "heading_step",
+            "lookahead_distance",
+            "min_drive_distance",
+            "max_drive_distance",
+            "distance_safety_factor",
+            "stopping_margin",
+            "w_slope",
+            "w_roughness",
+            "w_step",
+            "w_unknown",
+            "w_risk",
+            "w_turn",
+            "w_heading_change",
+            "w_progress",
+            "map_max_age",
+        )
+        super().__init__("loonar_terrain_planner", keys)
+        self.grid = None
+        self.pub = self.create_publisher(TerrainDecision, "/terrain/decision", STATUS)
+        self.candidates = self.create_publisher(
+            MarkerArray, "/terrain/candidate_paths", MAP
+        )
+        self.regions = self.create_publisher(
+            MarkerArray, "/terrain/depression_regions", MAP
+        )
+        self.selected = self.create_publisher(
+            MarkerArray, "/terrain/selected_path", MAP
+        )
+        self.create_subscription(TerrainMap, "/terrain/map", self.on_map, MAP)
+        self.create_service(PlanTerrain, "/loonar/plan_terrain", self.plan)
+
+    def on_map(self, m):
+        if (
+            not all(math.isfinite(v) for v in (m.resolution, m.x_min, m.y_min))
+            or m.resolution <= 0
+            or not 0 < m.size_x <= 256
+            or not 0 < m.size_y <= 256
+            or len(m.cells) != m.size_x * m.size_y
+        ):
+            self.grid = None
+            return
+        self.grid = m
+        markers = MarkerArray()
+        clear = Marker()
+        clear.action = Marker.DELETEALL
+        markers.markers.append(clear)
+        for i, r in enumerate(depression_regions(m, self.p["max_drop_depth"] / 2)):
+            marker = Marker()
+            marker.header = m.header
+            marker.id = i
+            marker.ns = "depression_regions"
+            marker.type = Marker.TEXT_VIEW_FACING
+            marker.action = Marker.ADD
+            marker.pose.orientation.w = 1.0
+            marker.pose.position.x = r["x"]
+            marker.pose.position.y = r["y"]
+            marker.pose.position.z = 0.1
+            marker.scale.z = 0.05
+            marker.color.r = 1.0
+            marker.color.a = 1.0
+            marker.text = f"depth={r['depth']:.3f}m L={r['length']:.2f} W={r['width']:.2f} area={r['area']:.3f}m2"
+            markers.markers.append(marker)
+        self.regions.publish(markers)
+
+    def plan(self, request, response):
+        d = TerrainDecision()
+        d.header.stamp = self.get_clock().now().to_msg()
+        d.map_id = request.map_id
+        d.status = d.INSUFFICIENT_DATA
+        d.reason = "map absent, expired, or mismatched"
+        g = self.grid
+        if (
+            g is not None
+            and g.map_id == request.map_id
+            and fresh(seconds(g.header.stamp), self.now_s(), self.p["map_max_age"])
+            and len(g.cells) == g.size_x * g.size_y
+            and g.resolution > 0
+            and g.size_x
+            and g.size_y
+        ):
+            headings = (
+                [0.0]
+                if request.forward_only
+                else np.arange(
+                    self.p["heading_min"],
+                    self.p["heading_max"] + 1e-6,
+                    self.p["heading_step"],
+                )
+            )
+            previous = (
+                request.previous_heading
+                if math.isfinite(request.previous_heading)
+                else 0.0
+            )
+            candidates = [evaluate(g, float(h), previous, self.p) for h in headings]
+            d.header = g.header
+            d.status = d.NO_SAFE_PATH
+            reasons = Counter(c.reason for c in candidates)
+            d.reason = "all corridors rejected: " + "; ".join(
+                f"{reason} ({count})" for reason, count in reasons.items()
+            )
+            d.candidate_headings = [c.heading for c in candidates]
+            d.candidate_costs = [c.cost for c in candidates]
+            d.candidate_safe_distances = [c.safe_distance for c in candidates]
+            eligible = [
+                c
+                for c in candidates
+                if math.isfinite(c.cost)
+                and command_distance(c.safe_distance, self.p) > 0
+            ]
+            best = min(eligible, key=lambda c: c.cost) if eligible else None
+            if best:
+                d.status = d.OK
+                d.selected_heading = best.heading
+                d.safe_distance = best.safe_distance
+                d.command_distance = command_distance(best.safe_distance, self.p)
+                d.terrain_cost = best.cost
+                d.confidence = best.confidence
+                d.reason = "hard gates passed"
+            self.draw(g, candidates, best)
+        response.decision = d
+        self.pub.publish(d)
+        return response
+
+    def draw(self, g, candidates, best):
+        all_markers = MarkerArray()
+        clear = Marker()
+        clear.action = Marker.DELETEALL
+        all_markers.markers.append(clear)
+        chosen = MarkerArray()
+        chosen.markers.append(clear)
+        for i, c in enumerate(candidates):
+            m = Marker()
+            m.header = g.header
+            m.ns = "corridors"
+            m.id = i
+            m.type = Marker.LINE_STRIP
+            m.action = Marker.ADD
+            m.pose.orientation.w = 1.0
+            m.scale.x = 0.015
+            m.color.a = 0.8
+            m.color.g = 1.0 if math.isfinite(c.cost) else 0.0
+            m.color.r = 0.0 if math.isfinite(c.cost) else 1.0
+            # Rectangular swept envelope visualizes the full vehicle corridor.
+            front = self.p["robot_length"] / 2 + self.p["safety_margin"]
+            rear = (
+                max(self.p["robot_length"] / 2, self.p["tail_offset"])
+                + self.p["safety_margin"]
+            )
+            side = self.p["robot_width"] / 2 + self.p["safety_margin"]
+            for x, y in [
+                (-rear, -side),
+                (c.safe_distance + front, -side),
+                (c.safe_distance + front, side),
+                (-rear, side),
+                (-rear, -side),
+            ]:
+                m.points.append(
+                    Point(
+                        x=float(x * math.cos(c.heading) - y * math.sin(c.heading)),
+                        y=float(x * math.sin(c.heading) + y * math.cos(c.heading)),
+                        z=0.02,
+                    )
+                )
+            all_markers.markers.append(m)
+            if c is best:
+                chosen.markers.append(m)
+        self.candidates.publish(all_markers)
+        self.selected.publish(chosen)
+
+
+if __name__ == "__main__":
+    spin(Planner)

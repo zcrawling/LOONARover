@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.16)
+project(loonar_bringup)
+find_package(ament_cmake REQUIRED)
+install(DIRECTORY scripts/ DESTINATION lib/${PROJECT_NAME} USE_SOURCE_PERMISSIONS)
+install(DIRECTORY launch config urdf rviz DESTINATION share/${PROJECT_NAME})
+ament_package()

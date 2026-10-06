@@ -1,0 +1,12 @@
+[
+  {
+    "name": "flat floor - replace ROI and ruler measurements",
+    "roi": [0.3, 0.7, -0.2, 0.2],
+    "elevation": 0.0,
+    "slope": 0.0,
+    "step_up": 0.0,
+    "step_down": 0.0,
+    "depression_depth": 0.0,
+    "safe_ground": true
+  }
+]

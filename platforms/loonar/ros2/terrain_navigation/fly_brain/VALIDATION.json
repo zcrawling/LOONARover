@@ -1,0 +1,379 @@
+{
+  "recorded_at": "2026-10-06T22:14:47.131258+09:00",
+  "stage": "real whole-connectome sensory/ROS integration, shadow only; no motor-control bridge",
+  "provenance": {
+    "repository": "https://github.com/eonsystemspbc/fly-brain.git",
+    "revision": "a3db62f9436074e485c0278290c2164ed6150808",
+    "annotations_url": "https://raw.githubusercontent.com/flyconnectome/flywire_annotations/a83b2776d60d5764cef36b927f5f9679c16c47a2/supplemental_files/Supplemental_file1_neuron_annotations.tsv",
+    "sha256": {
+      "vendor/fly-brain/code/paper-phil-drosophila/model.py": "6e2cb5aab4ddf08cde2ca05cc49e87dd252c0358afe0dad17314211837b1f539",
+      "vendor/fly-brain/data/2025_Completeness_783.csv": "52b0ac6094cd32c546f8d4c341e094376f48f4e791f8db9b166de5dff8199ea4",
+      "vendor/fly-brain/data/2025_Connectivity_783.parquet": "efeb23fb99098e9c390f6869969b2a121a2ee92c833cfc45ecb2c1d8e1af0347",
+      "vendor/neuron_annotations.tsv": "b214970b55d2fbe0853bba536fdcb9e28730f4eb7ab06f600491df795da683cd"
+    }
+  },
+  "whole_brain": {
+    "neurons": 138639,
+    "connection_rows": 15091983,
+    "cases": {
+      "no_input": {
+        "spikes": 0,
+        "population_hz": {
+          "LC4_left": 0.0,
+          "LC4_right": 0.0,
+          "LPLC2_left": 0.0,
+          "LPLC2_right": 0.0,
+          "DNp09_left": 0.0,
+          "DNp09_right": 0.0,
+          "DNa01_left": 0.0,
+          "DNa01_right": 0.0,
+          "DNa02_left": 0.0,
+          "DNa02_right": 0.0
+        },
+        "simulated_ms": 200
+      },
+      "left_visual": {
+        "spikes": 6658,
+        "population_hz": {
+          "LC4_left": 98.42592592592592,
+          "LC4_right": 0.0,
+          "LPLC2_left": 99.49074074074075,
+          "LPLC2_right": 0.0,
+          "DNp09_left": 5.0,
+          "DNp09_right": 0.0,
+          "DNa01_left": 0.0,
+          "DNa01_right": 45.0,
+          "DNa02_left": 0.0,
+          "DNa02_right": 20.0
+        },
+        "simulated_ms": 200
+      },
+      "right_visual": {
+        "spikes": 6269,
+        "population_hz": {
+          "LC4_left": 0.0,
+          "LC4_right": 95.7,
+          "LPLC2_left": 0.0,
+          "LPLC2_right": 93.23529411764706,
+          "DNp09_left": 0.0,
+          "DNp09_right": 0.0,
+          "DNa01_left": 45.0,
+          "DNa01_right": 0.0,
+          "DNa02_left": 45.0,
+          "DNa02_right": 0.0
+        },
+        "simulated_ms": 200
+      },
+      "bilateral_visual": {
+        "spikes": 11308,
+        "population_hz": {
+          "LC4_left": 98.42592592592592,
+          "LC4_right": 95.7,
+          "LPLC2_left": 99.49074074074075,
+          "LPLC2_right": 93.23529411764706,
+          "DNp09_left": 0.0,
+          "DNp09_right": 0.0,
+          "DNa01_left": 0.0,
+          "DNa01_right": 0.0,
+          "DNa02_left": 0.0,
+          "DNa02_right": 0.0
+        },
+        "simulated_ms": 200
+      },
+      "p9_positive_control": {
+        "spikes": 273,
+        "population_hz": {
+          "LC4_left": 0.0,
+          "LC4_right": 0.0,
+          "LPLC2_left": 0.0,
+          "LPLC2_right": 0.0,
+          "DNp09_left": 120.0,
+          "DNp09_right": 180.0,
+          "DNa01_left": 0.0,
+          "DNa01_right": 0.0,
+          "DNa02_left": 5.0,
+          "DNa02_right": 30.0
+        },
+        "simulated_ms": 200
+      },
+      "left_visual_recurrence_silenced": {
+        "spikes": 3212,
+        "population_hz": {
+          "LC4_left": 98.42592592592592,
+          "LC4_right": 0.0,
+          "LPLC2_left": 99.49074074074075,
+          "LPLC2_right": 0.0,
+          "DNp09_left": 0.0,
+          "DNp09_right": 0.0,
+          "DNa01_left": 0.0,
+          "DNa01_right": 0.0,
+          "DNa02_left": 0.0,
+          "DNa02_right": 0.0
+        },
+        "simulated_ms": 200
+      }
+    }
+  },
+  "unit_tests_passed": 10,
+  "continuous_run_parity": {
+    "passed": true,
+    "all_neuron_spike_counts_identical": true,
+    "neurons_compared": 138639,
+    "simulated_ms": 200,
+    "reference_spikes": 6658,
+    "stream_compute_ms": [
+      201.40238699968904,
+      234.83760800081654,
+      218.4926940008154,
+      221.8759970000974,
+      205.20982400012144,
+      211.40190400001302,
+      258.3551570005511,
+      239.56493400146428,
+      260.01546700172185,
+      227.36545800034946,
+      234.10901900024328,
+      215.76237299996137,
+      244.92046299928916,
+      248.73284899877035,
+      233.07458600174868,
+      237.60242699972878,
+      241.57114800073032,
+      228.84713300118165,
+      228.24638299971411,
+      256.0173460005899
+    ]
+  },
+  "synthetic_ros_replay": {
+    "passed": true,
+    "full_brain_results": 39,
+    "positive_candidate_seen": true,
+    "motor_publishers": 0,
+    "fault_zero": true,
+    "safety_zero": true,
+    "stale_depth_zero": true,
+    "compute_ms": [
+      174.93867999837676,
+      175.65956199905486,
+      184.4983079990925,
+      223.2677669999248,
+      224.3274949996703,
+      238.51434599964705,
+      264.99380899986136,
+      255.82269200094743,
+      251.85454699931142,
+      258.3943699992233,
+      239.8945780005306,
+      223.04429599898867,
+      226.16609599936055,
+      222.48853199926089,
+      221.31288099990343,
+      212.74933499989857,
+      227.62696700010565,
+      218.0862530003651,
+      218.79065299981448,
+      198.50952500019048,
+      186.51703899922722,
+      221.93258999868704,
+      206.9704969999293,
+      219.00408299916307,
+      180.76265300078376,
+      156.94386299946927,
+      184.61612999999488,
+      169.24612500042713,
+      176.64510900067398,
+      171.85236000113946,
+      172.17257400079689,
+      147.4931659995491,
+      175.7301119996555,
+      162.92767800041474,
+      163.26774600020144,
+      156.43997600091097,
+      150.18787699955283,
+      167.33322699838027,
+      164.34653299984348
+    ],
+    "fixture": "synthetic ROS sensors, real pinned whole brain; no hardware"
+  },
+  "physical_pi_run": {
+    "duration_seconds": 30.0,
+    "counts": {
+      "input": 265,
+      "result": 135,
+      "status": 30,
+      "brain_status": 30
+    },
+    "camera_frames_available": 238,
+    "compute_ms_median": 198.8880689987127,
+    "compute_ms_max": 283.3873339986894,
+    "last": {
+      "input": {
+        "schema": 1,
+        "session": "85e7fbd2fe504e83b52d0782321d6e4a",
+        "sequence": 806,
+        "depth": {
+          "left": {
+            "distance_m": 0.1679999977350235,
+            "valid_fraction": 0.8744596354166667,
+            "proximity": 0.8777777809235786
+          },
+          "right": {
+            "distance_m": 1.2990000247955322,
+            "valid_fraction": 0.407109375,
+            "proximity": 0.0
+          }
+        },
+        "expansion": {
+          "left": 0.0010745527290392267,
+          "right": 0.001361093121621889
+        },
+        "camera_available": true,
+        "context": {
+          "gyro_rps": [
+            0.0010908307740464807,
+            -0.0021816615480929613,
+            0.0
+          ],
+          "wheel_rps": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "result": {
+        "population_hz": {
+          "LC4_left": 98.14814814814815,
+          "LC4_right": 0.0,
+          "LPLC2_left": 0.0,
+          "LPLC2_right": 0.0,
+          "DNp09_left": 0.0,
+          "DNp09_right": 0.0,
+          "DNa01_left": 0.0,
+          "DNa01_right": 0.0,
+          "DNa02_left": 0.0,
+          "DNa02_right": 0.0
+        },
+        "smoothed_hz": {
+          "LC4_left": 68.40335851039657,
+          "LC4_right": 0.0,
+          "LPLC2_left": 0.050212687219472876,
+          "LPLC2_right": 0.06345094716453735,
+          "DNp09_left": 0.0,
+          "DNp09_right": 0.0,
+          "DNa01_left": 0.0,
+          "DNa01_right": 25.01137558430386,
+          "DNa02_left": 0.0,
+          "DNa02_right": 12.05214637807751
+        },
+        "spikes": 67,
+        "simulated_ms": 10,
+        "brain_time_ms": 3030.0,
+        "compute_ms": 198.8880689987127,
+        "wall_per_brain": 19.88880689987127,
+        "schema": 1,
+        "session": "85e7fbd2fe504e83b52d0782321d6e4a",
+        "sequence": 802,
+        "input_rates_hz": {
+          "LC4_left": 87.77777809235786,
+          "LPLC2_left": 0.0790428268751345,
+          "LC4_right": 0.0,
+          "LPLC2_right": 0.13813671347544124
+        },
+        "motivation_hz": 0,
+        "candidate": {
+          "linear_mps": 0.0,
+          "angular_rps": -0.01205214637807751,
+          "calibrated": false,
+          "actuation_enabled": false
+        },
+        "actuation_enabled": false
+      },
+      "status": {
+        "mode": "shadow",
+        "actuation_enabled": false,
+        "blocked_reason": "collision braking envelope: 2060 points, front gap=0.034m, required clearance=0.070m",
+        "results_accepted": 275,
+        "results_rejected": 4,
+        "last_rejection": "unknown/replayed/out-of-order result",
+        "candidate": {
+          "linear_mps": 0.0,
+          "angular_rps": -0.017979689626403814,
+          "calibrated": false,
+          "actuation_enabled": false
+        },
+        "inference": {
+          "population_hz": {
+            "LC4_left": 88.88888888888889,
+            "LC4_right": 0.0,
+            "LPLC2_left": 0.0,
+            "LPLC2_right": 0.0,
+            "DNp09_left": 0.0,
+            "DNp09_right": 0.0,
+            "DNa01_left": 0.0,
+            "DNa01_right": 0.0,
+            "DNa02_left": 0.0,
+            "DNa02_right": 100.0
+          },
+          "smoothed_hz": {
+            "LC4_left": 87.9173694579109,
+            "LC4_right": 0.0,
+            "LPLC2_left": 0.07490852692894584,
+            "LPLC2_right": 0.09465769006878817,
+            "DNp09_left": 0.0,
+            "DNp09_right": 0.0,
+            "DNa01_left": 0.0,
+            "DNa01_right": 26.7954960110816,
+            "DNa02_left": 0.0,
+            "DNa02_right": 17.979689626403815
+          },
+          "spikes": 96,
+          "simulated_ms": 10,
+          "brain_time_ms": 2990.0,
+          "compute_ms": 174.49183500139043,
+          "wall_per_brain": 17.449183500139043,
+          "schema": 1,
+          "session": "85e7fbd2fe504e83b52d0782321d6e4a",
+          "sequence": 801,
+          "input_rates_hz": {
+            "LC4_left": 87.77777809235786,
+            "LPLC2_left": 0.0,
+            "LC4_right": 0.0,
+            "LPLC2_right": 0.0
+          },
+          "motivation_hz": 0,
+          "candidate": {
+            "linear_mps": 0.0,
+            "angular_rps": -0.017979689626403814,
+            "calibrated": false,
+            "actuation_enabled": false
+          },
+          "actuation_enabled": false
+        }
+      },
+      "brain_status": {
+        "ready": true,
+        "neurons": 138639,
+        "connections": 15091983,
+        "mode": "shadow",
+        "motivation_hz": 0,
+        "simulated_step_ms": 10,
+        "actuation_enabled": false
+      }
+    },
+    "cmd_vel_publishers": 0
+  },
+  "motor_driver_observation": {
+    "status_hex": "0x00000000",
+    "left_command": 0,
+    "right_command": 0,
+    "left_speed": 0,
+    "right_speed": 0
+  },
+  "limitations": [
+    "Simplified original LIF connectome, not a complete biological fly",
+    "Artificial visual input encoding and uncalibrated rover output mapping",
+    "Camera/ToF neural response verified, locomotion and terrain navigation unvalidated",
+    "No cmd_vel publisher or motor action client; AUTO actuation not implemented",
+    "10ms neural time per window, sub-biological-real-time execution"
+  ]
+}

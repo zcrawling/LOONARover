@@ -1,0 +1,201 @@
+#!/usr/bin/env python3
+"""Fresh depth braking-envelope guard, independent of heavy terrain actions."""
+from collections import deque
+import numpy as np
+from sensor_msgs.msg import Image, CameraInfo
+from loonar_msgs.msg import SafetyState
+from loonar_terrain_core.ros import (
+    Runtime,
+    Sensors,
+    SENSOR,
+    STATUS,
+    spin,
+    seconds,
+    image_array,
+    level_rotation,
+)
+from loonar_terrain_core.algorithms import fresh, collision_guard
+
+
+class Safety(Runtime):
+    def __init__(self):
+        keys = (
+            "sensor_timeout",
+            "base_frame",
+            "sync_tolerance",
+            "max_roll",
+            "max_pitch",
+            "max_shock",
+            "max_wheel_speed",
+            "wheel_radius",
+            "gravity_magnitude_min",
+            "gravity_magnitude_max",
+            "robot_length",
+            "robot_width",
+            "tail_offset",
+            "wheel_track",
+            "safety_margin",
+            "stopping_margin",
+            "brake_reaction_time",
+            "brake_deceleration",
+            "max_step_up",
+            "gyro_threshold",
+            "collision_half_width",
+            "collision_min_height",
+            "collision_max_height",
+            "collision_min_points",
+            "min_valid_ratio",
+            "amplitude_threshold",
+            "min_range",
+            "max_range",
+            "pixel_stride",
+        )
+        super().__init__("loonar_safety_monitor", keys)
+        self.s = Sensors(self)
+        self.info = None
+        self.depth = None
+        self.amps = deque(maxlen=5)
+        self.checked = None
+        self.collision = True
+        self.points = None
+        self.reason = "awaiting depth"
+        self.depth_wait_reason = "awaiting synchronized depth/amplitude/gravity"
+        self.pub = self.create_publisher(
+            SafetyState, "/loonar/safety/emergency_stop", STATUS
+        )
+        self.create_subscription(Image, "/loonar/tof/depth", self.on_depth, SENSOR)
+        self.create_subscription(Image, "/loonar/tof/amplitude", self.on_amp, SENSOR)
+        self.create_subscription(
+            CameraInfo, "/loonar/tof/camera_info", self.on_info, SENSOR
+        )
+        self.create_timer(0.02, self.tick)
+
+    def on_depth(self, m):
+        self.depth = m
+        self.check_depth()
+
+    def on_amp(self, m):
+        self.amps.append(m)
+        self.check_depth()
+
+    def on_info(self, m):
+        self.info = m
+
+    def check_depth(self):
+        if self.depth is None or self.info is None or not self.s.valid("gravity"):
+            self.depth_wait_reason = "depth/calibration/gravity missing or stale"
+            return
+        d = self.depth
+        stamp = seconds(d.header.stamp)
+        if self.checked is not None and stamp <= self.checked:
+            return
+        a = next((m for m in self.amps if m.header.stamp == d.header.stamp), None)
+        if a is None:
+            self.depth_wait_reason = "matching amplitude missing"
+            return
+        try:
+            if not fresh(stamp, self.now_s(), self.p["sensor_timeout"]):
+                self.depth_wait_reason = f"depth sample age {self.now_s()-stamp:.3f}s"
+                return
+            gravity = self.s.gravity_at(stamp, self.p["sync_tolerance"])
+            if gravity is None:
+                self.depth_wait_reason = (
+                    "no fresh gravity sample matching depth timestamp"
+                )
+                return
+            if d.encoding != "32FC1" or a.encoding != "32FC1":
+                raise ValueError("depth not normalized")
+            if (d.width, d.height, d.header.frame_id) != (
+                a.width,
+                a.height,
+                a.header.frame_id,
+            ) or (d.width, d.height, d.header.frame_id) != (
+                self.info.width,
+                self.info.height,
+                self.info.header.frame_id,
+            ):
+                raise ValueError("calibration mismatch")
+            stride = self.p["pixel_stride"]
+            z = image_array(d)[::stride, ::stride]
+            amp = image_array(a)[::stride, ::stride]
+            valid = (
+                np.isfinite(z)
+                & np.isfinite(amp)
+                & (z >= self.p["min_range"])
+                & (z <= self.p["max_range"])
+                & (amp >= self.p["amplitude_threshold"])
+            )
+            if valid.mean() < self.p["min_valid_ratio"]:
+                raise ValueError("insufficient valid depth")
+            fx, fy, cx, cy = (
+                self.info.k[0],
+                self.info.k[4],
+                self.info.k[2],
+                self.info.k[5],
+            )
+            if not np.isfinite([fx, fy, cx, cy]).all() or min(fx, fy) <= 0:
+                raise ValueError("invalid calibration")
+            yy, xx = np.mgrid[: d.height : stride, : d.width : stride]
+            xyz = np.stack([(xx - cx) * z / fx, (yy - cy) * z / fy, z], axis=-1)[valid]
+            r, t = self.transform(d.header.frame_id, d.header.stamp)
+            level, _, _ = level_rotation(gravity)
+            xyz = (xyz @ r.T + t) @ level.T
+            self.points = xyz
+            self.checked = stamp
+        except Exception as e:
+            self.points = None
+            self.collision = True
+            self.reason = str(e)
+            self.checked = stamp
+
+    def tick(self):
+        reason = ""
+        if self.checked is not None and self.checked > self.now_s():
+            self.checked = None
+        if self.s.valid("base") and (
+            not self.s.base.connected or self.s.base.motor_fault
+        ):
+            # Faulted feedback is intentionally not emitted as wheel telemetry.
+            # Report its actual cause before the resulting missing-wheel symptom.
+            reason = "MCU communication or motor fault: " + self.s.base.reason
+        elif not self.s.valid("gyro", "gravity", "accel", "wheels", "base"):
+            reason = "sensor/base missing or stale"
+        elif not fresh(self.checked, self.now_s(), self.p["sensor_timeout"]):
+            reason = "depth missing or stale: " + self.depth_wait_reason
+        else:
+            # Re-evaluate with current speed even between depth frames.
+            if self.points is not None:
+                self.collision, self.reason = collision_guard(
+                    self.points, self.s.wheels[:, 1], self.s.gyro[2], self.p
+                )
+            norm = np.linalg.norm(self.s.gravity)
+            if (
+                not self.p["gravity_magnitude_min"]
+                <= norm
+                <= self.p["gravity_magnitude_max"]
+            ):
+                reason = "invalid gravity"
+            else:
+                _, roll, pitch = level_rotation(self.s.gravity)
+                if abs(roll) > self.p["max_roll"] or abs(pitch) > self.p["max_pitch"]:
+                    reason = "excessive attitude"
+                elif (
+                    np.linalg.norm(self.s.accel - self.s.gravity) > self.p["max_shock"]
+                ):
+                    reason = "IMU shock"
+                elif (
+                    np.max(np.abs(self.s.wheels[:, 1])) * self.p["wheel_radius"]
+                    > self.p["max_wheel_speed"]
+                ):
+                    reason = "unexpected wheel speed"
+                elif self.collision:
+                    reason = self.reason
+        m = SafetyState()
+        m.header.stamp = self.get_clock().now().to_msg()
+        m.emergency_stop = bool(reason)
+        m.reason = reason or "clear"
+        self.pub.publish(m)
+
+
+if __name__ == "__main__":
+    spin(Safety)

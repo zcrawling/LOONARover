@@ -1,0 +1,9 @@
+/build/
+/install/
+/log/
+/bags/
+/reports/
+/*.local.yaml
+/*.local.json
+/*.local.urdf
+/*.local.sh

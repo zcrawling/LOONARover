@@ -1,0 +1,18 @@
+uint8 TYPE_STOP=0
+uint8 TYPE_STRAIGHT=1
+uint8 TYPE_ROTATE=2
+uint8 type
+float32 target
+float32 speed
+float32 timeout
+---
+bool success
+string termination_reason
+float32 encoder_distance
+float32 gyro_delta_yaw
+float32 elapsed_time
+---
+float32 progress
+float32 current_encoder_distance
+float32 current_relative_yaw
+string state

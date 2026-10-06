@@ -1,0 +1,7 @@
+/vendor/
+/.venv/
+/cache/
+/log/
+/setup.log
+__pycache__/
+.pytest_cache/

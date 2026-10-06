@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+"""Request snapshots/plans during stationary bag segments. Never sends motion."""
+from rclpy.action import ActionClient
+from loonar_msgs.action import BuildTerrainMap
+from loonar_msgs.srv import PlanTerrain
+from loonar_msgs.msg import Stationary
+from loonar_terrain_core.ros import Runtime, STATUS, spin, seconds
+from loonar_terrain_core.algorithms import fresh
+
+
+class Replay(Runtime):
+    def __init__(self):
+        super().__init__("loonar_snapshot_replay", ("sensor_timeout", "frame_count"))
+        self.client = ActionClient(self, BuildTerrainMap, "/loonar/build_terrain_map")
+        self.planner = self.create_client(PlanTerrain, "/loonar/plan_terrain")
+        self.busy = False
+        self.last = -1.0
+        self.stationary = None
+        self.create_subscription(
+            Stationary,
+            "/loonar/stationary",
+            lambda m: setattr(self, "stationary", m),
+            STATUS,
+        )
+        self.create_timer(0.1, self.tick)
+
+    def tick(self):
+        now = self.now_s()
+        if now < self.last:
+            self.last = -1.0
+        if (
+            self.busy
+            or now - self.last < 1.0
+            or not self.client.server_is_ready()
+            or self.stationary is None
+        ):
+            return
+        if self.stationary.state != 2 or not fresh(
+            seconds(self.stationary.header.stamp), now, self.p["sensor_timeout"]
+        ):
+            return
+        self.busy = True
+        self.last = now
+        g = BuildTerrainMap.Goal()
+        g.frame_count = self.p["frame_count"]
+        self.client.send_goal_async(g).add_done_callback(self.accepted)
+
+    def accepted(self, f):
+        h = f.result()
+        if not h.accepted:
+            self.busy = False
+            return
+        h.get_result_async().add_done_callback(self.done)
+
+    def done(self, f):
+        self.busy = False
+        r = f.result().result
+        if r.success and self.planner.service_is_ready():
+            q = PlanTerrain.Request()
+            q.map_id = r.map_id
+            self.planner.call_async(q)
+
+
+if __name__ == "__main__":
+    spin(Replay)

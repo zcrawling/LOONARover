@@ -1,0 +1,5 @@
+uint32 map_id
+bool forward_only
+float32 previous_heading
+---
+loonar_msgs/TerrainDecision decision

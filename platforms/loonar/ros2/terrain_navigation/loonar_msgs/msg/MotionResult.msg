@@ -1,0 +1,6 @@
+std_msgs/Header header
+bool success
+string termination_reason
+float32 encoder_distance
+float32 gyro_delta_yaw
+float32 elapsed_time

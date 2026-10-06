@@ -1,0 +1,286 @@
+#!/usr/bin/env python3
+import math
+import numpy as np
+from rclpy.action import ActionServer, GoalResponse, CancelResponse
+from rclpy.callback_groups import ReentrantCallbackGroup
+from rclpy.task import Future
+from geometry_msgs.msg import Twist
+from std_srvs.srv import Trigger
+from loonar_msgs.action import ExecuteMotionPrimitive as Motion
+from loonar_msgs.msg import MotionStatus, MotionResult
+from loonar_terrain_core.ros import Runtime, Sensors, STATUS, spin, level_rotation
+from loonar_terrain_core.algorithms import primitive_command
+
+
+class Executor(Runtime):
+    def __init__(self):
+        keys = (
+            "sensor_timeout",
+            "base_frame",
+            "enable_motion",
+            "calibration_confirmed",
+            "wheel_radius",
+            "straight_slow_speed",
+            "straight_normal_speed",
+            "rotate_speed",
+            "yaw_tolerance",
+            "distance_tolerance",
+            "settle_gyro_threshold",
+            "straight_yaw_kp",
+            "straight_yaw_kd",
+            "max_heading_correction",
+            "distance_kp",
+            "rotate_kp",
+            "max_primitive_timeout",
+            "max_rotate_angle",
+            "max_drive_distance",
+            "max_roll",
+            "max_pitch",
+            "max_shock",
+            "max_wheel_speed",
+            "gravity_magnitude_min",
+            "gravity_magnitude_max",
+        )
+        super().__init__("loonar_motion_primitives", keys)
+        self.s = Sensors(self)
+        self.busy = False
+        self.goal = None
+        self.done = None
+        self.halt = False
+        self.distance = 0.0
+        self.yaw = 0.0
+        self.start = 0.0
+        self.gyro_t = None
+        self.gyro_previous = 0.0
+        self.positions = None
+        self.wheel_t = None
+        self.pub = self.create_publisher(Twist, "/cmd_vel", STATUS)
+        self.status = self.create_publisher(
+            MotionStatus, "/motion_primitive/status", STATUS
+        )
+        self.goals = self.create_publisher(
+            MotionStatus, "/motion_primitive/goal", STATUS
+        )
+        self.results = self.create_publisher(
+            MotionResult, "/motion_primitive/result", STATUS
+        )
+        self.server = ActionServer(
+            self,
+            Motion,
+            "/loonar/execute_motion_primitive",
+            self.execute,
+            goal_callback=self.accept,
+            cancel_callback=lambda _: CancelResponse.ACCEPT,
+            callback_group=ReentrantCallbackGroup(),
+        )
+        self.create_service(Trigger, "/loonar/motion/stop", self.stop_service)
+        self.create_timer(0.02, self.tick)
+
+    def fault(self):
+        if not self.p["enable_motion"] or not self.p["calibration_confirmed"]:
+            return "motion/calibration disabled"
+        if not self.s.valid("gyro", "wheels", "gravity", "accel", "base", "safety"):
+            return "stale sensor or safety heartbeat"
+        if self.s.safety.emergency_stop:
+            return "safety: " + self.s.safety.reason
+        if (
+            not self.s.base.connected
+            or self.s.base.motor_fault
+            or not self.s.base.auto_selected
+        ):
+            return "base fault or AUTO not selected"
+        g = np.linalg.norm(self.s.gravity)
+        if not self.p["gravity_magnitude_min"] <= g <= self.p["gravity_magnitude_max"]:
+            return "invalid gravity"
+        _, roll, pitch = level_rotation(self.s.gravity)
+        if abs(roll) > self.p["max_roll"] or abs(pitch) > self.p["max_pitch"]:
+            return "excessive attitude"
+        if np.linalg.norm(self.s.accel - self.s.gravity) > self.p["max_shock"]:
+            return "IMU shock"
+        if (
+            np.max(np.abs(self.s.wheels[:, 1])) * self.p["wheel_radius"]
+            > self.p["max_wheel_speed"]
+        ):
+            return "unexpected wheel speed"
+        return ""
+
+    def accept(self, g):
+        if (
+            self.busy
+            or g.type not in (0, 1, 2)
+            or not all(math.isfinite(v) for v in (g.target, g.speed, g.timeout))
+        ):
+            return GoalResponse.REJECT
+        if g.type != 0:
+            if (
+                self.halt
+                or self.fault()
+                or not 0 < g.timeout <= self.p["max_primitive_timeout"]
+                or g.speed <= 0
+            ):
+                return GoalResponse.REJECT
+            # Action fields are float32: 0.1 m arrives as 0.10000000149 m.
+            # Compare at the wire precision so an exact configured limit works.
+            if g.type == 1 and not 0 < g.target <= float(
+                np.float32(self.p["max_drive_distance"])
+            ):
+                return GoalResponse.REJECT
+            if g.type == 2 and abs(g.target) > float(
+                np.float32(self.p["max_rotate_angle"])
+            ):
+                return GoalResponse.REJECT
+        self.busy = True
+        return GoalResponse.ACCEPT
+
+    async def execute(self, goal):
+        self.goal = goal
+        self.done = Future()
+        self.distance = 0.0
+        self.yaw = 0.0
+        self.start = self.now_s()
+        self.gyro_t = self.s.stamps.get("gyro")
+        self.gyro_previous = float(self.s.gyro[2]) if self.s.gyro is not None else 0.0
+        self.wheel_t = self.s.stamps.get("wheels")
+        self.positions = (
+            self.s.wheels[:, 0].copy() if self.s.wheels is not None else None
+        )
+        self.goals.publish(self.message("ACCEPTED"))
+        result = await self.done
+        if goal.is_cancel_requested:
+            goal.canceled()
+        elif result.success:
+            goal.succeed()
+        else:
+            goal.abort()
+        self.goal = None
+        self.done = None
+        self.busy = False
+        return result
+
+    def stop_output(self):
+        self.pub.publish(Twist())
+
+    def stop_service(self, request, response):
+        self.halt = True
+        self.stop_output()
+        response.success = True
+        response.message = "stop requested"
+        return response
+
+    def complete(self, ok, reason):
+        self.stop_output()
+        if self.done is None or self.done.done():
+            return
+        r = Motion.Result()
+        r.success = ok
+        r.termination_reason = reason
+        r.encoder_distance = self.distance
+        r.gyro_delta_yaw = self.yaw
+        r.elapsed_time = max(0.0, self.now_s() - self.start)
+        m = MotionResult()
+        m.header.stamp = self.get_clock().now().to_msg()
+        for k in (
+            "success",
+            "termination_reason",
+            "encoder_distance",
+            "gyro_delta_yaw",
+            "elapsed_time",
+        ):
+            setattr(m, k, getattr(r, k))
+        self.results.publish(m)
+        self.done.set_result(r)
+
+    def message(self, state):
+        m = MotionStatus()
+        m.header.stamp = self.get_clock().now().to_msg()
+        m.active = (
+            self.busy and self.goal is not None and not (self.done and self.done.done())
+        )
+        m.state = state
+        if self.goal:
+            g = self.goal.request
+            m.type = g.type
+            m.target = g.target
+            m.encoder_distance = self.distance
+            m.gyro_delta_yaw = self.yaw
+            m.progress = float(
+                min(
+                    1.0,
+                    max(
+                        0.0,
+                        (self.distance if g.type == 1 else abs(self.yaw))
+                        / max(abs(g.target), 1e-6),
+                    ),
+                )
+            )
+        return m
+
+    def tick(self):
+        self.status.publish(self.message("ACTIVE" if self.busy else "IDLE"))
+        if not self.goal:
+            if self.halt:
+                self.stop_output()
+            return
+        if self.done.done():
+            return
+        g = self.goal.request
+        if g.type == 0:
+            self.halt = False
+            return self.complete(True, "STOP")
+        if self.halt:
+            return self.complete(False, "explicit stop")
+        if self.goal.is_cancel_requested:
+            return self.complete(False, "cancelled")
+        if g.type == 0:
+            return self.complete(True, "STOP")
+        reason = self.fault()
+        if reason:
+            return self.complete(False, reason)
+        elapsed = self.now_s() - self.start
+        if elapsed < 0 or elapsed > g.timeout:
+            return self.complete(False, "timeout or ROS time reset")
+        gt = self.s.stamps["gyro"]
+        wt = self.s.stamps["wheels"]
+        if self.gyro_t is not None and gt != self.gyro_t:
+            dt = gt - self.gyro_t
+            if not 0 < dt <= self.p["sensor_timeout"]:
+                return self.complete(False, "gyro discontinuity")
+            self.yaw += (self.gyro_previous + float(self.s.gyro[2])) * 0.5 * dt
+        self.gyro_t = gt
+        self.gyro_previous = float(self.s.gyro[2])
+        if self.positions is not None and wt != self.wheel_t:
+            dt = wt - self.wheel_t
+            delta = (self.s.wheels[:, 0] - self.positions) * self.p["wheel_radius"]
+            if (
+                dt <= 0
+                or np.max(np.abs(delta)) > self.p["max_wheel_speed"] * dt + 0.005
+            ):
+                return self.complete(False, "encoder discontinuity")
+            self.distance += float(delta.mean())
+        self.positions = self.s.wheels[:, 0].copy()
+        self.wheel_t = wt
+        v, w, complete = primitive_command(
+            g.type,
+            g.target,
+            g.speed,
+            self.distance,
+            self.yaw,
+            float(self.s.gyro[2]),
+            self.p,
+        )
+        if complete:
+            return self.complete(True, "target reached")
+        cmd = Twist()
+        cmd.linear.x = float(v)
+        cmd.angular.z = float(w)
+        self.pub.publish(cmd)
+        feedback = Motion.Feedback()
+        feedback.progress = self.message("ACTIVE").progress
+        feedback.current_encoder_distance = self.distance
+        feedback.current_relative_yaw = self.yaw
+        feedback.state = "STRAIGHT" if g.type == 1 else "ROTATE"
+        self.goal.publish_feedback(feedback)
+
+
+if __name__ == "__main__":
+    spin(Executor)

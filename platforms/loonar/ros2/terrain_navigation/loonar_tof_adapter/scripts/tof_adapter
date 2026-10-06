@@ -1,0 +1,331 @@
+#!/usr/bin/env python3
+"""Normalize SDK or driver images to rectified optical axial metres (32FC1)."""
+import copy
+import os
+import queue
+import struct
+import subprocess
+import threading
+import time
+from collections import deque
+import numpy as np
+import cv2
+from sensor_msgs.msg import Image, CameraInfo
+from loonar_terrain_core.ros import Runtime, SENSOR, spin, seconds, image_array
+
+
+class Adapter(Runtime):
+    def __init__(self):
+        super().__init__(
+            "loonar_tof_adapter",
+            ("sensor_timeout", "sync_tolerance", "min_range", "max_range"),
+            dict(
+                source="topics",
+                helper="",
+                optical_frame="tof_optical_frame",
+                depth_scale=0.001,
+                source_depth_is_radial=False,
+                source_rectified=False,
+                publish_raw=True,
+            ),
+        )
+        self.depth_pub = self.create_publisher(Image, "/loonar/tof/depth", SENSOR)
+        self.amp_pub = self.create_publisher(Image, "/loonar/tof/amplitude", SENSOR)
+        self.info_pub = self.create_publisher(
+            CameraInfo, "/loonar/tof/camera_info", SENSOR
+        )
+        self.raw_pub = self.create_publisher(Image, "/loonar/tof/raw_depth", SENSOR)
+        self.info = None
+        self.depths = deque(maxlen=5)
+        self.amps = deque(maxlen=5)
+        self.maps = None
+        self.calibration_key = None
+        self.last_stamp = -1.0
+        self.child = None
+        self.q = queue.Queue(maxsize=1)
+        self.closed = False
+        self.sdk_error = None
+        self.sdk_stderr = ""
+        self.sdk_started = time.monotonic()
+        self.sdk_received = None
+        self.sdk_health_message = None
+        if self.p["source"] == "sdk":
+            if self.get_parameter("use_sim_time").value:
+                raise ValueError("SDK acquisition cannot use simulated time")
+            if not self.p["helper"]:
+                raise ValueError("set helper to installed cubeeye_capture")
+            read_fd, write_fd = os.pipe()
+            self.child = subprocess.Popen(
+                [self.p["helper"], str(write_fd)],
+                pass_fds=(write_fd,),
+                stderr=subprocess.PIPE,
+            )
+            os.close(write_fd)
+            self.pipe = os.fdopen(read_fd, "rb")
+            self.thread = threading.Thread(target=self.read_sdk, daemon=True)
+            self.thread.start()
+            self.stderr_thread = threading.Thread(target=self.read_stderr, daemon=True)
+            self.stderr_thread.start()
+            self.create_timer(0.005, self.drain)
+            self.create_timer(0.5, self.sdk_health)
+        elif self.p["source"] == "topics":
+            self.create_subscription(
+                CameraInfo, "/loonar/tof/input/camera_info", self.set_info, SENSOR
+            )
+            self.create_subscription(
+                Image,
+                "/loonar/tof/input/depth",
+                lambda m: self.receive(m, True),
+                SENSOR,
+            )
+            self.create_subscription(
+                Image,
+                "/loonar/tof/input/amplitude",
+                lambda m: self.receive(m, False),
+                SENSOR,
+            )
+        else:
+            raise ValueError("source must be topics or sdk")
+
+    def set_info(self, m):
+        self.info = m
+
+    def receive(self, m, is_depth):
+        (self.depths if is_depth else self.amps).append(m)
+        if self.info is None:
+            return
+        for d in list(self.depths):
+            for a in list(self.amps):
+                if (
+                    abs(seconds(d.header.stamp) - seconds(a.header.stamp))
+                    <= self.p["sync_tolerance"]
+                ):
+                    self.depths.remove(d)
+                    self.amps.remove(a)
+                    try:
+                        self.publish_pair(d, a, self.info)
+                    except (ValueError, cv2.error) as e:
+                        self.report(str(e), True)
+                    return
+
+    def read_exact(self, n):
+        result = bytearray()
+        while len(result) < n:
+            block = self.pipe.read(n - len(result))
+            if not block:
+                raise EOFError("SDK pipe closed")
+            result.extend(block)
+        return result
+
+    def read_stderr(self):
+        for raw in self.child.stderr:
+            line = raw.decode(errors="replace").strip()[:1000]
+            if line and not self.closed:
+                self.sdk_stderr = line
+                self.get_logger().info("SDK: " + line)
+
+    def sdk_health(self):
+        code = self.child.poll()
+        if code is not None:
+            reason = f"SDK helper exited (code {code}): {self.sdk_stderr or self.sdk_error or 'no stderr'}"
+        elif self.sdk_error:
+            reason = self.sdk_error
+        elif self.sdk_received is None:
+            if time.monotonic() - self.sdk_started < 30.0:
+                return
+            reason = "SDK startup timeout: no depth/amplitude pair in 30 s"
+        elif time.monotonic() - self.sdk_received > self.p["sensor_timeout"]:
+            reason = "SDK depth/amplitude stream stale"
+        else:
+            self.sdk_health_message = None
+            self.report("SDK depth/amplitude stream active")
+            return
+        if reason != self.sdk_health_message:
+            self.get_logger().error(reason)
+            self.sdk_health_message = reason
+        self.report(reason, True)
+
+    def read_sdk(self):
+        try:
+            previous = 0
+            while not self.closed:
+                header = struct.unpack("<4IQ12d", self.read_exact(120))
+                magic, w, h, seq, host_stamp, *cal = header
+                if (
+                    magic != 0x4C544F46
+                    or not 0 < w <= 1920
+                    or not 0 < h <= 1080
+                    or seq <= previous
+                ):
+                    raise ValueError("invalid SDK packet")
+                previous = seq
+                raw = self.read_exact(w * h * 4)
+                self.sdk_received = time.monotonic()
+                stamp = self.get_clock().now().to_msg()
+                if (
+                    not 0
+                    <= self.get_clock().now().nanoseconds - host_stamp
+                    <= self.p["sensor_timeout"] * 1e9
+                ):
+                    continue
+                stamp.sec = host_stamp // 1_000_000_000
+                stamp.nanosec = (
+                    host_stamp % 1_000_000_000
+                )  # SDK callback host time, never SDK uptime
+                info = CameraInfo()
+                info.header.stamp = stamp
+                info.header.frame_id = self.p["optical_frame"]
+                info.width = w
+                info.height = h
+                fx, fy, cx, cy, *dist = cal
+                info.k = [fx, 0.0, cx, 0.0, fy, cy, 0.0, 0.0, 1.0]
+                info.d = dist
+                info.distortion_model = "rational_polynomial"
+                d = Image()
+                d.header = info.header
+                d.width = w
+                d.height = h
+                d.encoding = "16UC1"
+                d.step = w * 2
+                d.data = bytes(raw[: w * h * 2])
+                a = copy.deepcopy(d)
+                a.data = bytes(raw[w * h * 2 :])
+                try:
+                    self.q.get_nowait()
+                except queue.Empty:
+                    pass
+                self.q.put_nowait((d, a, info))
+        except (EOFError, ValueError, OSError) as e:
+            if not self.closed:
+                self.sdk_error = str(e)
+
+    def drain(self):
+        try:
+            d, a, info = self.q.get_nowait()
+        except queue.Empty:
+            return
+        try:
+            self.publish_pair(d, a, info)
+        except (ValueError, cv2.error) as e:
+            self.report(str(e), True)
+
+    def publish_pair(self, d, a, info):
+        stamp = seconds(d.header.stamp)
+        now = self.now_s()
+        if now < self.last_stamp:
+            self.last_stamp = -1.0
+        if stamp <= self.last_stamp or not 0 <= now - stamp <= self.p["sensor_timeout"]:
+            return
+        if (d.width, d.height, d.header.frame_id) != (
+            a.width,
+            a.height,
+            a.header.frame_id,
+        ) or (d.width, d.height, d.header.frame_id) != (
+            info.width,
+            info.height,
+            info.header.frame_id,
+        ):
+            raise ValueError("image and calibration mismatch")
+        depth = image_array(d)
+        amplitude = image_array(a)
+        if d.encoding != "32FC1":
+            depth *= self.p["depth_scale"]
+        k = np.asarray(info.k).reshape(3, 3)
+        if not np.isfinite(k).all() or k[0, 0] <= 0 or k[1, 1] <= 0:
+            raise ValueError("invalid CameraInfo intrinsics")
+        key = (
+            d.width,
+            d.height,
+            tuple(info.k),
+            tuple(info.d),
+            self.p["source_rectified"],
+            self.p["source_depth_is_radial"],
+        )
+        if key != self.calibration_key:
+            if info.distortion_model not in ("", "plumb_bob", "rational_polynomial"):
+                raise ValueError("unsupported lens distortion")
+            dist = (
+                np.zeros(5)
+                if self.p["source_rectified"]
+                else np.asarray(info.d or [0.0] * 5)
+            )
+            self.maps = cv2.initUndistortRectifyMap(
+                k, dist, np.eye(3), k, (d.width, d.height), cv2.CV_32FC1
+            )
+            yy, xx = np.mgrid[: d.height, : d.width]
+            pixels = np.stack([xx, yy], axis=-1).astype(float).reshape(-1, 1, 2)
+            rays = cv2.undistortPoints(pixels, k, dist).reshape(d.height, d.width, 2)
+            self.radial_factor = np.sqrt(1 + (rays * rays).sum(axis=2))
+            self.calibration_key = key
+        if self.p["source_depth_is_radial"]:
+            depth /= self.radial_factor
+        depth[
+            (depth < self.p["min_range"])
+            | (depth > self.p["max_range"])
+            | ~np.isfinite(depth)
+        ] = np.nan
+        if self.p["publish_raw"]:
+            self.raw_pub.publish(d)
+        depth = cv2.remap(
+            depth.astype("f4"),
+            *self.maps,
+            cv2.INTER_NEAREST,
+            borderMode=cv2.BORDER_CONSTANT,
+            borderValue=float("nan"),
+        )
+        amplitude = cv2.remap(
+            amplitude.astype("f4"),
+            *self.maps,
+            cv2.INTER_NEAREST,
+            borderMode=cv2.BORDER_CONSTANT,
+            borderValue=0.0,
+        )
+        output = copy.deepcopy(info)
+        output.header = d.header
+        output.d = [0.0] * 5
+        output.distortion_model = "plumb_bob"
+        output.r = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+        output.p = [
+            k[0, 0],
+            0.0,
+            k[0, 2],
+            0.0,
+            0.0,
+            k[1, 1],
+            k[1, 2],
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+        ]
+        self.info_pub.publish(output)
+        for array, publisher in [(amplitude, self.amp_pub), (depth, self.depth_pub)]:
+            m = Image()
+            m.header = d.header
+            m.width = d.width
+            m.height = d.height
+            m.encoding = "32FC1"
+            m.step = d.width * 4
+            m.data = array.astype("<f4").tobytes()
+            publisher.publish(m)
+        self.last_stamp = stamp
+
+    def destroy_node(self):
+        self.closed = True
+        if self.child:
+            self.child.terminate()
+            try:
+                self.child.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                self.child.kill()
+                self.child.wait()
+            self.thread.join(timeout=1)
+            self.stderr_thread.join(timeout=1)
+            self.child.stderr.close()
+            self.pipe.close()
+        return super().destroy_node()
+
+
+if __name__ == "__main__":
+    spin(Adapter)

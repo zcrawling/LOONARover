@@ -1,0 +1,226 @@
+{
+  "recorded_at": "2026-10-06T22:28:02.972265+09:00",
+  "mode": "operator supervised; terrain/proximity monitor advisory only; no GCS or cFS",
+  "max_linear_mps": 0.2,
+  "max_angular_rps": 0.1,
+  "acceleration_mps2": 0.1,
+  "unit_tests_passed": 14,
+  "hardware": {
+    "duration_seconds": 45.0,
+    "counts": {
+      "input": 379,
+      "result": 317,
+      "status": 43,
+      "brain_status": 45
+    },
+    "camera_frames_available": 373,
+    "compute_ms_median": 105.67120099949534,
+    "compute_ms_max": 144.47562999885122,
+    "last": {
+      "input": {
+        "schema": 1,
+        "session": "10f8a27d56a0481f851278e24334516c",
+        "sequence": 384,
+        "depth": {
+          "left": {
+            "distance_m": 0.16899999976158142,
+            "valid_fraction": 0.8768489583333333,
+            "proximity": 0.8763888892200259
+          },
+          "right": {
+            "distance_m": 1.2999999523162842,
+            "valid_fraction": 0.4066080729166667,
+            "proximity": 0.0
+          }
+        },
+        "expansion": {
+          "left": 0.0014618708314305998,
+          "right": 0.0010891683353642255
+        },
+        "camera_available": true,
+        "context": {
+          "gyro_rps": [
+            0.0,
+            0.0,
+            -0.0021816615480929613
+          ],
+          "wheel_rps": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "result": {
+        "population_hz": {
+          "LC4_left": 100.0,
+          "LC4_right": 0.0,
+          "LPLC2_left": 0.0,
+          "LPLC2_right": 0.0,
+          "DNp09_left": 100.0,
+          "DNp09_right": 300.0,
+          "DNa01_left": 0.0,
+          "DNa01_right": 0.0,
+          "DNa02_left": 0.0,
+          "DNa02_right": 0.0
+        },
+        "smoothed_hz": {
+          "LC4_left": 89.14887333023688,
+          "LC4_right": 0.0,
+          "LPLC2_left": 0.1025744740420423,
+          "LPLC2_right": 0.2938589036383921,
+          "DNp09_left": 126.03854129601878,
+          "DNp09_right": 124.79389596100702,
+          "DNa01_left": 0.0,
+          "DNa01_right": 27.8736111159088,
+          "DNa02_left": 0.0,
+          "DNa02_right": 11.71988773154506
+        },
+        "spikes": 132,
+        "simulated_ms": 10,
+        "brain_time_ms": 7110.0,
+        "compute_ms": 110.61217499991471,
+        "wall_per_brain": 11.061217499991471,
+        "schema": 1,
+        "session": "10f8a27d56a0481f851278e24334516c",
+        "sequence": 383,
+        "input_rates_hz": {
+          "LC4_left": 87.6388889220026,
+          "LPLC2_left": 0.14618708314305998,
+          "LC4_right": 0.0,
+          "LPLC2_right": 0.10891683353642255
+        },
+        "motivation_hz": 150.0,
+        "candidate": {
+          "linear_mps": 0.1672216248380172,
+          "angular_rps": -0.011719887731545059,
+          "calibrated": false,
+          "actuation_enabled": false
+        },
+        "actuation_enabled": false,
+        "worker_session": "b25331bb5fd64b38b266a7da02c413bf"
+      },
+      "status": {
+        "mode": "drive",
+        "actuation_enabled": true,
+        "blocked_reason": "collision braking envelope: 2002 points, front gap=0.034m, required clearance=0.070m",
+        "latched_stop": "",
+        "auto_selected": false,
+        "candidate": {
+          "linear_mps": 0.15136717837243555,
+          "angular_rps": -0.01323748488230695,
+          "calibrated": false,
+          "actuation_enabled": false
+        },
+        "results_accepted": 296,
+        "results_rejected": 0,
+        "last_rejection": "",
+        "inference": {
+          "population_hz": {
+            "LC4_left": 74.07407407407406,
+            "LC4_right": 0.0,
+            "LPLC2_left": 0.0,
+            "LPLC2_right": 0.0,
+            "DNp09_left": 0.0,
+            "DNp09_right": 0.0,
+            "DNa01_left": 0.0,
+            "DNa01_right": 100.0,
+            "DNa02_left": 0.0,
+            "DNa02_right": 0.0
+          },
+          "smoothed_hz": {
+            "LC4_left": 80.54502133125702,
+            "LC4_right": 0.0,
+            "LPLC2_left": 0.10934290370301142,
+            "LPLC2_right": 0.16428947387224652,
+            "DNp09_left": 114.7254298191371,
+            "DNp09_right": 112.32533773951623,
+            "DNa01_left": 0.0,
+            "DNa01_right": 28.673882648814168,
+            "DNa02_left": 0.0,
+            "DNa02_right": 13.237484882306948
+          },
+          "spikes": 130,
+          "simulated_ms": 10,
+          "brain_time_ms": 7030.0,
+          "compute_ms": 111.30342300020857,
+          "wall_per_brain": 11.130342300020857,
+          "schema": 1,
+          "session": "10f8a27d56a0481f851278e24334516c",
+          "sequence": 373,
+          "input_rates_hz": {
+            "LC4_left": 87.6388889220026,
+            "LPLC2_left": 0.13590572151961777,
+            "LC4_right": 0.0,
+            "LPLC2_right": 0.1154057924315683
+          },
+          "motivation_hz": 150.0,
+          "candidate": {
+            "linear_mps": 0.15136717837243555,
+            "angular_rps": -0.01323748488230695,
+            "calibrated": false,
+            "actuation_enabled": false
+          },
+          "actuation_enabled": false,
+          "worker_session": "b25331bb5fd64b38b266a7da02c413bf"
+        }
+      },
+      "brain_status": {
+        "ready": true,
+        "neurons": 138639,
+        "connections": 15091983,
+        "mode": "inference",
+        "motivation_hz": 150.0,
+        "simulated_step_ms": 10,
+        "actuation_enabled": false
+      }
+    },
+    "cmd_vel_publishers": 1
+  },
+  "physical_trial": {
+    "speed_cap_mps": 0.03,
+    "max_drive_seconds": 2,
+    "actual_movement_verified": false,
+    "reason": "Existing safety reports front clearance about 0.034m below required 0.070m; commands stayed zero",
+    "motor_fault_hex": "0x00000000",
+    "pc_shutdown_latched_on_pi": true,
+    "scope": "historical trial before removing scene guard; not repeated after this change"
+  },
+  "remaining_limits": [
+    "Simplified fly brain and artificial sensory/body mapping",
+    "Terrain traversal and closed-loop driving performance unvalidated",
+    "Safety stop retained; cannot infer a clear path solely from neural output"
+  ],
+  "test_processes_stopped": true,
+  "previous_guarded_ros_test": {
+    "passed": true,
+    "nonzero_seen": true,
+    "bounded_speed": true,
+    "obstacle_stop": true,
+    "brain_loss_stop": true,
+    "stale_depth_stop": true,
+    "fault_latched": true,
+    "pc_halt_latched": true,
+    "maximum_mps": 0.2,
+    "sigint_gateway_stop_ms": 3.7125359995116014,
+    "exit_code": 0,
+    "hardware": false
+  },
+  "ros_drive_integration": {
+    "passed": true,
+    "nonzero_seen": true,
+    "bounded_speed": true,
+    "proximity_advisory_does_not_stop": true,
+    "missing_scene_monitor_does_not_stop": true,
+    "brain_loss_stop": true,
+    "stale_depth_stop": true,
+    "fault_latched": true,
+    "pc_halt_latched": true,
+    "maximum_mps": 0.2,
+    "sigint_gateway_stop_ms": 2.276893999805907,
+    "exit_code": 0,
+    "hardware": false
+  },
+  "scene_guard_enabled": false,
+  "settle_seconds": 0,
+  "updated_at": "2026-10-06T22:33:39.275244+09:00"
+}

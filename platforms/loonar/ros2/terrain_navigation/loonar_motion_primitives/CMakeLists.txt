@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.16)
+project(loonar_motion_primitives)
+find_package(ament_cmake REQUIRED)
+install(DIRECTORY scripts/ DESTINATION lib/${PROJECT_NAME} USE_SOURCE_PERMISSIONS)
+ament_package()

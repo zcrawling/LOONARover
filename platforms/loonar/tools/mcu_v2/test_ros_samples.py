@@ -9,6 +9,22 @@ from .ros_samples import RosSamples
 
 
 class RosSamplesTests(unittest.TestCase):
+    def test_custom_ros_launcher_owns_and_stops_its_process_group(self):
+        with tempfile.TemporaryDirectory() as folder:
+            runtime = Path(folder)
+            child = Mock(pid=12345)
+            child.poll.return_value = None
+            publisher = RosSamples(runtime, runtime / "control.json",
+                                   {"LOONAR_ROS_SAMPLE_LAUNCHER": "/test/start_auto_ros.sh"})
+            with patch("mcu_v2.ros_samples.subprocess.Popen", return_value=child) as spawn:
+                publisher.start()
+            self.assertEqual(spawn.call_args.args[0][1], "/test/start_auto_ros.sh")
+            self.assertTrue(spawn.call_args.kwargs["start_new_session"])
+            with patch("mcu_v2.ros_samples.os.killpg") as stop:
+                publisher.close()
+            stop.assert_called_once_with(12345, signal.SIGINT)
+            child.wait.assert_called_once_with(timeout=10)
+
     def test_sample_forwarding_without_starting_recorder(self):
         with tempfile.TemporaryDirectory() as folder:
             runtime = Path(folder)

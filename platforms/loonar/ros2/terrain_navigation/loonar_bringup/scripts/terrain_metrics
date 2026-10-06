@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+"""Compare map ROI with measured fixtures; append reproducible JSONL metrics."""
+import json
+import math
+from pathlib import Path
+import numpy as np
+from loonar_msgs.msg import TerrainMap
+from loonar_terrain_core.ros import Runtime, MAP, spin, seconds
+
+
+class Metrics(Runtime):
+    def __init__(self):
+        super().__init__(
+            "loonar_terrain_metrics",
+            extra=dict(reference="", output="reports/terrain_metrics.jsonl"),
+        )
+        self.references = json.loads(Path(self.p["reference"]).read_text())
+        self.output = Path(self.p["output"])
+        self.output.parent.mkdir(parents=True, exist_ok=True)
+        self.create_subscription(TerrainMap, "/terrain/map", self.evaluate, MAP)
+
+    def evaluate(self, g):
+        for ref in self.references:
+            xmin, xmax, ymin, ymax = ref["roi"]
+            cells = []
+            for k, c in enumerate(g.cells):
+                x = g.x_min + (k // g.size_y + 0.5) * g.resolution
+                y = g.y_min + (k % g.size_y + 0.5) * g.resolution
+                if xmin <= x <= xmax and ymin <= y <= ymax:
+                    cells.append(c)
+            valid = [c for c in cells if c.observed and not c.unknown]
+            record = dict(
+                stamp=seconds(g.header.stamp),
+                map_id=g.map_id,
+                name=ref["name"],
+                cells=len(cells),
+                observed=len(valid),
+                unknown_ratio=1 - len(valid) / max(1, len(cells)),
+                drop_suspect_ratio=sum(c.drop_suspect for c in cells)
+                / max(1, len(cells)),
+            )
+            for field in (
+                "elevation",
+                "slope",
+                "roughness",
+                "step_up",
+                "step_down",
+                "depression_depth",
+            ):
+                values = [
+                    getattr(c, field) for c in valid if math.isfinite(getattr(c, field))
+                ]
+                if not values:
+                    continue
+                record[field + "_median"] = float(np.median(values))
+                record[field + "_max"] = max(values)
+                if field in ref:
+                    record[field + "_mae"] = float(
+                        np.mean(np.abs(np.array(values) - ref[field]))
+                    )
+            if ref.get("safe_ground") and valid:
+                record["false_positive_ratio"] = sum(
+                    c.traversability == 0 for c in valid
+                ) / len(valid)
+            with self.output.open("a") as f:
+                f.write(json.dumps(record, allow_nan=False) + "\n")
+
+
+if __name__ == "__main__":
+    spin(Metrics)

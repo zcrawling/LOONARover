@@ -16,7 +16,11 @@ def main():
     from sensor_msgs.msg import Imu, MagneticField, BatteryState
     from nav_msgs.msg import Odometry
     from geometry_msgs.msg import Vector3Stamped
+    from std_msgs.msg import String
+    from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
     from .config import load, geometry
+    from .motor_sample import decode_motor
+    from .imu_pair import ImuPair
 
     class Bridge(Node):
         def __init__(self):
@@ -59,6 +63,9 @@ def main():
             self.linear = self.create_publisher(
                 Vector3Stamped, "/imu/linear_acceleration", qos_profile_sensor_data
             )
+            # Combined message for C experiments; existing topics stay unchanged.
+            self.linear_imu = self.create_publisher(Imu, "/imu/linear", qos_profile_sensor_data)
+            self.imu_pair = ImuPair()
             self.gravity = self.create_publisher(
                 Vector3Stamped, "/imu/gravity", qos_profile_sensor_data
             )
@@ -66,6 +73,8 @@ def main():
                 Odometry, "/wheel/odom", qos_profile_sensor_data
             )
             self.battery = self.create_publisher(BatteryState, "/battery_state", 10)
+            self.raw = self.create_publisher(String, "/mcu/control/raw", 100)
+            self.motor = self.create_publisher(DiagnosticArray, "/motor/feedback", 50)
             self.path = Path(self.get_parameter("socket").value)
             self.path.parent.mkdir(parents=True, exist_ok=True)
             # A second bridge must not steal the first bridge's live socket.
@@ -97,14 +106,27 @@ def main():
                     if d["role"] != "control" or d["uid"] != self.device["uid"]:
                         continue
                     stamp = int(d["stamp_ns"])
-                    if not -20_000_000 <= time.time_ns() - stamp <= 200_000_000:
-                        continue
                     key = (d["boot"], d["kind"])
                     seq = int(d["seq"])
                     if seq <= self.last.get(key, 0):
                         continue
                     p = bytes.fromhex(d["payload"])
-                    self.publish(d["kind"], p, stamp)
+                    # Archive even delayed samples; live odometry/IMU retain their
+                    # freshness gate. The raw envelope preserves MCU time + sync RTT.
+                    self.raw.publish(String(data=json.dumps(d, separators=(",", ":"))))
+                    if d["kind"] == 33:
+                        values = decode_motor(p)
+                        msg = DiagnosticArray()
+                        self.header(msg, stamp, "base_link")
+                        status = DiagnosticStatus(name="roboclaw", hardware_id=d["uid"])
+                        fresh = -20_000_000 <= time.time_ns() - stamp <= 200_000_000
+                        status.level = DiagnosticStatus.OK if values["valid_mask"] == 255 and fresh else DiagnosticStatus.WARN
+                        status.message = "cached driver snapshot" if fresh else "delayed driver snapshot"
+                        status.values = [KeyValue(key=k, value=str(v)) for k, v in values.items()]
+                        msg.status = [status]
+                        self.motor.publish(msg)
+                    if -20_000_000 <= time.time_ns() - stamp <= 200_000_000:
+                        self.publish(d["kind"], p, stamp)
                     self.last[key] = seq
                 except (ValueError, KeyError, TypeError, struct.error) as error:
                     self.get_logger().warning(f"Invalid MCU sample: {error}")
@@ -115,6 +137,17 @@ def main():
                 x, y, z, qw, accuracy = struct.unpack_from("<5f", p, 12)
                 if not all(math.isfinite(v) for v in (x, y, z, qw, accuracy)):
                     return
+                pair = self.imu_pair.add(sensor, stamp, (x, y, z))
+                if pair is not None:
+                    gyro, linear = pair
+                    combined = Imu()
+                    self.header(combined, stamp, self.frame)
+                    combined.orientation_covariance[0] = -1.0
+                    combined.angular_velocity.x, combined.angular_velocity.y, combined.angular_velocity.z = gyro
+                    combined.linear_acceleration.x, combined.linear_acceleration.y, combined.linear_acceleration.z = linear
+                    combined.angular_velocity_covariance = [self.gyro_var, 0., 0., 0., self.gyro_var, 0., 0., 0., self.gyro_var]
+                    combined.linear_acceleration_covariance = [0.] * 9  # unknown, NOT perfect accuracy
+                    self.linear_imu.publish(combined)
                 if sensor in (1, 2, 5):
                     msg = Imu()
                     self.header(msg, stamp, self.frame)
@@ -215,10 +248,13 @@ def main():
     try:
         node = Bridge()
         rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
     finally:
         if node:
             node.destroy_node()
-        rclpy.shutdown()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == "__main__":

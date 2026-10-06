@@ -1,6 +1,7 @@
 """Publish bench MCU samples to ROS without starting a recorder."""
 
 import logging
+import os
 from pathlib import Path
 import signal
 import socket
@@ -17,18 +18,19 @@ class RosSamples:
         self.child = None
         self.log = None
         self.reported = False
+        self.launcher = environment.get("LOONAR_ROS_SAMPLE_LAUNCHER")
         self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
         self.socket.setblocking(False)
         self.forward_errors = 0
 
     def start(self):
-        command = ["bash", str(self.tools / "run-bench-sensors.sh"),
+        command = ["bash", self.launcher or str(self.tools / "run-bench-sensors.sh"),
                    str(self.registry), str(self.sample_path)]
         self.log = open(self.runtime / "sensors.log", "w")
         self.child = subprocess.Popen(command, env=self.environment,
-                                      stdout=self.log, stderr=subprocess.STDOUT)
-        print(f"ROS sample publisher started; log: {self.runtime}/sensors.log\n"
-              "No rosbag recording started. Run record-drive.sh separately to save data.", flush=True)
+                                      stdout=self.log, stderr=subprocess.STDOUT,
+                                      start_new_session=bool(self.launcher))
+        print(f"ROS sample publisher started; log: {self.runtime}/sensors.log", flush=True)
 
     def forward(self, raw):
         try:
@@ -49,11 +51,17 @@ class RosSamples:
 
     def close(self):
         if self.child is not None and self.child.poll() is None:
-            self.child.send_signal(signal.SIGTERM)
+            if self.launcher:
+                os.killpg(self.child.pid, signal.SIGINT)
+            else:
+                self.child.send_signal(signal.SIGTERM)
             try:
-                self.child.wait(timeout=3)
+                self.child.wait(timeout=10 if self.launcher else 3)
             except subprocess.TimeoutExpired:
-                self.child.kill()
+                if self.launcher:
+                    os.killpg(self.child.pid, signal.SIGKILL)
+                else:
+                    self.child.kill()
                 self.child.wait()
         if self.log is not None:
             self.log.close()

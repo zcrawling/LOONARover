@@ -29,10 +29,15 @@ def main():
     parser.add_argument("--ros-samples", action="store_true", help="Publish MCU samples to ROS (no recording)")
     parser.add_argument("--encoder-verify", action="store_true", help="Compare and record command/encoder feedback without sending motion")
     parser.add_argument("--record", action="store_true", help="Publish MCU ROS samples and record available ROS topics to ~/loonar-bags")
+    parser.add_argument("--record-all", action="store_true", help="Start ToF + camera ROS and record them with IMU and full motor feedback")
+    parser.add_argument("--bag-dir", type=Path, default=Path.home() / "loonar-bags", help="Parent directory for new MCAP bags")
+    parser.add_argument("--bag-camera-fps", type=int, choices=range(1, 31), default=30, metavar="1..30")
     parser.add_argument("--record-video", action="store_true", help="Record Pi camera H.264 video locally, with or without --video")
     parser.add_argument("--video-record-dir", type=Path, default=Path.home() / "loonar-videos")
     parser.add_argument("--payload-device", type=Path, help="Run Payload ASCII service for this USB by-id device")
     args = parser.parse_args()
+    if args.record_all:
+        args.record = True
     if args.record:
         args.ros_samples = True
     device = load(args.registry, "control")
@@ -42,9 +47,14 @@ def main():
         raise ValueError(f"Gateway executable not found: {args.gateway_bin}")
     if args.video_ip:
         args.video_ip = str(ipaddress.IPv4Address(args.video_ip))
-    if args.video_ip or args.record_video:
+    if args.video_ip or args.record_video or args.record_all:
         if subprocess.run(["systemctl", "is-active", "--quiet", "loonar-video.service"]).returncode == 0:
             raise ValueError("Stop loonar-video.service before starting this script's video sender")
+    if args.record_all:
+        for path in ("/etc/loonar/tof.env", "/opt/loonar/current/bin/capture_xyz",
+                     "/opt/loonar/current/lib/cubeeye/bridge.py"):
+            if not Path(path).is_file():
+                raise ValueError(f"--record-all requires installed ToF runtime: missing {path}")
     if args.cfs_dir:
         args.cfs_dir = args.cfs_dir.expanduser().resolve()
         for name in ("core-cpu1", "cf/lnr_ground.so", "cf/lnr_vehicle.so", "cf/lnr_mcu.so", "cf/cfe_es_startup.scr"):
@@ -119,13 +129,15 @@ def main():
              "--registry", str(args.registry.resolve()), "--runtime", str(runtime),
              "--gateway", str(gateway_dir / "backend.sock"),
              "--samples", str(runtime / "samples.sock"), "--health", str(runtime / "health.sock")], None))
-        if args.video_ip or args.record_video:
+        if args.video_ip or args.record_video or args.record_all:
             video_config = runtime / "video.env"
             video_config.write_text(f"GROUND_STATION_IP={args.video_ip or ''}\nVIDEO_PORT=5600\n"
                                     "VIDEO_SOURCE=libcamera\nVIDEO_PROFILE=low\nVIDEO_ENCODER_THREADS=1\n")
             environment["LOONAR_VIDEO_CONFIG"] = str(video_config)
             environment["VIDEO_STREAM_ENABLED"] = "1" if args.video_ip else "0"
             environment["VIDEO_RECORD_PATH"] = ""
+            environment["CAMERA_ROS_ENABLED"] = "1" if args.record_all else "0"
+            environment["CAMERA_ROS_FPS"] = str(args.bag_camera_fps)
             if args.record_video:
                 directory = args.video_record_dir.expanduser().resolve()
                 directory.mkdir(parents=True, exist_ok=True)
@@ -135,8 +147,20 @@ def main():
             video_script = Path(__file__).resolve().parents[2] / "deploy/run-video.sh"
             commands.append(("video", ["bash", str(video_script)], None))
         if args.record:
-            record_script = Path(__file__).resolve().parents[1] / "record-drive.sh"
-            commands.append(("record", ["bash", str(record_script)], None))
+            tools = Path(__file__).resolve().parents[1]
+            bag_dir = args.bag_dir.expanduser().resolve()
+            bag_dir.mkdir(parents=True, exist_ok=True)
+            bag_path = bag_dir / f"drive_{time.strftime('%Y%m%d_%H%M%S')}_{time.time_ns()}"
+            commands.insert(0, ("record", ["bash", str(tools / "record-drive.sh"), str(bag_path)], None))
+            print(f"MCAP output: {bag_path}", flush=True)
+            if args.record_all:
+                if subprocess.run(["systemctl", "is-active", "--quiet", "loonar-tof.service"]).returncode == 0:
+                    print("Using active loonar-tof.service (left running on exit).", flush=True)
+                else:
+                    commands.append(("tof", ["bash", str(tools.parent / "deploy/run-tof.sh")], None))
+                (runtime / "recording-status.json").unlink(missing_ok=True)
+                commands.append(("recording-monitor", ["bash", str(tools / "run-recording-monitor.sh"),
+                    str(runtime / "recording-status.json"), str(bag_dir)], None))
         for name, command, cwd in commands:
             log = open(runtime / f"{name}.log", "w")
             logs.append(log)
@@ -144,7 +168,7 @@ def main():
             named_children.append((name, children[-1]))
             if name == "record":
                 recorder = children[-1]
-                print(f"ROS recording requested: ~/loonar-bags; log: {runtime}/record.log", flush=True)
+                print(f"ROS recording log: {runtime}/record.log", flush=True)
         print(f"Started bench processes. Wait for online health and fresh motor feedback.\n"
               f"Command socket: {gateway_dir / 'cfs.sock'}\nLogs: {runtime}\n"
               "M1=right, M2=left. Ctrl-C stops the backend and gateway.", flush=True)
@@ -152,6 +176,7 @@ def main():
             print("GroundLink: TCP <Pi-IP>:7443. MCU health is forwarded to cFS.\n"
                   "No motion command sent. Wait for online health before using the GCS.", flush=True)
         last_motor = last_health = last_imu = 0.0
+        last_record_status = 0.0
         imu_values = {}
         imu_boot = None
         while not stop[0]:
@@ -162,11 +187,24 @@ def main():
                 if code is None or name in reported_exits:
                     continue
                 reported_exits.add(name)
-                if name in ("video", "record", "payload"):
+                if name in ("video", "record", "payload", "tof", "recording-monitor"):
                     logging.error("%s exited (code=%s); inspect %s/%s.log. "
                                   "Control continues; this optional output is unavailable.", name, code, runtime, name)
                 else:
                     raise RuntimeError(f"{name} exited (code={code}); inspect {runtime}/{name}.log")
+            if args.record_all and time.monotonic() - last_record_status >= 5:
+                last_record_status = time.monotonic()
+                try:
+                    status = json.loads((runtime / "recording-status.json").read_text())
+                    if time.time_ns() - status["stamp_ns"] > 6_000_000_000:
+                        raise ValueError("recording monitor stopped updating")
+                    print("RECORD streams=" + ("OK" if status["streams_fresh"] else
+                          "MISSING/STALE " + ",".join(status["missing_or_stale"])) +
+                          f" recorder={'RUNNING' if recorder.poll() is None else 'EXITED'}"
+                          f" free={status['free_bytes'] / 1024**3:.1f}GiB" +
+                          (" LOW DISK" if status["low_disk"] else ""), flush=True)
+                except (OSError, ValueError, KeyError) as error:
+                    print(f"RECORD awaiting stream status: {error}", flush=True)
             ready, _, _ = select.select(sockets, [], [], 0.1)
             for sock in ready:
                 raw = sock.recv(65536)
@@ -215,11 +253,13 @@ def main():
                         last_motor = now
     finally:
         # Stop the serial owner first so its normal close sends MCU STOP.
-        for child in reversed(children):
+        ordered = [child for name, child in named_children if name == "backend"]
+        ordered += [child for name, child in reversed(named_children) if name != "backend"]
+        for child in ordered:
             if child is recorder:
                 continue
             if child.poll() is None:
-                if any(name == "video" and proc is child for name, proc in named_children):
+                if any(name in ("video", "tof", "recording-monitor") and proc is child for name, proc in named_children):
                     child.send_signal(signal.SIGINT)
                 else:
                     child.terminate()

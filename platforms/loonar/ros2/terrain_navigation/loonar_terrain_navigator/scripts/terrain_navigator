@@ -1,0 +1,363 @@
+#!/usr/bin/env python3
+"""Nonblocking stop -> capture -> rotate -> recapture -> straight state machine."""
+from collections import deque
+import math
+from rclpy.action import ActionClient
+from action_msgs.msg import GoalStatus
+from std_msgs.msg import String
+from std_srvs.srv import Trigger
+from loonar_msgs.msg import Stationary, SafetyState, BaseState
+from loonar_msgs.action import (
+    BuildTerrainMap as Build,
+    ExecuteMotionPrimitive as Motion,
+)
+from loonar_msgs.srv import PlanTerrain
+from loonar_terrain_core.ros import Runtime, STATUS, spin, seconds
+from loonar_terrain_core.algorithms import fresh
+
+
+class Navigator(Runtime):
+    def __init__(self):
+        keys = (
+            "sensor_timeout",
+            "autostart",
+            "enable_motion",
+            "calibration_confirmed",
+            "frame_count",
+            "phase_timeout",
+            "map_max_age",
+            "straight_slow_speed",
+            "straight_normal_speed",
+            "rotate_speed",
+            "max_primitive_timeout",
+            "recovery_step",
+            "recovery_max_angle",
+            "recovery_rotation_clearance_verified",
+        )
+        super().__init__("loonar_terrain_navigator", keys, dict(gcs_auto_start=False))
+        self.build = ActionClient(self, Build, "/loonar/build_terrain_map")
+        self.motion = ActionClient(self, Motion, "/loonar/execute_motion_primitive")
+        self.plan = self.create_client(PlanTerrain, "/loonar/plan_terrain")
+        self.stop = self.create_client(Trigger, "/loonar/motion/stop")
+        self.state = "WAIT_AUTO" if self.p["gcs_auto_start"] else "INIT"
+        self.entered = self.now_s()
+        self.stationary = None
+        self.safety = None
+        self.base = None
+        self.auto_armed = False
+        self.auto_pending = None
+        self.gcs_wait_reason = None
+        self.future = None
+        self.action_handle = None
+        self.request_kind = ""
+        self.generation = 0
+        self.busy = False
+        self.map_id = 0
+        self.previous_heading = 0.0
+        self.scan_angle = 0.0
+        self.history = deque(maxlen=8)
+        self.enabled = self.p["autostart"] and not self.p["gcs_auto_start"]
+        self.wait_after = "CAPTURE_INITIAL"
+        self.pub = self.create_publisher(String, "/loonar/navigation/state", STATUS)
+        self.create_subscription(
+            Stationary,
+            "/loonar/stationary",
+            lambda m: setattr(self, "stationary", m),
+            STATUS,
+        )
+        self.create_subscription(
+            SafetyState,
+            "/loonar/safety/emergency_stop",
+            lambda m: setattr(self, "safety", m),
+            STATUS,
+        )
+        self.create_service(Trigger, "/loonar/navigation/start", self.start_service)
+        self.create_subscription(
+            BaseState, "/loonar/base/state", lambda m: setattr(self, "base", m), STATUS
+        )
+        self.create_service(Trigger, "/loonar/navigation/stop", self.stop_service)
+        self.create_timer(0.05, self.tick)
+
+    def transition(self, state):
+        self.state = state
+        self.entered = self.now_s()
+        self.pub.publish(String(data=state))
+
+    def start_service(self, req, res):
+        if self.enabled or self.busy:
+            res.success = False
+            res.message = "already active"
+            return res
+        if not self.p["enable_motion"] or not self.p["calibration_confirmed"]:
+            res.success = False
+            res.message = "set measured calibration and enable_motion first"
+            return res
+        self.enabled = True
+        self.scan_angle = 0.0
+        self.previous_heading = 0.0
+        self.transition("INIT")
+        res.success = True
+        res.message = "starting with STOP"
+        return res
+
+    def stop_service(self, req, res):
+        self.safe_stop("operator stop")
+        res.success = True
+        res.message = "stopped"
+        return res
+
+    def safe_stop(self, reason, fault=False):
+        self.enabled = False
+        self.auto_pending = None
+        self.generation += 1
+        self.busy = False
+        if self.action_handle:
+            self.action_handle.cancel_goal_async()
+        self.action_handle = None
+        if self.stop.service_is_ready():
+            self.stop.call_async(Trigger.Request())
+        self.transition("FAULT" if fault else "SAFE_STOP")
+        self.get_logger().warning(reason)
+        self.report(reason, True)
+
+    def gcs_gate(self):
+        """Require a fresh non-AUTO -> AUTO selection, never replay after fault."""
+        now = self.now_s()
+        healthy = (
+            self.base
+            and self.base.connected
+            and not self.base.motor_fault
+            and fresh(seconds(self.base.header.stamp), now, self.p["sensor_timeout"])
+        )
+        if not healthy:
+            self.waiting(
+                "base unavailable: "
+                + (self.base.reason if self.base else "no BaseState")
+            )
+            self.auto_armed = False
+            self.auto_pending = None
+            if self.enabled:
+                self.safe_stop("GCS/base disconnected or motor fault")
+            return
+        if not self.base.auto_selected:
+            self.waiting("ready for GCS AUTO selection")
+            if self.enabled:
+                self.safe_stop("GCS left AUTO")
+            self.auto_armed = True
+            self.auto_pending = None
+            return
+        if self.auto_armed:
+            self.auto_armed = False
+            self.auto_pending = now
+            self.transition("WAIT_AUTO_READY")
+        if self.auto_pending is None or self.enabled:
+            if not self.enabled:
+                self.waiting("select GCS STOP then AUTO to arm/rearm")
+            return
+        if now < self.auto_pending or now - self.auto_pending > self.p["phase_timeout"]:
+            self.safe_stop("AUTO readiness timeout; select STOP then AUTO again")
+            return
+        ready = (
+            self.safety
+            and not self.safety.emergency_stop
+            and fresh(seconds(self.safety.header.stamp), now, self.p["sensor_timeout"])
+            and self.motion.server_is_ready()
+            and self.build.server_is_ready()
+            and self.plan.service_is_ready()
+            and self.stop.service_is_ready()
+        )
+        if ready:
+            self.gcs_wait_reason = None
+            self.auto_pending = None
+            result = self.start_service(Trigger.Request(), Trigger.Response())
+            self.get_logger().info("GCS AUTO: " + result.message)
+        else:
+            self.waiting(
+                "AUTO blocked: "
+                + (
+                    self.safety.reason
+                    if self.safety and self.safety.emergency_stop
+                    else "waiting for fresh safety state/action servers"
+                )
+            )
+
+    def waiting(self, reason):
+        if reason != self.gcs_wait_reason:
+            self.get_logger().info(reason)
+            self.gcs_wait_reason = reason
+        self.report(reason)
+
+    def send_action(self, client, goal, kind):
+        if not client.server_is_ready():
+            return self.safe_stop("action server unavailable", True)
+        self.busy = True
+        self.request_kind = kind
+        epoch = self.generation
+        future = client.send_goal_async(goal)
+
+        def accepted(f):
+            try:
+                handle = f.result()
+                if epoch != self.generation:
+                    if handle.accepted:
+                        handle.cancel_goal_async()
+                    return
+                if not handle.accepted:
+                    return self.safe_stop(kind + " rejected", True)
+                self.action_handle = handle
+                handle.get_result_async().add_done_callback(
+                    lambda result: self.action_done(result, kind, epoch)
+                )
+            except Exception as e:
+                self.safe_stop(str(e), True)
+
+        future.add_done_callback(accepted)
+
+    def action_done(self, future, kind, epoch):
+        if epoch != self.generation:
+            return
+        self.busy = False
+        self.action_handle = None
+        try:
+            wrapped = future.result()
+            result = wrapped.result
+            if wrapped.status != GoalStatus.STATUS_SUCCEEDED or not result.success:
+                return self.safe_stop(kind + " failed", True)
+            if kind in ("INITIAL_MAP", "CONFIRM_MAP"):
+                self.map_id = result.map_id
+                self.transition(
+                    "PLAN_HEADING" if kind == "INITIAL_MAP" else "PLAN_DISTANCE"
+                )
+            elif kind == "ROTATE":
+                self.wait_after = "CAPTURE_CONFIRM"
+                self.transition("WAIT_STATIONARY_AFTER_ROTATE")
+            elif kind == "SCAN":
+                self.wait_after = "CAPTURE_INITIAL"
+                self.transition("WAIT_STATIONARY")
+            elif kind == "STRAIGHT":
+                self.transition("STOP_AFTER_MOVE")
+            elif kind == "STOP":
+                self.wait_after = "CAPTURE_INITIAL"
+                self.transition("WAIT_STATIONARY_AFTER_MOVE")
+            elif kind == "INIT_STOP":
+                self.wait_after = "CAPTURE_INITIAL"
+                self.transition("WAIT_STATIONARY")
+        except Exception as e:
+            self.safe_stop(str(e), True)
+
+    def send_motion(self, kind, target=0.0, speed=0.0, label="STOP"):
+        goal = Motion.Goal()
+        goal.type = kind
+        goal.target = float(target)
+        goal.speed = float(speed)
+        goal.timeout = self.p["max_primitive_timeout"]
+        self.send_action(self.motion, goal, label)
+
+    def plan_done(self, future, forward, epoch):
+        if epoch != self.generation:
+            return
+        self.busy = False
+        try:
+            d = future.result().decision
+            if d.map_id != self.map_id or not fresh(
+                seconds(d.header.stamp), self.now_s(), self.p["map_max_age"]
+            ):
+                return self.safe_stop("expired/mismatched terrain decision", True)
+            if d.status != d.OK:
+                self.transition("RECOVERY_SCAN")
+                return
+            self.history.append((d.map_id, d.selected_heading, d.safe_distance))
+            self.previous_heading = d.selected_heading
+            if forward:
+                if (
+                    abs(d.selected_heading) > 1e-5
+                    or not math.isfinite(d.command_distance)
+                    or d.command_distance <= 0
+                ):
+                    return self.safe_stop("invalid forward decision", True)
+                self.scan_angle = 0.0
+                self.transition("STRAIGHT")
+                speed = (
+                    self.p["straight_slow_speed"]
+                    if d.terrain_cost > 0.3 or d.confidence < 0.85
+                    else self.p["straight_normal_speed"]
+                )
+                self.send_motion(1, d.command_distance, speed, "STRAIGHT")
+            else:
+                # Distance from the initial map is intentionally discarded.
+                self.transition("ROTATE")
+                self.send_motion(
+                    2, d.selected_heading, self.p["rotate_speed"], "ROTATE"
+                )
+        except Exception as e:
+            self.safe_stop(str(e), True)
+
+    def tick(self):
+        if self.p["gcs_auto_start"]:
+            self.gcs_gate()
+        self.pub.publish(String(data=self.state))
+        if not self.enabled:
+            return
+        if not self.p["enable_motion"] or not self.p["calibration_confirmed"]:
+            return self.safe_stop("motion/calibration disabled")
+        now = self.now_s()
+        if self.state != "INIT" and (
+            not self.safety
+            or not fresh(
+                seconds(self.safety.header.stamp), now, self.p["sensor_timeout"]
+            )
+            or self.safety.emergency_stop
+        ):
+            return self.safe_stop("safety stop or heartbeat missing")
+        if now < self.entered or now - self.entered > self.p["phase_timeout"]:
+            return self.safe_stop("state timeout or ROS time reset", True)
+        if self.busy:
+            return
+        if self.state == "INIT":
+            if not self.motion.server_is_ready():
+                return
+            self.send_motion(0, label="INIT_STOP")
+        elif self.state.startswith("WAIT_STATIONARY"):
+            if (
+                self.stationary
+                and self.stationary.state == 2
+                and seconds(self.stationary.header.stamp) >= self.entered
+                and fresh(
+                    seconds(self.stationary.header.stamp), now, self.p["sensor_timeout"]
+                )
+            ):
+                self.transition(self.wait_after)
+        elif self.state in ("CAPTURE_INITIAL", "CAPTURE_CONFIRM"):
+            initial = self.state == "CAPTURE_INITIAL"
+            self.transition("BUILD_MAP_INITIAL" if initial else "BUILD_MAP_CONFIRM")
+            g = Build.Goal()
+            g.frame_count = self.p["frame_count"]
+            self.send_action(self.build, g, "INITIAL_MAP" if initial else "CONFIRM_MAP")
+        elif self.state in ("PLAN_HEADING", "PLAN_DISTANCE"):
+            if not self.plan.service_is_ready():
+                return self.safe_stop("planner unavailable", True)
+            forward = self.state == "PLAN_DISTANCE"
+            request = PlanTerrain.Request()
+            request.map_id = self.map_id
+            request.forward_only = forward
+            request.previous_heading = self.previous_heading
+            self.busy = True
+            epoch = self.generation
+            self.plan.call_async(request).add_done_callback(
+                lambda f: self.plan_done(f, forward, epoch)
+            )
+        elif self.state == "STOP_AFTER_MOVE":
+            self.send_motion(0, label="STOP")
+        elif self.state == "RECOVERY_SCAN":
+            # Unobserved space is never automatically certified for a blind rotation.
+            if not self.p["recovery_rotation_clearance_verified"]:
+                return self.safe_stop("no safe corridor; rotation clearance unverified")
+            step = self.p["recovery_step"]
+            if self.scan_angle + step > self.p["recovery_max_angle"]:
+                return self.safe_stop("scan exhausted: NO_SAFE_DIRECTION")
+            self.scan_angle += step
+            self.send_motion(2, step, self.p["rotate_speed"], "SCAN")
+
+
+if __name__ == "__main__":
+    spin(Navigator)

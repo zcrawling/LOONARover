@@ -49,7 +49,11 @@ public:
         for (unsigned i=0;i<n && ok;++i) ok=byte(data[i],start);
         if (ok) return true;
       }
-      ++errors; io.sleep(200); // drain late responses before next attempt
+      ++errors;
+      // A complete EE error reply has no outstanding payload. Retry after a
+      // short backoff instead of creating a 200 ms acceleration-data hole.
+      // Timeout/unexpected/incomplete replies still need late-response drain.
+      io.sleep(ok && reading && header==0xEE ? 5 : 200);
     }
     return false;
   }

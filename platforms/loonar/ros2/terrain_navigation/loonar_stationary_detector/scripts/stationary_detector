@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+from loonar_msgs.msg import Stationary, MotionStatus
+from nav_msgs.msg import Odometry
+from loonar_terrain_core.ros import Runtime, Sensors, SENSOR, STATUS, spin, seconds
+from loonar_terrain_core.algorithms import Stationarity, fresh
+
+
+class Detector(Runtime):
+    def __init__(self):
+        super().__init__(
+            "loonar_stationary_detector",
+            (
+                "sensor_timeout",
+                "base_frame",
+                "wheel_radius",
+                "wheel_velocity_threshold",
+                "gyro_threshold",
+                "gyro_std_threshold",
+                "accel_std_threshold",
+                "minimum_duration",
+                "settling_min_time",
+            ),
+        )
+        self.s = Sensors(self)
+        self.detector = Stationarity()
+        self.motion = None
+        self.odom = None
+        self.last_sample = None
+        self.pub = self.create_publisher(Stationary, "/loonar/stationary", STATUS)
+        self.create_subscription(
+            MotionStatus, "/motion_primitive/status", self.on_motion, STATUS
+        )
+        self.create_subscription(Odometry, "/odom/raw", self.on_odom, SENSOR)
+        self.create_timer(0.02, self.tick)
+
+    def on_motion(self, m):
+        self.motion = m
+
+    def on_odom(self, m):
+        self.odom = m
+
+    def tick(self):
+        m = Stationary()
+        m.header.stamp = self.get_clock().now().to_msg()
+        m.state = Stationary.UNKNOWN
+        m.reason = "missing/stale measurement"
+        now = self.now_s()
+        valid = (
+            self.s.valid("gyro", "accel", "wheels")
+            and self.motion
+            and fresh(seconds(self.motion.header.stamp), now, self.p["sensor_timeout"])
+            and self.odom
+            and fresh(seconds(self.odom.header.stamp), now, self.p["sensor_timeout"])
+        )
+        if valid:
+            sample = self.s.stamps["gyro"]
+            if sample != self.last_sample:
+                active = (
+                    self.motion.active
+                    or abs(self.odom.twist.twist.linear.x)
+                    >= self.p["wheel_velocity_threshold"]
+                )
+                self.last_state, self.last_conf = self.detector.update(
+                    sample,
+                    self.s.gyro,
+                    self.s.accel,
+                    self.s.wheels[:, 1] * self.p["wheel_radius"],
+                    active,
+                    self.p,
+                )
+                self.last_sample = sample
+            m.state = self.last_state
+            m.confidence = self.last_conf
+            m.reason = [
+                "measured motion",
+                "settling",
+                "confirmed",
+                "invalid measurement",
+            ][m.state]
+        else:
+            self.detector = Stationarity()
+            self.last_sample = None
+        self.pub.publish(m)
+
+
+if __name__ == "__main__":
+    spin(Detector)

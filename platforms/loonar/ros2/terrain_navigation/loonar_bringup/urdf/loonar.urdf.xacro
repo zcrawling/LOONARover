@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!-- Compatibility entrypoint. Mount geometry is owned by loonar_description.
+     IMU position remains nominal; optical calibration is not yet measured. -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="loonar">
+  <xacro:include filename="$(find loonar_description)/urdf/loonar.urdf.xacro"/>
+  <!-- The terrain adapter publishes optical-axis images. Keep the CAD mount
+       and IMU axes; assume zero lens offset until optical-centre calibration.
+       Do not enable the unrelated, uncalibrated camera optical frame. -->
+  <xacro:unless value="$(arg publish_optical_frames)">
+    <link name="tof_optical_frame"/>
+    <joint name="tof_optical_frame_mount" type="fixed">
+      <parent link="tof_link"/><child link="tof_optical_frame"/>
+      <origin xyz="$(arg tof_optical_offset)" rpy="-1.5707963267948966 0 -1.5707963267948966"/>
+    </joint>
+  </xacro:unless>
+</robot>

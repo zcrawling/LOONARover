@@ -1,0 +1,17 @@
+/loonar/tof/depth:
+  reliability: best_effort
+  history: keep_last
+  depth: 5
+/loonar/tof/amplitude:
+  reliability: best_effort
+  history: keep_last
+  depth: 5
+/loonar/tof/camera_info:
+  reliability: best_effort
+  history: keep_last
+  depth: 5
+/tf_static:
+  reliability: reliable
+  durability: transient_local
+  history: keep_last
+  depth: 1

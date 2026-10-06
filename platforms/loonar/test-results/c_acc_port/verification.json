@@ -1,0 +1,50 @@
+{
+  "trial": "/home/loonar/odom_tests/loonar_c_20261006_155552_036507",
+  "status": "prepared",
+  "motion_requested": false,
+  "commands": 0,
+  "counts": {
+    "/c_test/diagnostics": 217,
+    "/c_test/state": 224,
+    "/c_test/v1": 217,
+    "/imu/accel": 471,
+    "/imu/data": 471,
+    "/imu/gravity": 470,
+    "/imu/linear": 470,
+    "/imu/linear_acceleration": 470,
+    "/imu/orientation_raw": 471,
+    "/mcu/control/raw": 2820,
+    "/motor/feedback": 471,
+    "/odom_c_test": 217,
+    "/tf_static": 1,
+    "/wheel/odom": 471
+  },
+  "imu_hz": 50.001768528549476,
+  "imu_max_gap_s": 0.02300095558166504,
+  "imu_gaps_over_80ms": 0,
+  "last_estimate": {
+    "t": 1791269762.387644,
+    "phase": "STOP",
+    "C_acc": null,
+    "C_dec": null,
+    "C_valid": false,
+    "C_applied": 1.0,
+    "C_unreliable": false,
+    "v_imu": null,
+    "vx_encoder": 0.0,
+    "vx_corrected": 0.0,
+    "a_corrected": -0.004117646163292958,
+    "accel_bias": 0.05411764690835102,
+    "acceleration_valid": true,
+    "reason": "await_stationary_bias",
+    "pose": [
+      0.0,
+      0.0,
+      0.00033312022800789653
+    ],
+    "wz": 0.0,
+    "acceleration_mode": "linear",
+    "imu_header_delta_s": -0.0029993057250976562,
+    "bias_ready": true
+  }
+}

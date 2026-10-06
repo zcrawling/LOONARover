@@ -9,11 +9,24 @@ PWM/DIR·Teensy 엔코더 입력·BNO I²C HAL은 폐기했다.
 | 기능 | Teensy 핀 / 인터페이스 |
 |---|---|
 | RoboClaw RX / TX | 7 / 8, Serial2 packet serial |
-| BNO055 UART RX / TX | 25 / 24, Serial6 115200 8N1; PS1 HIGH, PS0 LOW |
+| BNO055 UART RX / TX | 15 / 14, Serial3 115200 8N1; PS1 HIGH, PS0 LOW |
 | Pi 초기 연결 | USB CDC, USB Serial |
-| Pi 후속 UART | Serial3 RX15 / TX14, 2 Mbaud, 8N1; **배선 확정 필요** |
+| Pi 후속 UART | Serial1 RX0 / TX1, PCB J2 RS-422, 2 Mbaud, 8N1 |
 
-모터는 Serial2 RX7/TX8을 사용한다. 기존 BNO RESET8 배선은 분리한다.
+[261004 MCU_MOTOR PCB](../../hardware/pcb/261004_pcb/MCU_MOTOR/mcu_motor.kicad_pcb)의
+J4 `ESC UART PWM / XA 4P`를 BNO055 UART용으로 사용한다.
+
+| J4 핀 | PCB 연결 | BNO055 연결 |
+| --- | --- | --- |
+| 1 | GND | GND |
+| 2 | Teensy TX14 → R8 100Ω → B-G431B RX | BNO055 RX |
+| 3 | B-G431B TX → R7 100Ω → Teensy RX15 | BNO055 TX |
+| 4 | Teensy pin 2 PWM (100Ω 직렬, 10kΩ 풀다운) | 연결하지 않음 |
+
+**J4에는 전원 핀이 없다.** BNO055 전원은 사용 모듈 사양에 맞춰 별도로 공급한다.
+모터는 기존 Serial2 RX7/TX8(J3)을 유지한다. 기존 BNO RESET8 배선은 분리한다.
+Pi USB 통신은 유지하며, 비USB 빌드의 HAT UART만 Serial1 RX0/TX1로 맞춰
+BNO055 Serial3과의 충돌을 피한다.
 Control 역할에서는 BNO055 UART 작업을 실행한다. 기존 BNO085 SPI 작업은 사용하지 않는다.
 엔코더는 RoboClaw의 count/speed 명령으로 읽는다. 현재 UART 구현은 full duplex이며 RS-485 half duplex의
 DE/RE 전환은 포함하지 않는다.
@@ -27,7 +40,7 @@ count/speed/current/PWM 응답을 함께 변환한다.
 ## 빌드·업로드
 
 기본 환경 `teensy41_usb`는 USB CDC와 BNO055를 포함한다.
-`teensy41`는 Pi 링크를 Serial3으로 선택한다. `teensy41_encoder_verify`는
+`teensy41`는 Pi 링크를 Serial1으로 선택한다. `teensy41_encoder_verify`는
 IMU를 제외하는 진단 환경이다. `payload41_usb`는 역할 식별용 공통 기반이며
 [실제 Payload 센서 펌웨어](../payload/README.md)와 다르다.
 
@@ -58,7 +71,7 @@ Pi에 업로더가 없으면 `bash ~/LOONAR/platforms/loonar/deploy/prepare-cont
 `teensy41_usb`가 BNO055를 포함한 기본 제어기 빌드다.
 `teensy41_encoder_verify`는 IMU 작업을 제외하는 진단 빌드이므로 BNO055 시험에는 사용하지 않는다.
 
-- TX24 → BNO055 RX, RX25 ← BNO055 TX, GND 공통. PS1 HIGH/PS0 LOW는 전원 인가 전에 설정한다.
+- TX14 → BNO055 RX, RX15 ← BNO055 TX, GND 공통. PS1 HIGH/PS0 LOW는 전원 인가 전에 설정한다.
 - NDOF 0x0C, 기본 축 매핑, 가속도 m/s², 송신 각속도 rad/s, 쿼터니언 xyzw.
 - 부팅 5000ms + 버스 250ms 대기. 초기화 최대 5회(실패 간격 150ms), 이후 2초 뒤 재시도.
 - UART 트랜잭션 150ms 제한, 최대 3회/실패 간격 200ms. IMU 작업에서 RTOS 대기하므로 모터 작업은 계속 실행된다.

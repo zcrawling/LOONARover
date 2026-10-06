@@ -1,0 +1,343 @@
+#!/usr/bin/env python3
+"""ROS-side MCU sample consumer and existing vehicle_gateway AUTO client.
+
+Replaces ONLY loonar-mcu-sensors while active. The backend remains the serial
+owner; gateway remains mode arbiter. No command replay on reconnect.
+"""
+import fcntl
+import json
+import math
+import os
+from pathlib import Path
+import socket
+import struct
+import time
+from sensor_msgs.msg import Imu, JointState
+from geometry_msgs.msg import Twist, Vector3Stamped
+from nav_msgs.msg import Odometry
+from loonar_msgs.msg import BaseState
+from loonar_terrain_core.ros import Runtime, SENSOR, STATUS, spin
+
+HEADER = struct.Struct("<IHHI")
+
+
+def packet(kind, payload=b""):
+    return HEADER.pack(0x4C4E5247, 1, kind, len(payload)) + payload
+
+
+def wrap_delta(new, old):
+    return ((new - old + 2**31) % 2**32) - 2**31
+
+
+class BaseIO(Runtime):
+    def __init__(self):
+        super().__init__(
+            "loonar_base_io",
+            ("sensor_timeout", "enable_motion"),
+            dict(
+                registry="/etc/loonar/mcu-registry.json",
+                sample_socket="/run/loonar/mcu/samples.sock",
+                gateway_socket="/run/loonar/vehicle-gateway/ros.sock",
+                imu_frame="imu_link",
+                command_timeout=0.15,
+            ),
+        )
+        if self.get_parameter("use_sim_time").value:
+            raise ValueError("hardware base_io cannot use simulated time")
+        registry = json.loads(Path(self.p["registry"]).read_text())
+        if registry.get("schema") != 2:
+            raise ValueError("registry schema 2 required")
+        device = registry["devices"]["control"]
+        self.uid = device["uid"].lower()
+        self.g = device["geometry"]
+        for k in ("radius_m", "track_m", "counts_per_rev"):
+            if not math.isfinite(self.g[k]) or self.g[k] <= 0:
+                raise ValueError("invalid geometry " + k)
+        if any(self.g[k] not in (-1, 1) for k in ("left_sign", "right_sign")):
+            raise ValueError("invalid wheel signs")
+        self.path = Path(self.p["sample_socket"])
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self.lock = open(str(self.path) + ".lock", "a")
+        try:
+            fcntl.flock(self.lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as error:
+            self.lock.close()
+            raise RuntimeError(
+                f"MCU sample socket already owned: {self.path}. "
+                "Stop the old mcu_v2.ros_bridge (or loonar-mcu-sensors) "
+                "before starting base_io; keep backend/gateway running."
+            ) from error
+        self.path.unlink(missing_ok=True)
+        self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+        self.sock.bind(str(self.path))
+        os.chmod(self.path, 0o660)
+        self.sock.setblocking(False)
+        self.gateway = None
+        self.retry = 0.0
+        self.auto = False
+        self.motor_stamp = None
+        self.motor_fault = True
+        self.motor_reason = "awaiting motor samples"
+        self.last_seq = {}
+        self.boot = None
+        self.counts = None
+        self.total = [0, 0]
+        self.cmd_at = None
+        self.zero_sent = True
+        self.boot_hold_until = 0.0
+        self.imu = self.create_publisher(Imu, "/imu/data", SENSOR)
+        self.accel = self.create_publisher(Imu, "/imu/accel", SENSOR)
+        self.gravity = self.create_publisher(Vector3Stamped, "/imu/gravity", SENSOR)
+        self.orientation = self.create_publisher(Imu, "/imu/orientation_raw", SENSOR)
+        self.wheels = self.create_publisher(JointState, "/wheel_states", SENSOR)
+        self.odom = self.create_publisher(Odometry, "/odom/raw", SENSOR)
+        self.wheel_odom = self.create_publisher(Odometry, "/wheel/odom", SENSOR)
+        self.base = self.create_publisher(BaseState, "/loonar/base/state", STATUS)
+        self.create_subscription(Twist, "/cmd_vel", self.command, STATUS)
+        self.create_timer(0.002, self.receive)
+        self.create_timer(0.02, self.tick)
+
+    def header(self, msg, stamp, frame):
+        msg.header.stamp.sec = stamp // 1_000_000_000
+        msg.header.stamp.nanosec = stamp % 1_000_000_000
+        msg.header.frame_id = frame
+
+    def disconnect(self):
+        if self.gateway:
+            self.gateway.close()
+        self.gateway = None
+        self.auto = False
+        self.cmd_at = None
+        self.zero_sent = True
+
+    def send(self, v, w):
+        if not self.gateway:
+            return
+        try:
+            self.gateway.sendall(packet(2, struct.pack("<Bdd", 1, v, w)))
+        except OSError:
+            self.disconnect()
+
+    def command(self, m):
+        if not math.isfinite(m.linear.x) or not math.isfinite(m.angular.z):
+            self.send(0.0, 0.0)
+            return
+        if not self.p["enable_motion"] or not self.auto:
+            return
+        if (
+            self.motor_stamp is None
+            or not 0 <= self.now_s() - self.motor_stamp <= self.p["sensor_timeout"]
+            or self.motor_fault
+        ):
+            self.send(0.0, 0.0)
+            return
+        self.send(m.linear.x, m.angular.z)
+        self.cmd_at = time.monotonic()
+        self.zero_sent = False
+
+    def stop_output(self):
+        self.send(0.0, 0.0)
+
+    def tick(self):
+        wall = time.monotonic()
+        if self.gateway is None and wall >= self.retry:
+            self.retry = wall + 1.0
+            try:
+                self.gateway = socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET)
+                self.gateway.settimeout(0.01)
+                self.gateway.connect(self.p["gateway_socket"])
+                self.gateway.sendall(packet(1))
+                self.gateway.setblocking(False)
+            except OSError:
+                self.disconnect()
+        if self.gateway:
+            for _ in range(32):
+                try:
+                    raw = self.gateway.recv(256)
+                except BlockingIOError:
+                    break
+                except OSError:
+                    self.disconnect()
+                    break
+                if not raw:
+                    self.disconnect()
+                    break
+                if len(raw) == 31 and HEADER.unpack_from(raw) == (0x4C4E5247, 1, 7, 19):
+                    self.auto = raw[12] == 1
+        connected = (
+            self.motor_stamp is not None
+            and 0 <= self.now_s() - self.motor_stamp <= self.p["sensor_timeout"]
+        )
+        if not self.zero_sent and (
+            self.cmd_at is None
+            or wall - self.cmd_at > self.p["command_timeout"]
+            or not connected
+            or self.motor_fault
+        ):
+            self.send(0.0, 0.0)
+            self.zero_sent = True
+        m = BaseState()
+        m.header.stamp = self.get_clock().now().to_msg()
+        m.connected = connected and self.gateway is not None
+        m.motor_fault = self.motor_fault
+        m.auto_selected = self.auto
+        m.reason = self.motor_reason if connected else "MCU samples missing"
+        if connected and self.gateway is None:
+            m.reason = "gateway disconnected; " + m.reason
+        self.base.publish(m)
+
+    def receive(self):
+        for _ in range(128):
+            try:
+                raw = self.sock.recv(4096)
+            except BlockingIOError:
+                return
+            try:
+                d = json.loads(raw)
+                if d["role"] != "control" or d["uid"].lower() != self.uid:
+                    continue
+                stamp = int(d["stamp_ns"])
+                if (
+                    not 0
+                    <= time.time_ns() - stamp
+                    <= int(self.p["sensor_timeout"] * 1e9)
+                ):
+                    continue
+                if d["boot"] != self.boot:
+                    self.stop_output()
+                    self.boot = d["boot"]
+                    self.last_seq.clear()
+                    self.counts = None
+                    self.motor_fault = True
+                    self.motor_stamp = None
+                    self.boot_hold_until = time.monotonic() + 1.0
+                kind = int(d["kind"])
+                seq = int(d["seq"])
+                if seq <= self.last_seq.get(kind, 0):
+                    continue
+                self.last_seq[kind] = seq
+                p = bytes.fromhex(d["payload"])
+                if kind == 32 and len(p) == 36:
+                    self.imu_sample(p, stamp)
+                if kind == 33 and len(p) == 64:
+                    self.motor_sample(p, stamp)
+            except (KeyError, ValueError, TypeError, struct.error) as e:
+                self.report(str(e), True)
+
+    def imu_sample(self, p, stamp):
+        sensor = p[0]
+        x, y, z, qw, _ = struct.unpack_from("<5f", p, 12)
+        if not all(math.isfinite(v) for v in (x, y, z, qw)):
+            return
+        if sensor == 6:
+            m = Vector3Stamped()
+            self.header(m, stamp, self.p["imu_frame"])
+            m.vector.x = x
+            m.vector.y = y
+            m.vector.z = z
+            self.gravity.publish(m)
+            return
+        m = Imu()
+        self.header(m, stamp, self.p["imu_frame"])
+        m.orientation_covariance[0] = -1.0
+        m.angular_velocity_covariance[0] = -1.0
+        m.linear_acceleration_covariance[0] = -1.0
+        if sensor == 2:
+            m.angular_velocity.x = x
+            m.angular_velocity.y = y
+            m.angular_velocity.z = z
+            m.angular_velocity_covariance = [
+                0.001,
+                0.0,
+                0.0,
+                0.0,
+                0.001,
+                0.0,
+                0.0,
+                0.0,
+                0.001,
+            ]
+            self.imu.publish(m)
+        elif sensor == 1:
+            m.linear_acceleration.x = x
+            m.linear_acceleration.y = y
+            m.linear_acceleration.z = z
+            m.linear_acceleration_covariance = [0.0] * 9
+            self.accel.publish(m)
+        elif sensor == 5:
+            norm = math.sqrt(x * x + y * y + z * z + qw * qw)
+            if not 0.9 < norm < 1.1:
+                return
+            m.orientation.x = x / norm
+            m.orientation.y = y / norm
+            m.orientation.z = z / norm
+            m.orientation.w = qw / norm
+            m.orientation_covariance = [0.0] * 9
+            self.orientation.publish(m)
+
+    def motor_sample(self, p, stamp):
+        valid, left, right, ls, rs = struct.unpack_from("<I4i", p)
+        errors, ack_age, failures, count_age, speed_age = struct.unpack_from(
+            "<5I", p, 44
+        )
+        self.motor_stamp = stamp * 1e-9
+        self.motor_fault = bool(
+            time.monotonic() < self.boot_hold_until
+            or errors
+            or valid & 67 != 67
+            or max(count_age, speed_age) > 100
+        )
+        reasons = []
+        if errors:
+            reasons.append(f"RoboClaw status 0x{errors:08x}")
+        if time.monotonic() < self.boot_hold_until:
+            reasons.append("MCU boot hold")
+        if valid & 67 != 67:
+            reasons.append(f"motor feedback validity 0x{valid:08x}")
+        if max(count_age, speed_age) > 100:
+            reasons.append(
+                f"motor feedback stale: count={count_age}ms speed={speed_age}ms"
+            )
+        self.motor_reason = "; ".join(reasons) or "fresh motor sample"
+        if self.motor_fault:
+            return
+        counts = [left, right]
+        if self.counts is not None:
+            for i in range(2):
+                self.total[i] += wrap_delta(counts[i], self.counts[i])
+        self.counts = counts
+        scale = 2 * math.pi / self.g["counts_per_rev"]
+        signs = [self.g["left_sign"], self.g["right_sign"]]
+        m = JointState()
+        self.header(m, stamp - max(count_age, speed_age) * 1_000_000, "base_link")
+        m.name = ["left_wheel", "right_wheel"]
+        m.position = [self.total[i] * scale * signs[i] for i in range(2)]
+        m.velocity = [ls * scale * signs[0], rs * scale * signs[1]]
+        self.wheels.publish(m)
+        o = Odometry()
+        o.header = m.header
+        o.header.frame_id = "odom"
+        o.child_frame_id = "base_link"
+        o.pose.pose.orientation.w = 1.0
+        o.twist.twist.linear.x = sum(m.velocity) * self.g["radius_m"] / 2
+        o.twist.twist.angular.z = (
+            (m.velocity[1] - m.velocity[0]) * self.g["radius_m"] / self.g["track_m"]
+        )
+        o.twist.covariance[0] = 0.0225
+        o.twist.covariance[35] = 1e6
+        for i in range(6):
+            o.pose.covariance[i * 7] = 1e6
+        self.odom.publish(o)
+        self.wheel_odom.publish(o)
+
+    def destroy_node(self):
+        self.stop_output()
+        self.disconnect()
+        self.sock.close()
+        self.path.unlink(missing_ok=True)
+        self.lock.close()
+        return super().destroy_node()
+
+
+if __name__ == "__main__":
+    spin(BaseIO)

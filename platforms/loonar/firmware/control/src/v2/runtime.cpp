@@ -28,7 +28,7 @@ static_assert(LOONAR_MCU_ROLE == 1 || LOONAR_MCU_ROLE == 2, "Invalid MCU role");
 auto &link = Serial;
 constexpr std::uint8_t transport = 1;
 #else
-auto &link = Serial3;
+auto &link = Serial1;
 constexpr std::uint8_t transport = 2;
 std::uint8_t uart_rx[8192], uart_tx[2048];
 #endif
@@ -441,17 +441,17 @@ void io_task(void *) {
   }
 }
 struct BnoUart {
-  int available() { return Serial6.available(); }
-  int read() { return Serial6.read(); }
-  std::size_t write(const std::uint8_t *p, std::size_t n) { return Serial6.write(p,n); }
+  int available() { return Serial3.available(); }
+  int read() { return Serial3.read(); }
+  std::size_t write(const std::uint8_t *p, std::size_t n) { return Serial3.write(p,n); }
   std::uint32_t now() { return millis(); }
   void sleep(unsigned ms) { vTaskDelay(pdMS_TO_TICKS(ms)); }
 };
 void imu_task(void *) {
   if (!control || !gate.identity) { vTaskDelete(nullptr); return; }
-  Serial6.setTX(pins::kBno055Tx);
-  Serial6.setRX(pins::kBno055Rx);
-  Serial6.begin(115200, SERIAL_8N1);
+  Serial3.setTX(pins::kBno055Tx);
+  Serial3.setRX(pins::kBno055Rx);
+  Serial3.begin(115200, SERIAL_8N1);
   BnoUart uart;
   loonar::control::Bno055<BnoUart> bno(uart);
   uart.sleep(5000);
@@ -530,11 +530,11 @@ bool start() {
 #ifdef LOONAR_CONTROL_USB_CDC
   Serial.begin(2000000);
 #else
-  Serial3.setRX(pins::kPiUartRx);
-  Serial3.setTX(pins::kPiUartTx);
-  Serial3.addMemoryForRead(uart_rx, sizeof(uart_rx));
-  Serial3.addMemoryForWrite(uart_tx, sizeof(uart_tx));
-  Serial3.begin(2000000);
+  Serial1.setRX(pins::kPiUartRx);
+  Serial1.setTX(pins::kPiUartTx);
+  Serial1.addMemoryForRead(uart_rx, sizeof(uart_rx));
+  Serial1.addMemoryForWrite(uart_tx, sizeof(uart_tx));
+  Serial1.begin(2000000);
 #endif
   priority =
       xQueueCreateStatic(16, sizeof(Frame), priority_bytes, &priority_store);

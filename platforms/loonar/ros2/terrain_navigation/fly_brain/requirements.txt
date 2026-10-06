@@ -1,0 +1,9 @@
+brian2==2.8.0.4
+numpy==1.26.4
+pandas==3.0.6
+pyarrow==25.0.1
+joblib==1.6.0
+Cython==3.3.0
+sympy==1.14.0
+Jinja2==3.1.6
+pytest==7.4.4

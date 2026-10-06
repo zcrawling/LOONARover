@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+if [[ $# != 1 ]]; then echo 'usage: ros2 run loonar_bringup record_terrain /path/to/new/bag' >&2; exit 2; fi
+exec ros2 bag record -o "$1" \
+ /loonar/tof/depth /loonar/tof/amplitude /loonar/tof/camera_info /loonar/tof/raw_depth \
+ /imu/data /imu/accel /imu/gravity /imu/orientation_raw /odom/raw /wheel/odom /wheel_states \
+ /loonar/stationary /terrain/map /terrain/grid /terrain/decision \
+ /motion_primitive/goal /motion_primitive/status /motion_primitive/result \
+ /loonar/safety/emergency_stop /loonar/base/state /loonar/navigation/state \
+ /cmd_vel /tf /tf_static /diagnostics

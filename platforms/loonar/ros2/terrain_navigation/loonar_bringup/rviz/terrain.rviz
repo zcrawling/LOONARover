@@ -1,0 +1,34 @@
+Panels:
+  - Class: rviz_common/Displays
+Visualization Manager:
+  Class: ''
+  Global Options:
+    Fixed Frame: base_link
+  Displays:
+    - Class: rviz_default_plugins/TF
+      Name: TF
+      Enabled: true
+    - Class: rviz_default_plugins/PointCloud2
+      Name: Elevation
+      Enabled: true
+      Topic:
+        Value: /terrain/elevation
+      Size (m): 0.04
+      Color Transformer: AxisColor
+      Axis: Z
+    - Class: rviz_default_plugins/PointCloud2
+      Name: Fused points
+      Enabled: false
+      Topic:
+        Value: /tof/fused_points
+      Size (m): 0.008
+    - Class: rviz_default_plugins/MarkerArray
+      Name: Candidate corridors
+      Enabled: true
+      Topic:
+        Value: /terrain/candidate_paths
+    - Class: rviz_default_plugins/MarkerArray
+      Name: Selected corridor
+      Enabled: true
+      Topic:
+        Value: /terrain/selected_path

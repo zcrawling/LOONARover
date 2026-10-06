@@ -7,7 +7,7 @@ USB는 기존 이진 프로토콜이므로 `cat /dev/ttyACM0`으로 보지 않�
 
 모터드라이버 UART는 **Serial2, RX7 / TX8**이다. Teensy TX8은 드라이버 RX,
 Teensy RX7은 드라이버 TX에 연결하고 GND를 공통으로 연결한다.
-기존 BNO RESET8 배선은 분리한다. 일반 Control 빌드는 BNO055를 별도 Serial6 TX24/RX25로 읽는다.
+기존 BNO RESET8 배선은 분리한다. 일반 Control 빌드는 BNO055를 별도 Serial3 TX14/RX15 (PCB J4)로 읽는다.
 
 ## 빌드·복사 (노트북)
 

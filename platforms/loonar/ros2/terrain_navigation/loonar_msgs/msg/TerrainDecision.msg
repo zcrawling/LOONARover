@@ -1,0 +1,16 @@
+std_msgs/Header header
+uint8 OK=0
+uint8 NO_SAFE_PATH=1
+uint8 LOW_CONFIDENCE=2
+uint8 INSUFFICIENT_DATA=3
+uint32 map_id
+float32 selected_heading
+float32 safe_distance
+float32 command_distance
+float32 terrain_cost
+float32 confidence
+uint8 status
+string reason
+float32[] candidate_headings
+float32[] candidate_costs
+float32[] candidate_safe_distances

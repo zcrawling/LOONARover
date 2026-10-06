@@ -5,7 +5,7 @@ Control은 FreeRTOS·LNR2 USB, Payload는 별도 센서 펌웨어·USB ASCII 경
 
 - [실행·로그·기록](porting/ground_control_runbook.md)
 - [Pi 설치](deploy/README.md)
-- [배선](hardware/hardware_baseline.md)
+- [배선](hardware/hardware_baseline.md) · [CAD 기반 TF](ros2/loonar_description/README.md)
 - [Control 펌웨어](firmware/control/README.md) · [wire v2](porting/mcu_wire_v2.md)
 - [Payload 펌웨어](firmware/payload/README.md) · [운용](porting/payload_pca_runbook.md)
 - [CubeEye 공급 SDK](vendor-assets.md) · [ToF 기록](porting/tof_recording_runbook.md)
