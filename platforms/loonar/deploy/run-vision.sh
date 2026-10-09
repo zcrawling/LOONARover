@@ -13,6 +13,7 @@ source /etc/loonar/video.env
 VISION_PYTHON=${LOONAR_VISION_PYTHON:-/opt/loonar/vision-venv/bin/python}
 [[ -x $VISION_PYTHON ]] || { echo "Missing Pi vision Python: $VISION_PYTHON" >&2; exit 127; }
 export PYTHONNOUSERSITE=1
+export YOLO_AUTOINSTALL=false
 exec "$VISION_PYTHON" -m loonar_target_vision.node \
   --ros-args --params-file /etc/loonar/vision.yaml \
   -p "ground_station_ip:=$GROUND_STATION_IP"

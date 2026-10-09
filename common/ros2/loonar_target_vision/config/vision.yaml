@@ -5,8 +5,8 @@ loonar_target_vision:
     source_height: 360
     source_fps: 10
     vision_socket: /run/loonar/vision.sock
-    # Replace this file with the trained two-class weight and restart vision.
-    model_path: /var/lib/loonar/vision/best.pt
+    # Install a validated NCNN directory with install-vision-runtime.sh MODEL_DIR.
+    model_path: /var/lib/loonar/vision/best_ncnn_model
     model_sha256: ""
     input_height: 640
     input_width: 384
