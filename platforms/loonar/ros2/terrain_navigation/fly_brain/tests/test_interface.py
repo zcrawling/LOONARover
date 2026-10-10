@@ -41,7 +41,7 @@ def test_silent_brain_has_no_motion_fallback():
     assert candidate["linear_mps"] == candidate["angular_rps"] == 0
     assert candidate["actuation_enabled"] is False
     rates["DNa02_right"] = 200
-    assert decode_candidate(rates)["angular_rps"] == -.6
+    assert decode_candidate(rates)["angular_rps"] == -.3
     rates["DNp09_left"] = float("nan")
     with pytest.raises(ValueError):
         decode_candidate(rates)

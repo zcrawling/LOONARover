@@ -18,7 +18,9 @@ ros2 launch loonar_bringup terrain.launch.py \
   publish_tf:=true run_base_io:=true enable_motion:="${LOONAR_FLY_DRIVE:-false}" \
   run_motion:=false run_navigator:=false run_perception:=false run_planner:=false &
 children+=("$!")
-if [[ ${LOONAR_FLY_DRIVE:-false} == true ]]; then
+if [[ ${LOONAR_FLY_GCS:-0} == 1 ]]; then
+  python3 -m loonar_fly.supervisor &
+elif [[ ${LOONAR_FLY_DRIVE:-false} == true ]]; then
   python3 -m loonar_fly.drive_node \
     --gateway-socket "$(dirname -- "$2")/gateway/cfs.sock" \
     --max-drive-seconds "${LOONAR_FLY_DRIVE_SECONDS:-0}" \
@@ -39,7 +41,7 @@ if [[ ${LOONAR_FLY_CAMERA:-1} == 1 ]]; then
     'VIDEO_ENCODER_THREADS=1' 'VIDEO_PORT=5600' > "$FLY_DIR/log/camera.env"
   root=$(cd -- "$LOONAR_NAV_WS/../../../.." && pwd)
   LOONAR_VIDEO_CONFIG="$FLY_DIR/log/camera.env" \
-    CAMERA_ROS_ENABLED=1 CAMERA_ROS_FPS=5 \
+    CAMERA_ROS_ENABLED=1 CAMERA_ROS_FPS="${LOONAR_FLY_CAMERA_FPS:-5}" \
     VIDEO_STREAM_ENABLED="$([[ -n ${LOONAR_FLY_VIDEO_IP:-} ]] && echo 1 || echo 0)" \
     GROUND_STATION_IP="${LOONAR_FLY_VIDEO_IP:-}" \
     bash "$root/platforms/loonar/deploy/run-video.sh" > "$FLY_DIR/log/camera.log" 2>&1 &

@@ -1,0 +1,136 @@
+{
+  "session": {
+    "start_ns": 1791375499880690639,
+    "mode": "observe",
+    "session": "/home/loonar/loonar-bags/capture_20261007_211819_880247",
+    "camera_requested_fps": 5,
+    "manual_endpoint": "Pi:7444",
+    "ros_domain_id": "0",
+    "hardware_motion_started_by_recorder": false,
+    "capture_started_ns": 1791375500717080529,
+    "capture_stopped_ns": 1791375545909236365,
+    "end_ns": 1791375551586676543,
+    "forced_termination": [],
+    "exit_codes": {
+      "recorder": 0,
+      "control-journal": 0,
+      "stack": 0
+    }
+  },
+  "verification": {
+    "readback_complete": true,
+    "storage_integrity_ok": true,
+    "required_streams_present": true,
+    "missing": [],
+    "errors": [],
+    "topic_counts": {
+      "/recording/mcu/tx": 2605,
+      "/recording/mcu/rx": 16962,
+      "/recording/imu/sample": 13771,
+      "/recording/gateway/rx": 1,
+      "/recording/motor/feedback": 2734,
+      "/loonar/fly/brain_status": 46,
+      "/parameter_events": 2,
+      "/rosout": 31,
+      "/loonar/fly/candidate_cmd_vel": 680,
+      "/loonar/fly/status": 45,
+      "/camera/image_raw/compressed": 218,
+      "/camera/timing": 218,
+      "/robot_description": 1,
+      "/tf_static": 1,
+      "/imu/accel": 1457,
+      "/imu/data": 1457,
+      "/imu/gravity": 1455,
+      "/imu/orientation_raw": 1456,
+      "/loonar/base/state": 1239,
+      "/loonar/safety/emergency_stop": 1019,
+      "/loonar/stationary": 1374,
+      "/odom/raw": 1447,
+      "/wheel/odom": 1447,
+      "/wheel_states": 1447,
+      "/loonar/tof/raw_depth": 302,
+      "/loonar/tof/raw_amplitude": 302,
+      "/loonar/tof/raw_camera_info": 302,
+      "/recording/tof/frame": 302,
+      "/loonar/tof/amplitude": 257,
+      "/loonar/tof/camera_info": 257,
+      "/loonar/tof/depth": 257,
+      "/diagnostics": 77,
+      "/loonar/fly/terrain": 201,
+      "/loonar/fly/input": 65,
+      "/loonar/fly/result": 32
+    },
+    "source_journal_counts": {
+      "camera-4029.journal": 218,
+      "gateway-3995.journal": 1,
+      "mcu-3995.journal": 19567,
+      "tof-4090.journal": 302
+    },
+    "bag_journal_counts": {
+      "mcu-3995.journal": 19567,
+      "gateway-3995.journal": 1,
+      "camera-4029.journal": 218,
+      "tof-4090.journal": 302
+    },
+    "partial_journals": {},
+    "maximum_header_gap_s": {
+      "/loonar/fly/candidate_cmd_vel": 2.781263613,
+      "/camera/image_raw/compressed": 0.399820909,
+      "/imu/accel": 1.770001,
+      "/imu/data": 1.770001,
+      "/imu/gravity": 1.770001,
+      "/imu/orientation_raw": 1.770001,
+      "/loonar/base/state": 2.959905784,
+      "/loonar/safety/emergency_stop": 3.026606103,
+      "/loonar/stationary": 2.92346317,
+      "/odom/raw": 1.821998,
+      "/wheel/odom": 1.821998,
+      "/wheel_states": 1.821998,
+      "/loonar/tof/raw_depth": 0.783416237,
+      "/loonar/tof/raw_amplitude": 0.783416237,
+      "/loonar/tof/raw_camera_info": 0.783416237,
+      "/loonar/tof/camera_info": 3.625528243,
+      "/loonar/tof/amplitude": 3.625528243,
+      "/loonar/tof/depth": 3.625528243,
+      "/diagnostics": 0.746843273
+    },
+    "stream_ended_before_capture_end_s": {},
+    "producer_errors": [
+      {
+        "stamp_ns": 1791375543569921193,
+        "name": "loonar_tof_adapter",
+        "message": "SDK depth/amplitude stream stale"
+      },
+      {
+        "stamp_ns": 1791375550106412014,
+        "name": "loonar_tof_adapter",
+        "message": "SDK depth/amplitude stream stale"
+      }
+    ],
+    "coverage_end_source": "capture_stopped_ns",
+    "manual_command_count": 0,
+    "manual_input_observed": false,
+    "mcu_sequence_gaps_all_received": {
+      "boot=121,session=2507277697": 0,
+      "boot=121,session=3605522457": 99964
+    },
+    "mcu_sequence_gaps_in_capture_window": {
+      "boot=121,session=3605522457": 0
+    },
+    "raw_tof_frames": 302,
+    "processed_tof_frames": 257,
+    "note": "Raw ToF/camera and command journals are compared exactly. ROS-only streams are checked for DDS loss, gaps and pairing; this cannot prove absence of loss before a producer emits data. No optical exposure synchronization is claimed.",
+    "ready_for_analysis": true,
+    "recording_complete": true
+  },
+  "bytes": {
+    "raw": 384285940,
+    "bag": 518087037,
+    "logs": 187882
+  },
+  "tof_journal_bytes": 371169368,
+  "current_dirty_memory": [
+    "Dirty:               128 kB",
+    "Writeback:             0 kB"
+  ]
+}

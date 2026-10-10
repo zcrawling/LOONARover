@@ -21,6 +21,7 @@ from std_msgs.msg import String
 from loonar_msgs.msg import BaseState, SafetyState
 
 from loonar_fly.body_node import Body
+from loonar_fly.avoidance import scene_from_points
 
 
 def main():
@@ -35,6 +36,9 @@ def main():
     pub = node.create_publisher(Image, "/loonar/tof/depth", qos_profile_sensor_data)
     basepub = node.create_publisher(BaseState, "/loonar/base/state", 1)
     safepub = node.create_publisher(SafetyState, "/loonar/safety/emergency_stop", 1)
+    terrainpub = node.create_publisher(String, "/loonar/fly/terrain", qos_profile_sensor_data)
+    xx, yy = np.meshgrid(np.arange(.16, 1.04, .015), np.arange(-.8, .8, .015))
+    floor_scene = scene_from_points(np.column_stack((xx.ravel(), yy.ravel(), np.full(xx.size, -.098))))
     candidates, results, ready = [], [], []
     node.create_subscription(TwistStamped, "/loonar/fly/candidate_cmd_vel", lambda m: candidates.append(m.twist.linear.x), 1)
     node.create_subscription(String, "/loonar/fly/result", lambda m: results.append(json.loads(m.data)), 1)
@@ -64,6 +68,9 @@ def main():
                         values[:, :12] = .2
                         msg.data = values.tobytes()
                         pub.publish(msg)
+                        scene = dict(floor_scene, stamp=stamp.sec+stamp.nanosec*1e-9,
+                                     frame_id=f'{stamp.sec}:{stamp.nanosec}')
+                        terrainpub.publish(String(data=json.dumps(scene)))
                     base = BaseState(connected=True, motor_fault=fault, auto_selected=True,
                                      reason="RoboClaw 0x02000000" if fault else "healthy replay")
                     base.header.stamp = stamp
@@ -76,6 +83,8 @@ def main():
 
         run(6)
         assert len(results) >= 3, "no sustained full-brain inference"
+        assert all(r['input_rates_hz']['LC4_left'] == 0 and r['input_rates_hz']['LC4_right'] == 0
+                   for r in results), 'raw close floor must not stimulate obstacle neurons'
         assert any(v > 0 for v in candidates), "no guarded candidate from positive-control P9 stimulation"
         assert not node.get_publishers_info_by_topic("/cmd_vel"), "unexpected physical-command publisher"
         run(1, fault=True)
@@ -87,7 +96,7 @@ def main():
         assert candidates[-1] == 0
         assert not node.get_publishers_info_by_topic("/cmd_vel")
         report = {"passed": True, "full_brain_results": len(results),
-                  "positive_candidate_seen": True, "motor_publishers": 0,
+                  "positive_candidate_seen": True, "ground_removed_input_verified": True, "motor_publishers": 0,
                   "fault_zero": True, "safety_zero": True, "stale_depth_zero": True,
                   "compute_ms": [r["compute_ms"] for r in results],
                   "fixture": "synthetic ROS sensors, real pinned whole brain; no hardware"}

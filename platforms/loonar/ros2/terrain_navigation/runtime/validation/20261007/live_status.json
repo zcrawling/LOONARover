@@ -1,0 +1,61 @@
+{
+  "stamp_ns": 1791373167219931625,
+  "counts": {
+    "/recording/mcu/tx": 1747,
+    "/recording/gateway/rx": 1,
+    "/recording/mcu/rx": 11839,
+    "/recording/imu/sample": 9615,
+    "/recording/motor/feedback": 1920,
+    "/rosout": 13,
+    "/robot_description": 1,
+    "/tf_static": 1,
+    "/parameter_events": 59,
+    "/loonar/fly/candidate_cmd_vel": 476,
+    "/loonar/fly/status": 25,
+    "/camera/image_raw/compressed": 126,
+    "/camera/timing": 126,
+    "/imu/accel": 1050,
+    "/imu/data": 1049,
+    "/imu/gravity": 1048,
+    "/imu/orientation_raw": 1047,
+    "/loonar/base/state": 1026,
+    "/loonar/safety/emergency_stop": 883,
+    "/loonar/stationary": 1039,
+    "/loonar/tof/raw_depth": 101,
+    "/loonar/tof/raw_amplitude": 101,
+    "/loonar/tof/raw_camera_info": 101,
+    "/recording/tof/frame": 101,
+    "/loonar/tof/amplitude": 101,
+    "/loonar/tof/camera_info": 101,
+    "/loonar/tof/depth": 101,
+    "/diagnostics": 38,
+    "/loonar/fly/terrain": 95,
+    "/loonar/fly/input": 29
+  },
+  "missing": [
+    "/wheel_states"
+  ],
+  "stale": [
+    "/loonar/tof/raw_depth",
+    "/loonar/tof/raw_amplitude",
+    "/loonar/tof/raw_camera_info",
+    "/camera/image_raw/compressed",
+    "/camera/timing",
+    "/imu/data",
+    "/imu/accel",
+    "/imu/gravity",
+    "/imu/orientation_raw",
+    "/loonar/base/state",
+    "/recording/tof/frame"
+  ],
+  "dds_lost": {},
+  "discovery_errors": {},
+  "journal_counts": {
+    "mcu-3194.journal": 13586,
+    "gateway-3194.journal": 1,
+    "camera-3226.journal": 126,
+    "tof-3260.journal": 101
+  },
+  "journal_pending_bytes": 0,
+  "free_bytes": 95304859648
+}

@@ -51,4 +51,27 @@ class Frames(unittest.TestCase):
         np.testing.assert_allclose(R[:,2],[1,0,0],atol=1e-12)
         np.testing.assert_allclose(R[:,0],[0,-1,0],atol=1e-12)
 
+    def test_tof_image_axes_and_lens_datum(self):
+        doc=ET.fromstring(xacro.process_file(str(PACKAGE/'urdf/loonar.urdf.xacro'),mappings={'publish_optical_frames':'true'}).toxml())
+        joints={j.find('child').get('link'):j for j in doc.findall('joint')}
+        def transform(name):
+            origin=joints[name].find('origin'); m=np.eye(4)
+            m[:3,3]=list(map(float,origin.get('xyz').split()))
+            m[:3,:3]=Rotation.from_euler('xyz',list(map(float,origin.get('rpy').split()))).as_matrix()
+            return m
+        optical=transform('tof_link')@transform('tof_optical_frame')
+        # Unrotated raw pixels: right is up, down is robot-right, depth is forward.
+        np.testing.assert_allclose(optical[:3,:3],[[0,0,1],[0,-1,0],[1,0,0]],atol=1e-12)
+        config=json.loads((PACKAGE/'config/cad_mounts.json').read_text())
+        data=json.loads((PLATFORM/'hardware/tf/cad_frames.json').read_text())
+        lens=next(r for r in data['frames'] if r['frame']=='cad_root_o19059_o18777_o18760_o18758')
+        expected=np.array(config['cad_to_base'])@np.array(lens['root_matrix'])
+        np.testing.assert_allclose(optical[:3,3],expected[:3,3],atol=1e-10)
+        np.testing.assert_allclose(optical[:3,3],[.05174,.00005,-.0075],atol=1e-10)
+
+    def test_tof_optical_offset_override(self):
+        doc=ET.fromstring(xacro.process_file(str(PACKAGE/'urdf/loonar.urdf.xacro'),mappings={'publish_optical_frames':'true','tof_optical_offset':'0.02 0.01 0.03'}).toxml())
+        j=next(j for j in doc.findall('joint') if j.find('child').get('link')=='tof_optical_frame')
+        self.assertEqual(j.find('origin').get('xyz'),'0.02 0.01 0.03')
+
 if __name__=='__main__':unittest.main()

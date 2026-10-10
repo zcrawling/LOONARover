@@ -8,8 +8,12 @@ import matplotlib.pyplot as plt
 ROOT=Path(__file__).resolve().parents[3]
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--trial',default='c_vision_비험지_cruise2')
+parser.add_argument('--gt-topic',default='/localization/dr')
+parser.add_argument('--gt-axis',choices=['x','y','-x','-y'],default='x',help='Axis in comparison.csv start-aligned coordinates')
+parser.add_argument('--title')
+parser.add_argument('--output-name',default='formula_comparison_skip_0p5')
 args=parser.parse_args()
-p=ROOT/'data/apriltag_gt'/args.trial;out=p/'formula_comparison_skip_0p5';out.mkdir(exist_ok=True)
+p=ROOT/'data/apriltag_gt'/args.trial;out=p/args.output_name;out.mkdir(exist_ok=True)
 w=next(json.loads(x) for x in (p/'rover/estimate/windows.jsonl').read_text().splitlines() if json.loads(x)['kind']=='acceleration')
 r=w['rows'];t0=np.array([x['t'] for x in r]);v0=np.array([x['vx_encoder'] for x in r]);a=np.array([x['a_corrected'] for x in r]);dt=np.diff(t0)
 assert (dt>0).all() and max(dt)<.08
@@ -23,7 +27,9 @@ c1=np.divide(np.cumsum(v*vi),den,out=np.full(len(t),np.nan),where=den>0)
 c2=np.divide(si,se,out=np.full(len(t),np.nan),where=se>0)
 # Same support policy as previous figure; no early invalid denominators plotted.
 valid=(den>=.02)&(se>=.01)&(np.arange(len(t))>=14)
-g=np.array([[float(x[k]) for k in ['t_ros','gt_x']] for x in csv.DictReader((p/'comparison.csv').open()) if x['topic']=='/localization/dr'])
+component='gt_'+args.gt_axis[-1]
+sign=-1 if args.gt_axis.startswith('-') else 1
+g=np.array([[float(x['t_ros']),sign*float(x[component])] for x in csv.DictReader((p/'comparison.csv').open()) if x['topic']==args.gt_topic])
 def interp_gt(q):
  i=np.searchsorted(g[:,0],q)
  if i<1 or i>=len(g) or g[i,0]-g[i-1,0]>.25:return np.nan
@@ -39,12 +45,13 @@ for c,color,label in [(c1,'#1864ab','C1'),(c2,'#d9480f','C2')]:
  axes[1].plot(tt,c-cg,color=color,lw=2,label=label)
 if np.isfinite(cg).any():axes[0].plot(tt,cg,color='#343a40',ls='--',label='AprilTag C_GT')
 else:axes[1].text(.5,.5,'AprilTag 기준값 누락: 오차 계산 불가',transform=axes[1].transAxes,ha='center')
-axes[0].set(ylabel='C',title=p.name.removeprefix('c_vision_').replace('_',' · ')+' | 초기 0.5초 제외')
+axes[0].set(ylabel='C',title=(args.title or p.name.removeprefix('c_vision_').replace('_',' · '))+' | 초기 0.5초 제외')
 axes[1].axhline(0,color='gray',ls=':');axes[1].set(ylabel='오차',xlabel='가속 시작 후 시간 (s)')
 for ax in axes:ax.grid(alpha=.2);ax.legend();ax.set_xlim(.5,2.55)
+axes[0].legend(loc='upper right');axes[1].legend(loc='upper left')
 fig.suptitle('누적 계산 구간 [0.5초, t]',fontsize=15)
-fig.savefig(out/'errors.png',dpi=160);fig.savefig(out/'errors.svg');plt.close(fig)
-summary=dict(trial=p.name,skip_s=.5,C1=float(c1[-1]),C2=float(c2[-1]),C_GT=float(cg[-1]),error_C1=float(c1[-1]-cg[-1]),error_C2=float(c2[-1]-cg[-1]),encoder_distance_m=float(se[-1]),GT_distance_m=float(gt[-1]),v_imu_at_cut=float(vi[0]),v_encoder_at_cut=float(v[0]),first_display_s=float(tt[valid][0]),method='C1/C2 sums/integrals start at 0.5s, boundary linearly interpolated. IMU velocity retains integration from departure: initial transient contribution NOT removed from initial velocity. No reset to zero, no encoder/GT velocity substitution. Same static-offset preprocessing, no new gravity correction. 0.5s cutoff supplied by user, not independently identified friction transition.')
+fig.savefig(out/'errors.png',dpi=160,bbox_inches='tight');fig.savefig(out/'errors.svg',bbox_inches='tight');plt.close(fig)
+summary=dict(trial=p.name,gt_topic=args.gt_topic,gt_axis=args.gt_axis,skip_s=.5,C1=float(c1[-1]),C2=float(c2[-1]),C_GT=float(cg[-1]),error_C1=float(c1[-1]-cg[-1]),error_C2=float(c2[-1]-cg[-1]),encoder_distance_m=float(se[-1]),GT_distance_m=float(gt[-1]),v_imu_at_cut=float(vi[0]),v_encoder_at_cut=float(v[0]),first_display_s=float(tt[valid][0]),method='C1/C2 sums/integrals start at 0.5s, boundary linearly interpolated. IMU velocity retains integration from departure: initial transient contribution NOT removed from initial velocity. No reset to zero, no encoder/GT velocity substitution. Uses saved corrected acceleration unchanged; no additional gravity correction. 0.5s cutoff supplied by user, not independently identified friction transition.')
 summary={k:(None if isinstance(v,float) and not np.isfinite(v) else v) for k,v in summary.items()}
 (out/'summary.json').write_text(json.dumps(summary,indent=2,ensure_ascii=False,allow_nan=False))
 with (out/'series.csv').open('w') as f:

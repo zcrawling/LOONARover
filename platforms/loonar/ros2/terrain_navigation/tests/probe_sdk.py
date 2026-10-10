@@ -14,7 +14,7 @@ import time
 def main():
     parser = argparse.ArgumentParser(__doc__)
     parser.add_argument("helper")
-    parser.add_argument("--seconds", type=float, default=20)
+    parser.add_argument("--seconds", type=float, default=60)
     args = parser.parse_args()
     child = subprocess.Popen([args.helper, "1"], stdout=subprocess.PIPE)
     selector = selectors.DefaultSelector()
@@ -25,14 +25,17 @@ def main():
     header = struct.Struct("<4IQ12d")
     started = time.monotonic()
     summary = {}
+    ended_early = False
     try:
         while time.monotonic() - started < args.seconds:
             if not selector.select(0.2):
                 if child.poll() is not None:
+                    ended_early = True
                     break
                 continue
             chunk = os.read(child.stdout.fileno(), 1024 * 1024)
             if not chunk:
+                ended_early = True
                 break
             buf.extend(chunk)
             while len(buf) >= header.size:
@@ -74,10 +77,14 @@ def main():
     summary.update(
         frames=frames,
         helper_exit=child.returncode,
+        ended_early=ended_early,
+        stream_seconds=round(last - first, 3) if frames > 1 else 0,
+        last_frame_age_s=round(time.monotonic() - last, 3) if last else None,
         hz=round((frames - 1) / (last - first), 2) if frames > 1 else 0,
     )
     print(json.dumps(summary, indent=2), flush=True)
-    return 0 if frames >= 10 and child.returncode == 0 else 1
+    return 0 if (frames >= 10 and child.returncode == 0 and not ended_early
+                 and time.monotonic() - last < 3) else 1
 
 
 if __name__ == "__main__":

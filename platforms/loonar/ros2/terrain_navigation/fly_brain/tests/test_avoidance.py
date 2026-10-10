@@ -22,7 +22,7 @@ def front(scene):
 
 
 def test_ground_and_small_step_remain_drivable():
-    for height, mode, cap in ((0, 'cruise', .2), (.02, 'low_step', .05)):
+    for height, mode, cap in ((0, 'cruise', .2), (.02, 'cruise', .2)):
         scene = surface(height)
         assert front(scene)['obstacle'] == 'none'
         assert not front(scene)['unknown_ground']
@@ -39,30 +39,29 @@ def test_measured_hazards_turn_before_body_reaches_them(height, kind):
     assert decision['mode'] == 'turn'
     cmd = Avoidance.command(dict(linear_mps=.2, angular_rps=0), decision)
     assert cmd['linear_mps'] == 0
-    assert abs(cmd['angular_rps']) == .5
+    assert abs(cmd['angular_rps']) == .3
 
 
-def test_missing_ground_is_unknown_and_scans_without_inventing_a_drop():
+def test_missing_ground_is_advisory_without_inventing_a_drop_or_stall():
     points = floor()
     scene = scene_from_points(points[points[:, 0] < .3])
     assert front(scene)['unknown_ground']
     assert front(scene)['obstacle'] == 'none'
     decision = Avoidance().update(scene, 0, '1')
-    assert decision['mode'] == 'scan'
-    assert decision['speed_cap_mps'] == 0
-    assert abs(Avoidance.command(dict(linear_mps=.2, angular_rps=0), decision)['angular_rps']) == .35
+    assert decision['mode'] == 'cruise'
+    assert Avoidance.command(dict(linear_mps=.2, angular_rps=.25), decision) == dict(linear_mps=.2, angular_rps=.25)
 
 
-def test_approach_slows_and_tonic_forward_stimulus_falls():
+def test_approach_has_one_motor_limiter_and_preserves_neural_walking_drive():
     decision = Avoidance().update(surface(.2, .55), 0, '1')
     assert decision['mode'] == 'approach'
-    assert 0 < decision['speed_cap_mps'] < .1
+    assert .1 <= decision['speed_cap_mps'] < .2
     features = dict(depth={s: dict(proximity=.5) for s in ('left', 'right')}, avoidance=decision)
     rates = rates_from_features(features, 150)
-    assert 0 < rates['DNp09_left'] == rates['DNp09_right'] < 75
+    assert rates['DNp09_left'] == rates['DNp09_right'] == 150
     features['avoidance'] = Avoidance().update(surface(.2), 0, '2')
     rates = rates_from_features(features, 150)
-    assert rates['DNp09_left'] == rates['DNp09_right'] == 0
+    assert rates['DNp09_left'] == rates['DNp09_right'] == 150
     assert rates['LC4_left'] > rates['LC4_right']  # tie selects right turn
 
 
@@ -105,8 +104,8 @@ def test_approach_rate_and_same_frame_not_recounted():
     adapter = Avoidance()
     adapter.update(surface(.2, .8), 0, '0')
     decision = adapter.update(surface(.2, .60), .1, '1')
-    assert decision['closing_mps'] > .3
-    assert decision['mode'] == 'turn'
+    assert 0 <= decision['closing_mps'] <= .2
+    assert decision['mode'] == 'cruise'  # a depth jump cannot invent high closing speed
     assert adapter.update(surface(0), .2, '1') == decision
 
 
@@ -135,7 +134,10 @@ def test_only_one_supported_wheel_path_is_unknown():
     scene = scene_from_points(points)
     assert front(scene)['unknown_ground']
     assert front(scene)['obstacle'] == 'none'
-    assert Avoidance().update(scene, 0, '0')['mode'] == 'scan'
+    decision = Avoidance().update(scene, 0, '0')
+    assert decision['mode'] == 'follow_surface'
+    assert decision['surface_heading_rad'] > 0
+    assert decision['speed_cap_mps'] == .2
 
 
 def test_actual_swept_footprint_distinguishes_near_wall_from_turn_room():
@@ -149,3 +151,24 @@ def test_floor_returns_sharing_a_wall_cell_do_not_block_turns():
     scene = scene_from_points(points)
     assert front(scene)['obstacle'] == 'wall'
     assert scene['turn_clear'] == dict(left=True, right=True)
+
+
+def test_full_forward_survives_neural_turn_on_open_path():
+    decision = Avoidance().update(surface(0), 0, '0')
+    assert Avoidance.command(dict(linear_mps=.2, angular_rps=.3), decision) == dict(linear_mps=.2, angular_rps=.3)
+
+
+def test_turn_releases_even_when_ground_is_not_continuously_visible():
+    adapter = Avoidance()
+    assert adapter.update(surface(.2), 0, '0')['mode'] == 'turn'
+    points = floor()
+    partial = scene_from_points(points[points[:, 0] < .3])
+    adapter.update(partial, .3, '1')
+    decision = adapter.update(partial, .5, '2')
+    assert decision['mode'] == 'cruise'
+    assert decision['speed_cap_mps'] == .2
+
+
+def test_unobserved_terrain_still_is_not_a_valid_scene():
+    decision = Avoidance().update(dict(ready=False), 0, '0')
+    assert Avoidance.command(dict(linear_mps=.2, angular_rps=.3), decision) == dict(linear_mps=0, angular_rps=0)

@@ -1,0 +1,31 @@
+{
+  "rx_frames": 21728,
+  "max_rx_gap_s": 0.015545914,
+  "p99_rx_gap_s": 0.01218055,
+  "rx_gaps_over_1s": 0,
+  "parser_errors_first": 0,
+  "parser_errors_last": 0,
+  "motion_commands": [],
+  "motor_status_counts": {
+    "0x0": 3681,
+    "0x23040000": 2,
+    "0x3000000": 4
+  },
+  "health_missing": 0,
+  "transports": {
+    "mcu-1543.transport.json": {
+      "received": 25212,
+      "dropped": 0,
+      "closed": true,
+      "last_sequence": 25212,
+      "attempted": 25212
+    },
+    "gateway-1543.transport.json": {
+      "received": 1,
+      "dropped": 0,
+      "closed": true,
+      "last_sequence": 1,
+      "attempted": 1
+    }
+  }
+}

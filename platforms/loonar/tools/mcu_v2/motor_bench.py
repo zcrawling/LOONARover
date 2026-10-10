@@ -162,6 +162,9 @@ def main():
                 commands.append(("recording-monitor", ["bash", str(tools / "run-recording-monitor.sh"),
                     str(runtime / "recording-status.json"), str(bag_dir)], None))
         for name, command, cwd in commands:
+            if name in ('backend', 'gateway') and Path('/etc/loonar/cpu-layout.json').exists():
+                cpu_exec = Path(__file__).resolve().parents[2] / 'ros2/terrain_navigation/runtime/cpu_exec.py'
+                command = [sys.executable, str(cpu_exec), 'control', '--', *command]
             log = open(runtime / f"{name}.log", "w")
             logs.append(log)
             children.append(subprocess.Popen(command, cwd=cwd, env=environment, stdout=log, stderr=subprocess.STDOUT))

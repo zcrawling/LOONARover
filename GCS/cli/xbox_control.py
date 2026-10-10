@@ -1,5 +1,5 @@
 """Focused-terminal Xbox Series USB controller; shares the running real GCS backend."""
-from motion_limits import MAX_ANGULAR, normalize_motion
+from motion_limits import MAX_LINEAR, MAX_ANGULAR, TRACK_M, normalize_motion
 import argparse
 import fcntl
 import math
@@ -16,10 +16,14 @@ import tty
 from backend.config import LOCAL_SOCKET
 from cli.common import request, safe
 
-EV_SYN, EV_ABS = 0, 3
+EV_SYN, EV_KEY, EV_ABS = 0, 1, 3
 SYN_REPORT, SYN_DROPPED = 0, 3
 LX, LY, LT, RX, RY, RT = range(6)
 AXES = (LX, LY, LT, RX, RY, RT)
+LB, RB = 0x136, 0x137  # Linux BTN_TL / BTN_TR.
+X, Y = 0x133, 0x134  # Linux BTN_NORTH / BTN_WEST (xpad X / Y).
+A, B = 0x130, 0x131  # Linux BTN_SOUTH / BTN_EAST.
+BUTTONS = (LB, RB, X, Y, A, B)
 EVENT = struct.Struct('@llHHi')
 ABSINFO = struct.Struct('@iiiiii')
 
@@ -40,6 +44,9 @@ class XboxDevice:
                 raise ValueError(f'{path}: Xbox 045e:0b12 장치가 아닙니다')
             self.info = {axis: ABSINFO.unpack(read_ioctl(self.fd, 0x40 + axis, 24)) for axis in AXES}
             self.values = {axis: info[0] for axis, info in self.info.items()}
+            keys = read_ioctl(self.fd, 0x18, 40)  # EVIOCGKEY, includes BTN_TR.
+            self.values.update({button: bool(keys[button // 8] & (1 << (button % 8)))
+                                for button in BUTTONS})
             self.buffer = b''
             for axis in AXES:
                 if self.info[axis][2] <= self.info[axis][1]:
@@ -50,13 +57,15 @@ class XboxDevice:
 
     def normalized(self):
         result = {}
-        for axis, raw in self.values.items():
+        for axis in AXES:
+            raw = self.values[axis]
             low, high = self.info[axis][1:3]
             if axis in (LT, RT):
                 result[axis] = max(0.0, min(1.0, (raw - low) / (high - low)))
             else:
                 # xpad's signed axes are centered at zero, with asymmetric endpoints.
                 result[axis] = max(-1.0, min(1.0, raw / (high if raw >= 0 else -low)))
+        result.update({button: bool(self.values.get(button, 0)) for button in BUTTONS})
         return result
 
     def reports(self):
@@ -73,6 +82,8 @@ class XboxDevice:
                 raise OSError('컨트롤러 이벤트 유실: STOP 후 다시 실행하세요')
             if kind == EV_ABS and code in AXES:
                 self.values[code] = value
+            if kind == EV_KEY and code in BUTTONS:
+                self.values[code] = bool(value)
             if kind == EV_SYN and code == SYN_REPORT:
                 reports.append(self.normalized())
         return reports
@@ -111,12 +122,26 @@ class Controls:
         self.manual = False
         self.focused = False
         self.down = {axis: initial.get(axis, 0) > .25 for axis in (LT, RT)}
+        self.button_down = {button: bool(initial.get(button, 0)) for button in BUTTONS}
+        self.k_steps = 5
+        self.phase_deg = 180
+        self.frequency_steps = 10
+        self.wave_start = None
+
+    @property
+    def k(self):
+        return self.k_steps / 10
+
+    @property
+    def f(self):
+        return self.frequency_steps / 10
 
     def focus(self, value):
         stop = self.manual and not value
         self.focused = value
         if not value:
             self.manual = False
+            self.wave_start = None
         return stop
 
     def update(self, axes):
@@ -131,18 +156,51 @@ class Controls:
                 if self.focused:
                     if axis == LT:
                         self.mode = 'B' if self.mode == 'A' else 'A'
+                        self.wave_start = None
                     else:
                         self.manual = not self.manual
                         actions.append('MANUAL' if self.manual else 'STOP')
+        adjustment = 0
+        phase_adjustment = 0
+        frequency_adjustment = 0
+        for button, step in ((LB, -1), (RB, 1), (X, -10), (Y, 10), (A, -1), (B, 1)):
+            pressed = bool(axes.get(button, 0))
+            if pressed and not self.button_down[button] and self.focused:
+                if button in (LB, RB):
+                    adjustment += step
+                elif button in (X, Y):
+                    phase_adjustment += step
+                else:
+                    frequency_adjustment += step
+            self.button_down[button] = pressed
+        self.k_steps = max(0, min(10, self.k_steps + adjustment))
+        self.phase_deg = max(0, min(360, self.phase_deg + phase_adjustment))
+        self.frequency_steps = max(0, min(20, self.frequency_steps + frequency_adjustment))
+        if not self.manual or abs(axes[RY]) <= self.deadzone:
+            self.wave_start = None
         return actions
 
-    def motion(self):
+    def motion(self, now=None):
         if not self.focused or not self.manual:
+            self.wave_start = None
             return 0.0, 0.0
-        linear = -stick(self.axes[LY], self.deadzone, maximum=0.4)
+        linear = -stick(self.axes[LY], self.deadzone, maximum=MAX_LINEAR)
         if self.mode == 'A':
             angular = -stick(self.axes[RX], self.deadzone, maximum=MAX_ANGULAR)
             return (0.0, angular) if angular else (linear, 0.0)
+        x = -stick(self.axes[RY], self.deadzone, maximum=MAX_LINEAR)
+        if x:
+            now = time.monotonic() if now is None else now
+            if self.wave_start is None:
+                self.wave_start = now
+            phase = 2 * math.pi * self.f * (now - self.wave_start)
+            left = x + self.k * x * math.sin(phase)
+            right = x + self.k * x * math.sin(phase + math.radians(self.phase_deg % 360))
+            # Scale wheels together before converting to the backend's v/w command.
+            scale = max(1.0, abs(left) / MAX_LINEAR, abs(right) / MAX_LINEAR)
+            return normalize_motion((left + right) / (2 * scale),
+                                    (right - left) / (TRACK_M * scale))
+        self.wave_start = None
         angular = -stick(self.axes[LX], self.deadzone, maximum=MAX_ANGULAR) if linear else 0.0
         return normalize_motion(linear, angular)
 
@@ -197,14 +255,17 @@ class Output:
             self.send('STOP')
 
 
-def render(device, controls, output, rover):
-    v, w = controls.motion()
-    lines = [f'XBOX | 주행모드: {controls.mode} | 조종: {"MANUAL" if controls.manual else "STOP"}',
+def render(device, controls, output, rover, now=None):
+    v, w = controls.motion(now)
+    lines = [f'XBOX | 주행모드: {controls.mode} | 조종: {"MANUAL" if controls.manual else "STOP"} | k={controls.k:.1f} | c={controls.phase_deg}° | f={controls.f:.1f}Hz',
              f'터미널 포커스: {"ON" if controls.focused else "OFF / 다른 창으로 전환 후 돌아오세요"}',
              f'로버 상태: {rover}', f'선속도 {v:+.3f} m/s | 각속도 {w:+.3f} rad/s',
              'LT: A/B 전환  RT: STOP/MANUAL 전환  Q/Ctrl+C: 정지 후 종료',
              'A: 왼쪽 전후 직진 / 오른쪽 좌우 제자리 회전 (회전 우선)',
-             'B: 왼쪽 전후 + 좌우 조향 / 오른쪽 사용 안 함',
+             'B: 왼쪽 전후 + 좌우 조향 / 오른쪽 상하: f Hz 좌우 속도 변조 (우선)',
+             'LB: k -0.1 / RB: k +0.1 (0~1, 기본 0.5)',
+             'X: c -10° / Y: c +10° (0~360°, 기본 180°)',
+             'A 버튼: f -0.1Hz / B 버튼: f +0.1Hz (0~2Hz, 기본 1Hz)',
              '포커스 이탈·장치 분리 시 STOP. 복귀 후 RT로 MANUAL 재선택.',
              f'장치: {device.path}', f'전송: {output.last}']
     print('\x1b[H' + '\r\n'.join('\x1b[2K' + safe(line) for line in lines) + '\x1b[J', end='', flush=True)
@@ -265,9 +326,9 @@ def run(args):
                         output.stop()
                     next_state = now + .5
                 if controls.focused and controls.manual and now >= next_send:
-                    output.send('MANUAL', controls.motion())
+                    output.send('MANUAL', controls.motion(now))
                     next_send = now + .1
-                render(device, controls, output, rover)
+                render(device, controls, output, rover, now)
         finally:
             try:
                 output.stop()

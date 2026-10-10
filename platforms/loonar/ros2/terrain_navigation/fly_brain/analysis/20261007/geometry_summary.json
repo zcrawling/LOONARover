@@ -1,0 +1,460 @@
+[
+  {
+    "session": "capture_20261007_154842_097619",
+    "hypotheses": {
+      "0": {
+        "frames": 33,
+        "ready": 33,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 33
+        },
+        "obstacles": {
+          "wall": 33
+        },
+        "floor_height_m": []
+      },
+      "-90": {
+        "frames": 33,
+        "ready": 33,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 33
+        },
+        "obstacles": {
+          "drop": 33
+        },
+        "floor_height_m": []
+      },
+      "90": {
+        "frames": 33,
+        "ready": 33,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 33
+        },
+        "obstacles": {
+          "wall": 33
+        },
+        "floor_height_m": []
+      },
+      "180": {
+        "frames": 33,
+        "ready": 33,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 33
+        },
+        "obstacles": {
+          "wall": 33
+        },
+        "floor_height_m": []
+      }
+    }
+  },
+  {
+    "session": "capture_20261007_155314_866737",
+    "hypotheses": {
+      "0": {
+        "frames": 35,
+        "ready": 31,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 30,
+          "no_turn_room": 1
+        },
+        "obstacles": {
+          "wall": 31
+        },
+        "floor_height_m": []
+      },
+      "-90": {
+        "frames": 35,
+        "ready": 32,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 32
+        },
+        "obstacles": {
+          "drop": 28,
+          "wall": 2,
+          "none": 1,
+          "step_up": 1
+        },
+        "floor_height_m": []
+      },
+      "90": {
+        "frames": 35,
+        "ready": 31,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 29,
+          "no_turn_room": 2
+        },
+        "obstacles": {
+          "wall": 31
+        },
+        "floor_height_m": []
+      },
+      "180": {
+        "frames": 35,
+        "ready": 32,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 32
+        },
+        "obstacles": {
+          "wall": 31,
+          "none": 1
+        },
+        "floor_height_m": []
+      }
+    }
+  },
+  {
+    "session": "capture_20261007_155814_845240",
+    "hypotheses": {
+      "0": {
+        "frames": 36,
+        "ready": 36,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 36
+        },
+        "obstacles": {
+          "step_up": 1,
+          "wall": 35
+        },
+        "floor_height_m": []
+      },
+      "-90": {
+        "frames": 36,
+        "ready": 36,
+        "floor_measured": 36,
+        "modes": {
+          "turn": 36
+        },
+        "obstacles": {
+          "wall": 36
+        },
+        "floor_height_m": [
+          -0.12005290432248503,
+          -0.11869157507272297,
+          -0.11190786923405292,
+          -0.11711819377384818,
+          -0.11773497759934407,
+          -0.1149163970682797,
+          -0.11647930339428236,
+          -0.1136925197848651,
+          -0.11702552666299251,
+          -0.11848459649443596,
+          -0.11802683700175076,
+          -0.11380383033359516,
+          -0.11716032381262398,
+          -0.11673831522536536,
+          -0.11884983897606641,
+          -0.11634568706777941,
+          -0.1118531279462186,
+          -0.12297081584835404,
+          -0.11694835306558139,
+          -0.11686077387856432,
+          -0.11841504239085644,
+          -0.11720276635907993,
+          -0.11820745144142726,
+          -0.11749382249885723,
+          -0.11297098491694478,
+          -0.12198639427217656,
+          -0.11858516163440964,
+          -0.1124617565516811,
+          -0.12205927025251079,
+          -0.11789337559192546,
+          -0.11800784573885925,
+          -0.11748866155209611,
+          -0.1084083747318838,
+          -0.0972478819630096,
+          -0.11709565839475065,
+          -0.11795746496705797
+        ]
+      },
+      "90": {
+        "frames": 36,
+        "ready": 36,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 36
+        },
+        "obstacles": {
+          "wall": 36
+        },
+        "floor_height_m": []
+      },
+      "180": {
+        "frames": 36,
+        "ready": 36,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 36
+        },
+        "obstacles": {
+          "wall": 36
+        },
+        "floor_height_m": []
+      }
+    }
+  },
+  {
+    "session": "capture_20261007_160348_509053",
+    "hypotheses": {
+      "0": {
+        "frames": 33,
+        "ready": 33,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 33
+        },
+        "obstacles": {
+          "step_up": 1,
+          "wall": 32
+        },
+        "floor_height_m": []
+      },
+      "-90": {
+        "frames": 33,
+        "ready": 33,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 33
+        },
+        "obstacles": {
+          "step_up": 33
+        },
+        "floor_height_m": []
+      },
+      "90": {
+        "frames": 33,
+        "ready": 33,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 33
+        },
+        "obstacles": {
+          "wall": 33
+        },
+        "floor_height_m": []
+      },
+      "180": {
+        "frames": 33,
+        "ready": 33,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 33
+        },
+        "obstacles": {
+          "wall": 33
+        },
+        "floor_height_m": []
+      }
+    }
+  },
+  {
+    "session": "capture_20261007_161432_555813",
+    "hypotheses": {
+      "0": {
+        "frames": 8,
+        "ready": 8,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 8
+        },
+        "obstacles": {
+          "wall": 8
+        },
+        "floor_height_m": []
+      },
+      "-90": {
+        "frames": 8,
+        "ready": 8,
+        "floor_measured": 0,
+        "modes": {
+          "cruise": 8
+        },
+        "obstacles": {
+          "none": 8
+        },
+        "floor_height_m": []
+      },
+      "90": {
+        "frames": 8,
+        "ready": 8,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 8
+        },
+        "obstacles": {
+          "wall": 8
+        },
+        "floor_height_m": []
+      },
+      "180": {
+        "frames": 8,
+        "ready": 8,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 8
+        },
+        "obstacles": {
+          "wall": 8
+        },
+        "floor_height_m": []
+      }
+    }
+  },
+  {
+    "session": "capture_20261007_161505_274231",
+    "hypotheses": {
+      "0": {
+        "frames": 35,
+        "ready": 35,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 35
+        },
+        "obstacles": {
+          "wall": 35
+        },
+        "floor_height_m": []
+      },
+      "-90": {
+        "frames": 35,
+        "ready": 35,
+        "floor_measured": 17,
+        "modes": {
+          "cruise": 22,
+          "approach": 2,
+          "follow_surface": 2,
+          "turn": 9
+        },
+        "obstacles": {
+          "none": 21,
+          "step_up": 1,
+          "wall": 12,
+          "drop": 1
+        },
+        "floor_height_m": [
+          -0.1217893505073397,
+          -0.11956984436227776,
+          -0.11420523785937839,
+          -0.12103995507586963,
+          -0.12267539119560995,
+          -0.11908961966744153,
+          -0.11980420180185147,
+          -0.12242379413002015,
+          -0.12026475652917094,
+          -0.11780342151880335,
+          -0.11099236364146266,
+          -0.11189434378466653,
+          -0.1167793431401186,
+          -0.11310138939782129,
+          -0.11446064881665058,
+          -0.11068837287754718,
+          -0.1218347748242804
+        ]
+      },
+      "90": {
+        "frames": 35,
+        "ready": 35,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 35
+        },
+        "obstacles": {
+          "wall": 35
+        },
+        "floor_height_m": []
+      },
+      "180": {
+        "frames": 35,
+        "ready": 35,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 35
+        },
+        "obstacles": {
+          "wall": 33,
+          "step_up": 2
+        },
+        "floor_height_m": []
+      }
+    }
+  },
+  {
+    "session": "capture_20261007_161712_443193",
+    "hypotheses": {
+      "0": {
+        "frames": 37,
+        "ready": 37,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 37
+        },
+        "obstacles": {
+          "wall": 37
+        },
+        "floor_height_m": []
+      },
+      "-90": {
+        "frames": 37,
+        "ready": 37,
+        "floor_measured": 12,
+        "modes": {
+          "approach": 28,
+          "turn": 7,
+          "cruise": 2
+        },
+        "obstacles": {
+          "step_up": 31,
+          "drop": 6
+        },
+        "floor_height_m": [
+          -0.10598567660594665,
+          -0.08846329010336876,
+          -0.09663310677869759,
+          -0.10221333519261405,
+          -0.07886510509759767,
+          -0.10202799185690187,
+          -0.09704604442204368,
+          -0.10561771663890773,
+          -0.0831846330977277,
+          -0.09403326996410927,
+          -0.09775534928734333,
+          -0.09201885616521038
+        ]
+      },
+      "90": {
+        "frames": 37,
+        "ready": 37,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 31,
+          "no_turn_room": 6
+        },
+        "obstacles": {
+          "wall": 37
+        },
+        "floor_height_m": []
+      },
+      "180": {
+        "frames": 37,
+        "ready": 37,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 37
+        },
+        "obstacles": {
+          "wall": 37
+        },
+        "floor_height_m": []
+      }
+    }
+  }
+]

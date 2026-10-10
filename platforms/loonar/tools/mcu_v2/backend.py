@@ -5,6 +5,7 @@ import fcntl
 import json
 import logging
 import math
+import os
 from pathlib import Path
 import signal
 import socket
@@ -15,6 +16,8 @@ from .buffer import ReceiveBuffer
 from .link import Link
 from .wire import Kind
 from .gyro_attitude import GyroAttitude
+from .monitor import StatusPublisher
+from .motor_sample import decode_motor
 
 HEALTH_HEADER = struct.Struct("<4sBBHIIQQII")
 GATEWAY_HEADER = struct.Struct("<IHHI")
@@ -78,6 +81,9 @@ class Gateway:
             if not raw:
                 self.close()
                 return (0.0, 0.0)
+            if os.environ.get("LOONAR_CAPTURE_SESSION"):
+                from loonar_recording.journal import emit
+                emit('gateway', 'rx', raw)
             if len(raw) != 29:
                 continue
             magic, version, kind, size = GATEWAY_HEADER.unpack_from(raw)
@@ -147,7 +153,7 @@ def health_packet(device, link=None, connected=False):
     )
 
 
-def serve(device, args, stop, received):
+def serve(device, args, stop, received, monitor=None):
     wheels = geometry(device)
     link = Link(device)
     gateway = Gateway(args.gateway) if device["role"] == "control" else None
@@ -161,6 +167,8 @@ def serve(device, args, stop, received):
         started = time.monotonic()
         health_missing = False
         reported_missing = reported_full = 0
+        motor = None
+        motor_mono = None
         while not stop[0]:
             now = time.monotonic()
             if now - heartbeat >= 0.1:
@@ -170,6 +178,14 @@ def serve(device, args, stop, received):
                 link.timesync()
                 sync = now
             for f in link.poll():
+                if f.kind == Kind.MOTOR and len(f.payload) == 64:
+                    motor = decode_motor(f.payload)
+                    # Replayed old snapshots are not live readings.
+                    motor_mono = None
+                    if link.offset_ns is not None:
+                        age = (time.time_ns() - (f.stamp_us * 1000 + link.offset_ns)) / 1e9
+                        if age >= -.02:
+                            motor_mono = time.monotonic() - max(0, age)
                 if f.kind in (Kind.IMU, Kind.MOTOR):
                     received.accept(f)
                     if gateway and link.offset_ns is not None:
@@ -211,6 +227,14 @@ def serve(device, args, stop, received):
                     received.pop()
             if now - health_sent >= 0.2:
                 health.send(health_packet(device, link, True))
+                if monitor is not None:
+                    temp = struct.unpack_from('<f', link.health.payload, 16)[0] if link.health else None
+                    monitor.update(online=bool(link.health and now-link.last_health < .5),
+                        temperature_c=temp if temp is not None and math.isfinite(temp) else None,
+                        health_mono=link.last_health or None,
+                        last_rx_ns=link.last_rx_ns, last_tx_ns=link.last_tx_ns,
+                        last_rx_mono=link.last_rx_mono, last_tx_mono=link.last_tx_mono,
+                        motor=motor, motor_mono=motor_mono, error=None)
                 health_sent = now
                 if (
                     received.missing != reported_missing
@@ -243,6 +267,8 @@ def serve(device, args, stop, received):
             health_missing = missing
             time.sleep(0.001)
     finally:
+        if monitor is not None:
+            monitor.update(online=False)
         health.send(health_packet(device, link, False))
         link.close()
         if gateway:
@@ -269,11 +295,13 @@ def main():
     stop = [False]
     for sig in (signal.SIGINT, signal.SIGTERM):
         signal.signal(sig, lambda *_: stop.__setitem__(0, True))
+    monitor = StatusPublisher(args.role).start()
     while not stop[0]:
         try:
-            serve(device, args, stop, received)
+            serve(device, args, stop, received, monitor)
         except (OSError, ValueError, TimeoutError) as error:
             logging.error("%s: %s", args.role, error)
+            monitor.update(online=False, error=str(error))
             sink = Sink(args.health)
             sink.send(health_packet(device))
             sink.close()
@@ -281,6 +309,8 @@ def main():
                 if stop[0]:
                     break
                 time.sleep(0.1)
+    monitor.update(online=False)
+    monitor.close()
     lock.close()
 
 

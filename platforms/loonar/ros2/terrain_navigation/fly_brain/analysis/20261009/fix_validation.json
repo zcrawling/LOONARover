@@ -1,0 +1,100 @@
+{
+  "date": "2026-10-09",
+  "main_bag": "capture_20261009_140206_482217",
+  "findings": {
+    "motor_samples": 6638,
+    "motor_errors": {
+      "0": 6638
+    },
+    "moving_samples": 0,
+    "motor_targets_nonzero": 0,
+    "terrain_age_s": {
+      "n": 180,
+      "p10": 0.2596931219100952,
+      "median": 0.3564901351928711,
+      "p90": 0.5039313793182373,
+      "max": 0.7912983894348145
+    },
+    "terrain_over_300ms": 139,
+    "terrain_frames": 180,
+    "brain_inputs": 22,
+    "brain_results": 21,
+    "tof_last_frame_s": 46.34651184082031,
+    "sdk_error": "CameraError 3 = NoSuchDevice in bundled CubeEyeCamera.h",
+    "usb_disconnect_physical_cause": "not identifiable from bag"
+  },
+  "changes": [
+    "drive terrain-based input removes redundant raw-depth/sparse-image veto",
+    "drive terrain/base age budget 1.0s; original sensor-to-result age budget 1.5s",
+    "transient zero output preserves AUTO selection; no repeated mode handshake",
+    "cleared motor fault and replacement/missing worker label do not latch drive off",
+    "SDK helper restart after exit/EOF or 3s stream loss; no overlapping SDK owners"
+  ],
+  "retained": [
+    "Ctrl+C/explicit halt",
+    "maximum forward speed 0.2m/s",
+    "measured wall/step/drop avoidance",
+    "zero output on complete terrain/result loss or active motor fault"
+  ],
+  "tests": {
+    "unit": "55 passed",
+    "drive_ros": {
+      "passed": true,
+      "nonzero_seen": true,
+      "bounded_speed": true,
+      "proximity_advisory_does_not_stop": true,
+      "missing_scene_monitor_does_not_stop": true,
+      "brain_loss_stop": true,
+      "fresh_terrain_without_duplicate_depth": true,
+      "terrain_loss_stop": true,
+      "recorded_half_second_latency_drives": true,
+      "wall_step_drop_turn": true,
+      "resumes_open_path": true,
+      "maximum_radps": 0.4,
+      "partial_depth_can_avoid": true,
+      "unknown_low_step_neural_turn_preserve_forward": true,
+      "flat_surface_steers_without_speed_cap": true,
+      "obstacle_overrides_flat_goal": true,
+      "fault_auto_recovers": true,
+      "pc_halt_latched": true,
+      "maximum_mps": 0.2,
+      "sigint_gateway_stop_ms": 5.611360997136217,
+      "exit_code": 0,
+      "hardware": false
+    },
+    "sdk_recovery": "exit and hung helper recovery passed; synthetic SDK, no USB",
+    "shadow_ros": "passed",
+    "recorded_terrain_replay": {
+      "old_300ms": {
+        "terrain_frames": 180,
+        "terrain_accepted": 41,
+        "input_requests_on_frame_arrival": 41,
+        "decisions": {
+          "follow_surface": 1,
+          "cruise": 40
+        }
+      },
+      "new_1000ms": {
+        "terrain_frames": 180,
+        "terrain_accepted": 180,
+        "input_requests_on_frame_arrival": 180,
+        "decisions": {
+          "cruise": 175,
+          "follow_surface": 5
+        }
+      },
+      "scope": "Recorded terrain replay through actual callbacks; no new neural inference, motor commands, or simulated distance. 46s ToF disappearance is not repaired by replay."
+    }
+  },
+  "deployment": {
+    "pi_reachable": false,
+    "error": "SSH: No route to host",
+    "copied_to_pi": false,
+    "physical_motion_tested": false
+  },
+  "sha256": {
+    "fly_brain/loonar_fly/body_node.py": "b3bc187615cd329b0ba706370bfb2bbdf63c4ccce89cba5d0689632fb63db700",
+    "fly_brain/loonar_fly/drive_node.py": "ba9bddab5a3a01c13ecd7e99ebb743653e5b8b1014eaffab74154ed08c3fe148",
+    "loonar_tof_adapter/scripts/tof_adapter": "002230aad95b63d395f368cf73c99ee0953cffaefaecfca3b2cff9f631d6f0ce"
+  }
+}

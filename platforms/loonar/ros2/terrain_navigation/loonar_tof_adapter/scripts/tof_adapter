@@ -54,18 +54,9 @@ class Adapter(Runtime):
                 raise ValueError("SDK acquisition cannot use simulated time")
             if not self.p["helper"]:
                 raise ValueError("set helper to installed cubeeye_capture")
-            read_fd, write_fd = os.pipe()
-            self.child = subprocess.Popen(
-                [self.p["helper"], str(write_fd)],
-                pass_fds=(write_fd,),
-                stderr=subprocess.PIPE,
-            )
-            os.close(write_fd)
-            self.pipe = os.fdopen(read_fd, "rb")
-            self.thread = threading.Thread(target=self.read_sdk, daemon=True)
-            self.thread.start()
-            self.stderr_thread = threading.Thread(target=self.read_stderr, daemon=True)
-            self.stderr_thread.start()
+            self.sdk_restarts = 0
+            self.sdk_retry_at = 0.0
+            self.start_sdk()
             self.create_timer(0.005, self.drain)
             self.create_timer(0.5, self.sdk_health)
         elif self.p["source"] == "topics":
@@ -86,6 +77,45 @@ class Adapter(Runtime):
             )
         else:
             raise ValueError("source must be topics or sdk")
+
+    def start_sdk(self):
+        self.sdk_error = None
+        self.sdk_stderr = ""
+        self.sdk_received = None
+        self.sdk_started = time.monotonic()
+        while not self.q.empty():
+            self.q.get_nowait()
+        read_fd, write_fd = os.pipe()
+        try:
+            self.child = subprocess.Popen([self.p["helper"], str(write_fd)],
+                pass_fds=(write_fd,), stderr=subprocess.PIPE)
+        except Exception:
+            os.close(read_fd)
+            raise
+        finally:
+            os.close(write_fd)
+        self.pipe = os.fdopen(read_fd, "rb")
+        self.thread = threading.Thread(target=self.read_sdk, daemon=True)
+        self.stderr_thread = threading.Thread(target=self.read_stderr, daemon=True)
+        self.thread.start()
+        self.stderr_thread.start()
+
+    def stop_sdk(self):
+        if self.child.poll() is None:
+            self.child.terminate()
+            try:
+                self.child.wait(timeout=.5)
+            except subprocess.TimeoutExpired:
+                self.child.kill()
+                self.child.wait()
+        self.thread.join(timeout=.5)
+        self.stderr_thread.join(timeout=.5)
+        # Never overlap USB owners or let an old reader touch a new pipe.
+        if self.thread.is_alive() or self.stderr_thread.is_alive():
+            return False
+        self.child.stderr.close()
+        self.pipe.close()
+        return True
 
     def set_info(self, m):
         self.info = m
@@ -144,12 +174,22 @@ class Adapter(Runtime):
             self.get_logger().error(reason)
             self.sdk_health_message = reason
         self.report(reason, True)
+        now = time.monotonic()
+        stalled = now - (self.sdk_received if self.sdk_received is not None else self.sdk_started)
+        restart = code is not None or self.sdk_error or stalled > (3.0 if self.sdk_received is not None else 30.0)
+        if restart and not self.closed and now >= self.sdk_retry_at:
+            self.sdk_retry_at = now + 2.0
+            if self.stop_sdk():
+                self.sdk_restarts += 1
+                self.get_logger().warning(f"Restarting ToF SDK helper #{self.sdk_restarts}: {reason}")
+                self.start_sdk()
 
     def read_sdk(self):
         try:
             previous = 0
             while not self.closed:
-                header = struct.unpack("<4IQ12d", self.read_exact(120))
+                header_bytes = self.read_exact(120)
+                header = struct.unpack("<4IQ12d", header_bytes)
                 magic, w, h, seq, host_stamp, *cal = header
                 if (
                     magic != 0x4C544F46
@@ -160,6 +200,9 @@ class Adapter(Runtime):
                     raise ValueError("invalid SDK packet")
                 previous = seq
                 raw = self.read_exact(w * h * 4)
+                if os.environ.get("LOONAR_CAPTURE_SESSION"):
+                    from loonar_recording.journal import emit
+                    emit('tof', 'sdk_frame', header_bytes + raw)
                 self.sdk_received = time.monotonic()
                 stamp = self.get_clock().now().to_msg()
                 if (
@@ -314,16 +357,7 @@ class Adapter(Runtime):
     def destroy_node(self):
         self.closed = True
         if self.child:
-            self.child.terminate()
-            try:
-                self.child.wait(timeout=3)
-            except subprocess.TimeoutExpired:
-                self.child.kill()
-                self.child.wait()
-            self.thread.join(timeout=1)
-            self.stderr_thread.join(timeout=1)
-            self.child.stderr.close()
-            self.pipe.close()
+            self.stop_sdk()
         return super().destroy_node()
 
 

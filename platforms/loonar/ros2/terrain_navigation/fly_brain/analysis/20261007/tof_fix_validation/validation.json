@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-07",
+  "deployed_to_pi": false,
+  "changes": {
+    "tof_roll_rad": -1.5707963267948966,
+    "optical_xyz_m": [
+      0.05174,
+      5e-05,
+      -0.0075
+    ],
+    "lens_forward_offset_m": 0.01599,
+    "lens_position_basis": "CAD AG12847 occurrence 18758 datum; NOT measured optical principal point",
+    "frame_dropped": "continue; counted",
+    "transport": "one in-flight packet, one latest pending packet, owned SDK buffer copies; counted replacements"
+  },
+  "tests": {
+    "description_unit_tests": 7,
+    "cpp_transport": "PASS: recoverable errors, bounded latest queue, packet integrity, EPIPE, stalled shutdown",
+    "vendor_sdk_header_compile": "PASS x86 syntax only; actual ARM SDK linking not tested",
+    "jazzy_colcon_build": "PASS loonar_description, loonar_bringup, loonar_tof_adapter (without ARM SDK)",
+    "jazzy_ctest": "1/1 PASS",
+    "ros_adapter_tf_launch": "PASS two nodes; composed optical translation/rotation, IMU rotation, clean shutdown",
+    "sdk_probe": "PASS simulated premature exit rejected; continuous stream accepted",
+    "diff_check": "PASS"
+  },
+  "replay": {
+    "sessions": 7,
+    "sample_rule": "every 8th raw ToF frame; nearest gravity within 60 ms; unchanged planner; source URDF used for corrected TF",
+    "frames": 217,
+    "old_ready": 213,
+    "corrected_ready": 214,
+    "old_floor_measured": 0,
+    "corrected_floor_measured": 106,
+    "drive_sessions": {
+      "161505": {
+        "old_forward_capable": 0,
+        "corrected_forward_capable": 35,
+        "frames": 35
+      },
+      "161712": {
+        "old_forward_capable": 0,
+        "corrected_forward_capable": 30,
+        "frames": 37
+      }
+    }
+  },
+  "limitations": [
+    "Pi unavailable; no hardware USB endurance, ARM linking or driving validation.",
+    "Ground contact height, pitch/yaw residual, and optical principal point are unmeasured.",
+    "Floor detections and forward-capable decisions are offline algorithm outputs, not ground truth success. Some sessions still have no floor fit.",
+    "Full eight-node smoke test could not start existing perception binary: test image missing libgrid_map_msgs__rosidl_typesupport_cpp.so. The adapter/TF subset was built and passed with 512 MiB container shared memory.",
+    "Recording under overload may skip pending frames; sequence gaps and replacement counters expose loss."
+  ]
+}

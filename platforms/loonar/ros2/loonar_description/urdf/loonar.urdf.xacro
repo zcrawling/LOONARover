@@ -4,9 +4,9 @@
 <xacro:arg name="imu_xyz" default="0.03575 0 -0.057"/>
 <xacro:arg name="imu_rpy" default="0 0 1.5707963267948966"/>
 <xacro:arg name="tof_xyz" default="0.03575 0.0000500000471 -0.0075"/>
-<xacro:arg name="tof_rpy" default="0 0 0"/>
+<xacro:arg name="tof_rpy" default="-1.5707963267948966 0 0"/>
 <xacro:arg name="publish_optical_frames" default="false"/>
-<xacro:arg name="tof_optical_offset" default="0 0 0"/>
+<xacro:arg name="tof_optical_offset" default="0.01599 0 0"/>
 <xacro:arg name="camera_optical_xyz" default="0 0 0"/>
 <xacro:arg name="camera_optical_rpy" default="0 0 0"/>
 <link name="base_link"/>

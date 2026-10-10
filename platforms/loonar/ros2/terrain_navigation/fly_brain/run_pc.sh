@@ -23,7 +23,7 @@ docker image inspect loonar-fly-brain:783 >/dev/null 2>&1 || {
 mkdir -p "$FLY_DIR/log" "$FLY_DIR/cache"
 # Host networking is necessary for discovery with the physical Pi. Only small
 # feature packets cross DDS; full depth images stay on the Pi.
-exec docker run --rm --init --network host --name loonar-fly-brain \
+exec docker run --rm --init --network host --name "${LOONAR_FLY_CONTAINER:-loonar-fly-brain}" \
   --user "$(id -u):$(id -g)" -e ROS_LOG_DIR=/fly/log/ros \
   -e ROS_DOMAIN_ID="${ROS_DOMAIN_ID:-0}" -e ROS_LOCALHOST_ONLY=0 \
   -v "$FLY_DIR:/fly" loonar-fly-brain:783 \

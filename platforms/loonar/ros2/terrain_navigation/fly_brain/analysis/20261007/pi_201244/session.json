@@ -1,0 +1,17 @@
+{
+  "start_ns": 1791371564925212157,
+  "mode": "fly",
+  "session": "/home/loonar/loonar-bags/capture_20261007_201244_924354",
+  "camera_requested_fps": 30,
+  "manual_endpoint": "Pi:7444",
+  "ros_domain_id": "0",
+  "hardware_motion_started_by_recorder": false,
+  "capture_started_ns": 1791371565950996320,
+  "capture_stopped_ns": 1791371667473349687,
+  "end_ns": 1791371677280976343,
+  "forced_termination": [],
+  "exit_codes": {
+    "recorder": 0,
+    "stack": 0
+  }
+}

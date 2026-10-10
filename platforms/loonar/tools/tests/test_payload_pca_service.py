@@ -6,14 +6,25 @@ import tempfile
 import time
 from pathlib import Path
 import unittest
+import sys
 from unittest import mock
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 spec = importlib.util.spec_from_file_location('payload_pca_service', Path(__file__).resolve().parents[1] / 'payload_pca_service.py')
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 PCA = 'PCA,DEMO_ONLY_260927,1,1000,6000,10,10,1,34.0,27.0,28.0,0.1,0.2,0.3,0,DEMO_ONLY'
 
 class PayloadServiceTests(unittest.TestCase):
+    def test_optional_mcu_temperature_and_legacy_health(self):
+        self.assertIsNone(self.s.health['temperature_c'])
+        self.s.polls['99'] = time.monotonic()
+        self.s.handle_line('HEALTH,1,99,0000000000000001,1,IDLE,1,100,7,500,12,payload-1,42.25')
+        self.assertEqual(self.s.health['temperature_c'], 42.25)
+        self.s.polls['98'] = time.monotonic()
+        with self.assertRaises(ValueError):
+            self.s.handle_line('HEALTH,1,98,0000000000000001,1,IDLE,1,100,7,500,12,payload-1,nan')
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)

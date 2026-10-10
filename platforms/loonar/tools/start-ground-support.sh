@@ -2,6 +2,11 @@
 # User-started Pi stack with ROS samples and an optional, reconnecting Payload MCU.
 set -euo pipefail
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
+# Default GCS support includes continuous recording and AUTO fly lifecycle.
+# Legacy explicit options remain available for the existing bench workflows.
+if [[ $# == 0 && ${LOONAR_FLY_LEGACY_SUPPORT:-0} != 1 ]]; then
+  exec bash "$ROOT/platforms/loonar/ros2/terrain_navigation/recording/run_pi.sh" --mode gcs
+fi
 export PYTHONPATH="$ROOT/platforms/loonar/tools${PYTHONPATH:+:$PYTHONPATH}"
 if [[ ${1:-} == --video ]]; then
   [[ -n ${SSH_CONNECTION:-} ]] || { echo 'Use --video-ip GCS_IPV4 when not connected over SSH.' >&2; exit 2; }

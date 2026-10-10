@@ -11,11 +11,19 @@ source "$CONFIG_FILE"
 
 : "${VIDEO_STREAM_ENABLED:=1}"
 : "${VIDEO_RECORD_PATH:=}"
+: "${CAMERA_ROS_ENABLED:=0}"
+: "${CAMERA_ROS_FPS:=30}"
+[[ "$CAMERA_ROS_ENABLED" == 0 || "$CAMERA_ROS_ENABLED" == 1 ]] || {
+  echo 'CAMERA_ROS_ENABLED must be 0 or 1' >&2; exit 2;
+}
+[[ "$CAMERA_ROS_FPS" =~ ^[0-9]+$ && "$CAMERA_ROS_FPS" -ge 1 && "$CAMERA_ROS_FPS" -le 30 ]] || {
+  echo 'CAMERA_ROS_FPS must be between 1 and 30' >&2; exit 2;
+}
 : "${GROUND_STATION_IP:=}"
 if [[ "$VIDEO_STREAM_ENABLED" == 1 ]]; then
   : "${GROUND_STATION_IP:?GROUND_STATION_IP is required for streaming}"
-elif [[ "$VIDEO_STREAM_ENABLED" != 0 || -z "$VIDEO_RECORD_PATH" ]]; then
-  echo "Select streaming and/or VIDEO_RECORD_PATH" >&2
+elif [[ "$VIDEO_STREAM_ENABLED" != 0 || ( -z "$VIDEO_RECORD_PATH" && "$CAMERA_ROS_ENABLED" != 1 ) ]]; then
+  echo "Select streaming, VIDEO_RECORD_PATH, or CAMERA_ROS_ENABLED=1" >&2
   exit 2
 fi
 : "${VIDEO_PORT:=5600}"
@@ -124,9 +132,11 @@ if [[ "$VIDEO_SOURCE" == v4l2 ]]; then
 fi
 
 PIPELINE=("${SOURCE_PIPELINE[@]}")
-if [[ "$VISION_ENABLED" == 1 ]]; then
+if [[ "$VISION_ENABLED" == 1 || "$CAMERA_ROS_ENABLED" == 1 ]]; then
   PIPELINE+=(! tee name=loonar_raw loonar_raw.)
 fi
+REQUIRED_OUTPUT_ELEMENTS=()
+if [[ "$VIDEO_STREAM_ENABLED" == 1 || -n "$VIDEO_RECORD_PATH" ]]; then
 PIPELINE+=(
   ! queue max-size-buffers=2 leaky=downstream
   "${CONVERSION_PIPELINE[@]}"
@@ -149,6 +159,18 @@ fi
 if [[ "$VIDEO_STREAM_ENABLED" == 1 ]]; then
   PIPELINE+=(! udpsink "host=$GROUND_STATION_IP" "port=$VIDEO_PORT" buffer-size=2097152 sync=true async=false)
   REQUIRED_OUTPUT_ELEMENTS+=(udpsink)
+fi
+else
+  # Recording-only runs need no H.264 encoder or network destination.
+  PIPELINE+=(! queue max-size-buffers=1 leaky=downstream ! fakesink sync=false async=false)
+  REQUIRED_OUTPUT_ELEMENTS+=(fakesink)
+fi
+if [[ "$CAMERA_ROS_ENABLED" == 1 ]]; then
+  PIPELINE+=(loonar_raw. ! queue max-size-buffers=2 leaky=downstream
+    ! videorate drop-only=true ! "video/x-raw,framerate=$CAMERA_ROS_FPS/1"
+    ! videoconvert ! video/x-raw,format=I420 ! jpegenc quality=80
+    ! appsink name=bag_camera sync=false max-buffers=2 drop=true)
+  REQUIRED_OUTPUT_ELEMENTS+=(tee videorate videoconvert jpegenc appsink)
 fi
 if [[ "$VISION_ENABLED" == 1 ]]; then
   # Only this branch converts NV12 to BGR. Encoding and recording keep their
@@ -174,7 +196,10 @@ command -v gst-launch-1.0 >/dev/null || {
 if [[ "$VIDEO_SOURCE" == v4l2 ]]; then
   REQUIRED_SOURCE_ELEMENTS+=(videoconvert)
 fi
-for element in "${REQUIRED_SOURCE_ELEMENTS[@]}" x264enc h264parse queue "${REQUIRED_OUTPUT_ELEMENTS[@]}"; do
+if [[ "$VIDEO_STREAM_ENABLED" == 1 || -n "$VIDEO_RECORD_PATH" ]]; then
+  REQUIRED_OUTPUT_ELEMENTS+=(x264enc h264parse)
+fi
+for element in "${REQUIRED_SOURCE_ELEMENTS[@]}" queue "${REQUIRED_OUTPUT_ELEMENTS[@]}"; do
   gst-inspect-1.0 "$element" >/dev/null || {
     echo "GStreamer element is required: $element" >&2
     exit 127
@@ -192,4 +217,12 @@ if [[ -n "$VIDEO_RECORD_PATH" ]]; then
   echo "Recording H.264 MPEG-TS: $VIDEO_RECORD_PATH"
 fi
 echo "video source=$VIDEO_SOURCE profile=$VIDEO_PROFILE ${WIDTH}x${HEIGHT}@${FPS} bitrate=${BITRATE_KBPS}kbps destination=$GROUND_STATION_IP:$VIDEO_PORT"
+if [[ "$CAMERA_ROS_ENABLED" == 1 ]]; then
+  set +u
+  source /opt/ros/jazzy/setup.bash
+  if [[ -f /etc/loonar/ros.env ]]; then
+    set -a; source /etc/loonar/ros.env; set +a
+  fi
+  exec /usr/bin/python3 "$(dirname -- "${BASH_SOURCE[0]}")/camera_ros.py" "${PIPELINE[@]}"
+fi
 exec gst-launch-1.0 -e "${PIPELINE[@]}"

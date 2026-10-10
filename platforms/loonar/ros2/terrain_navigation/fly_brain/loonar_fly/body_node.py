@@ -18,9 +18,11 @@ from .avoidance import Avoidance
 
 
 class Body(Node):
-    def __init__(self):
+    def __init__(self, sensor_timeout=.3, result_timeout=.75, terrain_input=False):
         super().__init__("loonar_fly_body")
-        self.requests = Requests()
+        self.sensor_timeout = sensor_timeout
+        self.terrain_input = terrain_input
+        self.requests = Requests(ttl=result_timeout)
         self.avoidance = Avoidance()
         self.scene = None
         self.scene_at = None
@@ -60,7 +62,7 @@ class Body(Node):
     def sample_time(self, message):
         stamp = message.header.stamp.sec + message.header.stamp.nanosec * 1e-9
         age = self.get_clock().now().nanoseconds * 1e-9 - stamp
-        if not math.isfinite(age) or not 0 <= age <= .3:
+        if not math.isfinite(age) or not 0 <= age <= self.sensor_timeout:
             raise ValueError("sensor timestamp stale/future")
         return time.monotonic() - age
 
@@ -93,7 +95,7 @@ class Body(Node):
                 raise ValueError("oversized terrain")
             scene = json.loads(msg.data)
             age = self.get_clock().now().nanoseconds*1e-9 - float(scene["stamp"])
-            if not math.isfinite(age) or not 0 <= age <= .3:
+            if not math.isfinite(age) or not 0 <= age <= self.sensor_timeout:
                 return
             if scene.get("ready"):
                 if len(scene["directions"]) != 7:
@@ -138,32 +140,29 @@ class Body(Node):
         except ValueError:
             self.safety_at = None
 
-    @staticmethod
-    def fresh(at, now, timeout=.3):
+    def fresh(self, at, now, timeout=None):
+        timeout = self.sensor_timeout if timeout is None else timeout
         return at is not None and 0 <= now - at <= timeout
 
     def send_input(self):
         now = time.monotonic()
-        if not self.fresh(self.depth_at, now):
+        if not self.terrain_input and not self.fresh(self.depth_at, now):
             return
         terrain_ok = self.fresh(self.scene_at, now) and self.scene.get("ready")
-        if self.partial_depth and not terrain_ok:
+        if not terrain_ok or "vision" not in self.scene:
             return
         camera_ok = self.fresh(self.camera_at, now)
-        oldest = min(self.depth_at, self.camera_at) if camera_ok else self.depth_at
+        oldest = self.scene_at if self.terrain_input else min(self.depth_at, self.scene_at)
+        if camera_ok:
+            oldest = min(oldest, self.camera_at)
         packet = self.requests.issue(now, oldest)
-        packet.update(depth=self.depth, expansion=self.expansion if camera_ok else {},
+        packet.update(vision=self.scene["vision"], expansion=self.expansion if camera_ok else {},
                       camera_available=camera_ok,
                       # Recorded context only: no fabricated mechanosensory mapping.
                       context={key: value for key, value in self.feedback.items()
                                if self.fresh(self.context_at[key], now)})
-        if self.fresh(self.scene_at, now):
-            packet["avoidance"] = self.decision
-            packet["directions"] = self.scene.get("directions", [])
-        elif self.scene is not None:
-            # Never restore tonic forward stimulation simply because a
-            # previously observed obstacle's scene packet has expired.
-            packet["avoidance"] = dict(forward_scale=0., turn_sign=0)
+        packet["avoidance"] = self.decision
+        packet["directions"] = self.scene["directions"]
         self.input_pub.publish(String(data=json.dumps(packet, allow_nan=False)))
 
     def on_result(self, msg):

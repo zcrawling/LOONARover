@@ -11,9 +11,9 @@ DEFAULTS = {
     'imu_xyz':'0.03575 0 -0.057',
     'imu_rpy':'0 0 1.5707963267948966',
     'tof_xyz':'0.03575 0.0000500000471 -0.0075',
-    'tof_rpy':'0 0 0',
+    'tof_rpy':'-1.5707963267948966 0 0',
     'publish_optical_frames':'false',
-    'tof_optical_offset':'0 0 0',
+    'tof_optical_offset':'0.01599 0 0',
     'camera_optical_xyz':'0 0 0',
     'camera_optical_rpy':'0 0 0',
 }

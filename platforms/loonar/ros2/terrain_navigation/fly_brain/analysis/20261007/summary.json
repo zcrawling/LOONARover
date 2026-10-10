@@ -1,0 +1,880 @@
+[
+  {
+    "session": "capture_20261007_154842_097619",
+    "mode": "manual",
+    "duration_s": 39.095673787,
+    "tof_frames": 257,
+    "tof_first_s": 10.169739723205566,
+    "tof_last_s": 32.38367700576782,
+    "tof_active_s": 22.213937282562256,
+    "tof_rate_hz": 11.5242965145561,
+    "processed_frames": 154,
+    "processed_age_s": {
+      "n": 154,
+      "p10": 0.17155642255911868,
+      "median": 0.4008789335101318,
+      "p90": 0.8021922060652344,
+      "max": 1.4455287756187745
+    },
+    "terrain_frames": 64,
+    "terrain_age_s": {
+      "n": 64,
+      "p10": 0.3044799089431763,
+      "median": 0.4844416379928589,
+      "p90": 0.8648688793182374,
+      "max": 1.3990013599395752
+    },
+    "terrain_compute_ms": {
+      "n": 64,
+      "p10": 47.51259369998024,
+      "median": 121.45238950006387,
+      "p90": 223.44031569991785,
+      "max": 304.4622090001212
+    },
+    "terrain_over_300ms": 58,
+    "floor_measured": 0,
+    "floor_confidence": {
+      "n": 64,
+      "p10": 0.0,
+      "median": 0.0,
+      "p90": 0.0,
+      "max": 0.0
+    },
+    "center_obstacles": {
+      "wall": 64
+    },
+    "center_clearance": {
+      "n": 64,
+      "p10": 0.0,
+      "median": 0.0,
+      "p90": 0.0,
+      "max": 0.0
+    },
+    "avoidance_modes": {
+      "turn": 64
+    },
+    "brain_inputs": 3,
+    "brain_results": 0,
+    "status_reasons": {
+      "base state expired/unavailable": 5,
+      "depth missing or stale: awaiting synchronized depth/amplitude/gravity": 3,
+      "collision braking envelope: 616 points, front gap=0.045m, required clearance=0.070m": 1,
+      "sensor/base missing or stale": 2,
+      "depth missing or stale: depth sample age 0.379s": 1,
+      "depth missing or stale: depth sample age 0.342s": 1,
+      "depth missing or stale: depth sample age 0.390s": 1,
+      "collision braking envelope: 543 points, front gap=0.046m, required clearance=0.070m": 1,
+      "depth missing or stale: depth sample age 0.426s": 1,
+      "depth missing or stale: matching amplitude missing": 9,
+      "depth missing or stale: depth sample age 0.413s": 1,
+      "depth missing or stale: depth sample age 0.411s": 1,
+      "depth missing or stale: depth sample age 0.327s": 1,
+      "collision braking envelope: 567 points, front gap=0.046m, required clearance=0.070m": 1,
+      "depth missing or stale: depth sample age 0.365s": 1,
+      "collision braking envelope: 560 points, front gap=0.046m, required clearance=0.070m": 1,
+      "depth missing or stale: depth sample age 0.350s": 1,
+      "MCU samples missing": 1
+    },
+    "surface_selected": 0,
+    "stationary_median": 0,
+    "manual_counts": {},
+    "manual_during_tof": 0,
+    "motor_samples": 1548,
+    "motor_error_counts": {
+      "0": 1548
+    },
+    "straight_speed": {
+      "n": 0
+    },
+    "straight_abs_tracking_error": {
+      "n": 0
+    },
+    "turn_speed": {
+      "n": 0
+    },
+    "turn_abs_tracking_error": {
+      "n": 0
+    },
+    "moving_samples": 0,
+    "errors": [
+      {
+        "t": 33.56195592880249,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK: CubeEye error 9"
+      },
+      {
+        "t": 33.58938241004944,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK depth/amplitude stream stale"
+      },
+      {
+        "t": 34.10114932060242,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK depth/amplitude stream stale"
+      },
+      {
+        "t": 35.099555015563965,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK helper exited (code 0): CubeEye: SDK teardown timeout; exiting isolated helper"
+      }
+    ]
+  },
+  {
+    "session": "capture_20261007_155314_866737",
+    "mode": "manual",
+    "duration_s": 49.026617279,
+    "tof_frames": 277,
+    "tof_first_s": 9.224155187606812,
+    "tof_last_s": 32.582114934921265,
+    "tof_active_s": 23.357959747314453,
+    "tof_rate_hz": 11.816100506455093,
+    "processed_frames": 168,
+    "processed_age_s": {
+      "n": 168,
+      "p10": 0.1862624874657227,
+      "median": 0.47312971638391116,
+      "p90": 1.0556251066391236,
+      "max": 1.3568772253601074
+    },
+    "terrain_frames": 60,
+    "terrain_age_s": {
+      "n": 60,
+      "p10": 0.31361026763916017,
+      "median": 0.5061986446380615,
+      "p90": 0.7440702438354493,
+      "max": 1.0691235065460205
+    },
+    "terrain_compute_ms": {
+      "n": 60,
+      "p10": 44.28024219987492,
+      "median": 113.55074849996072,
+      "p90": 192.63018719996128,
+      "max": 321.0532119999243
+    },
+    "terrain_over_300ms": 56,
+    "floor_measured": 0,
+    "floor_confidence": {
+      "n": 60,
+      "p10": 0.0,
+      "median": 0.0,
+      "p90": 0.0,
+      "max": 0.0
+    },
+    "center_obstacles": {
+      "wall": 58,
+      "step_up": 1,
+      "none": 1
+    },
+    "center_clearance": {
+      "n": 60,
+      "p10": 0.0,
+      "median": 0.0,
+      "p90": 0.0,
+      "max": 0.9
+    },
+    "avoidance_modes": {
+      "turn": 59,
+      "no_turn_room": 1
+    },
+    "brain_inputs": 3,
+    "brain_results": 0,
+    "status_reasons": {
+      "base state expired/unavailable": 4,
+      "depth missing or stale: awaiting synchronized depth/amplitude/gravity": 2,
+      "depth missing or stale: depth sample age 0.626s": 1,
+      "depth missing or stale: depth sample age 0.454s": 1,
+      "depth missing or stale: matching amplitude missing": 16,
+      "depth missing or stale: depth sample age 0.422s": 1,
+      "depth missing or stale: no fresh gravity sample matching depth timestamp": 1,
+      "collision braking envelope: 627 points, front gap=0.044m, required clearance=0.070m": 1,
+      "sensor/base missing or stale": 1,
+      "depth missing or stale: depth sample age 0.327s": 1,
+      "collision braking envelope: 609 points, front gap=0.044m, required clearance=0.070m": 1,
+      "depth missing or stale: depth sample age 0.334s": 1,
+      "depth missing or stale: depth sample age 0.356s": 1,
+      "depth missing or stale: depth sample age 0.375s": 1,
+      "depth missing or stale: depth sample age 0.361s": 1,
+      "collision braking envelope: 7789 points, front gap=0.023m, required clearance=0.277m": 1,
+      "depth missing or stale: depth sample age 0.451s": 1,
+      "excessive attitude": 1,
+      "insufficient valid depth": 1,
+      "MCU samples missing": 5
+    },
+    "surface_selected": 0,
+    "stationary_median": 0,
+    "manual_counts": {
+      "1": 1
+    },
+    "manual_during_tof": 0,
+    "motor_samples": 1949,
+    "motor_error_counts": {
+      "0": 1949
+    },
+    "straight_speed": {
+      "n": 0
+    },
+    "straight_abs_tracking_error": {
+      "n": 0
+    },
+    "turn_speed": {
+      "n": 0
+    },
+    "turn_abs_tracking_error": {
+      "n": 0
+    },
+    "moving_samples": 0,
+    "errors": [
+      {
+        "t": 11.282839059829712,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK depth/amplitude stream stale"
+      },
+      {
+        "t": 33.229382038116455,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK: CubeEye error 9"
+      },
+      {
+        "t": 33.23636221885681,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK depth/amplitude stream stale"
+      },
+      {
+        "t": 35.16432213783264,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK helper exited (code 0): CubeEye: SDK teardown timeout; exiting isolated helper"
+      }
+    ]
+  },
+  {
+    "session": "capture_20261007_155814_845240",
+    "mode": "manual",
+    "duration_s": 88.602376811,
+    "tof_frames": 287,
+    "tof_first_s": 9.255890130996704,
+    "tof_last_s": 34.486756801605225,
+    "tof_active_s": 25.23086667060852,
+    "tof_rate_hz": 11.335322077269819,
+    "processed_frames": 185,
+    "processed_age_s": {
+      "n": 185,
+      "p10": 0.1956924617038574,
+      "median": 0.5046300340129395,
+      "p90": 0.9623822376485595,
+      "max": 1.6116791694608155
+    },
+    "terrain_frames": 88,
+    "terrain_age_s": {
+      "n": 88,
+      "p10": 0.30675172805786133,
+      "median": 0.4687443971633911,
+      "p90": 0.7703459024429321,
+      "max": 1.7794575691223145
+    },
+    "terrain_compute_ms": {
+      "n": 88,
+      "p10": 41.1756376000767,
+      "median": 85.65210949996072,
+      "p90": 165.01567749994592,
+      "max": 235.40003399989473
+    },
+    "terrain_over_300ms": 82,
+    "floor_measured": 0,
+    "floor_confidence": {
+      "n": 88,
+      "p10": 0.0,
+      "median": 0.0,
+      "p90": 0.0,
+      "max": 0.0
+    },
+    "center_obstacles": {
+      "wall": 87,
+      "step_up": 1
+    },
+    "center_clearance": {
+      "n": 88,
+      "p10": 0.0,
+      "median": 0.0,
+      "p90": 0.0,
+      "max": 0.0
+    },
+    "avoidance_modes": {
+      "turn": 88
+    },
+    "brain_inputs": 9,
+    "brain_results": 0,
+    "status_reasons": {
+      "base state expired/unavailable": 3,
+      "MCU boot hold": 1,
+      "safety state expired/unavailable": 1,
+      "sensor/base missing or stale": 3,
+      "depth missing or stale: awaiting synchronized depth/amplitude/gravity": 1,
+      "depth missing or stale: depth/calibration/gravity missing or stale": 1,
+      "depth missing or stale: depth sample age 0.391s": 1,
+      "depth missing or stale: depth sample age 0.327s": 1,
+      "depth missing or stale: matching amplitude missing": 49,
+      "depth missing or stale: depth sample age 0.405s": 1,
+      "depth missing or stale: depth sample age 0.353s": 1,
+      "collision braking envelope: 1074 points, front gap=0.044m, required clearance=0.070m": 1,
+      "collision braking envelope: 1069 points, front gap=0.044m, required clearance=0.070m": 1,
+      "depth missing or stale: depth sample age 0.428s": 1,
+      "depth missing or stale: depth sample age 0.335s": 1,
+      "depth missing or stale: depth sample age 0.309s": 1,
+      "collision braking envelope: 1054 points, front gap=0.044m, required clearance=0.070m": 1,
+      "collision braking envelope: 1049 points, front gap=0.044m, required clearance=0.070m": 1,
+      "collision braking envelope: 1059 points, front gap=0.044m, required clearance=0.070m": 1,
+      "depth missing or stale: depth sample age 0.334s": 1,
+      "MCU samples missing": 12
+    },
+    "surface_selected": 0,
+    "stationary_median": 0,
+    "manual_counts": {},
+    "manual_during_tof": 0,
+    "motor_samples": 3696,
+    "motor_error_counts": {
+      "0": 3696
+    },
+    "straight_speed": {
+      "n": 0
+    },
+    "straight_abs_tracking_error": {
+      "n": 0
+    },
+    "turn_speed": {
+      "n": 0
+    },
+    "turn_abs_tracking_error": {
+      "n": 0
+    },
+    "moving_samples": 0,
+    "errors": [
+      {
+        "t": 35.9764769077301,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK depth/amplitude stream stale"
+      },
+      {
+        "t": 36.00366234779358,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK: CubeEye error 9"
+      },
+      {
+        "t": 36.463093519210815,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK depth/amplitude stream stale"
+      },
+      {
+        "t": 37.45354962348938,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK helper exited (code 0): CubeEye: SDK teardown timeout; exiting isolated helper"
+      }
+    ]
+  },
+  {
+    "session": "capture_20261007_160348_509053",
+    "mode": "manual",
+    "duration_s": 276.83466332,
+    "tof_frames": 261,
+    "tof_first_s": 8.616727113723755,
+    "tof_last_s": 30.116556882858276,
+    "tof_active_s": 21.49982976913452,
+    "tof_rate_hz": 12.093119005679752,
+    "processed_frames": 163,
+    "processed_age_s": {
+      "n": 163,
+      "p10": 0.17108387393750002,
+      "median": 0.3302366400064697,
+      "p90": 0.5925407997730224,
+      "max": 1.5303681434821779
+    },
+    "terrain_frames": 85,
+    "terrain_age_s": {
+      "n": 85,
+      "p10": 0.28901515007019046,
+      "median": 0.4503657817840576,
+      "p90": 0.712479305267334,
+      "max": 1.73329758644104
+    },
+    "terrain_compute_ms": {
+      "n": 85,
+      "p10": 32.98060159995657,
+      "median": 65.58500499977526,
+      "p90": 165.1174127999184,
+      "max": 230.19885000030627
+    },
+    "terrain_over_300ms": 76,
+    "floor_measured": 0,
+    "floor_confidence": {
+      "n": 85,
+      "p10": 0.0,
+      "median": 0.0,
+      "p90": 0.0,
+      "max": 0.0
+    },
+    "center_obstacles": {
+      "wall": 85
+    },
+    "center_clearance": {
+      "n": 85,
+      "p10": 0.0,
+      "median": 0.0,
+      "p90": 0.0,
+      "max": 0.0
+    },
+    "avoidance_modes": {
+      "turn": 85
+    },
+    "brain_inputs": 8,
+    "brain_results": 0,
+    "status_reasons": {
+      "base state expired/unavailable": 5,
+      "safety state expired/unavailable": 1,
+      "sensor/base missing or stale": 3,
+      "depth missing or stale: awaiting synchronized depth/amplitude/gravity": 1,
+      "collision braking envelope: 2020 points, front gap=0.038m, required clearance=0.070m": 1,
+      "depth missing or stale: matching amplitude missing": 239,
+      "collision braking envelope: 2335 points, front gap=0.036m, required clearance=0.070m": 1,
+      "collision braking envelope: 2300 points, front gap=0.036m, required clearance=0.070m": 1,
+      "depth missing or stale: depth sample age 0.380s": 1,
+      "depth missing or stale: no fresh gravity sample matching depth timestamp": 1,
+      "depth missing or stale: depth sample age 0.345s": 1,
+      "depth missing or stale: depth sample age 0.326s": 1,
+      "depth missing or stale: depth sample age 0.401s": 1,
+      "depth missing or stale: depth sample age 0.340s": 1,
+      "depth missing or stale: depth sample age 0.439s": 1,
+      "depth missing or stale: depth sample age 0.369s": 1,
+      "collision braking envelope: 2267 points, front gap=0.037m, required clearance=0.070m": 1,
+      "MCU samples missing": 9
+    },
+    "surface_selected": 0,
+    "stationary_median": 0,
+    "manual_counts": {
+      "2": 1195,
+      "1": 1
+    },
+    "manual_during_tof": 1,
+    "motor_samples": 13161,
+    "motor_error_counts": {
+      "0": 13161
+    },
+    "straight_speed": {
+      "n": 1839,
+      "p10": 0.09801453937380558,
+      "median": 0.1734366703704127,
+      "p90": 0.29153335052395024,
+      "max": 0.3310890823628163
+    },
+    "straight_abs_tracking_error": {
+      "n": 1839,
+      "p10": 0.00014300918434050633,
+      "median": 0.0008583086684266772,
+      "p90": 0.0811196777557053,
+      "max": 0.39999973134902544
+    },
+    "turn_speed": {
+      "n": 942,
+      "p10": -3.161741807285186,
+      "median": -0.3006525405335057,
+      "p90": 1.1933732467320897,
+      "max": 3.0916499198234586
+    },
+    "turn_abs_tracking_error": {
+      "n": 942,
+      "p10": 0.001159142324948459,
+      "median": 0.019693345124905698,
+      "p90": 1.4583785384536645,
+      "max": 3.79999454995993
+    },
+    "moving_samples": 3009,
+    "errors": [
+      {
+        "t": 31.520118236541748,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK: CubeEye error 9"
+      },
+      {
+        "t": 31.546846389770508,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK depth/amplitude stream stale"
+      },
+      {
+        "t": 31.845933198928833,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK depth/amplitude stream stale"
+      },
+      {
+        "t": 32.8253128528595,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK helper exited (code 0): CubeEye: SDK teardown timeout; exiting isolated helper"
+      }
+    ]
+  },
+  {
+    "session": "capture_20261007_161432_555813",
+    "mode": "manual",
+    "duration_s": 16.666243057,
+    "tof_frames": 66,
+    "tof_first_s": 8.89395809173584,
+    "tof_last_s": 13.624985933303833,
+    "tof_active_s": 4.731027841567993,
+    "tof_rate_hz": 13.739086341638862,
+    "processed_frames": 36,
+    "processed_age_s": {
+      "n": 36,
+      "p10": 0.31144754230895993,
+      "median": 0.4272636253347778,
+      "p90": 0.5587899684787598,
+      "max": 0.678461328383545
+    },
+    "terrain_frames": 12,
+    "terrain_age_s": {
+      "n": 12,
+      "p10": 0.38599672317504885,
+      "median": 0.5220966339111328,
+      "p90": 0.6735702514648437,
+      "max": 0.6801238059997559
+    },
+    "terrain_compute_ms": {
+      "n": 12,
+      "p10": 58.31483930005561,
+      "median": 130.67803249987264,
+      "p90": 242.53434800034483,
+      "max": 291.71899300035875
+    },
+    "terrain_over_300ms": 12,
+    "floor_measured": 0,
+    "floor_confidence": {
+      "n": 12,
+      "p10": 0.0,
+      "median": 0.0,
+      "p90": 0.0,
+      "max": 0.0
+    },
+    "center_obstacles": {
+      "wall": 12
+    },
+    "center_clearance": {
+      "n": 12,
+      "p10": 0.0,
+      "median": 0.0,
+      "p90": 0.0,
+      "max": 0.0
+    },
+    "avoidance_modes": {
+      "turn": 12
+    },
+    "brain_inputs": 0,
+    "brain_results": 0,
+    "status_reasons": {
+      "base state expired/unavailable": 4,
+      "depth missing or stale: awaiting synchronized depth/amplitude/gravity": 2,
+      "collision braking envelope: 1831 points, front gap=0.035m, required clearance=0.070m": 1,
+      "sensor/base missing or stale": 2,
+      "depth missing or stale: depth sample age 0.444s": 1
+    },
+    "surface_selected": 0,
+    "stationary_median": 0,
+    "manual_counts": {},
+    "manual_during_tof": 0,
+    "motor_samples": 481,
+    "motor_error_counts": {
+      "0": 481
+    },
+    "straight_speed": {
+      "n": 0
+    },
+    "straight_abs_tracking_error": {
+      "n": 0
+    },
+    "turn_speed": {
+      "n": 0
+    },
+    "turn_abs_tracking_error": {
+      "n": 0
+    },
+    "moving_samples": 0,
+    "errors": []
+  },
+  {
+    "session": "capture_20261007_161505_274231",
+    "mode": "manual",
+    "duration_s": 68.939427515,
+    "tof_frames": 275,
+    "tof_first_s": 8.81935977935791,
+    "tof_last_s": 31.53145742416382,
+    "tof_active_s": 22.712097644805908,
+    "tof_rate_hz": 12.064055213440922,
+    "processed_frames": 176,
+    "processed_age_s": {
+      "n": 176,
+      "p10": 0.1677463799338379,
+      "median": 0.3785949928093262,
+      "p90": 0.8096807676379394,
+      "max": 2.042749878607422
+    },
+    "terrain_frames": 90,
+    "terrain_age_s": {
+      "n": 90,
+      "p10": 0.25366735458374023,
+      "median": 0.48576080799102783,
+      "p90": 0.8513591289520265,
+      "max": 1.870830774307251
+    },
+    "terrain_compute_ms": {
+      "n": 90,
+      "p10": 35.927202700213456,
+      "median": 83.48119699985546,
+      "p90": 166.72769740002892,
+      "max": 221.54736600032265
+    },
+    "terrain_over_300ms": 77,
+    "floor_measured": 0,
+    "floor_confidence": {
+      "n": 90,
+      "p10": 0.0,
+      "median": 0.0,
+      "p90": 0.0,
+      "max": 0.0
+    },
+    "center_obstacles": {
+      "wall": 90
+    },
+    "center_clearance": {
+      "n": 90,
+      "p10": 0.0,
+      "median": 0.0,
+      "p90": 0.03964466094067262,
+      "max": 0.03964466094067262
+    },
+    "avoidance_modes": {
+      "turn": 90
+    },
+    "brain_inputs": 8,
+    "brain_results": 0,
+    "status_reasons": {
+      "base state expired/unavailable": 6,
+      "depth missing or stale: awaiting synchronized depth/amplitude/gravity": 2,
+      "collision braking envelope: 1887 points, front gap=0.034m, required clearance=0.070m": 1,
+      "depth missing or stale: depth sample age 0.485s": 1,
+      "depth missing or stale: matching amplitude missing": 2,
+      "sensor/base missing or stale": 3,
+      "collision braking envelope: 2089 points, front gap=0.033m, required clearance=0.070m": 1,
+      "depth missing or stale: depth sample age 0.501s": 1,
+      "depth missing or stale: depth sample age 0.308s": 1,
+      "collision braking envelope: 4626 points, front gap=0.040m, required clearance=0.214m": 1,
+      "collision braking envelope: 3236 points, front gap=0.048m, required clearance=0.106m": 1,
+      "collision braking envelope: 3309 points, front gap=0.044m, required clearance=0.106m": 1,
+      "depth missing or stale: depth sample age 0.481s": 1,
+      "depth missing or stale: depth sample age 0.457s": 1,
+      "depth missing or stale: depth sample age 0.316s": 1,
+      "collision braking envelope: 3245 points, front gap=0.053m, required clearance=0.106m": 1,
+      "collision braking envelope: 5080 points, front gap=0.045m, required clearance=0.301m": 1,
+      "depth missing or stale: depth sample age 0.386s": 1,
+      "depth missing or stale: depth sample age 0.411s": 1,
+      "depth missing or stale: depth sample age 0.338s": 1,
+      "depth missing or stale: depth sample age 0.332s": 26,
+      "MCU samples missing": 6,
+      "MCU communication or motor fault: MCU samples missing": 1
+    },
+    "surface_selected": 0,
+    "stationary_median": 0,
+    "manual_counts": {
+      "2": 746
+    },
+    "manual_during_tof": 244,
+    "motor_samples": 2678,
+    "motor_error_counts": {
+      "0": 2678
+    },
+    "straight_speed": {
+      "n": 612,
+      "p10": 0.16830203210286757,
+      "median": 0.17001357819204926,
+      "p90": 0.1715349524935441,
+      "max": 0.17571873182265496
+    },
+    "straight_abs_tracking_error": {
+      "n": 612,
+      "p10": 0.00017622585658982892,
+      "median": 0.0007746330818444447,
+      "p90": 0.0021058355956524444,
+      "max": 0.17037997583632594
+    },
+    "turn_speed": {
+      "n": 896,
+      "p10": -0.30427486029896966,
+      "median": -0.29884138065077376,
+      "p90": 0.29884138065077376,
+      "max": 0.3441203777190728
+    },
+    "turn_abs_tracking_error": {
+      "n": 896,
+      "p10": 0.0006520175577834908,
+      "median": 0.002463177440515496,
+      "p90": 0.005433479648195877,
+      "max": 0.3000005229757222
+    },
+    "moving_samples": 1521,
+    "errors": [
+      {
+        "t": 32.74369692802429,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK depth/amplitude stream stale"
+      },
+      {
+        "t": 32.76601839065552,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK: CubeEye error 9"
+      },
+      {
+        "t": 33.02336835861206,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK depth/amplitude stream stale"
+      },
+      {
+        "t": 34.523855686187744,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK helper exited (code 0): CubeEye: SDK teardown timeout; exiting isolated helper"
+      }
+    ]
+  },
+  {
+    "session": "capture_20261007_161712_443193",
+    "mode": "manual",
+    "duration_s": 72.50759582,
+    "tof_frames": 289,
+    "tof_first_s": 8.706672191619873,
+    "tof_last_s": 30.00630521774292,
+    "tof_active_s": 21.299633026123047,
+    "tof_rate_hz": 13.521359717643064,
+    "processed_frames": 195,
+    "processed_age_s": {
+      "n": 195,
+      "p10": 0.14514470491269532,
+      "median": 0.3351126312072754,
+      "p90": 0.7705543200656738,
+      "max": 1.9132614222835693
+    },
+    "terrain_frames": 109,
+    "terrain_age_s": {
+      "n": 109,
+      "p10": 0.3029763698577881,
+      "median": 0.4121699333190918,
+      "p90": 0.7197794437408447,
+      "max": 1.9086863994598389
+    },
+    "terrain_compute_ms": {
+      "n": 109,
+      "p10": 31.63845580029374,
+      "median": 80.43102299961902,
+      "p90": 155.44510940017062,
+      "max": 285.23431600024196
+    },
+    "terrain_over_300ms": 102,
+    "floor_measured": 0,
+    "floor_confidence": {
+      "n": 109,
+      "p10": 0.0,
+      "median": 0.0,
+      "p90": 0.0,
+      "max": 0.0
+    },
+    "center_obstacles": {
+      "wall": 109
+    },
+    "center_clearance": {
+      "n": 109,
+      "p10": 0.0,
+      "median": 0.0,
+      "p90": 0.0,
+      "max": 0.03964466094067262
+    },
+    "avoidance_modes": {
+      "turn": 109
+    },
+    "brain_inputs": 12,
+    "brain_results": 0,
+    "status_reasons": {
+      "base state expired/unavailable": 4,
+      "depth missing or stale: awaiting synchronized depth/amplitude/gravity": 2,
+      "collision braking envelope: 2246 points, front gap=0.033m, required clearance=0.070m": 1,
+      "collision braking envelope: 2260 points, front gap=0.033m, required clearance=0.070m": 1,
+      "depth missing or stale: matching amplitude missing": 38,
+      "collision braking envelope: 2254 points, front gap=0.032m, required clearance=0.070m": 1,
+      "sensor/base missing or stale": 2,
+      "collision braking envelope: 2272 points, front gap=0.033m, required clearance=0.070m": 1,
+      "depth missing or stale: depth sample age 0.318s": 1,
+      "collision braking envelope: 2261 points, front gap=0.032m, required clearance=0.070m": 1,
+      "depth missing or stale: depth sample age 0.387s": 1,
+      "collision braking envelope: 4171 points, front gap=0.028m, required clearance=0.111m": 1,
+      "collision braking envelope: 1572 points, front gap=0.066m, required clearance=0.106m": 1,
+      "collision braking envelope: 3348 points, front gap=0.027m, required clearance=0.104m": 1,
+      "collision braking envelope: 2528 points, front gap=0.026m, required clearance=0.072m": 1,
+      "depth missing or stale: no fresh gravity sample matching depth timestamp": 1,
+      "collision braking envelope: 3444 points, front gap=0.033m, required clearance=0.106m": 1,
+      "collision braking envelope: 1909 points, front gap=0.037m, required clearance=0.128m": 1,
+      "MCU samples missing": 8
+    },
+    "surface_selected": 0,
+    "stationary_median": 0,
+    "manual_counts": {
+      "2": 777
+    },
+    "manual_during_tof": 145,
+    "motor_samples": 3033,
+    "motor_error_counts": {
+      "0": 3033
+    },
+    "straight_speed": {
+      "n": 492,
+      "p10": 0.029134317873626338,
+      "median": 0.16982340640436241,
+      "p90": 0.1719152960689178,
+      "max": 0.17685976254877608
+    },
+    "straight_abs_tracking_error": {
+      "n": 492,
+      "p10": 0.00017622585658982892,
+      "median": 0.0009369130073372534,
+      "p90": 0.005148584198642142,
+      "max": 0.34172475654218326
+    },
+    "turn_speed": {
+      "n": 1107,
+      "p10": -0.30608602018170156,
+      "median": -0.2952190608853098,
+      "p90": 0.3024637004162377,
+      "max": 0.38034357537371205
+    },
+    "turn_abs_tracking_error": {
+      "n": 1107,
+      "p10": 0.0006520175577834908,
+      "median": 0.002970302207680464,
+      "p90": 0.011721826761041254,
+      "max": 0.37425807816773266
+    },
+    "moving_samples": 1634,
+    "errors": [
+      {
+        "t": 31.41161870956421,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK depth/amplitude stream stale"
+      },
+      {
+        "t": 31.432894468307495,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK: CubeEye error 9"
+      },
+      {
+        "t": 31.93273377418518,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK depth/amplitude stream stale"
+      },
+      {
+        "t": 32.93422293663025,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK helper exited (code 0): CubeEye: SDK teardown timeout; exiting isolated helper"
+      }
+    ]
+  }
+]

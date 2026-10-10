@@ -1,0 +1,34 @@
+{
+  "mcu_rx_count": 38096,
+  "boot_ids": [
+    120
+  ],
+  "parser_error_counter_histogram": {
+    "0": 17870,
+    "46": 2235,
+    "64": 5426,
+    "110": 410,
+    "136": 53,
+    "207": 52,
+    "223": 209,
+    "269": 52,
+    "320": 1206,
+    "366": 3210,
+    "412": 52,
+    "431": 52,
+    "447": 53,
+    "508": 7216
+  },
+  "motor_status_counts": {
+    "0x0": 4,
+    "0x23040000": 2,
+    "0x3000000": 595,
+    "0x1000000": 5769
+  },
+  "rx_wall_gaps_over_1s": 7,
+  "max_rx_wall_gap_s": 2.331550817,
+  "first_parser_error_counter": 0,
+  "last_parser_error_counter": 508,
+  "motor_printed_age_after_startup_max_ms": 2980,
+  "health_missing_log_count": 9
+}

@@ -1,6 +1,7 @@
 """Smoke-test packaged launch/YAML/URDF and graceful shutdown without hardware."""
 
 import os
+import argparse
 from pathlib import Path
 import signal
 import subprocess
@@ -21,6 +22,15 @@ expected = {
     "robot_state_publisher",
 }
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(__doc__)
+    parser.add_argument("--tof-only", action="store_true",
+                        help="Check adapter and TF without unrelated planner dependencies")
+    args = parser.parse_args()
+    extra_args = []
+    if args.tof_only:
+        expected = {"loonar_tof_adapter", "robot_state_publisher"}
+        extra_args = [f"run_{name}:=false" for name in
+                      ("stationary", "perception", "planner", "motion", "navigator", "safety")]
     rclpy.init()
     observer = Node("terrain_launch_observer")
     tf_buffer = Buffer()
@@ -34,7 +44,7 @@ if __name__ == "__main__":
                 "loonar_bringup",
                 "terrain.launch.py",
                 "publish_tf:=true",
-            ],
+            ] + extra_args,
             stdout=output,
             stderr=subprocess.STDOUT,
         )
@@ -59,8 +69,12 @@ if __name__ == "__main__":
             assert (
                 abs(imu.rotation.z - 2**-0.5) < 1e-8
             ), "IMU CAD yaw must be +90 degrees"
-            assert abs(tof.translation.x - 0.03575) < 1e-8
+            assert abs(tof.translation.x - 0.05174) < 1e-8
             assert abs(tof.translation.z + 0.0075) < 1e-8
+            # Optical image-right = base up; depth = base forward.
+            assert abs(abs(tof.rotation.x) - 2**-0.5) < 1e-8
+            assert abs(abs(tof.rotation.z) - 2**-0.5) < 1e-8
+            assert abs(tof.rotation.y) < 1e-8 and abs(tof.rotation.w) < 1e-8
             child.send_signal(signal.SIGINT)
             assert child.wait(timeout=15) == 0, "launch did not shut down cleanly"
         finally:
@@ -75,4 +89,4 @@ if __name__ == "__main__":
             rclpy.shutdown()
     log = log_path.read_text()
     assert "Traceback" not in log and "process has died" not in log, log
-    print("Eight launched nodes, CAD IMU/ToF TF, packaged YAML, clean shutdown: PASS")
+    print(f"{len(expected)} launched nodes, CAD IMU/ToF TF, packaged YAML, clean shutdown: PASS")

@@ -1,0 +1,175 @@
+{
+  "scope": "Seven Oct-07 capture sessions; all manual/shadow; recorded neural result count is zero. Read-only analysis; no production control or TF changes deployed.",
+  "valid_terrain_frames": 508,
+  "measured_floor_frames": 0,
+  "offline_recomputed_turn_frames": 507,
+  "brain_input_count": 43,
+  "recorded_brain_results": 0,
+  "sdk_error_9": "CameraError::FrameDropped in the shipped SDK header. Current onCubeEyeCameraError sets stopping=1 for every error; six sessions terminate shortly after this event.",
+  "tof_active_s": [
+    22.214,
+    23.358,
+    25.231,
+    21.5,
+    4.731,
+    22.712,
+    21.3
+  ],
+  "manual_demo_overlap": [
+    {
+      "session": "capture_20261007_160348_509053",
+      "manual_counts": {
+        "2": 1195,
+        "1": 1
+      },
+      "manual_during_tof": 1,
+      "tof_first_s": 8.616727113723755,
+      "tof_last_s": 30.116556882858276
+    },
+    {
+      "session": "capture_20261007_161505_274231",
+      "manual_counts": {
+        "2": 746
+      },
+      "manual_during_tof": 244,
+      "tof_first_s": 8.81935977935791,
+      "tof_last_s": 31.53145742416382
+    },
+    {
+      "session": "capture_20261007_161712_443193",
+      "manual_counts": {
+        "2": 777
+      },
+      "manual_during_tof": 145,
+      "tof_first_s": 8.706672191619873,
+      "tof_last_s": 30.00630521774292
+    }
+  ],
+  "roll_ablation": [
+    {
+      "session": "capture_20261007_161505_274231",
+      "current": {
+        "frames": 35,
+        "ready": 35,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 35
+        },
+        "obstacles": {
+          "wall": 35
+        },
+        "floor_height_m": []
+      },
+      "minus_90_degrees": {
+        "frames": 35,
+        "ready": 35,
+        "floor_measured": 17,
+        "modes": {
+          "cruise": 22,
+          "approach": 2,
+          "follow_surface": 2,
+          "turn": 9
+        },
+        "obstacles": {
+          "none": 21,
+          "step_up": 1,
+          "wall": 12,
+          "drop": 1
+        },
+        "floor_height_m": [
+          -0.1217893505073397,
+          -0.11956984436227776,
+          -0.11420523785937839,
+          -0.12103995507586963,
+          -0.12267539119560995,
+          -0.11908961966744153,
+          -0.11980420180185147,
+          -0.12242379413002015,
+          -0.12026475652917094,
+          -0.11780342151880335,
+          -0.11099236364146266,
+          -0.11189434378466653,
+          -0.1167793431401186,
+          -0.11310138939782129,
+          -0.11446064881665058,
+          -0.11068837287754718,
+          -0.1218347748242804
+        ]
+      }
+    },
+    {
+      "session": "capture_20261007_161712_443193",
+      "current": {
+        "frames": 37,
+        "ready": 37,
+        "floor_measured": 0,
+        "modes": {
+          "turn": 37
+        },
+        "obstacles": {
+          "wall": 37
+        },
+        "floor_height_m": []
+      },
+      "minus_90_degrees": {
+        "frames": 37,
+        "ready": 37,
+        "floor_measured": 12,
+        "modes": {
+          "approach": 28,
+          "turn": 7,
+          "cruise": 2
+        },
+        "obstacles": {
+          "step_up": 31,
+          "drop": 6
+        },
+        "floor_height_m": [
+          -0.10598567660594665,
+          -0.08846329010336876,
+          -0.09663310677869759,
+          -0.10221333519261405,
+          -0.07886510509759767,
+          -0.10202799185690187,
+          -0.09704604442204368,
+          -0.10561771663890773,
+          -0.0831846330977277,
+          -0.09403326996410927,
+          -0.09775534928734333,
+          -0.09201885616521038
+        ]
+      }
+    }
+  ],
+  "neural_probe": {
+    "neutral_input": {
+      "median_forward": 0.1676388069421979,
+      "positive_forward_fraction": 1.0,
+      "median_abs_turn": 0.043995903505865304,
+      "median_after_avoidance_forward": 0.0,
+      "compute_ms": 187.06067249991065
+    },
+    "recorded_input": {
+      "median_forward": 0.1676388069421979,
+      "positive_forward_fraction": 1.0,
+      "median_abs_turn": 0.012851609652208919,
+      "median_after_avoidance_forward": 0.0,
+      "compute_ms": 115.40536099983001
+    }
+  },
+  "priority": [
+    "Handle SDK FrameDropped as a recoverable event, with event/sequence accounting; do not close the camera for a single frame drop.",
+    "Calibrate the ToF optical roll relative to gravity, then lens position/height. -90deg is strongly supported; a global height offset is not validated.",
+    "Repair frame timestamp/join scheduling and preprocessor throughput before changing neural drive. Bag receive ages include recording latency.",
+    "Freeze connectome weights initially. Calibrate sensory encoding and descending-neuron readout from synchronized human demonstrations, then compare held-out sessions.",
+    "Evaluate flat-ground progress, real >=58.8mm obstacle avoidance, measured negative obstacles, and unnecessary stationary/turn fraction separately."
+  ],
+  "limits": [
+    "No neural response was recorded in these manual runs; the neural probe is a newly generated open-loop test, not historical driving evidence.",
+    "Geometry ablation samples every eighth raw frame with a recorded gravity match within 60ms. It changes only transform hypotheses and keeps the current scene/avoidance logic.",
+    "Raw journals and MCAP counts agree in the existing reports, but one session contains MCU parser corruption. Sensor acquisition loss is distinct from bag storage loss.",
+    "Motor speeds are encoder-derived; ground speed, slip, collision, actual obstacle height and hole depth are not independently labelled.",
+    "Do not use all manual commands as training pairs: most driving in the long 16:03 session occurs after ToF stops.",
+    "Full raw sensor recording adds Pi load; its timing cannot be assumed identical to the earlier unrecorded autonomous run."
+  ]
+}

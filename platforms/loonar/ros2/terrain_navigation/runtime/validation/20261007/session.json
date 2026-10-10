@@ -1,0 +1,18 @@
+{
+  "start_ns": 1791373133107279293,
+  "mode": "observe",
+  "session": "/home/loonar/loonar-bags/capture_20261007_203853_106844",
+  "camera_requested_fps": 5,
+  "manual_endpoint": "Pi:7444",
+  "ros_domain_id": "0",
+  "hardware_motion_started_by_recorder": false,
+  "capture_started_ns": 1791373133924792975,
+  "capture_stopped_ns": 1791373164008314114,
+  "end_ns": 1791373168367389624,
+  "forced_termination": [],
+  "exit_codes": {
+    "recorder": 0,
+    "control-journal": 0,
+    "stack": 0
+  }
+}

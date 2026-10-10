@@ -106,7 +106,7 @@ def main():
             )
         np.testing.assert_allclose(
             report["tf"]["tof_optical_frame"]["xyz"],
-            [0.03575, 0.00005, -0.0075],
+            [0.05174, 0.00005, -0.0075],
             atol=1e-8,
         )
         np.testing.assert_allclose(

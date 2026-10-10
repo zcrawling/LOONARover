@@ -102,9 +102,9 @@ class DriveGate:
             self.clear_since = None
             self.last_v = 0.0
             return False, 0.0, 0.0
-        v, w = max(0.0, min(self.max_speed, v)), max(-.6, min(.6, w))
+        v, w = max(0.0, min(self.max_speed, v)), max(-.4, min(.4, w))
         # Only acceleration is limited. Braking and STOP are never ramped.
-        v = min(v, self.last_v + .1 * dt)
+        v = min(v, self.last_v + .4 * dt)
         self.last_v = v
         if self.started is None and (v != 0 or w != 0):
             self.started = now

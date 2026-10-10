@@ -6,13 +6,13 @@ def test_stable_fresh_stream_and_clamps():
     gate = DriveGate()
     candidate = dict(linear_mps=2, angular_rps=-4)
     assert gate.evaluate(0, "", candidate) == (False, 0, 0)
-    assert 0 < gate.evaluate(.6, "", candidate)[1] <= .01 + 1e-9
+    assert 0 < gate.evaluate(.6, "", candidate)[1] <= .04 + 1e-9
     assert gate.evaluate(.7, "depth expired", candidate) == (False, 0, 0)
     assert gate.evaluate(.8, "", candidate) == (False, 0, 0)
-    assert 0 < gate.evaluate(1.4, "", candidate)[1] <= .01 + 1e-9
+    assert 0 < gate.evaluate(1.4, "", candidate)[1] <= .04 + 1e-9
     for i in range(1, 50):
         enabled, v, w = gate.evaluate(1.4 + i*.05, "", candidate)
-    assert enabled and v == .2 and w == -.6
+    assert enabled and v == .2 and w == -.4
 
 
 def test_stop_latches_and_duration_is_bounded():
@@ -37,3 +37,13 @@ def test_user_speed_ceiling_cannot_be_exceeded_by_configuration():
         with pytest.raises(ValueError):
             DriveGate(max_speed=speed)
     assert DriveGate(max_speed=.2).max_speed == .2
+
+
+def test_forward_recovers_in_half_second_after_brief_data_gap():
+    gate = DriveGate(settle_seconds=0)
+    candidate = dict(linear_mps=.2, angular_rps=.3)
+    gate.evaluate(0, 'depth expired', candidate)
+    for i in range(1, 12):
+        enabled, v, w = gate.evaluate(i*.05, '', candidate)
+    assert enabled and v == .2 and w == .3
+    assert gate.evaluate(.6, 'Ctrl+C', candidate) == (False, 0, 0)

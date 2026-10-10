@@ -227,17 +227,31 @@
     "note": "ToF-underfloor centre. CAD floor datum z=0 assumed; floor thickness + board/chip height must be measured."
   },
   "tof": {
-    "position_status": "CAD_MS22MF005-B_component_origin_not_calibrated_optical_center",
+    "position_status": "CAD_MS22MF005-B_mount_with_AG12847_lens_datum_offset",
     "xyz_m": [
-      0.03575,
-      5.00000471e-05,
-      -0.0075
+      0.035750000000000046,
+      5.000004713232552e-05,
+      -0.0074999999999997916
     ],
     "rpy_rad": [
-      0,
+      -1.5707963267948966,
       0,
       0
-    ]
+    ],
+    "optical_offset_m": [
+      0.015990000000000115,
+      7.703719777548943e-34,
+      3.469446951953614e-18
+    ],
+    "optical_xyz_m": [
+      0.05174000000000016,
+      5.000004713232899e-05,
+      -0.0074999999999997916
+    ],
+    "rotation_status": "roll_minus_90_verified_in_20261007_raw_bags_pitch_yaw_nominal",
+    "optical_position_status": "CAD_lens_datum_not_measured_optical_principal_point",
+    "lens_source_occurrence": 18758,
+    "note": "Do not fit height to planner outputs. Ground-contact height and lens principal point remain unmeasured."
   },
   "camera": {
     "position_status": "assembly_origin_only_optical_offset_unmeasured"

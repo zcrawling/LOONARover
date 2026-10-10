@@ -40,13 +40,25 @@ def encode_depth(depth):
 
 def rates_from_features(features, motivation_hz=None):
     rates = {}
+    vision = features.get("vision")
+    if vision is not None and vision.get("source") != "surface_v1":
+        raise ValueError("unsupported vision features")
     for side in ("left", "right"):
-        proximity = float(features["depth"][side]["proximity"])
+        # Live body packets always use ground-removed surface features. The
+        # depth-only branch remains for legacy recorded experiments, not driving.
+        proximity = float(vision[side] if vision is not None else features["depth"][side]["proximity"])
         expansion = float(features.get("expansion", {}).get(side, 0.0))
         if not all(math.isfinite(x) and 0 <= x <= 1 for x in (proximity, expansion)):
             raise ValueError("invalid sensory feature")
         rates[f"LC4_{side}"] = 100.0 * proximity
         rates[f"LPLC2_{side}"] = 100.0 * expansion
+    if vision is not None:
+        heading = float(vision["preferred_heading_rad"])
+        if not math.isfinite(heading) or abs(heading) > math.pi/4+1e-6:
+            raise ValueError("invalid preferred surface heading")
+        if heading:
+            danger_side = "right" if heading > 0 else "left"
+            rates[f"LC4_{danger_side}"] += 40*abs(heading)/(math.pi/4)
     if "avoidance" in features:
         decision = features["avoidance"]
         scale = float(decision["forward_scale"])
@@ -76,7 +88,7 @@ def decode_candidate(population_hz):
     if not all(math.isfinite(x) and x >= 0 for x in values):
         raise ValueError("invalid descending neuron rates")
     forward = min((values[0] + values[1]) / 2 / 150, 1.0) * 0.2
-    turn = float(np.clip((values[2] - values[3]) / 50, -1, 1)) * 0.6
+    turn = float(np.clip((values[2] - values[3]) / 100, -1, 1)) * 0.3
     return {"linear_mps": forward, "angular_rps": turn,
             "calibrated": False, "actuation_enabled": False}
 

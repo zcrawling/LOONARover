@@ -1,0 +1,84 @@
+{
+  "session": "capture_20261007_210750_557615",
+  "investigation": "Read-only inspection of user-started fly drive and recording; no restart or motion command sent by agent.",
+  "observed": {
+    "pc_brain_running": true,
+    "pi_driver_running": true,
+    "accepted_results_in_live_sample": [
+      80,
+      87
+    ],
+    "brain_candidate_linear_mps": [
+      0.10394508762157642,
+      0.2
+    ],
+    "sampled_commanded_linear_mps": 0,
+    "sampled_commanded_angular_rps": 0,
+    "latched_stop": "",
+    "motor_error": "0x00000000",
+    "blocked_reasons": [
+      "brain result expired/unavailable",
+      "MCU samples missing",
+      "terrain observations expired/unavailable",
+      "depth expired: stale frame",
+      "base state expired/unavailable"
+    ],
+    "last_result_rejection": "expired sensor-to-result latency",
+    "fresh_sensor_threshold_s": 0.3,
+    "sensor_to_result_ttl_s": 0.75,
+    "cpu_pressure_some_avg10_percent": 61.0,
+    "io_pressure_some_avg10_percent": 41.75,
+    "io_pressure_full_avg10_percent": 15.86,
+    "available_memory_kib": 6304364,
+    "swap_kib": 0,
+    "six_second_main_thread_wchan_samples": {
+      "motor_bench": {
+        "do_get_write_access": 17,
+        "total": 60
+      },
+      "drive_node": {
+        "do_get_write_access": 17,
+        "total": 60
+      },
+      "camera_ros": {
+        "do_get_write_access": 15,
+        "total": 60
+      },
+      "tof_adapter": {
+        "do_get_write_access": 13,
+        "total": 60
+      },
+      "mcu_backend": {
+        "running_or_runnable": 32,
+        "hrtimer_nanosleep": 28,
+        "total": 60
+      }
+    },
+    "cpu_affinity": {
+      "driver": [
+        1,
+        2,
+        3
+      ],
+      "mcu_backend": [
+        0
+      ]
+    },
+    "avoidance_during_status_sample": {
+      "mode": "turn",
+      "reason": "avoid step_up",
+      "clearance_m": [
+        0.28964466094067265,
+        0.3396446609406727
+      ]
+    }
+  },
+  "interpretation": "Brain output exists. CPU placement alone does not fix synchronous filesystem stalls in sensor journaling/logging. ROS sensor/terrain/result freshness gates repeatedly suppress output. CPU and disk contention coexist; not an isolated network disconnection or lack of neural motivation.",
+  "limits": "No controlled recording-off A/B or firmware instrumentation; individual causal contributions and motion performance after a fix are not measured.",
+  "code_paths": [
+    "recording/loonar_recording/journal.py: synchronous writes for non-MCU/gateway sources",
+    "loonar_tof_adapter/scripts/tof_adapter: read_sdk journals before updating sdk_received and queuing fresh depth",
+    "fly_brain/loonar_fly/body_node.py: 0.3 second sensor freshness",
+    "fly_brain/loonar_fly/protocol.py: 0.75 second sensor-to-result budget"
+  ]
+}

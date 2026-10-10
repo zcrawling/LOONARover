@@ -1,0 +1,21 @@
+{
+  "old_300ms": {
+    "terrain_frames": 180,
+    "terrain_accepted": 41,
+    "input_requests_on_frame_arrival": 41,
+    "decisions": {
+      "follow_surface": 1,
+      "cruise": 40
+    }
+  },
+  "new_1000ms": {
+    "terrain_frames": 180,
+    "terrain_accepted": 180,
+    "input_requests_on_frame_arrival": 180,
+    "decisions": {
+      "cruise": 175,
+      "follow_surface": 5
+    }
+  },
+  "scope": "Recorded terrain replay through actual callbacks; no new neural inference, motor commands, or simulated distance. 46s ToF disappearance is not repaired by replay."
+}

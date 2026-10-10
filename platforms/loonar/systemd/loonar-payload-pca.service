@@ -9,6 +9,7 @@ User=root
 Group=loonar
 EnvironmentFile=/etc/loonar/payload-pca.env
 ExecStart=/usr/bin/python3 /opt/loonar/current/tools/payload_pca_service.py
+Environment=PYTHONPATH=/opt/loonar/current/lib/python
 Restart=on-failure
 RestartSec=2
 RuntimeDirectory=loonar

@@ -9,11 +9,15 @@ import json
 import math
 import os
 import secrets
+import signal
 import struct
 import time
+import sys
+from pathlib import Path
 from collections import OrderedDict, deque
 from datetime import datetime, timezone
 
+from backend.pi_thermal import receive as receive_pi_temperature
 from backend.config import DEFAULT_CONFIG, LOCAL_SOCKET, load_manual_control
 from cli.groundlink_monitor import FrameParser, ProtocolError, decode_payload
 
@@ -56,6 +60,8 @@ class RealState:
         self.last_imu = None
         self.payload_health_at = None
         self.payload_ascii = False
+        self.pi_temperature = None
+        self.pi_temperature_at = None
 
     def event(self, text, request_id=None):
         self.event_sequence += 1
@@ -89,6 +95,10 @@ class RealState:
             "events": list(self.events),
             "manual_control": dict(self.manual_control),
             "mcu": {role: dict(values) for role, values in self.mcu.items()},
+            "pi_temperature": {
+                "celsius": self.pi_temperature if self.pi_temperature_at is not None and t-self.pi_temperature_at < 3 else None,
+                "age_s": age(self.pi_temperature_at),
+            },
             "imu_attitude": (dict(self.imu_attitude, age_s=age(self.last_imu))
                              if self.imu_attitude is not None else None),
         }
@@ -101,13 +111,30 @@ class GroundLinkConnection:
         self.connect_timeout = connect_timeout
         self.writer = None
         self.write_lock = asyncio.Lock()
+        self.command_lock = asyncio.Lock()
+        self.fly = None
         self.manual_control = manual_control or {"linear_speed_mps": 0.1, "angular_speed_radps": 0.1}
 
     def next_sequence(self):
         self.state.sequence = 1 if self.state.sequence >= 0xFFFFFFFF else self.state.sequence + 1
         return self.state.sequence
 
-    async def command(self, name, linear_speed_mps=None, angular_speed_radps=None,
+    async def command(self, name, *args, **kwargs):
+        async with self.command_lock:
+            name=name.upper()
+            if self.fly is not None and name == 'AUTO' and self.state.connection == 'CONNECTED':
+                try:
+                    await self.fly.start()
+                except (OSError,RuntimeError) as error:
+                    self.state.event(f'Fly brain 시작 실패: {error}')
+                    return {'ok':False,'text':str(error)}
+            result=await self._command(name,*args,**kwargs)
+            if self.fly is not None and (name in ({'STOP','MANUAL','PAYLOAD_START'} | MOTION_NAMES)
+                                          or (name=='AUTO' and not result['ok'])):
+                await self.fly.stop()
+            return result
+
+    async def _command(self, name, linear_speed_mps=None, angular_speed_radps=None,
                       *, linear_mps=None, angular_radps=None):
         name = name.upper()
         if name == "REACTION":
@@ -335,6 +362,8 @@ class GroundLinkConnection:
                     if entry["state"] == "Pending":
                         entry["state"] = "Result Unknown"
                 self.state.connection = "RECONNECTING"
+                if self.fly is not None:
+                    await self.fly.stop()
                 self.state.event(f"TCP RECONNECTING — {self.state.error}")
             delay = delays[min(attempt, len(delays) - 1)]
             attempt += 1
@@ -353,6 +382,17 @@ async def serve(host, port, config_path=DEFAULT_CONFIG, local_socket=LOCAL_SOCKE
         lock.close()
         raise RuntimeError("GCS backend is already running") from exc
     local_socket.unlink(missing_ok=True)
+    fly_dir=Path(__file__).resolve().parents[2]/'platforms/loonar/ros2/terrain_navigation/fly_brain'
+    sys.path.insert(0,str(fly_dir))
+    from gcs_pc import BrainTerminal
+    connection.fly=BrainTerminal(state.event)
+
+    async def watch_brain():
+        while True:
+            await asyncio.sleep(.2)
+            if connection.fly.exited():
+                state.event('Fly brain 터미널 종료 — STOP')
+                await connection.command('STOP')
 
     async def client(reader, writer):
         try:
@@ -381,12 +421,19 @@ async def serve(host, port, config_path=DEFAULT_CONFIG, local_socket=LOCAL_SOCKE
     server = await asyncio.start_unix_server(client, path=str(local_socket), limit=8192)
     os.chmod(local_socket, 0o600)
     task = asyncio.create_task(connection.run())
+    brain_watch = asyncio.create_task(watch_brain())
+    thermal_task = asyncio.create_task(receive_pi_temperature(state, host))
     print(f"GCS backend | REAL ROVER | {host}:{port}", flush=True)
     print(f"Local API: {local_socket}", flush=True)
     try:
         async with server:
             await server.serve_forever()
     finally:
+        thermal_task.cancel()
+        await asyncio.gather(thermal_task, return_exceptions=True)
+        brain_watch.cancel()
+        await asyncio.gather(brain_watch,return_exceptions=True)
+        await connection.command("STOP")
         task.cancel()
         await asyncio.gather(task, return_exceptions=True)
         local_socket.unlink(missing_ok=True)
@@ -399,6 +446,10 @@ def main():
     parser.add_argument("--port", type=int, default=7443)
     parser.add_argument("--config", default=str(DEFAULT_CONFIG))
     args = parser.parse_args()
+    def terminate(*_):
+        raise KeyboardInterrupt
+    signal.signal(signal.SIGTERM, terminate)
+    signal.signal(signal.SIGHUP, terminate)
     try:
         asyncio.run(serve(args.host, args.port, args.config))
     except KeyboardInterrupt:

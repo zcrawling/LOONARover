@@ -1,0 +1,138 @@
+{
+  "date": "2026-10-07",
+  "kernel": "6.8.0-1065-raspi",
+  "kernel_rebuild_required": false,
+  "kernel_flags_available": [
+    "CONFIG_NO_HZ_FULL=y",
+    "CONFIG_RCU_NOCB_CPU=y",
+    "CONFIG_CPUSETS=y",
+    "CONFIG_CPU_ISOLATION=y"
+  ],
+  "installed_on_pi": true,
+  "runtime_verified": {
+    "system_slice_effective": "0",
+    "user_slice_effective": "0",
+    "work_scope_affinity": [
+      1,
+      2
+    ],
+    "control_scope_affinity": [
+      3
+    ],
+    "unbound_workqueue_mask": "1",
+    "housekeeping_timer": "active",
+    "live_sensor_recorder_workers": "all observed affinity [1,2]",
+    "post_reboot_evidence": "after_reboot/cpu_processes.json"
+  },
+  "boot_arguments_staged": [
+    "nohz_full=1-3",
+    "rcu_nocbs=1-3",
+    "irqaffinity=0",
+    "isolcpus=managed_irq,1-3"
+  ],
+  "boot_arguments_active_verified": true,
+  "limitations": [
+    "CPU1-2 remain heavily contended: CPU pressure some avg10 was 86.49 percent during capture. Recorded ROS header gaps reached 2.96 seconds, and ToF emitted two stream-stale errors.",
+    "ToF capture reported 29 pending frame replacements; recording integrity verifies emitted journal data, not every frame generated inside the sensor/SDK.",
+    "CPU placement, asynchronous control journaling and camera recording reduction to 5 fps were tested together; their individual effects were not isolated.",
+    "Existing motor warning/status classification was not changed. The pre-reboot capture lacked wheel_states; the post-reboot capture contained wheel_states.",
+    "No drive commands were sent during validation. Autonomous driving and timing under motor load remain untested.",
+    "Per-CPU timers/IPIs, bound kernel work, and kernel execution on behalf of application tasks remain on their CPUs."
+  ],
+  "reboot_performed_by_agent": false,
+  "nohz_full_active": "1-3",
+  "pre_reboot_capture": {
+    "local_recording_unit_tests": "6 passed",
+    "shell_syntax": "passed",
+    "diff_check": "passed",
+    "actual_pi_capture": "capture_20261007_203853_106844",
+    "mode": "observe; no drive node, cFS or GCS command proxy",
+    "capture_seconds": 30,
+    "raw_tof_frames": 101,
+    "processed_tof_frames": 101,
+    "verification_errors": [],
+    "missing": [
+      "/wheel_states"
+    ],
+    "ready_for_analysis": false,
+    "recording_complete": false
+  },
+  "tests": {
+    "local_recording_unit_tests": "6 passed",
+    "shell_syntax": "passed",
+    "diff_check": "passed",
+    "actual_pi_capture": "capture_20261007_205454_845391",
+    "mode": "observe; no drive node, cFS or GCS command proxy",
+    "capture_seconds": 60,
+    "raw_tof_frames": 221,
+    "processed_tof_frames": 215,
+    "verification_errors": [],
+    "missing": [],
+    "ready_for_analysis": true,
+    "recording_complete": true,
+    "mcu": {
+      "rx_frames": 21728,
+      "max_rx_gap_s": 0.015545914,
+      "p99_rx_gap_s": 0.01218055,
+      "rx_gaps_over_1s": 0,
+      "parser_errors_first": 0,
+      "parser_errors_last": 0,
+      "motion_commands": [],
+      "motor_status_counts": {
+        "0x0": 3681,
+        "0x23040000": 2,
+        "0x3000000": 4
+      },
+      "health_missing": 0,
+      "transports": {
+        "mcu-1543.transport.json": {
+          "received": 25212,
+          "dropped": 0,
+          "closed": true,
+          "last_sequence": 25212,
+          "attempted": 25212
+        },
+        "gateway-1543.transport.json": {
+          "received": 1,
+          "dropped": 0,
+          "closed": true,
+          "last_sequence": 1,
+          "attempted": 1
+        }
+      }
+    },
+    "maximum_header_gap_s": {
+      "/loonar/fly/candidate_cmd_vel": 2.808867517,
+      "/camera/image_raw/compressed": 0.999556785,
+      "/loonar/safety/emergency_stop": 2.192776691,
+      "/imu/accel": 2.939997,
+      "/imu/data": 2.939997,
+      "/imu/gravity": 2.959,
+      "/imu/orientation_raw": 2.939997,
+      "/loonar/base/state": 2.024336902,
+      "/loonar/stationary": 1.980596523,
+      "/odom/raw": 2.921072,
+      "/wheel/odom": 2.921072,
+      "/wheel_states": 2.921072,
+      "/loonar/tof/raw_depth": 0.990129623,
+      "/loonar/tof/raw_amplitude": 0.990129623,
+      "/loonar/tof/raw_camera_info": 0.990129623,
+      "/loonar/tof/amplitude": 1.261922418,
+      "/loonar/tof/camera_info": 1.261922418,
+      "/loonar/tof/depth": 1.261922418,
+      "/diagnostics": 1.466284285
+    },
+    "producer_errors": [
+      {
+        "stamp_ns": 1791374141471251291,
+        "name": "loonar_tof_adapter",
+        "message": "SDK depth/amplitude stream stale"
+      },
+      {
+        "stamp_ns": 1791374149361419222,
+        "name": "loonar_tof_adapter",
+        "message": "SDK depth/amplitude stream stale"
+      }
+    ]
+  }
+}

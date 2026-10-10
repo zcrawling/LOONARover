@@ -7,7 +7,7 @@ import numpy as np
 import rclpy
 from rclpy.node import Node
 from rclpy.executors import SingleThreadedExecutor
-from sensor_msgs.msg import Image, CameraInfo
+from sensor_msgs.msg import Image, CameraInfo, Imu, JointState
 from geometry_msgs.msg import Vector3Stamped, TransformStamped
 from std_msgs.msg import String
 from tf2_ros import StaticTransformBroadcaster
@@ -25,6 +25,8 @@ def main():
     amp_pub = node.create_publisher(Image, '/loonar/tof/amplitude', SENSOR)
     info_pub = node.create_publisher(CameraInfo, '/loonar/tof/camera_info', SENSOR)
     gravity_pub = node.create_publisher(Vector3Stamped, '/imu/gravity', SENSOR)
+    gyro_pub = node.create_publisher(Imu, '/imu/data', SENSOR)
+    wheels_pub = node.create_publisher(JointState, '/wheel_states', SENSOR)
     received = []
     node.create_subscription(String, '/loonar/fly/terrain', lambda m: received.append(json.loads(m.data)), SENSOR)
     tf = StaticTransformBroadcaster(node)
@@ -46,7 +48,7 @@ def main():
     info.k = [fx, 0., cx, 0., fy, cy, 0., 0., 1.]
     observations = {}
     try:
-        for label in ('floor', 'tilted_floor', 'wall', 'low_step', 'large_step', 'pit', 'missing', 'bad_amplitude'):
+        for label in ('floor', 'moving_floor', 'tilted_floor', 'wall', 'low_step', 'large_step', 'pit', 'missing', 'bad_amplitude'):
             received.clear()
             depth = ground.copy()
             pitch = .10 if label == 'tilted_floor' else 0.
@@ -80,6 +82,13 @@ def main():
                     gravity.header.stamp = stamp; gravity.header.frame_id = 'base_link'
                     gravity.vector.x = -np.sin(pitch)*9.81
                     gravity.vector.z = np.cos(pitch)*9.81; gravity_pub.publish(gravity)
+                    gyro = Imu()
+                    gyro.header.stamp = stamp; gyro.header.frame_id = 'base_link'
+                    gyro.angular_velocity.z = .2 if label == 'moving_floor' else 0.
+                    gyro_pub.publish(gyro)
+                    wheels = JointState(name=['left_wheel', 'right_wheel'], position=[0., 0.],
+                                        velocity=[1., 1.] if label == 'moving_floor' else [0., 0.])
+                    wheels.header.stamp = stamp; wheels_pub.publish(wheels)
                     for pub, array in ((depth_pub, depth), (amp_pub, amplitude)):
                         image = Image(height=height, width=width, step=width*4, encoding='32FC1')
                         image.header.stamp = stamp; image.header.frame_id = 'fixture_optical'
@@ -95,15 +104,23 @@ def main():
             assert scene['ready'], (label, scene)
             ray = scene['directions'][3]
             decision = Avoidance().update(scene, time.monotonic(), label)
-            observations[label] = dict(ray=ray, decision=decision, points=scene['point_count'])
-            expected = dict(floor='none', tilted_floor='none', wall='wall', low_step='none', large_step='step_up', pit='drop', missing='none')[label]
+            observations[label] = dict(ray=ray, decision=decision, points=scene['point_count'],
+                                       floor=scene['floor'], temporal=scene['temporal'], vision=scene['vision'],
+                                       compute_ms=scene['compute_ms'])
+            expected = dict(floor='none', moving_floor='none', tilted_floor='none', wall='wall', low_step='none', large_step='step_up', pit='drop', missing='none')[label]
             assert ray['obstacle'] == expected, (label, observations[label])
-            if label in ('floor', 'tilted_floor'):
+            if label in ('floor', 'tilted_floor', 'moving_floor'):
                 assert decision['mode'] == 'cruise', observations[label]
+                assert scene['floor']['measured']
+                assert scene['vision']['left'] == scene['vision']['right'] == 0
+            if label == 'moving_floor':
+                assert scene['temporal']['frames'] == 1
+            else:
+                assert scene['temporal']['frames'] >= 3, observations[label]
             if label in ('wall', 'large_step'):
                 assert decision['mode'] == 'turn', observations[label]
             if label == 'missing':
-                assert decision['mode'] == 'scan' and ray['unknown_ground'], observations[label]
+                assert decision['mode'] == 'cruise' and ray['unknown_ground'], observations[label]
         report = dict(passed=True, hardware=False, observations=observations)
         (Path(__file__).resolve().parents[1]/'log/terrain-ros.json').write_text(json.dumps(report, indent=2)+'\n')
         print(json.dumps(report))

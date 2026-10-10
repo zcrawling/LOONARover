@@ -38,7 +38,10 @@ rsync -az -e "$RSYNC_RSH" \
   "$NAV_DIR" "$NAV_DIR/../loonar_description" \
   "$TARGET:LOONAR/platforms/loonar/ros2/"
 rsync -az -e "$RSYNC_RSH" "$ROOT/platforms/loonar/tools/mcu_v2/ros_samples.py" \
+  "$ROOT/platforms/loonar/tools/mcu_v2/motor_bench.py" \
   "$TARGET:LOONAR/platforms/loonar/tools/mcu_v2/"
+rsync -az -e "$RSYNC_RSH" "$ROOT/platforms/loonar/tools/start-ground-support.sh" \
+  "$TARGET:LOONAR/platforms/loonar/tools/"
 ssh "${SSH_OPTS[@]}" "$TARGET" 'bash -s' <<'REMOTE'
 set -eo pipefail
 source /opt/ros/jazzy/setup.bash
@@ -52,7 +55,7 @@ python3 -c 'from pathlib import Path; from configure_auto import configure; conf
 REMOTE
 cleanup
 trap - EXIT
-echo "Pi deploy/build complete. Run terrain_navigation/run_auto.sh on Pi, then select GCS STOP -> AUTO."
+echo "Pi deploy/build complete. Run ~/LOONAR/platforms/loonar/tools/start-ground-support.sh on Pi; GCS AUTO/STOP controls fly brain."
 if [[ ${2:-} != --prepare-only ]]; then
   exec bash "$ROOT/GCS/scripts/start_loonar_gcs.sh" "$PI_IP"
 fi

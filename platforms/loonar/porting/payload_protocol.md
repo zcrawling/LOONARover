@@ -9,7 +9,7 @@ MCU 명령은 최대 79자, Pi 수신 행은 최대 512바이트다. 초과 명�
 | Pi → MCU | MCU → Pi |
 | --- | --- |
 | `HELLO` | `HELLO,1,PAYLOAD,board_id,payload-1,boot_id` |
-| `STATUS,request` | `HEALTH,1,request,board_id,boot_id,state,station_id,uptime_ms,sensor_mask,sample_age_ms,sample_sequence,payload-1` |
+| `STATUS,request` | `HEALTH,1,request,board_id,boot_id,state,station_id,uptime_ms,sensor_mask,sample_age_ms,sample_sequence,payload-1,mcu_temperature_c` |
 | `CMD,request,START` | `ACK,request,START` → 초기화 후 `DONE,request,START,station_id` |
 | `CMD,request,STOP` | `ACK,request,STOP` → PCA 행 → `DONE,request,STOP,station_id` |
 | `CMD,request,RESULT` | 마지막 PCA 행 → `DONE,request,RESULT,station_id`; 없으면 `ERROR,request,no_result` |
@@ -24,6 +24,11 @@ ACK 또는 최종 응답을 기억하며 중복 수신으로 작업을 다시 �
 구형 자동 출력 펌웨어는 센서 데이터가 와도 ONLINE으로 처리하지 않는다.
 
 ## 상태와 시각
+
+마지막 `mcu_temperature_c`는 Teensy 내부 온도(`tempmonGetTemp`, °C)다.
+Pi 서비스는 이 필드가 없는 구형 12필드 응답도 허용하고 온도를 미지원으로 표시한다.
+새 펌웨어 업로드 전에 Pi 서비스를 업데이트해야 한다. cFS용 HEALTH 메시지 형식은 유지한다.
+온도와 마지막 USB TX/RX 시각은 하드웨어 모니터용 로컬 상태 파일에 별도로 기록한다.
 
 상태는 IDLE, INITIALIZING, STARTING, MEASURING, STOPPING이다.
 ACK는 수락, DONE은 완료다. START는 5회/150ms 재시도 초기화를 거쳐 측정한다.

@@ -1,0 +1,102 @@
+[
+  {
+    "session": "capture_20261009_140206_482217",
+    "mode": "fly",
+    "duration_s": 139.337836703,
+    "tof_frames": 263,
+    "tof_first_s": 13.00589656829834,
+    "tof_last_s": 46.34651184082031,
+    "tof_active_s": 33.34061527252197,
+    "tof_rate_hz": 7.858283293767831,
+    "processed_frames": 254,
+    "processed_age_s": {
+      "n": 254,
+      "p10": 0.1341483366660645,
+      "median": 0.2138509535253296,
+      "p90": 0.4168923596802979,
+      "max": 0.7631027173764648
+    },
+    "terrain_frames": 180,
+    "terrain_age_s": {
+      "n": 180,
+      "p10": 0.2596931219100952,
+      "median": 0.3564901351928711,
+      "p90": 0.5039313793182373,
+      "max": 0.7912983894348145
+    },
+    "terrain_compute_ms": {
+      "n": 180,
+      "p10": 56.42660559997239,
+      "median": 100.54677449988958,
+      "p90": 151.48941140005263,
+      "max": 213.45839799982969
+    },
+    "terrain_over_300ms": 139,
+    "floor_measured": 180,
+    "floor_confidence": {
+      "n": 180,
+      "p10": 0.3780410524865684,
+      "median": 0.40423372480788744,
+      "p90": 0.7323309801792017,
+      "max": 0.7868852459016393
+    },
+    "center_obstacles": {
+      "none": 180
+    },
+    "center_clearance": {
+      "n": 180,
+      "p10": 0.9,
+      "median": 0.9,
+      "p90": 0.9,
+      "max": 0.9
+    },
+    "avoidance_modes": {
+      "cruise": 175,
+      "follow_surface": 5
+    },
+    "brain_inputs": 22,
+    "brain_results": 21,
+    "status_reasons": {
+      "base state expired/unavailable": 2,
+      "depth expired: no depth received": 5,
+      "depth expired: stale frame": 88,
+      "partial depth awaiting calibrated terrain": 25,
+      "brain result expired/unavailable": 1,
+      "": 1,
+      "PC Ctrl+C/brain shutdown; restart Pi command to rearm": 9
+    },
+    "surface_selected": 5,
+    "stationary_median": 0,
+    "manual_counts": {},
+    "manual_during_tof": 0,
+    "motor_samples": 6638,
+    "motor_error_counts": {
+      "0": 6638
+    },
+    "straight_speed": {
+      "n": 0
+    },
+    "straight_abs_tracking_error": {
+      "n": 0
+    },
+    "turn_speed": {
+      "n": 0
+    },
+    "turn_abs_tracking_error": {
+      "n": 0
+    },
+    "moving_samples": 0,
+    "errors": [
+      {
+        "t": 46.825939893722534,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK depth/amplitude stream stale"
+      },
+      {
+        "t": 49.15333938598633,
+        "name": "loonar_tof_adapter",
+        "msg": "SDK helper exited (code 1): CubeEye: SDK teardown timeout; exiting isolated helper"
+      }
+    ]
+  }
+]

@@ -1,0 +1,77 @@
+{
+  "session": "capture_20261007_201244_924354",
+  "scope": "read-only diagnosis; no motion or deployment performed",
+  "storage": {
+    "raw_bytes": 1218945131,
+    "bag_bytes": 1134337448,
+    "capture_seconds": 101.522335367,
+    "write_path": "synchronous unbuffered acquisition journal inside MCU receive/transmit loop; journal data imported into MCAP, processed ROS images recorded too",
+    "camera_fps_normal": 5,
+    "camera_fps_recording": 30
+  },
+  "system_snapshot_after_stop": {
+    "ram_available_mib": 7477,
+    "sd_available_gib_rounded": 90,
+    "throttled": "0x0",
+    "temperature_c": 54.55,
+    "io_pressure_some_avg60_percent": 11.1,
+    "io_pressure_some_avg300_percent": 11.8,
+    "io_pressure_full_avg300_percent": 6.97,
+    "memory_pressure_avg300_percent": 0,
+    "kernel_usb_disconnect_or_reset_seen": false
+  },
+  "mcu": {
+    "mcu_rx_count": 38096,
+    "boot_ids": [
+      120
+    ],
+    "parser_error_counter_histogram": {
+      "0": 17870,
+      "46": 2235,
+      "64": 5426,
+      "110": 410,
+      "136": 53,
+      "207": 52,
+      "223": 209,
+      "269": 52,
+      "320": 1206,
+      "366": 3210,
+      "412": 52,
+      "431": 52,
+      "447": 53,
+      "508": 7216
+    },
+    "motor_status_counts": {
+      "0x0": 4,
+      "0x23040000": 2,
+      "0x3000000": 595,
+      "0x1000000": 5769
+    },
+    "rx_wall_gaps_over_1s": 7,
+    "max_rx_wall_gap_s": 2.331550817,
+    "first_parser_error_counter": 0,
+    "last_parser_error_counter": 508,
+    "motor_printed_age_after_startup_max_ms": 2980,
+    "health_missing_log_count": 9
+  },
+  "tof": {
+    "raw_frames": 930,
+    "processed_frames": 601,
+    "last_logged_sdk_frame_dropped": 0,
+    "last_logged_pending_frames_replaced": 265
+  },
+  "ros": {
+    "wheel_states_messages": 0,
+    "brain_input_messages": 17,
+    "brain_result_messages": 16,
+    "imu_max_header_gap_s": 4.75408
+  },
+  "confirmed_code_issue": "base_io.motor_sample treats any nonzero RoboClaw status as motor_fault and returns before wheel_states publication; persistent 0x01000000 is documented Speed Error Limit Warning, not a low-bit driver fault. Investigate warning cause separately from status classification.",
+  "official_status_reference": "https://downloads.basicmicro.com/docs/roboclaw_user_manual.pdf (command 90, printed page 73)",
+  "inference": "Recording I/O and CPU load plausibly starve producer loops; synchronous journal path directly allows storage stalls to delay MCU servicing. SD throughput saturation alone is not proven without recording-time disk latency/CPU profiling or controlled A/B.",
+  "next_fixes": [
+    "Separate acquisition/control loops from synchronous storage writes; bound buffers and explicitly report overflow.",
+    "Avoid simultaneous duplicate large image serialization/storage; lower recording camera fps to match normal 5 fps unless full rate is required.",
+    "Decode RoboClaw errors/warnings separately; preserve feedback publication with status flags; diagnose persistent speed error limit warning."
+  ]
+}

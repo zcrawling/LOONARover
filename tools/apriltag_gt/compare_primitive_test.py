@@ -29,8 +29,11 @@ def main():
  gt=np.array(gt);rot=np.array(rot)
  if len(gt)>1 and np.any(np.diff(gt[:,0])<=0):raise ValueError('Nonmonotonic GT timestamps')
  if len(gt)<5:raise ValueError('Too few full-pose GT frames')
- topics=['/wheel/odom','/odometry/filtered','/localization/dr'];odom={t:[] for t in topics}
+ topics=['/wheel/odom','/odometry/filtered','/localization/dr']
+ if state.get('platform')=='LOONAR':topics=['/wheel/odom','/c_test/v1']
+ odom={t:[] for t in topics}
  with AnyReader([out/'rover/bag'],default_typestore=get_typestore(Stores.ROS2_HUMBLE)) as bag:
+  if state.get('platform')=='LOONAR' and any(c.topic=='/odometry/filtered' and c.msgcount>1 for c in bag.connections):odom['/odometry/filtered']=[]
   if any(c.topic=='/odom_tof_test' and c.msgcount>0 for c in bag.connections):
    topics.append('/odom_tof_test');odom['/odom_tof_test']=[]
   for c,_,raw in bag.messages(connections=[c for c in bag.connections if c.topic in topics]):

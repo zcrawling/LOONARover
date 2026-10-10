@@ -434,7 +434,8 @@ void executeCommand(char* line) {
     Serial.print(','); Serial.print(sampleSequence ? sampleValidMask :
       (magnetometerReady | (infraredReady << 1) | (rtdReady << 2)));
     Serial.print(','); Serial.print(sampleSequence ? millis() - lastDataMs : UINT32_MAX);
-    Serial.print(','); Serial.print(sampleSequence); Serial.println(",payload-1"); return;
+    Serial.print(','); Serial.print(sampleSequence); Serial.print(",payload-1,");
+    Serial.println(tempmonGetTemp(), 2); return;
   }
   char* id = nullptr; char* op = line;
   if (!strncmp(line, "CMD,", 4)) {

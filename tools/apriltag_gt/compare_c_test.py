@@ -36,10 +36,13 @@ def window_metric(window,gt):
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('trial',type=Path);args=p.parse_args();out=args.trial
     if not (out/'rover/bag/metadata.yaml').exists():raise ValueError('Recorded bag missing')
+    state=json.loads((out/'test.json').read_text())
+    v1_topic='/c_test/v1' if state.get('platform')=='LOONAR' else '/localization/dr'
+    state_topic='/c_test/state' if state.get('platform')=='LOONAR' else '/localization/state'
     states=[];quality=[];counts={}
     with AnyReader([out/'rover/bag'],default_typestore=get_typestore(Stores.ROS2_HUMBLE)) as bag:
         counts={topic:sum(c.msgcount for c in bag.connections if c.topic==topic) for topic in {c.topic for c in bag.connections}}
-        for c,_,raw in bag.messages(connections=[x for x in bag.connections if x.topic in ['/localization/state','/localization/registration']]):
+        for c,_,raw in bag.messages(connections=[x for x in bag.connections if x.topic in [state_topic,'/localization/registration']]):
             r=json.loads(bag.deserialize(raw,c.msgtype).data)
             if c.topic=='/localization/registration':quality.append(r);continue
             if all(k in r for k in ['t','stationary','zero_update','bias','encoder_vx','vx']):states.append(r)
@@ -52,9 +55,9 @@ def main():
     (out/'report.html').replace(out/'baseline_report.html')
     env=__import__('os').environ.copy();env['PYTHONPATH']=str(ROOT/'common/ros2/loonar_localization')
     subprocess.run([sys.executable,'-m','loonar_localization.c_evaluate','--samples',str(out/'rover/estimate/samples.csv'),
-                    '--gt-comparison',str(out/'comparison.csv'),'--output',str(out/'evaluation')],env=env,check=True,stdout=subprocess.DEVNULL)
+                    '--v1-topic',v1_topic,'--gt-comparison',str(out/'comparison.csv'),'--output',str(out/'evaluation')],env=env,check=True,stdout=subprocess.DEVNULL)
     comparison=list(csv.DictReader((out/'comparison.csv').open()))
-    gt=np.array([[float(r[k]) for k in ['t_ros','gt_x','gt_y','gt_yaw']] for r in comparison if r['topic']=='/localization/dr'])
+    gt=np.array([[float(r[k]) for k in ['t_ros','gt_x','gt_y','gt_yaw']] for r in comparison if r['topic']==v1_topic])
     windows=[json.loads(x) for x in (out/'rover/estimate/windows.jsonl').read_text().splitlines()]
     metrics=[window_metric(w,gt) for w in windows]
     samples=list(csv.DictReader((out/'rover/estimate/samples.csv').open()));last=samples[-1]

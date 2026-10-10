@@ -1,0 +1,100 @@
+{
+  "date": "2026-10-07",
+  "timezone": "Asia/Seoul",
+  "problem": "Stacked 0.04/0.05 m/s caps, unknown-ground scanning, tonic drive suppression and slow acceleration weakened translation while strong reflex turns persisted.",
+  "changes": {
+    "removed": [
+      "unknown-ground-only scan",
+      "partial-ground 0.04 m/s cap",
+      "low-step 0.05 m/s cap",
+      "angular-motion 0.05 m/s translation cap",
+      "duplicate tonic stimulus attenuation with valid scene"
+    ],
+    "forward_max_mps": 0.2,
+    "acceleration_mps2": 0.4,
+    "reflex_turn_radps": 0.3,
+    "angular_max_radps": 0.4,
+    "neural_angular_gain_radps_per_hz": 0.003,
+    "approach_output_limit_mps": [
+      0.1,
+      0.2
+    ],
+    "turn_release_stable_seconds": 0.15,
+    "minimum_turn_hold_seconds": 0.3
+  },
+  "preserved": [
+    "measured close wall/large-step/drop avoidance",
+    "both measured turn footprints blocked -> zero motion",
+    "expired depth/terrain/brain -> zero motion",
+    "motor fault latch",
+    "Ctrl+C STOP"
+  ],
+  "unit_tests": {
+    "passed": 33,
+    "command": "bash test.sh unit"
+  },
+  "ros_drive": {
+    "passed": true,
+    "nonzero_seen": true,
+    "bounded_speed": true,
+    "proximity_advisory_does_not_stop": true,
+    "missing_scene_monitor_does_not_stop": true,
+    "brain_loss_stop": true,
+    "stale_depth_stop": true,
+    "terrain_loss_stop": true,
+    "wall_step_drop_turn": true,
+    "resumes_open_path": true,
+    "maximum_radps": 0.4,
+    "partial_depth_can_avoid": true,
+    "unknown_low_step_neural_turn_preserve_forward": true,
+    "fault_latched": true,
+    "pc_halt_latched": true,
+    "maximum_mps": 0.2,
+    "sigint_gateway_stop_ms": 2.4940500006778166,
+    "exit_code": 0,
+    "hardware": false
+  },
+  "pi_deployment": {
+    "completed": true,
+    "reason": "Deployed with subsequent vision update; see VISION_VALIDATION.json for deployed version and Pi preflight. Historical source hashes below describe the earlier mobility test snapshot.",
+    "verified_at": "2026-10-07T06:33:05.806728+00:00"
+  },
+  "hardware": {
+    "tested": false,
+    "note": "Prior AVOIDANCE_VALIDATION.json describes the previous version, not this mobility fix."
+  },
+  "limitations": [
+    "Unknown ground is advisory; a completely unobserved pit is not guaranteed to be avoided.",
+    "No guarantee of 0.2m/s actual travel: neural candidate and motor mechanics still determine speed.",
+    "Freshness interruptions and real or misclassified no_turn_room may still stop motion; no current live data available."
+  ],
+  "source_sha256": {
+    "loonar_fly/__init__.py": "781577bb47af4296ed1e4d6e1b72741524e277c83a76b1263d141586f7ec6128",
+    "loonar_fly/avoidance.py": "283de859eff108a9b17bc095de250d57ed9bc91297654517ac0829ada76e8a46",
+    "loonar_fly/benchmark.py": "139f3a367a475381d40e46619a91466f5bdfcd3d20e438e335a1ae3f8b5f97c7",
+    "loonar_fly/body_node.py": "d4fef603dd70163690203cef34dcdfe3f1c6cdf4ae6730439ae37c506f7694b4",
+    "loonar_fly/brain.py": "b49638d19bc882092ee4b74d1ffe5cb2d9dcd73d8cc8243fca9c60c187a1e5b4",
+    "loonar_fly/brain_node.py": "474dc11b82863de824a860403f1d201b85b9d4cc3643bd8197645385116c705f",
+    "loonar_fly/drive.py": "4948e868d508092f60865bd7693e23353a9e726478a50aabb5e4c6d7efd45a04",
+    "loonar_fly/drive_node.py": "c63aeaf3958cf3a7477b7168ce2c66835183c81a787a43155695c9e6a4a66390",
+    "loonar_fly/interface.py": "704b32c58cca9d81802b0b2244f527f988f382bc730e249ec35cb771e52cfd55",
+    "loonar_fly/observe.py": "1b273883997912f8ecda28f1a8a84c1fe574d65809ee27c8d13e7ce39c0ac1e8",
+    "loonar_fly/protocol.py": "e89c009d71f4c7af9bdeba54804cc933593e77e8b68e06f3d95ee0946b6f5012",
+    "loonar_fly/provenance.py": "c898d6edfc3d8b9871997fe0dcd38d048b53f8eb48fddb2b1f55a712e6f72d24",
+    "loonar_fly/terrain_node.py": "e04b9b6c6c16c6194b231b0ca764076a0dc6c5bb0203d4c7b649e1b85f3d0f02"
+  },
+  "ros_terrain": {
+    "passed": true,
+    "scenes": [
+      "floor",
+      "tilted_floor",
+      "wall",
+      "low_step",
+      "large_step",
+      "pit",
+      "missing",
+      "bad_amplitude"
+    ],
+    "hardware": false
+  }
+}

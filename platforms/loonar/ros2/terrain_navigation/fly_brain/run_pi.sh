@@ -2,6 +2,9 @@
 # Existing backend/gateway/cFS, with a ROS-only brain interface substituted.
 set -eo pipefail
 FLY_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+if [[ -f /etc/loonar/cpu-layout.json ]]; then
+  sudo -n /usr/local/sbin/loonar-cpu-enter work "$BASHPID"
+fi
 if [[ ${1:-} == --help ]]; then
   echo 'Usage: bash run_pi.sh [--drive] [--max-speed 0.2] [--drive-seconds N] [--video-ip PC_IP] [--no-camera]'
   echo '--drive: operator-supervised motion, local obstacle avoidance, no GCS/cFS. Ctrl+C stops.'
@@ -49,4 +52,4 @@ if [[ $LOONAR_FLY_DRIVE == true ]]; then
     "${bench_args[@]}"
 fi
 echo 'Fly brain SHADOW mode. Motor actuation disabled; original navigator disabled.'
-exec bash "$LOONAR_NAV_WS/../../tools/start-ground-support.sh" "${bench_args[@]}"
+LOONAR_FLY_LEGACY_SUPPORT=1 exec bash "$LOONAR_NAV_WS/../../tools/start-ground-support.sh" "${bench_args[@]}"

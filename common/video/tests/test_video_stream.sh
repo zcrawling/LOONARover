@@ -64,3 +64,13 @@ grep -q 'udpsink' <<<"$VISION_BOTH"
 grep -q 'shmsink' <<<"$VISION_BOTH"
 [[ $(grep -o 'libcamerasrc' <<<"$VISION_BOTH" | wc -l) == 1 ]]
 [[ $(grep -o 'x264enc' <<<"$VISION_BOTH" | wc -l) == 1 ]]
+BAG_ONLY="$(CAMERA_ROS_ENABLED=1 VIDEO_STREAM_ENABLED=0 LOONAR_VIDEO_CONFIG="$TMP_DIR/pi.env" LOONAR_VIDEO_DRY_RUN=1 bash "$STREAM")"
+grep -q 'appsink' <<<"$BAG_ONLY"
+grep -q 'jpegenc' <<<"$BAG_ONLY"
+if grep -Eq 'udpsink|x264enc|filesink' <<<"$BAG_ONLY"; then exit 1; fi
+[[ $(grep -o 'libcamerasrc' <<<"$BAG_ONLY" | wc -l) == 1 ]]
+BAG_BOTH="$(CAMERA_ROS_ENABLED=1 CAMERA_ROS_FPS=10 VIDEO_RECORD_PATH="$TMP_DIR/bag.ts" VISION_ENABLED=1 LOONAR_VIDEO_CONFIG="$TMP_DIR/pi.env" LOONAR_VIDEO_DRY_RUN=1 bash "$STREAM")"
+for element in appsink filesink udpsink shmsink; do grep -q "$element" <<<"$BAG_BOTH"; done
+[[ $(grep -o 'libcamerasrc' <<<"$BAG_BOTH" | wc -l) == 1 ]]
+[[ $(grep -o 'x264enc' <<<"$BAG_BOTH" | wc -l) == 1 ]]
+if CAMERA_ROS_FPS=0 LOONAR_VIDEO_CONFIG="$TMP_DIR/pi.env" LOONAR_VIDEO_DRY_RUN=1 bash "$STREAM" >/dev/null 2>&1; then exit 1; fi

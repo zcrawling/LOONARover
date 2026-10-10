@@ -33,9 +33,9 @@ function draw(s){
  set('battery-label',showVoltage?'배터리 전압':'배터리 잔량');set('battery',showVoltage?number(voltage,' V'):number(percent,'%'));
  el('battery-fill').parentElement.hidden=showVoltage||!Number.isFinite(percent);
  el('battery-fill').style.width=Number.isFinite(percent)?Math.max(0,Math.min(100,percent))+'%':'0%';
- set('temperature',number(v['Control MCU 온도 (°C)']??v['MCU 온도 (°C)'],' °C'));
  el('devices').replaceChildren();el('ros-values').replaceChildren();let rosCount=0;
  for(const key of Object.keys(v)){
+  if(['라즈베리파이 내부 온도 (°C)','Control MCU 온도 (°C)','MCU 온도 (°C)'].includes(key))continue;
   const ros=['ROS','VEHICLE'].includes(sources[key]);
   if(!ros&&['배터리 잔량 (%)','라즈베리파이 내부 온도 (°C)','Control MCU 온도 (°C)','MCU 온도 (°C)'].includes(key))continue;
   const row=document.createElement('div');row.className='device';const label=document.createElement('span');label.textContent=key;const value=document.createElement('span');value.className='value';value.textContent=v[key]??'—';if(v[key]==='ONLINE')value.classList.add('value-online');if(v[key]==='OFFLINE')value.classList.add('value-offline');row.append(label,value);el(ros?'ros-values':'devices').append(row);if(ros)rosCount++;

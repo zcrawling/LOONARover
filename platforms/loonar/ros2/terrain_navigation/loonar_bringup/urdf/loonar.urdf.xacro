@@ -4,7 +4,8 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="loonar">
   <xacro:include filename="$(find loonar_description)/urdf/loonar.urdf.xacro"/>
   <!-- The terrain adapter publishes optical-axis images. Keep the CAD mount
-       and IMU axes; assume zero lens offset until optical-centre calibration.
+       and IMU axes; use the CAD lens datum offset from loonar_description.
+       The optical principal point remains unmeasured.
        Do not enable the unrelated, uncalibrated camera optical frame. -->
   <xacro:unless value="$(arg publish_optical_frames)">
     <link name="tof_optical_frame"/>

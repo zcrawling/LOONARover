@@ -1,0 +1,22 @@
+[
+  {
+    "bag": "drive_20261009_134216_1791520936108639215",
+    "counts": {
+      "/rosout": 29
+    },
+    "blocked_reasons": {},
+    "nonzero_cmd_vel": null,
+    "errors": {},
+    "cmd_vel_recorded": false
+  },
+  {
+    "bag": "drive_20261009_134906_1791521346155051409",
+    "counts": {
+      "/rosout": 30
+    },
+    "blocked_reasons": {},
+    "nonzero_cmd_vel": null,
+    "errors": {},
+    "cmd_vel_recorded": false
+  }
+]

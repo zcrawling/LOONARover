@@ -7,6 +7,8 @@
 #include "CubeEyeSink.h"
 #include "CubeEyeBasicFrame.h"
 // clang-format on
+#include "capture_transport.hpp"
+#include <cstring>
 #include <atomic>
 #include <cerrno>
 #include <chrono>
@@ -20,37 +22,16 @@
 namespace cu = meere::sensor;
 static volatile sig_atomic_t stopping = 0;
 static void interrupt(int) { stopping = 1; }
-static bool send_bytes(int fd, const void *data, size_t size) {
-  auto p = static_cast<const char *>(data);
-  while (size) {
-    if (stopping)
-      return false;
-    auto n = write(fd, p, size);
-    if (n < 0 && errno == EINTR)
-      continue;
-    if (n < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
-      // stop() waits for SDK callbacks. Never block a callback forever when
-      // ROS stops draining the pipe during shutdown or a subscriber failure.
-      pollfd output{fd, POLLOUT, 0};
-      poll(&output, 1, 50);
-      continue;
-    }
-    if (n <= 0)
-      return false;
-    p += n;
-    size -= n;
-  }
-  return true;
-}
 class Receiver : public cu::sink {
-  int fd_;
-  uint32_t sequence_ = 0;
+  loonar::CaptureTransport transport_;
+  loonar::CaptureHealth<cu::CameraError> health_;
+  std::atomic<uint32_t> sequence_{0};
   double calibration_[12];
 
 public:
   Receiver(int fd, const cu::IntrinsicParameters &i,
            const cu::DistortionCoefficients &d)
-      : fd_(fd),
+      : transport_(fd),
         calibration_{i.focal.fx,  i.focal.fy,  i.principal.cx,  i.principal.cy,
                      d.radial.k1, d.radial.k2, d.tangential.p1, d.tangential.p2,
                      d.radial.k3, d.radial.k4, d.radial.k5,     d.radial.k6} {}
@@ -59,12 +40,19 @@ public:
     std::cerr << "CubeEye state " << int(state) << std::endl;
   }
   void onCubeEyeCameraError(cu::ptr_source, cu::CameraError e) override {
-    std::cerr << "CubeEye error " << int(e) << '\n';
-    stopping = 1;
+    health_.error(e);
+    if (e == cu::CameraError::FrameDropped) {
+      const auto count = health_.dropped();
+      if (count == 1 || count % 100 == 0)
+        std::cerr << "CubeEye FrameDropped (recoverable), count=" << count
+                  << "; continuing acquisition\n";
+    } else {
+      std::cerr << "CubeEye fatal error " << int(e) << '\n';
+    }
   }
   void onCubeEyeFrameList(cu::ptr_source,
                           const cu::sptr_frame_list &frames) override {
-    if (!frames || stopping)
+    if (!frames || stopping || failed())
       return;
     cu::sptr_frame depth, amplitude;
     for (const auto &f : *frames) {
@@ -91,12 +79,27 @@ public:
          a = cu::frame_cast_basic16u(amplitude);
     if (d->frameData()->size() != pixels || a->frameData()->size() != pixels)
       return;
-    if (!send_bytes(fd_, header, sizeof(header)) ||
-        !send_bytes(fd_, &timestamp, sizeof(timestamp)) ||
-        !send_bytes(fd_, calibration_, sizeof(calibration_)) ||
-        !send_bytes(fd_, d->frameData()->data(), pixels * 2) ||
-        !send_bytes(fd_, a->frameData()->data(), pixels * 2))
-      stopping = 1;
+    // SDK buffers are only borrowed for this callback. Copy both planes into
+    // one owned packet before returning; a worker serializes the whole packet.
+    std::vector<uint8_t> packet(sizeof(header) + sizeof(timestamp) +
+                                sizeof(calibration_) + pixels * 4);
+    size_t offset = 0;
+    auto append = [&](const void *data, size_t size) {
+      std::memcpy(packet.data() + offset, data, size);
+      offset += size;
+    };
+    append(header, sizeof(header));
+    append(&timestamp, sizeof(timestamp));
+    append(calibration_, sizeof(calibration_));
+    append(d->frameData()->data(), pixels * 2);
+    append(a->frameData()->data(), pixels * 2);
+    transport_.submit(std::move(packet));
+  }
+  bool failed() const { return health_.fatal() || transport_.failed(); }
+  void stopOutput() { transport_.stop(); }
+  void report() const {
+    std::cerr << "CubeEye capture: sdk_frame_dropped=" << health_.dropped()
+              << " pending_frames_replaced=" << transport_.replaced() << '\n';
   }
 };
 int main(int argc, char **argv) {
@@ -154,17 +157,26 @@ int main(int argc, char **argv) {
     std::cerr << "CubeEye: run failed " << int(rc) << std::endl;
     return 1;
   }
-  while (!stopping)
+  auto next_report = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+  while (!stopping && !receiver.failed()) {
     std::this_thread::sleep_for(std::chrono::milliseconds(30));
+    if (std::chrono::steady_clock::now() >= next_report) {
+      receiver.report();
+      next_report = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+    }
+  }
+  const int exit_code = receiver.failed() ? 1 : 0;
+  receiver.stopOutput();
+  receiver.report();
   // On Pi SDK 2.5.9 destroy_camera can hang after reporting Released, even
   // though stop() returned. Bound vendor teardown inside this isolated process;
   // the OS closes its USB handles. A hung stop remains a failed exit.
   std::atomic<bool> stopped{false};
-  std::thread([&stopped] {
+  std::thread([&stopped, exit_code] {
     std::this_thread::sleep_for(std::chrono::seconds(2));
     std::cerr << "CubeEye: SDK teardown timeout; exiting isolated helper"
               << std::endl;
-    std::_Exit(stopped.load() ? 0 : 1);
+    std::_Exit(stopped.load() ? exit_code : 1);
   }).detach();
   camera->stop();
   stopped = true;
@@ -172,5 +184,5 @@ int main(int argc, char **argv) {
   cu::destroy_camera(camera);
   camera.reset();
   std::cerr << "CubeEye: shutdown complete" << std::endl;
-  std::_Exit(0);
+  std::_Exit(exit_code);
 }

@@ -10,7 +10,7 @@ import tempfile
 import time
 import unittest
 
-from cli.xbox_control import EVENT, EV_ABS, EV_SYN, SYN_REPORT, LY, RT
+from cli.xbox_control import EVENT, EV_ABS, EV_SYN, SYN_REPORT, LY, RY, LT, RT
 
 ROOT = Path(__file__).resolve().parents[1]
 CHILD = r'''
@@ -83,6 +83,14 @@ class TerminalTests(unittest.TestCase):
                 report(RT, 0)
                 report(RT, 1023)
                 wait_for(lambda: any(c.get('linear_mps') == -.4 for c in commands()[count:]))
+                count = len(commands())
+                report(LT, 1023)
+                report(RY, -16384)
+                # No more device events: the send loop must still advance the 1 Hz wave.
+                wait_for(lambda: any(c.get('angular_radps', 0) < -.1 for c in commands()[count:])
+                         and any(c.get('angular_radps', 0) > .1 for c in commands()[count:]))
+                wave = [c for c in commands()[count:] if abs(c.get('angular_radps', 0)) > .1]
+                self.assertTrue(all(c['linear_mps'] > 0 for c in wave), 'right stick overrides reverse left input')
                 os.close(write_fd)
                 write_fd = None
                 wait_for(lambda: process.poll() is not None)

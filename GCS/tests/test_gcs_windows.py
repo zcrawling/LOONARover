@@ -32,10 +32,11 @@ class WindowsTests(unittest.TestCase):
             calls = record.read_text().splitlines()
             self.assertEqual(calls[0], 'browser')
             self.assertIn('start_diagnostics.sh --host 192.168.1.50', calls[1])
-            self.assertIn('start_video.sh', calls[2])
-            self.assertIn('--record', calls[2])
-            self.assertIn('--compass', calls[2])
-            self.assertIn('start_controller.sh', calls[3])
+            self.assertIn('start_hardware_monitor.sh --host 192.168.1.50', calls[2])
+            self.assertIn('start_video.sh', calls[3])
+            self.assertIn('--record', calls[3])
+            self.assertIn('--compass', calls[3])
+            self.assertIn('start_controller.sh', calls[4])
 
 if __name__ == '__main__':
     unittest.main()

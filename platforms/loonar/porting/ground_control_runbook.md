@@ -22,6 +22,38 @@ USB by-id 경로와 차체 설정이 맞아야 한다.
 
 ## 실행
 
+### 지상국 하드웨어 모니터
+
+`GCS/scripts/start_loonar_gcs.sh PI_IP` 실행 시 별도 하드웨어 터미널을 자동으로 연다.
+이미 지상국을 실행 중이면 PC에서 다음 명령으로 모니터만 열 수 있다.
+
+```bash
+gnome-terminal --geometry=100x24 -- bash /home/sb/LOONAR/GCS/scripts/start_hardware_monitor.sh --host 10.254.254.3
+```
+
+SSH `loonar` 계정으로 약 1초마다 `vcgencmd measure_temp`, `pmic_read_adc EXT5V_V`,
+`get_throttled`, `/proc/net/wireless`와 MCU 상태 파일을 읽는다.
+기본 비밀번호는 기존 로버 설정 `loonar`이며 `LOONAR_SSH_PASSWORD`로 바꿀 수 있다.
+sshpass가 없으면 SSH 키 인증을 사용한다. 모니터는 MCU 포트를 열지 않는다.
+
+- `EXT5V_V`는 Pi PMIC ADC가 측정한 입력 전압이다. 별도 외장 ADC 측정값은 아니다.
+- PMIC는 입력 전압만 조회한다. 내부 레일별 전압·전류 목록은 수집하거나 표시하지 않는다.
+- 배터리 전압과 드라이버 온도는 기존 RoboClaw MOTOR 표본의 유효 비트를 확인한다.
+  RoboClaw 온도는 모터 본체 온도가 아니다. 모터 본체에는 별도 온도 센서가 필요하다.
+- Control/Payload 시리얼 소유 프로세스가 `/tmp/loonar-monitor-UID/{control,payload}.json`을
+  작업 스레드에서 기록한다. TX는 쓰기 완료, RX는 수신 바이트 시각이며 명령 ACK와 다르다.
+  절대 시각은 Pi 시스템 시간, 경과 시간과 만료 판단은 Pi monotonic 시계 기준이다.
+- 3초 이상 상태 파일 갱신이 없거나 SSH 수신이 4초 이상 지연되면 오래된 온도/전압을 숨긴다.
+  마지막 송수신 시각은 유지하며 경과 시간을 계속 증가시킨다.
+- Payload MCU 내부 온도는 최신 payload 펌웨어가 필요하다. 구형 펌웨어도 통신 가능하며
+  내부 온도만 미지원으로 표시한다. Control 펌웨어 재업로드는 필요 없다.
+
+Pi backend/service 수정 후 기존 ground-support를 종료하고 다시 실행한다.
+systemd 배포에서는 `install-runtime.sh`로 새 Python 모듈과 payload 서비스 환경도 반영한다.
+웹 UI의 Pi CPU 및 Control MCU 온도 카드는 제거했으며 별도 터미널에서 확인한다.
+
+### Pi 실행
+
 지상국 PC에서 접속한 SSH 터미널에서:
 
 ```bash

@@ -9,14 +9,23 @@ import rclpy
 from rclpy.signals import SignalHandlerOptions
 from geometry_msgs.msg import Twist
 from std_msgs.msg import String
+from sensor_msgs.msg import Imu
+from rclpy.qos import qos_profile_sensor_data
+from .heading import HeadingGoal, yaw_from_quaternion
 
 from .body_node import Body
 from .drive import ModeChannel, DriveGate
 
 
 class Driver(Body):
-    def __init__(self, gateway_socket, max_drive_seconds=0, max_speed=.2):
-        super().__init__()
+    def __init__(self, gateway_socket, max_drive_seconds=0, max_speed=.2, external_mode=False, heading_target=None):
+        # Oct 9 bag: terrain age median .36s, p90 .50s. Use one
+        # terrain freshness check, not a second raw-depth/sparsity veto.
+        super().__init__(sensor_timeout=1.0, result_timeout=1.5, terrain_input=True)
+        self.external_mode = external_mode
+        self.heading = HeadingGoal(heading_target)
+        self.heading_at = None
+        self.create_subscription(Imu, "/imu/orientation_raw", self.on_heading, qos_profile_sensor_data)
         self.mode = ModeChannel(gateway_socket)
         self.gate = DriveGate(settle_seconds=0, max_drive_seconds=max_drive_seconds, max_speed=max_speed)
         self.motor_pub = self.create_publisher(Twist, "/cmd_vel", 1)
@@ -27,28 +36,40 @@ class Driver(Body):
         self.commanded = dict(linear_mps=0., angular_rps=0.)
         self.next_reason_log = 0.0
         self.create_subscription(String, "/loonar/fly/halt", self.on_halt, 1)
-        self.get_logger().info(f"FLY AVOIDANCE: <={max_speed} m/s, <=0.6 rad/s; turn/scan/advance; Ctrl+C stops")
+        self.get_logger().info(f"FLY AVOIDANCE: <={max_speed} m/s, <=0.4 rad/s; measured-obstacle avoidance; Ctrl+C stops")
+
+    def on_heading(self, msg):
+        try:
+            yaw = yaw_from_quaternion(msg.orientation)
+            self.heading_at = self.sample_time(msg)
+            self.heading.observe(yaw)
+        except ValueError:
+            pass
 
     def blocked_reason(self, now):
-        # The old aggregate scene monitor remains advisory. The local adapter
-        # below actively chooses turns and advancement from current terrain.
-        return super().blocked_reason(now, scene_guard=False)
+        if self.external_mode and self.base is not None and not self.base.auto_selected:
+            return "GCS AUTO not selected"
+        if not self.fresh(self.base_at, now):
+            return "base state expired/unavailable"
+        if not self.base.connected or self.base.motor_fault:
+            return self.base.reason or "base disconnected/motor fault"
+        if not self.fresh(self.scene_at, now) or not self.scene.get("ready"):
+            return "terrain observations expired/unavailable"
+        if not self.fresh(self.candidate_at, now, self.requests.ttl):
+            return "brain result expired/unavailable"
+        return ""
 
     def on_result(self, msg):
         before = self.results_accepted
         super().on_result(msg)
         if self.results_accepted != before:
             worker = self.inference.get("worker_session")
-            if not isinstance(worker, str) or not worker:
-                self.gate.halt("brain missing worker identity; update PC code")
-            elif self.worker is not None and self.worker != worker:
-                self.gate.halt("PC brain restarted; restart Pi command to rearm")
-            else:
+            if isinstance(worker, str) and worker:
                 self.worker = worker
 
     def on_halt(self, msg):
         if msg.data == self.worker:
-            self.halt("PC Ctrl+C/brain shutdown; restart Pi command to rearm")
+            self.halt("PC Ctrl+C/brain shutdown; STOP then AUTO to rearm in GCS mode")
 
     def halt(self, reason):
         self.gate.halt(reason)
@@ -62,30 +83,31 @@ class Driver(Body):
             return
         now = time.monotonic()
         reason = self.blocked_reason(now)
-        if not self.fresh(self.scene_at, now):
-            reason = reason or "terrain observations expired/unavailable"
-        if self.base is not None and self.base.motor_fault and self.gate.started is not None:
-            self.gate.halt("motor fault during drive; restart after resolving fault")
         try:
-            if self.mode.socket is not None or now >= self.mode_retry:
+            if not self.external_mode and (self.mode.socket is not None or now >= self.mode_retry):
                 self.mode.connect()
         except OSError as error:
             reason = f"gateway unavailable: {error}"
             self.mode_retry = now + 1
             self.gate.clear_since = None
-        if self.mode.socket is None:
+        if not self.external_mode and self.mode.socket is None:
             reason = reason or "gateway unavailable"
         adapted = self.avoidance.command(self.candidate, self.decision) if self.candidate else None
+        if adapted is not None and self.fresh(self.heading_at, now):
+            adapted = self.heading.command(adapted, self.decision)
         enabled, v, w = self.gate.evaluate(now, reason, adapted)
         command = Twist()
         try:
             if enabled and not self.stopping:
-                self.mode.select_auto()
+                if not self.external_mode:
+                    self.mode.select_auto()
                 # Wait for base_io's acknowledgement before a nonzero command.
                 if self.base.auto_selected:
                     command.linear.x, command.angular.z = v, w
-            elif self.mode.auto:
+            elif self.mode.auto and (self.stopping or self.gate.latched):
                 self.mode.stop()
+            # Temporary data gaps publish zero without AUTO/STOP handshake
+            # churn. Fresh data resumes through the existing command watchdog.
         except OSError:
             self.mode.close()
             self.gate.clear_since = None
@@ -106,10 +128,13 @@ class Driver(Body):
             "scene_guard_enabled": False,
             "avoidance_enabled": True, "avoidance": self.decision,
             "terrain": self.scene,
+            "sensor_timeout_s": self.sensor_timeout, "result_timeout_s": self.requests.ttl,
+            "terrain_age_s": time.monotonic()-self.scene_at if self.scene_at is not None else None,
             "terrain_advisory": self.safety.reason if self.safety else "unavailable",
             "terrain_advisory_fresh": self.fresh(self.safety_at, time.monotonic()),
             "blocked_reason": self.gate.reason, "latched_stop": self.gate.latched,
-            "auto_selected": self.mode.auto, "candidate": self.candidate,
+            "external_mode": self.external_mode, "heading": self.heading.status(),
+            "auto_selected": self.base.auto_selected if self.external_mode and self.base is not None else self.mode.auto, "candidate": self.candidate,
             "commanded": self.commanded,
             "results_accepted": self.results_accepted, "results_rejected": self.results_rejected,
             "last_rejection": self.last_rejection, "inference": self.inference}, allow_nan=False)))
@@ -117,12 +142,14 @@ class Driver(Body):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--gateway-socket", type=Path, required=True)
+    parser.add_argument("--gateway-socket", type=Path, default=Path("/tmp/unused-fly-mode.sock"))
+    parser.add_argument("--external-mode", action="store_true")
+    parser.add_argument("--heading-target", type=float)
     parser.add_argument("--max-drive-seconds", type=float, default=0)
     parser.add_argument("--max-speed", type=float, default=.2)
     args = parser.parse_args()
     rclpy.init(args=[], signal_handler_options=SignalHandlerOptions.NO)
-    node = Driver(args.gateway_socket, args.max_drive_seconds, args.max_speed)
+    node = Driver(args.gateway_socket, args.max_drive_seconds, args.max_speed, args.external_mode, args.heading_target)
 
     def stop(*_):
         node.stopping = True

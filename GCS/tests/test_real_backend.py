@@ -123,4 +123,31 @@ class RealBackendTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(snapshot["payload_sample"]["values"]["PCA candidate"]["value"], 1)
 
 
+
+
+class FlyLifecycleTests(unittest.IsolatedAsyncioTestCase):
+    async def test_auto_start_stop_order_and_offline_cleanup(self):
+        from unittest.mock import AsyncMock
+        state=RealState('test');state.connection='CONNECTED'
+        link=GroundLinkConnection('test',7443,state);link.writer=Writer()
+        link.fly=AsyncMock()
+        async def start(): self.assertFalse(link.writer.data)
+        link.fly.start.side_effect=start
+        self.assertTrue((await link.command('AUTO'))['ok'])
+        async def stop(): self.assertEqual(HEADER.unpack_from(link.writer.data[-1])[2],1)
+        link.fly.stop.side_effect=stop
+        self.assertTrue((await link.command('STOP'))['ok'])
+        state.connection='RECONNECTING'
+        self.assertFalse((await link.command('STOP'))['ok'])
+        self.assertEqual(link.fly.stop.await_count,2)
+
+    async def test_failed_terminal_start_does_not_send_auto(self):
+        from unittest.mock import AsyncMock
+        state=RealState('test');state.connection='CONNECTED'
+        link=GroundLinkConnection('test',7443,state);link.writer=Writer()
+        link.fly=AsyncMock();link.fly.start.side_effect=RuntimeError('missing terminal')
+        self.assertFalse((await link.command('AUTO'))['ok'])
+        self.assertFalse(link.writer.data)
+
+
 if __name__ == "__main__": unittest.main()

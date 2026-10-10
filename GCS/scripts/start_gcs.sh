@@ -46,6 +46,8 @@ open_gcs_windows() {
     fi
     gnome-terminal -- "$GCS_ROOT/scripts/start_diagnostics.sh" --host "$ROVER_IP" \
         >/dev/null 2>&1 || printf '[LOONAR] 진단 창 열기 실패\n' >&2
+    gnome-terminal --geometry=100x24 -- bash "$GCS_ROOT/scripts/start_hardware_monitor.sh" --host "$ROVER_IP" \
+        >/dev/null 2>&1 || printf '[LOONAR] 하드웨어 모니터 창 열기 실패\n' >&2
     gnome-terminal -- env \
         "LOONAR_VIDEO_PYTHON=${LOONAR_VIDEO_PYTHON:-}" \
         "LOONAR_VISION_SENDER_IP=${LOONAR_VISION_SENDER_IP:-}" \

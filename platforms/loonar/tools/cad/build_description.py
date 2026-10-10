@@ -33,12 +33,26 @@ def main():
             warnings.simplefilter('ignore')
             rpy=Rotation.from_matrix(m[:3,:3]).as_euler('xyz').tolist()
         rows.append(dict(name=name,xyz_m=m[:3,3].tolist(),rpy_rad=rpy,source_occurrence=occurrence))
+    tof_sensor = T @ np.array(frames['cad_root_o19059_o18777_o18760_o18757']['root_matrix'])
+    tof_lens = T @ np.array(frames['cad_root_o19059_o18777_o18760_o18758']['root_matrix'])
+    # AG12847's CAD lens datum is 15.99 mm forward of the MS22 package
+    # origin. It is a mechanical reference, not a measured optical principal
+    # point. Keep height from CAD; the assembly origin is NOT the lens height.
+    tof_roll = -float(np.pi / 2)  # Oct 7 raw frames: image left points down.
+    tof_rotation = Rotation.from_euler('x', tof_roll).as_matrix()
+    optical_offset = tof_rotation.T @ (tof_lens[:3,3] - tof_sensor[:3,3])
     config=dict(source=data['source'],sha256=data['sha256'],cad_to_base=T.tolist(),mounts=rows,
                 imu=dict(rotation_status='user_confirmed_2026-10-06',rpy_rad=[0,0,float(np.pi/2)],
                          position_status='nominal_floor_reference_not_measured_chip_center',
                          xyz_m=[.03575,0,-.057],note='ToF-underfloor centre. CAD floor datum z=0 assumed; floor thickness + board/chip height must be measured.'),
-                tof=dict(position_status='CAD_MS22MF005-B_component_origin_not_calibrated_optical_center',
-                         xyz_m=[.03575,.0000500000471,-.0075],rpy_rad=[0,0,0]),
+                tof=dict(position_status='CAD_MS22MF005-B_mount_with_AG12847_lens_datum_offset',
+                         xyz_m=tof_sensor[:3,3].tolist(),rpy_rad=[tof_roll,0,0],
+                         optical_offset_m=optical_offset.tolist(),
+                         optical_xyz_m=tof_lens[:3,3].tolist(),
+                         rotation_status='roll_minus_90_verified_in_20261007_raw_bags_pitch_yaw_nominal',
+                         optical_position_status='CAD_lens_datum_not_measured_optical_principal_point',
+                         lens_source_occurrence=18758,
+                         note='Do not fit height to planner outputs. Ground-contact height and lens principal point remain unmeasured.'),
                 camera=dict(position_status='assembly_origin_only_optical_offset_unmeasured'),
                 wheel_note='spindle origins, not tyre contact centres; do not use 0.257 m as encoder track calibration',
                 inactive_cad_occurrence=19063)
@@ -48,9 +62,9 @@ def main():
           '<xacro:arg name="imu_xyz" default="0.03575 0 -0.057"/>',
           '<xacro:arg name="imu_rpy" default="0 0 1.5707963267948966"/>',
           '<xacro:arg name="tof_xyz" default="0.03575 0.0000500000471 -0.0075"/>',
-          '<xacro:arg name="tof_rpy" default="0 0 0"/>',
+          '<xacro:arg name="tof_rpy" default="-1.5707963267948966 0 0"/>',
           '<xacro:arg name="publish_optical_frames" default="false"/>',
-          '<xacro:arg name="tof_optical_offset" default="0 0 0"/>',
+          '<xacro:arg name="tof_optical_offset" default="0.01599 0 0"/>',
           '<xacro:arg name="camera_optical_xyz" default="0 0 0"/>',
           '<xacro:arg name="camera_optical_rpy" default="0 0 0"/>',
           '<link name="base_link"/>']

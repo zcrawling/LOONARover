@@ -1,0 +1,1120 @@
+{
+  "date": "2026-10-07",
+  "timezone": "Asia/Seoul",
+  "scope": "ROS-only vision preprocessing, obstacle height >= 30% wheel diameter first, flatter traversable surface second; original connectome unchanged.",
+  "thresholds": {
+    "obstacle_diameter_fraction": 0.3,
+    "diameter_200mm_obstacle_mm": 60,
+    "calibrated_diameter_196mm_obstacle_mm": 58.8,
+    "existing_drop_threshold_m": 0.04
+  },
+  "motion": {
+    "max_forward_mps": 0.2,
+    "max_angular_radps": 0.4,
+    "flatness_adds_forward_speed_cap": false,
+    "stops_to_collect_frames": false
+  },
+  "preprocessing": {
+    "stationary_frames": [
+      3,
+      5
+    ],
+    "maximum_span_seconds": 0.4,
+    "moving_frames": 1,
+    "ground_plane": "gravity/axle constrained robust near-ground fit",
+    "missing_floor": "explicit fallback with zero measured confidence; not scored as flat",
+    "brain_input": "surface_v1 ground-removed hazard proximity and preferred heading; no raw depth proximity in live path"
+  },
+  "unit_tests": {
+    "command": "bash test.sh unit",
+    "passed": 55,
+    "cases": [
+      "59/60/61mm obstacle boundary with 200mm diameter",
+      "actual floor slope and height relative obstacle measurements",
+      "wall not fitted as floor",
+      "stationary median and moving-history reset",
+      "new near obstacle bypasses temporal median",
+      "flat direction chosen from rough/flat point clouds",
+      "obstacle overrides preferred flat direction",
+      "0.2 m/s candidate preserved while following flat surface"
+    ]
+  },
+  "ros_terrain": {
+    "passed": true,
+    "hardware": false,
+    "observations": {
+      "floor": {
+        "ray": {
+          "heading": 0.0,
+          "clearance_m": 0.9,
+          "obstacle": "none",
+          "measured_height_m": 0.0,
+          "support_until_m": 0.8,
+          "near_blind_m": 0.0,
+          "unknown_ground": false,
+          "low_step_m": 3.903840667396352e-09,
+          "observed_cells": 94,
+          "surface_confidence": 1.0,
+          "slope_rad": 6.493465480136042e-09,
+          "cross_slope_rad": 5.3140963851561196e-12,
+          "roughness_m": 1.5466372627059854e-09,
+          "flat_cost": 7.16163169212138e-08
+        },
+        "decision": {
+          "mode": "cruise",
+          "forward_scale": 1.0,
+          "speed_cap_mps": 0.2,
+          "turn_sign": 0,
+          "turn_rps": 0.0,
+          "reason": "no measured obstacle ahead",
+          "surface_heading_rad": 0.0,
+          "clearance_m": 0.9,
+          "closing_mps": 0.0,
+          "risk": 0.0,
+          "obstacle": "none",
+          "unknown_ground": false
+        },
+        "points": 1920,
+        "floor": {
+          "coefficients": [
+            1.0934065741268018e-08,
+            6.114442285820587e-12,
+            -0.09800000463114773
+          ],
+          "measured": true,
+          "confidence": 1.0,
+          "residual_m": 1.956810796732711e-09,
+          "inlier_cells": 138,
+          "reason": "measured near-ground plane, gravity and axle-height constrained"
+        },
+        "temporal": {
+          "frames": 5,
+          "mode": "stationary_median",
+          "stationary": true,
+          "median_mad_m": 0.0,
+          "span_seconds": 0.29688525199890137
+        },
+        "vision": {
+          "source": "surface_v1",
+          "left": 0.0,
+          "right": 0.0,
+          "preferred_heading_rad": 0.0,
+          "floor_confidence": 1.0
+        },
+        "compute_ms": 50.1785269989341
+      },
+      "moving_floor": {
+        "ray": {
+          "heading": 0.0,
+          "clearance_m": 0.9,
+          "obstacle": "none",
+          "measured_height_m": 0.0,
+          "support_until_m": 0.8,
+          "near_blind_m": 0.0,
+          "unknown_ground": false,
+          "low_step_m": 3.903840667396352e-09,
+          "observed_cells": 94,
+          "surface_confidence": 1.0,
+          "slope_rad": 6.493465480136042e-09,
+          "cross_slope_rad": 5.3140963851561196e-12,
+          "roughness_m": 1.5466372627059854e-09,
+          "flat_cost": 7.16163169212138e-08
+        },
+        "decision": {
+          "mode": "cruise",
+          "forward_scale": 1.0,
+          "speed_cap_mps": 0.2,
+          "turn_sign": 0,
+          "turn_rps": 0.0,
+          "reason": "no measured obstacle ahead",
+          "surface_heading_rad": 0.0,
+          "clearance_m": 0.9,
+          "closing_mps": 0.0,
+          "risk": 0.0,
+          "obstacle": "none",
+          "unknown_ground": false
+        },
+        "points": 1920,
+        "floor": {
+          "coefficients": [
+            1.0934065741268018e-08,
+            6.114442285820587e-12,
+            -0.09800000463114773
+          ],
+          "measured": true,
+          "confidence": 1.0,
+          "residual_m": 1.956810796732711e-09,
+          "inlier_cells": 138,
+          "reason": "measured near-ground plane, gravity and axle-height constrained"
+        },
+        "temporal": {
+          "frames": 1,
+          "mode": "latest_frame",
+          "stationary": false,
+          "median_mad_m": 0.0,
+          "span_seconds": 0.0
+        },
+        "vision": {
+          "source": "surface_v1",
+          "left": 0.0,
+          "right": 0.0,
+          "preferred_heading_rad": 0.0,
+          "floor_confidence": 1.0
+        },
+        "compute_ms": 20.24792800148134
+      },
+      "tilted_floor": {
+        "ray": {
+          "heading": 0.0,
+          "clearance_m": 0.9,
+          "obstacle": "none",
+          "measured_height_m": 0.0,
+          "support_until_m": 0.8,
+          "near_blind_m": 0.0,
+          "unknown_ground": false,
+          "low_step_m": 1.786210485077433e-08,
+          "observed_cells": 92,
+          "surface_confidence": 1.0,
+          "slope_rad": 1.9517381572078736e-09,
+          "cross_slope_rad": 6.745724812073917e-11,
+          "roughness_m": 2.796106138291954e-09,
+          "flat_cost": 1.1490676726373145e-07
+        },
+        "decision": {
+          "mode": "cruise",
+          "forward_scale": 1.0,
+          "speed_cap_mps": 0.2,
+          "turn_sign": 0,
+          "turn_rps": 0.0,
+          "reason": "no measured obstacle ahead",
+          "surface_heading_rad": 0.0,
+          "clearance_m": 0.9,
+          "closing_mps": 0.0,
+          "risk": 0.0,
+          "obstacle": "none",
+          "unknown_ground": false
+        },
+        "points": 2400,
+        "floor": {
+          "coefficients": [
+            -2.8606136232388517e-08,
+            2.5159777039540643e-11,
+            -0.0979999948663757
+          ],
+          "measured": true,
+          "confidence": 1.0,
+          "residual_m": 7.933468181009484e-09,
+          "inlier_cells": 128,
+          "reason": "measured near-ground plane, gravity and axle-height constrained"
+        },
+        "temporal": {
+          "frames": 5,
+          "mode": "stationary_median",
+          "stationary": true,
+          "median_mad_m": 0.0,
+          "span_seconds": 0.2983989715576172
+        },
+        "vision": {
+          "source": "surface_v1",
+          "left": 0.0,
+          "right": 0.0,
+          "preferred_heading_rad": 0.0,
+          "floor_confidence": 1.0
+        },
+        "compute_ms": 35.375082999962615
+      },
+      "wall": {
+        "ray": {
+          "heading": 0.0,
+          "clearance_m": 0.17964466094067263,
+          "obstacle": "wall",
+          "measured_height_m": 0.2697500059716617,
+          "support_until_m": 0.2,
+          "near_blind_m": 0.0,
+          "unknown_ground": false,
+          "low_step_m": 3.466405759655622e-09,
+          "observed_cells": 30,
+          "surface_confidence": 0.0,
+          "slope_rad": 0.0,
+          "cross_slope_rad": 0.0,
+          "roughness_m": 0.0,
+          "flat_cost": 2.0
+        },
+        "decision": {
+          "mode": "turn",
+          "forward_scale": 1.0,
+          "speed_cap_mps": 0.0,
+          "turn_sign": -1,
+          "turn_rps": 0.3,
+          "reason": "avoid wall",
+          "surface_heading_rad": 0.0,
+          "clearance_m": 0.17964466094067263,
+          "closing_mps": 0.0,
+          "risk": 1.0,
+          "obstacle": "wall",
+          "unknown_ground": false
+        },
+        "points": 4800,
+        "floor": {
+          "coefficients": [
+            2.223248886144866e-08,
+            1.0451708942760263e-11,
+            -0.0980000076453372
+          ],
+          "measured": true,
+          "confidence": 0.5041666666666667,
+          "residual_m": 3.090744049583094e-10,
+          "inlier_cells": 22,
+          "reason": "measured near-ground plane, gravity and axle-height constrained"
+        },
+        "temporal": {
+          "frames": 5,
+          "mode": "stationary_median",
+          "stationary": true,
+          "median_mad_m": 0.0,
+          "span_seconds": 0.2986140251159668
+        },
+        "vision": {
+          "source": "surface_v1",
+          "left": 0.8226197658002036,
+          "right": 0.8226197658002036,
+          "preferred_heading_rad": 0.0,
+          "floor_confidence": 0.5041666666666667
+        },
+        "compute_ms": 25.52413999728742
+      },
+      "low_step": {
+        "ray": {
+          "heading": 0.0,
+          "clearance_m": 0.9,
+          "obstacle": "none",
+          "measured_height_m": 0.0,
+          "support_until_m": 0.6000000000000001,
+          "near_blind_m": 0.0,
+          "unknown_ground": false,
+          "low_step_m": 0.019515105254607423,
+          "observed_cells": 78,
+          "surface_confidence": 0.3137254901960784,
+          "slope_rad": 0.04938950170857479,
+          "cross_slope_rad": 1.555147080417126e-05,
+          "roughness_m": 0.009077221178175207,
+          "flat_cost": 0.4372042026314788
+        },
+        "decision": {
+          "mode": "cruise",
+          "forward_scale": 1.0,
+          "speed_cap_mps": 0.2,
+          "turn_sign": 0,
+          "turn_rps": 0.0,
+          "reason": "no measured obstacle ahead",
+          "surface_heading_rad": 0.0,
+          "clearance_m": 0.9,
+          "closing_mps": 0.0,
+          "risk": 0.0,
+          "obstacle": "none",
+          "unknown_ground": false
+        },
+        "points": 2000,
+        "floor": {
+          "coefficients": [
+            0.004924748972075603,
+            -0.00044823928708516425,
+            -0.09932095677935313
+          ],
+          "measured": true,
+          "confidence": 0.3137254901960784,
+          "residual_m": 0.0002206367174690249,
+          "inlier_cells": 32,
+          "reason": "measured near-ground plane, gravity and axle-height constrained"
+        },
+        "temporal": {
+          "frames": 5,
+          "mode": "stationary_median",
+          "stationary": true,
+          "median_mad_m": 0.0,
+          "span_seconds": 0.2955763339996338
+        },
+        "vision": {
+          "source": "surface_v1",
+          "left": 0.0,
+          "right": 0.0,
+          "preferred_heading_rad": 0.0,
+          "floor_confidence": 0.3137254901960784
+        },
+        "compute_ms": 37.897466998401796
+      },
+      "large_step": {
+        "ray": {
+          "heading": 0.0,
+          "clearance_m": 0.17964466094067263,
+          "obstacle": "step_up",
+          "measured_height_m": 0.061095312248890796,
+          "support_until_m": 0.2,
+          "near_blind_m": 0.0,
+          "unknown_ground": false,
+          "low_step_m": 3.466405759655622e-09,
+          "observed_cells": 54,
+          "surface_confidence": 0.0,
+          "slope_rad": 0.0,
+          "cross_slope_rad": 0.0,
+          "roughness_m": 0.0,
+          "flat_cost": 2.0
+        },
+        "decision": {
+          "mode": "turn",
+          "forward_scale": 1.0,
+          "speed_cap_mps": 0.0,
+          "turn_sign": -1,
+          "turn_rps": 0.3,
+          "reason": "avoid step_up",
+          "surface_heading_rad": 0.0,
+          "clearance_m": 0.17964466094067263,
+          "closing_mps": 0.0,
+          "risk": 1.0,
+          "obstacle": "step_up",
+          "unknown_ground": false
+        },
+        "points": 2240,
+        "floor": {
+          "coefficients": [
+            2.223248886144866e-08,
+            1.0451708942760263e-11,
+            -0.0980000076453372
+          ],
+          "measured": true,
+          "confidence": 0.4266666666666667,
+          "residual_m": 3.5340796261662533e-10,
+          "inlier_cells": 32,
+          "reason": "measured near-ground plane, gravity and axle-height constrained"
+        },
+        "temporal": {
+          "frames": 5,
+          "mode": "stationary_median",
+          "stationary": true,
+          "median_mad_m": 0.0,
+          "span_seconds": 0.32097458839416504
+        },
+        "vision": {
+          "source": "surface_v1",
+          "left": 0.8226197658002036,
+          "right": 0.8226197658002036,
+          "preferred_heading_rad": 0.0,
+          "floor_confidence": 0.4266666666666667
+        },
+        "compute_ms": 35.8232050020888
+      },
+      "pit": {
+        "ray": {
+          "heading": 0.0,
+          "clearance_m": 0.5296446609406726,
+          "obstacle": "drop",
+          "measured_height_m": -0.08000000643873352,
+          "support_until_m": 0.30000000000000004,
+          "near_blind_m": 0.0,
+          "unknown_ground": true,
+          "low_step_m": 3.866374914673898e-09,
+          "observed_cells": 78,
+          "surface_confidence": 0.26966292134831465,
+          "slope_rad": 1.1918184145242515e-08,
+          "cross_slope_rad": 1.1172410219195683e-11,
+          "roughness_m": 1.019014296554932e-09,
+          "flat_cost": 0.12500005866019287
+        },
+        "decision": {
+          "mode": "cruise",
+          "forward_scale": 1.0,
+          "speed_cap_mps": 0.2,
+          "turn_sign": 0,
+          "turn_rps": 0.0,
+          "reason": "no measured obstacle ahead",
+          "surface_heading_rad": 0.0,
+          "clearance_m": 0.5296446609406726,
+          "closing_mps": 0.0,
+          "risk": 0.0,
+          "obstacle": "drop",
+          "unknown_ground": true
+        },
+        "points": 1600,
+        "floor": {
+          "coefficients": [
+            1.2336175111560448e-08,
+            4.424724475704522e-12,
+            -0.09800000502241293
+          ],
+          "measured": true,
+          "confidence": 0.3595505617977528,
+          "residual_m": 3.1516837750711346e-10,
+          "inlier_cells": 32,
+          "reason": "measured near-ground plane, gravity and axle-height constrained"
+        },
+        "temporal": {
+          "frames": 5,
+          "mode": "stationary_median",
+          "stationary": true,
+          "median_mad_m": 0.0,
+          "span_seconds": 0.30109596252441406
+        },
+        "vision": {
+          "source": "surface_v1",
+          "left": 0.36073579859023736,
+          "right": 0.36073579859023736,
+          "preferred_heading_rad": 0.0,
+          "floor_confidence": 0.3595505617977528
+        },
+        "compute_ms": 40.26960999908624
+      },
+      "missing": {
+        "ray": {
+          "heading": 0.0,
+          "clearance_m": 0.9,
+          "obstacle": "none",
+          "measured_height_m": 0.0,
+          "support_until_m": 0.2,
+          "near_blind_m": 0.0,
+          "unknown_ground": true,
+          "low_step_m": 3.3578214098106685e-09,
+          "observed_cells": 22,
+          "surface_confidence": 0.0,
+          "slope_rad": 0.0,
+          "cross_slope_rad": 0.0,
+          "roughness_m": 0.0,
+          "flat_cost": 2.0
+        },
+        "decision": {
+          "mode": "cruise",
+          "forward_scale": 1.0,
+          "speed_cap_mps": 0.2,
+          "turn_sign": 0,
+          "turn_rps": 0.0,
+          "reason": "no measured obstacle ahead",
+          "surface_heading_rad": 0.0,
+          "clearance_m": 0.9,
+          "closing_mps": 0.0,
+          "risk": 0.0,
+          "obstacle": "none",
+          "unknown_ground": true
+        },
+        "points": 880,
+        "floor": {
+          "coefficients": [
+            2.3812511025864005e-08,
+            -3.122502256758253e-14,
+            -0.09800000802138349
+          ],
+          "measured": true,
+          "confidence": 0.7333333333333333,
+          "residual_m": 3.1563311686522155e-10,
+          "inlier_cells": 22,
+          "reason": "measured near-ground plane, gravity and axle-height constrained"
+        },
+        "temporal": {
+          "frames": 5,
+          "mode": "stationary_median",
+          "stationary": true,
+          "median_mad_m": 0.0,
+          "span_seconds": 0.298966646194458
+        },
+        "vision": {
+          "source": "surface_v1",
+          "left": 0.0,
+          "right": 0.0,
+          "preferred_heading_rad": 0.0,
+          "floor_confidence": 0.7333333333333333
+        },
+        "compute_ms": 41.57773699989775
+      },
+      "bad_amplitude": {
+        "ready": false,
+        "reason": "no usable transformed points",
+        "roll": 0.0,
+        "pitch": -0.0,
+        "valid_ratio": 0.0,
+        "temporal": {
+          "frames": 5,
+          "mode": "stationary_median",
+          "stationary": true,
+          "median_mad_m": 0.0,
+          "span_seconds": 0.31057047843933105
+        },
+        "stamp": 1791347321.3877776,
+        "frame_id": "1791347321:387777474",
+        "compute_ms": 34.993732999282656
+      }
+    }
+  },
+  "ros_drive": {
+    "passed": true,
+    "nonzero_seen": true,
+    "bounded_speed": true,
+    "proximity_advisory_does_not_stop": true,
+    "missing_scene_monitor_does_not_stop": true,
+    "brain_loss_stop": true,
+    "stale_depth_stop": true,
+    "terrain_loss_stop": true,
+    "wall_step_drop_turn": true,
+    "resumes_open_path": true,
+    "maximum_radps": 0.4,
+    "partial_depth_can_avoid": true,
+    "unknown_low_step_neural_turn_preserve_forward": true,
+    "flat_surface_steers_without_speed_cap": true,
+    "obstacle_overrides_flat_goal": true,
+    "fault_latched": true,
+    "pc_halt_latched": true,
+    "maximum_mps": 0.2,
+    "sigint_gateway_stop_ms": 3.4353910014033318,
+    "exit_code": 0,
+    "hardware": false
+  },
+  "whole_brain_ros": {
+    "passed": true,
+    "full_brain_results": 82,
+    "positive_candidate_seen": true,
+    "ground_removed_input_verified": true,
+    "motor_publishers": 0,
+    "fault_zero": true,
+    "safety_zero": true,
+    "stale_depth_zero": true,
+    "fixture": "synthetic ROS sensors, real pinned whole brain; no hardware"
+  },
+  "whole_brain_compute_ms": {
+    "median": 87.32866050013399,
+    "maximum": 108.02331300146761
+  },
+  "deployment": {
+    "pc_source_complete": true,
+    "pi_completed": true,
+    "hardware_tested": false,
+    "reason": "Latest fly_brain sources copied and verified; Pi synthetic terrain test passed. Physical driving was not started.",
+    "verified_at": "2026-10-07T06:33:05.806728+00:00",
+    "host": "loonar@10.254.254.3",
+    "source_hashes_matched": 20,
+    "ros_dependencies_verified": true,
+    "terrain_node_initialized": true,
+    "pi_synthetic_terrain": {
+      "passed": true,
+      "hardware": false,
+      "observations": {
+        "floor": {
+          "ray": {
+            "heading": 0.0,
+            "clearance_m": 0.9,
+            "obstacle": "none",
+            "measured_height_m": 0.0,
+            "support_until_m": 0.8,
+            "near_blind_m": 0.0,
+            "unknown_ground": false,
+            "low_step_m": 3.9038406396407765e-09,
+            "observed_cells": 94,
+            "surface_confidence": 1.0,
+            "slope_rad": 6.493465477537144e-09,
+            "cross_slope_rad": 5.3140269962170805e-12,
+            "roughness_m": 1.546637297400455e-09,
+            "flat_cost": 7.161631816631635e-08
+          },
+          "decision": {
+            "mode": "cruise",
+            "forward_scale": 1.0,
+            "speed_cap_mps": 0.2,
+            "turn_sign": 0,
+            "turn_rps": 0.0,
+            "reason": "no measured obstacle ahead",
+            "surface_heading_rad": 0.0,
+            "clearance_m": 0.9,
+            "closing_mps": 0.0,
+            "risk": 0.0,
+            "obstacle": "none",
+            "unknown_ground": false
+          },
+          "points": 1920,
+          "floor": {
+            "coefficients": [
+              1.0934065945331842e-08,
+              6.114456163608395e-12,
+              -0.09800000463114776
+            ],
+            "measured": true,
+            "confidence": 1.0,
+            "residual_m": 1.956810873060544e-09,
+            "inlier_cells": 138,
+            "reason": "measured near-ground plane, gravity and axle-height constrained"
+          },
+          "temporal": {
+            "frames": 5,
+            "mode": "stationary_median",
+            "stationary": true,
+            "median_mad_m": 0.0,
+            "span_seconds": 0.30128979682922363
+          },
+          "vision": {
+            "source": "surface_v1",
+            "left": 0.0,
+            "right": 0.0,
+            "preferred_heading_rad": 0.0,
+            "floor_confidence": 1.0
+          },
+          "compute_ms": 30.87347600001067
+        },
+        "moving_floor": {
+          "ray": {
+            "heading": 0.0,
+            "clearance_m": 0.9,
+            "obstacle": "none",
+            "measured_height_m": 0.0,
+            "support_until_m": 0.8,
+            "near_blind_m": 0.0,
+            "unknown_ground": false,
+            "low_step_m": 3.9038406396407765e-09,
+            "observed_cells": 94,
+            "surface_confidence": 1.0,
+            "slope_rad": 6.493465477537144e-09,
+            "cross_slope_rad": 5.3140269962170805e-12,
+            "roughness_m": 1.546637297400455e-09,
+            "flat_cost": 7.161631816631635e-08
+          },
+          "decision": {
+            "mode": "cruise",
+            "forward_scale": 1.0,
+            "speed_cap_mps": 0.2,
+            "turn_sign": 0,
+            "turn_rps": 0.0,
+            "reason": "no measured obstacle ahead",
+            "surface_heading_rad": 0.0,
+            "clearance_m": 0.9,
+            "closing_mps": 0.0,
+            "risk": 0.0,
+            "obstacle": "none",
+            "unknown_ground": false
+          },
+          "points": 1920,
+          "floor": {
+            "coefficients": [
+              1.0934065945331842e-08,
+              6.114456163608395e-12,
+              -0.09800000463114776
+            ],
+            "measured": true,
+            "confidence": 1.0,
+            "residual_m": 1.956810873060544e-09,
+            "inlier_cells": 138,
+            "reason": "measured near-ground plane, gravity and axle-height constrained"
+          },
+          "temporal": {
+            "frames": 1,
+            "mode": "latest_frame",
+            "stationary": false,
+            "median_mad_m": 0.0,
+            "span_seconds": 0.0
+          },
+          "vision": {
+            "source": "surface_v1",
+            "left": 0.0,
+            "right": 0.0,
+            "preferred_heading_rad": 0.0,
+            "floor_confidence": 1.0
+          },
+          "compute_ms": 15.504442000008112
+        },
+        "tilted_floor": {
+          "ray": {
+            "heading": 0.0,
+            "clearance_m": 0.9,
+            "obstacle": "none",
+            "measured_height_m": 0.0,
+            "support_until_m": 0.8,
+            "near_blind_m": 0.0,
+            "unknown_ground": false,
+            "low_step_m": 1.7862104864652117e-08,
+            "observed_cells": 92,
+            "surface_confidence": 1.0,
+            "slope_rad": 1.951738316464355e-09,
+            "cross_slope_rad": 6.745727587631478e-11,
+            "roughness_m": 2.7961061341286174e-09,
+            "flat_cost": 1.1490676739159385e-07
+          },
+          "decision": {
+            "mode": "cruise",
+            "forward_scale": 1.0,
+            "speed_cap_mps": 0.2,
+            "turn_sign": 0,
+            "turn_rps": 0.0,
+            "reason": "no measured obstacle ahead",
+            "surface_heading_rad": 0.0,
+            "clearance_m": 0.9,
+            "closing_mps": 0.0,
+            "risk": 0.0,
+            "obstacle": "none",
+            "unknown_ground": false
+          },
+          "points": 2400,
+          "floor": {
+            "coefficients": [
+              -2.8606136242776125e-08,
+              2.515973540617722e-11,
+              -0.0979999948663757
+            ],
+            "measured": true,
+            "confidence": 1.0,
+            "residual_m": 7.933468194887272e-09,
+            "inlier_cells": 128,
+            "reason": "measured near-ground plane, gravity and axle-height constrained"
+          },
+          "temporal": {
+            "frames": 5,
+            "mode": "stationary_median",
+            "stationary": true,
+            "median_mad_m": 0.0,
+            "span_seconds": 0.30094289779663086
+          },
+          "vision": {
+            "source": "surface_v1",
+            "left": 0.0,
+            "right": 0.0,
+            "preferred_heading_rad": 0.0,
+            "floor_confidence": 1.0
+          },
+          "compute_ms": 29.777991999992537
+        },
+        "wall": {
+          "ray": {
+            "heading": 0.0,
+            "clearance_m": 0.17964466094067263,
+            "obstacle": "wall",
+            "measured_height_m": 0.26975000597166177,
+            "support_until_m": 0.2,
+            "near_blind_m": 0.0,
+            "unknown_ground": false,
+            "low_step_m": 3.4664057874111975e-09,
+            "observed_cells": 30,
+            "surface_confidence": 0.0,
+            "slope_rad": 0.0,
+            "cross_slope_rad": 0.0,
+            "roughness_m": 0.0,
+            "flat_cost": 2.0
+          },
+          "decision": {
+            "mode": "turn",
+            "forward_scale": 1.0,
+            "speed_cap_mps": 0.0,
+            "turn_sign": -1,
+            "turn_rps": 0.3,
+            "reason": "avoid wall",
+            "surface_heading_rad": 0.0,
+            "clearance_m": 0.17964466094067263,
+            "closing_mps": 0.0,
+            "risk": 1.0,
+            "obstacle": "wall",
+            "unknown_ground": false
+          },
+          "points": 4800,
+          "floor": {
+            "coefficients": [
+              2.2232488841706702e-08,
+              1.0451708942760263e-11,
+              -0.09800000764533723
+            ],
+            "measured": true,
+            "confidence": 0.5041666666666667,
+            "residual_m": 3.09074432713885e-10,
+            "inlier_cells": 22,
+            "reason": "measured near-ground plane, gravity and axle-height constrained"
+          },
+          "temporal": {
+            "frames": 5,
+            "mode": "stationary_median",
+            "stationary": true,
+            "median_mad_m": 0.0,
+            "span_seconds": 0.28931760787963867
+          },
+          "vision": {
+            "source": "surface_v1",
+            "left": 0.8226197658002036,
+            "right": 0.8226197658002036,
+            "preferred_heading_rad": 0.0,
+            "floor_confidence": 0.5041666666666667
+          },
+          "compute_ms": 19.469729000036295
+        },
+        "low_step": {
+          "ray": {
+            "heading": 0.0,
+            "clearance_m": 0.9,
+            "obstacle": "none",
+            "measured_height_m": 0.0,
+            "support_until_m": 0.6000000000000001,
+            "near_blind_m": 0.0,
+            "unknown_ground": false,
+            "low_step_m": 0.019515105254607423,
+            "observed_cells": 78,
+            "surface_confidence": 0.3137254901960784,
+            "slope_rad": 0.04938950170857482,
+            "cross_slope_rad": 1.555147080411575e-05,
+            "roughness_m": 0.00907722117817522,
+            "flat_cost": 0.4372042026314792
+          },
+          "decision": {
+            "mode": "cruise",
+            "forward_scale": 1.0,
+            "speed_cap_mps": 0.2,
+            "turn_sign": 0,
+            "turn_rps": 0.0,
+            "reason": "no measured obstacle ahead",
+            "surface_heading_rad": 0.0,
+            "clearance_m": 0.9,
+            "closing_mps": 0.0,
+            "risk": 0.0,
+            "obstacle": "none",
+            "unknown_ground": false
+          },
+          "points": 2000,
+          "floor": {
+            "coefficients": [
+              0.004924748972075653,
+              -0.0004482392870852059,
+              -0.09932095677935314
+            ],
+            "measured": true,
+            "confidence": 0.3137254901960784,
+            "residual_m": 0.00022063671746903185,
+            "inlier_cells": 32,
+            "reason": "measured near-ground plane, gravity and axle-height constrained"
+          },
+          "temporal": {
+            "frames": 5,
+            "mode": "stationary_median",
+            "stationary": true,
+            "median_mad_m": 0.0,
+            "span_seconds": 0.2999837398529053
+          },
+          "vision": {
+            "source": "surface_v1",
+            "left": 0.0,
+            "right": 0.0,
+            "preferred_heading_rad": 0.0,
+            "floor_confidence": 0.3137254901960784
+          },
+          "compute_ms": 32.49798000001647
+        },
+        "large_step": {
+          "ray": {
+            "heading": 0.0,
+            "clearance_m": 0.17964466094067263,
+            "obstacle": "step_up",
+            "measured_height_m": 0.06109531224889082,
+            "support_until_m": 0.2,
+            "near_blind_m": 0.0,
+            "unknown_ground": false,
+            "low_step_m": 3.4664057874111975e-09,
+            "observed_cells": 54,
+            "surface_confidence": 0.0,
+            "slope_rad": 0.0,
+            "cross_slope_rad": 0.0,
+            "roughness_m": 0.0,
+            "flat_cost": 2.0
+          },
+          "decision": {
+            "mode": "turn",
+            "forward_scale": 1.0,
+            "speed_cap_mps": 0.0,
+            "turn_sign": -1,
+            "turn_rps": 0.3,
+            "reason": "avoid step_up",
+            "surface_heading_rad": 0.0,
+            "clearance_m": 0.17964466094067263,
+            "closing_mps": 0.0,
+            "risk": 1.0,
+            "obstacle": "step_up",
+            "unknown_ground": false
+          },
+          "points": 2240,
+          "floor": {
+            "coefficients": [
+              2.2232488841706702e-08,
+              1.0451708942760263e-11,
+              -0.09800000764533723
+            ],
+            "measured": true,
+            "confidence": 0.4266666666666667,
+            "residual_m": 3.534079348610497e-10,
+            "inlier_cells": 32,
+            "reason": "measured near-ground plane, gravity and axle-height constrained"
+          },
+          "temporal": {
+            "frames": 5,
+            "mode": "stationary_median",
+            "stationary": true,
+            "median_mad_m": 0.0,
+            "span_seconds": 0.3010094165802002
+          },
+          "vision": {
+            "source": "surface_v1",
+            "left": 0.8226197658002036,
+            "right": 0.8226197658002036,
+            "preferred_heading_rad": 0.0,
+            "floor_confidence": 0.4266666666666667
+          },
+          "compute_ms": 32.05672000001414
+        },
+        "pit": {
+          "ray": {
+            "heading": 0.0,
+            "clearance_m": 0.5296446609406726,
+            "obstacle": "drop",
+            "measured_height_m": -0.08000000643873348,
+            "support_until_m": 0.30000000000000004,
+            "near_blind_m": 0.0,
+            "unknown_ground": true,
+            "low_step_m": 3.86637490079611e-09,
+            "observed_cells": 78,
+            "surface_confidence": 0.26966292134831465,
+            "slope_rad": 1.1918184120067237e-08,
+            "cross_slope_rad": 1.1172424096983491e-11,
+            "roughness_m": 1.0190143256982863e-09,
+            "flat_cost": 0.12500005866019404
+          },
+          "decision": {
+            "mode": "cruise",
+            "forward_scale": 1.0,
+            "speed_cap_mps": 0.2,
+            "turn_sign": 0,
+            "turn_rps": 0.0,
+            "reason": "no measured obstacle ahead",
+            "surface_heading_rad": 0.0,
+            "clearance_m": 0.5296446609406726,
+            "closing_mps": 0.0,
+            "risk": 0.0,
+            "obstacle": "drop",
+            "unknown_ground": true
+          },
+          "points": 1600,
+          "floor": {
+            "coefficients": [
+              1.233617497389774e-08,
+              4.424766109067946e-12,
+              -0.09800000502241286
+            ],
+            "measured": true,
+            "confidence": 0.3595505617977528,
+            "residual_m": 3.1516839138490127e-10,
+            "inlier_cells": 32,
+            "reason": "measured near-ground plane, gravity and axle-height constrained"
+          },
+          "temporal": {
+            "frames": 5,
+            "mode": "stationary_median",
+            "stationary": true,
+            "median_mad_m": 0.0,
+            "span_seconds": 0.2946288585662842
+          },
+          "vision": {
+            "source": "surface_v1",
+            "left": 0.36073579859023736,
+            "right": 0.36073579859023736,
+            "preferred_heading_rad": 0.0,
+            "floor_confidence": 0.3595505617977528
+          },
+          "compute_ms": 33.37900000002492
+        },
+        "missing": {
+          "ray": {
+            "heading": 0.0,
+            "clearance_m": 0.9,
+            "obstacle": "none",
+            "measured_height_m": 0.0,
+            "support_until_m": 0.2,
+            "near_blind_m": 0.0,
+            "unknown_ground": true,
+            "low_step_m": 3.357821437566244e-09,
+            "observed_cells": 22,
+            "surface_confidence": 0.0,
+            "slope_rad": 0.0,
+            "cross_slope_rad": 0.0,
+            "roughness_m": 0.0,
+            "flat_cost": 2.0
+          },
+          "decision": {
+            "mode": "cruise",
+            "forward_scale": 1.0,
+            "speed_cap_mps": 0.2,
+            "turn_sign": 0,
+            "turn_rps": 0.0,
+            "reason": "no measured obstacle ahead",
+            "surface_heading_rad": 0.0,
+            "clearance_m": 0.9,
+            "closing_mps": 0.0,
+            "risk": 0.0,
+            "obstacle": "none",
+            "unknown_ground": true
+          },
+          "points": 880,
+          "floor": {
+            "coefficients": [
+              2.381251109994669e-08,
+              -3.122502256758253e-14,
+              -0.09800000802138353
+            ],
+            "measured": true,
+            "confidence": 0.7333333333333333,
+            "residual_m": 3.1563313074300936e-10,
+            "inlier_cells": 22,
+            "reason": "measured near-ground plane, gravity and axle-height constrained"
+          },
+          "temporal": {
+            "frames": 5,
+            "mode": "stationary_median",
+            "stationary": true,
+            "median_mad_m": 0.0,
+            "span_seconds": 0.30065345764160156
+          },
+          "vision": {
+            "source": "surface_v1",
+            "left": 0.0,
+            "right": 0.0,
+            "preferred_heading_rad": 0.0,
+            "floor_confidence": 0.7333333333333333
+          },
+          "compute_ms": 34.05246500000203
+        },
+        "bad_amplitude": {
+          "ready": false,
+          "reason": "no usable transformed points",
+          "roll": 0.0,
+          "pitch": -0.0,
+          "valid_ratio": 0.0,
+          "temporal": {
+            "frames": 5,
+            "mode": "stationary_median",
+            "stationary": true,
+            "median_mad_m": 0.0,
+            "span_seconds": 0.30039429664611816
+          },
+          "stamp": 1791354758.537352,
+          "frame_id": "1791354758:537352097",
+          "compute_ms": 31.24497600003906
+        }
+      }
+    }
+  },
+  "limits": [
+    "No physical validation of new surface estimation or updated mobility settings.",
+    "Single local ground plane; complex curved terrain and wholly unobserved pits are not guaranteed.",
+    "Ground-fit failure uses labelled calibrated prior, not a measured surface.",
+    "Classification near threshold depends on measurement error and visibility.",
+    "PC synthetic timing is not a Pi throughput measurement."
+  ],
+  "source_sha256": {
+    "loonar_fly/vision.py": "520f98f967296e1163c671b53c3464824f09c7629c291473dba8390e6f8cf411",
+    "loonar_fly/terrain_node.py": "529f4a46310e5bbebe7605ab6958384d85e52c4e0873c78bb2c8081f5e04c510",
+    "loonar_fly/avoidance.py": "48ad4d82e8df37914988fcb1cb9b32756f9c8e62a9264df6abdf1ee9de83523e",
+    "loonar_fly/body_node.py": "ff59453167641cbdfcc53b7980bdcb96c683250dbcfd1b423d9fae0a125bcefa",
+    "loonar_fly/interface.py": "bf7bb463381d8854984ea22db1e4a6b7528bc8ef86cd474c9a6f05957912dfb9",
+    "loonar_fly/drive.py": "4948e868d508092f60865bd7693e23353a9e726478a50aabb5e4c6d7efd45a04",
+    "loonar_fly/drive_node.py": "c63aeaf3958cf3a7477b7168ce2c66835183c81a787a43155695c9e6a4a66390",
+    "loonar_fly/brain_node.py": "474dc11b82863de824a860403f1d201b85b9d4cc3643bd8197645385116c705f"
+  },
+  "logs": [
+    "log/vision-terrain-ros.json",
+    "log/vision-drive-ros.json",
+    "log/vision-brain-ros.json",
+    "log/pi-deployment-terrain-ros.json"
+  ]
+}

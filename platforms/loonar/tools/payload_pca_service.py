@@ -11,6 +11,7 @@ import socket
 import struct
 import time
 from pathlib import Path
+from mcu_v2.monitor import StatusPublisher
 try:
     import termios
     import fcntl
@@ -44,6 +45,9 @@ class Service:
         self.running = False
         self.active_station = None
         self.log_error = False
+        self.monitor = None
+        self.last_rx_ns = self.last_tx_ns = None
+        self.last_rx_mono = self.last_tx_mono = None
 
     def broadcast(self, text):
         payload = text.encode("ascii")
@@ -112,12 +116,18 @@ class Service:
     def send_serial(self, command):
         data = (command + "\n").encode("ascii")
         if os.write(self.serial_fd, data) != len(data): raise OSError("short_write")
+        self.last_tx_ns = time.time_ns()
+        self.last_tx_mono = time.monotonic()
 
     def online(self):
         return self.last_health is not None and time.monotonic()-self.last_health < 3
 
     def emit_health(self):
         h = self.health
+        if self.monitor is not None:
+            self.monitor.update(online=self.online(), temperature_c=h.get('temperature_c') if h else None,
+                health_mono=self.last_health, last_rx_ns=self.last_rx_ns, last_tx_ns=self.last_tx_ns,
+                last_rx_mono=self.last_rx_mono, last_tx_mono=self.last_tx_mono)
         if h:
             age = min(4294967295, int((time.monotonic()-self.last_health)*1000)) if self.last_health else 4294967295
             self.broadcast(f"HEALTH,1,{int(self.online())},{h['boot']},{h['state']},{h['station']},{h['mask']},{age},{h['sample_age']},{h['seq']},{h['uid']}")
@@ -194,10 +204,13 @@ class Service:
         self.issue(request,"START" if opcode == START else "STOP")
 
     def parse_health(self, f):
-        if len(f)!=12 or f[1]!='1' or f[2] not in self.polls: return
+        if len(f) not in (12,13) or f[1]!='1' or f[2] not in self.polls: return
         if time.monotonic()-self.polls.pop(f[2])>3: return
         if len(f[3])!=16 or f[5] not in STATES or f[11]!='payload-1': raise ValueError("health_format")
         int(f[3],16)
+        temperature = float(f[12]) if len(f) == 13 else None
+        if temperature is not None and (not math.isfinite(temperature) or not -40 <= temperature <= 150):
+            raise ValueError('health_temperature')
         boot,station,uptime,mask,sample_age,seq = map(int,(f[4],f[6],f[7],f[8],f[9],f[10]))
         if not all(0<=x<=4294967295 for x in (boot,station,uptime,sample_age,seq)) or not 0<=mask<=7:
             raise ValueError("health_range")
@@ -209,7 +222,7 @@ class Service:
             self.completed_station = None
             first = True
         self.identity = identity
-        self.health=dict(uid=f[3],boot=boot,state=f[5],station=station,mask=mask,sample_age=sample_age,seq=seq)
+        self.health=dict(uid=f[3],boot=boot,state=f[5],station=station,mask=mask,sample_age=sample_age,seq=seq,temperature_c=temperature)
         self.last_health=time.monotonic()
         self.running=f[5] in {"STARTING","MEASURING","STOPPING"}
         self.active_station=station if self.running else None
@@ -292,6 +305,8 @@ class Service:
         except BlockingIOError: return
         except OSError: self.disconnect("read_failed"); return
         if not data: self.disconnect("eof"); return
+        self.last_rx_ns = time.time_ns()
+        self.last_rx_mono = time.monotonic()
         self.serial_buffer.extend(data)
         if len(self.serial_buffer)>65536: self.disconnect("line_overflow"); return
         while b'\n' in self.serial_buffer:
@@ -339,6 +354,7 @@ class Service:
         self.listener.bind(str(self.socket_path)); os.chmod(self.socket_path,0o660)
         self.listener.listen(4); self.listener.setblocking(False)
         self.selector.register(self.listener,selectors.EVENT_READ,'listen')
+        self.monitor = StatusPublisher('payload').start()
         try:
             while True:
                 self.check_deadline()
@@ -350,6 +366,8 @@ class Service:
                     elif key.data=='client': self.client_event(key.fileobj)
                     else: self.serial_event()
         finally:
+            self.monitor.update(online=False)
+            self.monitor.close()
             self.close_capture(); self.close_serial()
             for client in list(self.clients): self.drop(client)
             self.listener.close(); self.selector.close()

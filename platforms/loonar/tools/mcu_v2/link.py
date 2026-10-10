@@ -1,4 +1,5 @@
 import secrets
+import os
 import struct
 import time
 from .wire import Frame, Kind, Parser
@@ -23,6 +24,8 @@ class Link:
         self.boot = 0
         self.session = 0
         self.last_rx = time.monotonic()
+        self.last_rx_ns = self.last_tx_ns = None
+        self.last_rx_mono = self.last_tx_mono = None
         self.last_health = 0.0
         self.health = None
         self.offset_ns = None
@@ -61,8 +64,16 @@ class Link:
             0,
             payload,
         ).encode()
-        if self.port.write(raw) != len(raw):
+        written = self.port.write(raw)
+        if os.environ.get("LOONAR_CAPTURE_SESSION"):
+            from loonar_recording.journal import emit
+            emit('mcu', 'tx', raw, kind=int(kind), boot=self.boot,
+                 session=self.session, sequence=self.sequence,
+                 payload=payload.hex(), written=written, complete=written == len(raw))
+        if written != len(raw):
             raise OSError("partial serial write")
+        self.last_tx_ns = time.time_ns()
+        self.last_tx_mono = time.monotonic()
         return self.sequence
 
     def poll(self):
@@ -72,8 +83,16 @@ class Link:
         raw = self.port.read(8192)
         if raw:
             self.last_rx = now
+            self.last_rx_ns = time.time_ns()
+            self.last_rx_mono = now
         frames = []
         for f in self.parser.feed(raw):
+            if os.environ.get("LOONAR_CAPTURE_SESSION"):
+                from loonar_recording.journal import emit
+                emit('mcu', 'rx', f.payload, kind=int(f.kind), boot=f.boot,
+                     session=f.session, sequence=f.sequence, mcu_stamp_us=f.stamp_us,
+                     clock_offset_ns=self.offset_ns, sync_rtt_ns=self.time_rtt_ns,
+                     parser_errors=self.parser.errors)
             if f.role != self.device["role_id"]:
                 raise ValueError("wrong MCU role on registered link")
             if self.boot and f.boot != self.boot:

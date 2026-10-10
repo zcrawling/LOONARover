@@ -17,10 +17,11 @@ def bracket_sample(t, data, columns, max_gap):
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--samples',type=Path,required=True)
     p.add_argument('--gt-comparison',type=Path,required=True,help='compare_primitive_test.py comparison.csv with ROS-aligned GT')
+    p.add_argument('--v1-topic',default='/localization/dr')
     p.add_argument('--output',type=Path,required=True);a=p.parse_args()
     samples=list(csv.DictReader(a.samples.open()));grows=list(csv.DictReader(a.gt_comparison.open()))
     # Consume one copy of GT; the baseline comparison contains repeated GT per topic.
-    gt=np.array([[float(r[k]) for k in ['t_ros','gt_x','gt_y','gt_yaw']] for r in grows if r['topic']=='/localization/dr'])
+    gt=np.array([[float(r[k]) for k in ['t_ros','gt_x','gt_y','gt_yaw']] for r in grows if r['topic']==a.v1_topic])
     test=np.array([[float(r[k]) for k in ['t','x','y','yaw','vx_encoder']] for r in samples])
     if len(gt)<2 or len(test)<2 or np.any(np.diff(gt[:,0])<=0) or np.any(np.diff(test[:,0])<=0):raise ValueError('Missing/nonmonotonic input')
     # Begin both trajectories at the first common observed GT pose. No scale fitting.

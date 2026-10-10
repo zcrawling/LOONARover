@@ -272,12 +272,34 @@ odom                 기존 EKF만 동적 TF 소유
 `publish_tf:=false`가 기본이다. 실제 URDF/TF가 이미 있으면 중복 발행하지 않는다.
 `urdf/loonar.urdf.xacro`는 인접 `loonar_description`의 STEP 기반 URDF를 포함한다.
 base_link는 지면이 아닌 바퀴 축 중앙이다. IMU yaw=+π/2,
-ToF 장착 위치는 `[0.03575, 0.00005, -0.0075]` m이다.
-terrain wrapper가 필요한 `tof_optical_frame`만 추가한다. 광학 원점 offset은
-0으로 가정하며 camera optical frame은 발행하지 않는다.
+ToF 장착 위치는 `[0.03575, 0.00005, -0.0075]` m, 장착 roll은 −π/2다.
+10월 7일 raw 영상의 왼쪽이 아래를 향하는 방향을 TF에 반영했다.
+terrain wrapper가 필요한 `tof_optical_frame`만 추가한다. AG12847 CAD 렌즈
+기준점까지 전방 15.99 mm를 더해 합성 위치는 `[0.05174, 0.00005, -0.0075]` m다.
+광학 주점 실측값은 아니며, 지면 기준 높이를 임의로 바꾸지는 않았다.
+camera optical frame은 발행하지 않는다.
 IMU 위치는 명목값이며 CAD 부품 원점과 실측 광학 중심은 구분한다.
 기존 임시 `robot.local.urdf`에는 예전 값이 남을 수 있으므로 기본 wrapper를
 사용하거나 새 wrapper로 해당 파일을 다시 생성한다.
+
+2026-10-07 ToF 수정: SDK `FrameDropped`는 횟수를 기록하고 계속 수신한다.
+다른 SDK 오류와 파이프 실패는 실패 종료 코드로 보고한다. SDK 콜백에서
+depth/amplitude를 복사한 뒤 별도 스레드가 전송하므로 느린 수신기가 콜백을
+붙잡지 않는다. 전송 중인 패킷은 끝까지 보내고 대기 슬롯은 최신 프레임 하나만
+유지한다. 과부하에서 교체된 프레임은 `pending_frames_replaced`, SDK 드랍은
+`sdk_frame_dropped`로 5초마다 로그에 남는다. 드랍 0개를 보장하는 변경은 아니다.
+
+Pi 연결 후 센서만 60초 검증하려면 기존 센서 프로세스를 종료하고 실행한다:
+
+```bash
+cd ~/LOONAR/platforms/loonar/ros2/terrain_navigation
+python3 tests/probe_sdk.py install/pi5/loonar_tof_adapter/lib/loonar_tof_adapter/cubeeye_capture --seconds 60
+```
+
+먼저 `loonar_description`, `loonar_bringup`, `loonar_tof_adapter`를 다시 복사/빌드해야
+한다. probe는 도중에 helper가 종료되면 종료 코드가 0이어도 실패 처리한다.
+로컬 검증 결과는 `fly_brain/analysis/20261007/tof_fix_validation/validation.json`과
+`summary.json`, 재생 코드는 같은 상위 폴더의 `calibration_replay.py`에 있다.
 
 collision 높이와 self_z_min/max도 base 축 기준이다. 기존 지면 기준 높이에서
 바퀴 반지름을 빼서 변환한다. 기본 YAML은 반지름 0.098 m 기준,

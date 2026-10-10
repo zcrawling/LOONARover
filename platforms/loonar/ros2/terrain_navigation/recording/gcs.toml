@@ -1,0 +1,9 @@
+[manual_control]
+linear_speed_mps = 0.2
+angular_speed_radps = 0.3
+repeat_interval_ms = 50
+forward_key = "PAGE_UP"
+left_key = "HOME"
+reverse_key = "PAGE_DOWN"
+right_key = "END"
+stop_key = "SPACE"

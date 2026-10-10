@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-07",
+  "deployed_to": "loonar@10.254.254.3",
+  "unit_tests": 3,
+  "existing_mcu_tests": 19,
+  "ros_mcap_roundtrip": true,
+  "source_pixel_corruption_detected": true,
+  "physical_test": {
+    "session": "/home/loonar/loonar-bags/capture_20261007_155314_866737",
+    "motion_commands_sent": false,
+    "stop_proxy_ack": [
+      424242,
+      1,
+      1,
+      1,
+      3,
+      0
+    ],
+    "raw_tof_frames": 277,
+    "camera_frames": 1060,
+    "mcu_rx": 17314,
+    "source_and_bag_bytes_match": true,
+    "mcu_sequence_gaps_in_capture_window": 0,
+    "observed_failure": "CubeEye error 9; ToF stopped before capture ended. Acquisition failure is retained in logs and verification; not fixed by recording code."
+  }
+}
