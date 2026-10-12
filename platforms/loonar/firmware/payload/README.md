@@ -1,40 +1,44 @@
 # Payload Teensy 4.1
 
 `src/main.cpp`의 Arduino 센서 앱이다. Control FreeRTOS/LNR2 펌웨어와 별개로
-USB CDC 115200에서 ASCII 명령과 CSV를 주고받는다.
+USB CDC 115200에서 ASCII 명령과 CSV를 주고받는다. 기본 `teensy41` 빌드는
+`LOONAR_페이로드_핀맵_초안.xlsx`의 9월 센서 배선에 맞춘다.
 
-| 센서 | 배선 / 설정 |
+| 센서 | 9월 핀맵 초안 배선 / 설정 |
 | --- | --- |
-| LIS3MDL | Wire SDA18 / SCL19, 50kHz, PCB ADDR=GND이므로 0x1C (0x1E 탐색도 유지) |
-| MLX90614 | Wire1 SDA17 / SCL16, 50kHz |
+| LIS3MDL | Wire SDA18 / SCL19, 50kHz, 0x1C 또는 0x1E 탐색 |
+| MLX90614 | LIS3MDL과 같은 Wire SDA18 / SCL19, 50kHz, 0x5A |
 | MAX31865 | SPI CS10 / MOSI11 / MISO12 / SCK13, 1MHz MODE1 |
-| LIS3MDL INT / DRDY | 5 / 6, PCB 연결됨. 현재 펌웨어는 I2C 폴링으로 읽음 |
-| MAX31865 RDY | 9, PCB 연결됨. 현재 펌웨어는 SPI 폴링으로 읽음 |
-| RS-422 | Serial1 RX0 / TX1 → U2 THVD1451. 현재 펌웨어 통신은 USB CDC이며 RS-422 미사용 |
+| LIS3MDL INT, MAX31865 RDY | 초안에서 핀 미정. 펌웨어는 폴링으로 읽음 |
+| RS-422 | 초안 제안은 Serial2 TX8 / RX7. 현재 펌웨어 통신은 USB CDC이며 RS-422 미사용 |
 
-기준은 [261004 MCU_SENSOR PCB](../../hardware/pcb/261004_pcb/MCU_SENSOR/mcu_sensor.kicad_pcb)의
-U1·U4·U5·J3 패드 net이다. 이전 Wire2 SDA25/SCL24는 이 PCB에서 미연결이다.
+9월 문서는 **제안 핀맵**이며 실물 PCB의 전원·배선·센서 동작을 입증하지 않는다.
+10월 [MCU_SENSOR PCB](../../hardware/pcb/261004_pcb/MCU_SENSOR/mcu_sensor.kicad_pcb)는
+MLX90614가 Wire1 SDA17/SCL16, RS-422가 Serial1 RX0/TX1으로 다르다.
+그 보드에는 `teensy41_mcu_sensor` 빌드를 사용한다. 두 빌드 모두 USB CDC만 사용한다.
 5초 전원 대기, 기존 버스 안정화 대기와 센서별 최대 5회 재시도는 유지한다.
 
-### 전원·통신 및 새 PCB 설정
+### 전원·통신 확인
 
-- **현재 전원:** Pi USB로만 공급하며 외부 전원 J1은 연결하지 않는다.
-  USB 전원으로 동작하려면 Teensy VIN–VUSB 연결이 유지돼 있어야 한다.
-  추후 J1 외부 5V와 USB를 동시에 사용한다면 VIN–VUSB 연결을 분리해야 한다.
-  PCB D1은 J1 쪽 다이오드이며 Teensy 내부 VIN–VUSB 연결을 분리하지 않는다.
+- **9월 초안 보드 시험 전원:** USB 전원만으로 먼저 시험한다. 이 핀맵 문서에는
+  PCB의 실제 5V 입력 회로가 확정돼 있지 않다. USB와 외부 5V를 동시에 사용할
+  때에는 Teensy VIN–VUSB 연결과 보드 전원 경로를 먼저 확인한다.
   [PJRC 전원 설명](https://www.pjrc.com/store/teensy41.html).
 - **RTD 기준저항:** 사용자 최종 확인값에 따라
   `RTD_REFERENCE_OHM = 4630.0f`로 설정한다. PCB U4의 `4.3k` 표기보다
   이 확인값을 우선한다.
   PT1000 3선식 설정도 실제 프로브와 모듈 점퍼 설정이 일치해야 한다.
   [Adafruit 기준저항 설명](https://learn.adafruit.com/adafruit-max31865-rtd-pt100-amplifier/python-circuitpython).
-- **현재 Pi 통신:** USB CDC를 사용하며 J2 RS-422는 사용하지 않는다.
-  추후 RS-422 사용에는 MCU Serial1 처리와 Pi HAT 포트 설정이 별도로 필요하다.
-- **MLX90614 커넥터:** J3는 1=GND, 2=3.0V, 3=SCL, 4=SDA다.
-  사용하는 센서/모듈이 3.0V 전원에 맞는 사양인지 확인한다.
-- 제공 폴더에 회로도 하위 시트 `modules.kicad_sch`, `infrared.kicad_sch`,
-  `rs422.kicad_sch`, `testpoints.kicad_sch`가 없다. PCB 패드 net으로 핀을 확인했으며
-  전체 회로도 ERC/PCB 일치 검증은 완료되지 않았다.
+- **현재 Pi 통신:** USB CDC를 사용한다. 9월 초안의 RS-422는 송수신기 회로와
+  실물 배선 확인 뒤 별도 구현이 필요하다.
+- **MLX90614:** 9월 초안에는 전원 전압·실물 핀 방향이 미정이다. 실물 센서/모듈과
+  PCB의 VDD/GND 및 SDA/SCL 배선, 3.3V 로직 전압을 확인한 뒤 전원을 넣는다.
+  10월 PCB의 J3 커넥터는 별도 설계이며 1=GND, 2=3.0V, 3=SCL, 4=SDA다.
+- **10월 MCU_SENSOR PCB:** 외부 전원 J1과 Pi USB 동시 사용에는 VIN–VUSB 분리가
+  필요하다. PCB D1은 J1 쪽 다이오드이며 Teensy 내부 연결을 분리하지 않는다.
+  저장소에 회로도 하위 시트 `modules.kicad_sch`, `infrared.kicad_sch`,
+  `rs422.kicad_sch`, `testpoints.kicad_sch`가 없어 전체 ERC/PCB 일치 검증은
+  완료되지 않았다.
 
 Control의 BNO055 핀과 번호가 같아도 **서로 다른 Teensy**다.
 
@@ -43,10 +47,12 @@ Control의 BNO055 핀과 번호가 같아도 **서로 다른 Teensy**다.
 저장소 루트에서:
 
 ```bash
-~/.local/bin/pio run -d platforms/loonar/firmware/payload -e teensy41
+C:\Users\subin\.platformio\penv\Scripts\platformio.exe run -d platforms/loonar/firmware/payload -e teensy41
 ```
 
-산출물은 `.pio/build/teensy41/firmware.hex`다. 업로드 대상은 Payload 보드 tag로
+9월 초안 보드용 산출물은 `.pio/build/teensy41/firmware.hex`다.
+10월 PCB용은 `-e teensy41_mcu_sensor`로 빌드하며 산출물 경로도
+`.pio/build/teensy41_mcu_sensor/firmware.hex`로 달라진다. 업로드 대상은 Payload 보드 tag로
 지정한다. Control 보드의 tag를 재사용하지 않는다.
 
 ## START/STOP

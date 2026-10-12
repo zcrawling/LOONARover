@@ -11,15 +11,29 @@ static_assert(loonar_pca::kGroundModel,
               "USB desk trial accepts ground-data models only");
 
 namespace {
-// 261004_pcb/MCU_SENSOR: U1 pad nets in mcu_sensor.kicad_pcb.
+// The September draft workbook and the October MCU_SENSOR PCB route MLX90614
+// to different I2C buses. Select the matching PlatformIO environment.
+#ifndef LOONAR_PAYLOAD_DRAFT_PINMAP
+#define LOONAR_PAYLOAD_DRAFT_PINMAP 1
+#endif
+#if LOONAR_PAYLOAD_DRAFT_PINMAP != 0 && LOONAR_PAYLOAD_DRAFT_PINMAP != 1
+#error "LOONAR_PAYLOAD_DRAFT_PINMAP must be 0 or 1"
+#endif
 constexpr uint8_t PIN_MAX31865_CS = 10;
 constexpr uint8_t BOARD_SPI_MOSI = 11;
 constexpr uint8_t BOARD_SPI_MISO = 12;
 constexpr uint8_t BOARD_SPI_SCK = 13;
 constexpr uint8_t PIN_LIS3MDL_SDA = 18;
 constexpr uint8_t PIN_LIS3MDL_SCL = 19;
+#if LOONAR_PAYLOAD_DRAFT_PINMAP
+constexpr uint8_t PIN_MLX90614_SDA = 18;
+constexpr uint8_t PIN_MLX90614_SCL = 19;
+TwoWire& mlxWire = Wire;
+#else
 constexpr uint8_t PIN_MLX90614_SDA = 17;
 constexpr uint8_t PIN_MLX90614_SCL = 16;
+TwoWire& mlxWire = Wire1;
+#endif
 constexpr uint32_t MAX31865_SPI_CLOCK_HZ = 1000000;
 constexpr uint8_t MAX31865_SPI_MODE = SPI_MODE1;
 
@@ -277,14 +291,14 @@ bool beginMagnetometer() {
 bool beginInfrared() {
   // No scanner or address-only pre-probe. begin() performs library detection,
   // then real temperature registers are read to verify communication.
-  if (!infrared.begin(MLX90614_ADDRESS, &Wire1)) {
-    Wire1.setClock(MLX90614_I2C_CLOCK_HZ);
+  if (!infrared.begin(MLX90614_ADDRESS, &mlxWire)) {
+    mlxWire.setClock(MLX90614_I2C_CLOCK_HZ);
     Serial.println("# MLX90614 FAIL: library initialization failed");
     return false;
   }
 
-  // Adafruit_I2CDevice::begin() calls Wire1.begin(), restoring 100 kHz.
-  Wire1.setClock(MLX90614_I2C_CLOCK_HZ);
+  // Adafruit_I2CDevice::begin() calls begin(), restoring 100 kHz.
+  mlxWire.setClock(MLX90614_I2C_CLOCK_HZ);
   const float ambient = infrared.readAmbientTempC();
   const float object = infrared.readObjectTempC();
   if (!isfinite(ambient) || !isfinite(object) || ambient <= -70.0f ||
@@ -297,12 +311,12 @@ bool beginInfrared() {
 }
 
 void recoverMlxBus() {
-  Serial.print("# MLX90614 Wire1 recovery begin SDA=");
+  Serial.print("# MLX90614 I2C recovery begin SDA=");
   Serial.print(digitalRead(PIN_MLX90614_SDA));
   Serial.print(" SCL=");
   Serial.println(digitalRead(PIN_MLX90614_SCL));
 
-  Wire1.end();
+  mlxWire.end();
   pinMode(PIN_MLX90614_SDA, INPUT_PULLUP);
   pinMode(PIN_MLX90614_SCL, INPUT_PULLUP);
   delayMicroseconds(10);
@@ -327,13 +341,17 @@ void recoverMlxBus() {
   pinMode(PIN_MLX90614_SDA, INPUT_PULLUP);
   delayMicroseconds(5);
 
-  Wire1.setSDA(PIN_MLX90614_SDA);
-  Wire1.setSCL(PIN_MLX90614_SCL);
-  Wire1.begin();
-  Wire1.setClock(MLX90614_I2C_CLOCK_HZ);
+  mlxWire.setSDA(PIN_MLX90614_SDA);
+  mlxWire.setSCL(PIN_MLX90614_SCL);
+  mlxWire.begin();
+  mlxWire.setClock(MLX90614_I2C_CLOCK_HZ);
+#if LOONAR_PAYLOAD_DRAFT_PINMAP
+  // The LIS3MDL shares this bus in the draft map; refresh its driver state.
+  magnetometerReady = false;
+#endif
   delay(WIRE_STABILIZE_MS);
 
-  Serial.print("# MLX90614 Wire1 recovery end pulses=");
+  Serial.print("# MLX90614 I2C recovery end pulses=");
   Serial.print(pulses);
   Serial.print(" SDA=");
   Serial.print(digitalRead(PIN_MLX90614_SDA));
@@ -382,8 +400,10 @@ void serviceInitialization() {
     SPI.begin();
     Wire.setSDA(PIN_LIS3MDL_SDA); Wire.setSCL(PIN_LIS3MDL_SCL);
     Wire.begin(); Wire.setClock(I2C_CLOCK_HZ);
+#if !LOONAR_PAYLOAD_DRAFT_PINMAP
     Wire1.setSDA(PIN_MLX90614_SDA); Wire1.setSCL(PIN_MLX90614_SCL);
     Wire1.begin(); Wire1.setClock(MLX90614_I2C_CLOCK_HZ);
+#endif
     magnetometerReady = infraredReady = rtdReady = false;
     sampleValidMask = 0;
     initStage = 1; initDue = millis() + WIRE_STABILIZE_MS;
