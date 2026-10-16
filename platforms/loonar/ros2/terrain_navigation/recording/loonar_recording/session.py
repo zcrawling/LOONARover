@@ -111,7 +111,7 @@ def main():
                 '--gateway-bin',str(ROOT/'build/gcs-test/host/common/vehicle_gateway/vehicle_gatewayd')]
             if args.mode == 'gcs':
                 command += ['--cfs-dir',str(ROOT/'build/gcs-test/cFS/build-native_std/exe/cpu1'),
-                    '--payload-device',env.get('PAYLOAD_DEVICE','/dev/serial/by-id/usb-Teensyduino_USB_Serial_20356570-if00')]
+                    '--payload-device',env.get('PAYLOAD_DEVICE','/dev/serial/by-id/usb-Teensyduino_USB_Serial_21147480-if00')]
             if args.mode == 'manual':
                 start('groundlink',[sys.executable,'-m','loonar_recording.proxy'])
                 command += ['--cfs-dir',str(ROOT/'build/gcs-test/cFS/build-native_std/exe/cpu1')]

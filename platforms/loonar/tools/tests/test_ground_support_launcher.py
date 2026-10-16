@@ -7,7 +7,7 @@ import tempfile
 import unittest
 
 SCRIPT = Path(__file__).resolve().parents[1] / 'start-ground-support.sh'
-DEFAULT_DEVICE = '/dev/serial/by-id/usb-Teensyduino_USB_Serial_20356570-if00'
+DEFAULT_DEVICE = '/dev/serial/by-id/usb-Teensyduino_USB_Serial_21147480-if00'
 
 
 class GroundSupportLauncherTests(unittest.TestCase):

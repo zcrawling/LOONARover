@@ -5,8 +5,12 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/un.h>
+#include <time.h>
 #include <unistd.h>
 
 #define GL_PORT 7443
@@ -22,13 +26,54 @@ typedef struct
     uint8_t Rx[GL_RX_CAPACITY];
     size_t RxUsed;
     uint8_t CurrentMode;
+    bool StopSelected;
+    int LedFd;
+    char LedPath[sizeof(((struct sockaddr_un *)0)->sun_path)];
+    double LedNextMonotonic;
+    double ModeUpdatedMonotonic;
 } GL_AppData_t;
 static GL_AppData_t GL;
+
+/* Read-only telemetry. Never connect to another gateway/control peer, wait for
+ * an LED acknowledgement, or make the command path depend on LED availability. */
+static void GL_PublishLedStatus(void)
+{
+    struct timespec ts;
+    struct sockaddr_un address;
+    char payload[192];
+    double now;
+    int size;
+    if (GL.LedFd < 0 || clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
+        return;
+    now = (double)ts.tv_sec + (double)ts.tv_nsec / 1000000000.0;
+    if (now < GL.LedNextMonotonic)
+        return;
+    GL.LedNextMonotonic = now + 0.1;
+    size = snprintf(payload, sizeof(payload),
+        "{\"schema\":1,\"mode\":%u,\"gcs_connected\":%s,\"explicit_stop\":%s,\"mode_fresh\":%s,\"updated_mono\":%.9f}",
+        (unsigned)GL.CurrentMode, GL.Client >= 0 ? "true" : "false",
+        GL.StopSelected ? "true" : "false",
+        GL.ModeUpdatedMonotonic > 0 && now - GL.ModeUpdatedMonotonic < 2 ? "true" : "false", now);
+    if (size <= 0 || (size_t)size >= sizeof(payload))
+        return;
+    memset(&address, 0, sizeof(address));
+    address.sun_family = AF_UNIX;
+    strcpy(address.sun_path, GL.LedPath);
+    (void)sendto(GL.LedFd, payload, (size_t)size, MSG_DONTWAIT | MSG_NOSIGNAL,
+                 (struct sockaddr *)&address, sizeof(address));
+}
 
 static void
 GL_CloseClient(
     void
     ){
+    if (GL.Client >= 0 && GL.CurrentMode == LOONAR_MODE_REACTION)
+    {
+        LOONAR_NoArgsCmd_t stop;
+        memset(&stop, 0, sizeof(stop));
+        CFE_MSG_Init(CFE_MSG_PTR(stop.CommandHeader), CFE_SB_ValueToMsgId(LOONAR_STOP_CMD_MID_VALUE), sizeof(stop));
+        CFE_SB_TransmitMsg(CFE_MSG_PTR(stop.CommandHeader), true);
+    }
     if (GL.Client >= 0)
         close(GL.Client);
     GL.Client = -1;
@@ -150,9 +195,18 @@ GL_ServiceNetwork(
     ){
     if (GL.Client < 0)
     {
-        GL.Client = accept(GL.Listener, NULL, NULL);
+        struct sockaddr_in peer;
+        socklen_t length = sizeof(peer);
+        GL.Client = accept(GL.Listener, (struct sockaddr *)&peer, &length);
         if (GL.Client >= 0)
         {
+            if (peer.sin_addr.s_addr != inet_addr("10.254.254.2") &&
+                peer.sin_addr.s_addr != htonl(INADDR_LOOPBACK))
+            {
+                close(GL.Client);
+                GL.Client = -1;
+                return;
+            }
             int flags = fcntl(GL.Client, F_GETFL, 0);
             if (flags >= 0)
                 fcntl(GL.Client, F_SETFL, flags | O_NONBLOCK);
@@ -216,6 +270,8 @@ GL_ForwardTelemetry(
     if (CFE_SB_MsgId_Equal(id, CFE_SB_ValueToMsgId(LOONAR_COMMAND_RESULT_TLM_MID_VALUE)))
     {
         const LOONAR_CommandResultTlm_t *m = (const LOONAR_CommandResultTlm_t *)buffer;
+        if (m->CommandType == LOONAR_GL_STOP_COMMAND && m->AdapterForwarded && m->ResultCode == 0)
+            GL.StopSelected = true;
         LOONAR_GL_WriteU32(payload, m->GroundSequence);
         LOONAR_GL_WriteU16(payload + 4, m->CommandType);
         payload[6] = m->CfsReceived;
@@ -228,7 +284,14 @@ GL_ForwardTelemetry(
     else if (CFE_SB_MsgId_Equal(id, CFE_SB_ValueToMsgId(LOONAR_GATEWAY_STATUS_TLM_MID_VALUE)))
     {
         const LOONAR_GatewayStatusTlm_t *m = (const LOONAR_GatewayStatusTlm_t *)buffer;
+        struct timespec mode_ts;
+        if (clock_gettime(CLOCK_MONOTONIC, &mode_ts) == 0)
+            GL.ModeUpdatedMonotonic = (double)mode_ts.tv_sec + (double)mode_ts.tv_nsec / 1000000000.0;
         GL.CurrentMode = m->Mode;
+        if (m->Mode != LOONAR_MODE_STOP)
+            GL.StopSelected = false;
+        else if (m->HasLastCommand && m->LastSource == 3)
+            GL.StopSelected = true;
         payload[0] = m->Mode;
         payload[1] = m->LastSource;
         payload[2] = m->HasLastCommand;
@@ -337,7 +400,17 @@ GL_Init(
     memset(&GL, 0, sizeof(GL));
     GL.Listener = -1;
     GL.Client = -1;
+    GL.LedFd = -1;
     GL.CurrentMode = LOONAR_MODE_STOP;
+    {
+        const char *path = getenv("LOONAR_LED_SOCKET");
+        if (path == NULL || path[0] == '\0')
+            path = "/run/loonar-led/status.sock";
+        if (strlen(path) < sizeof(GL.LedPath)) {
+            strcpy(GL.LedPath, path);
+            GL.LedFd = socket(AF_UNIX, SOCK_DGRAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
+        }
+    }
     GL.RunStatus = CFE_ES_RunStatus_APP_RUN;
     status = CFE_EVS_Register(NULL, 0, CFE_EVS_EventFilter_BINARY);
     if (status != CFE_SUCCESS)
@@ -381,9 +454,14 @@ LNR_GroundMain(
         while (CFE_SB_ReceiveBuffer(&buffer, GL.Pipe, CFE_SB_POLL) == CFE_SUCCESS)
             GL_ForwardTelemetry(buffer);
         GL_ServiceNetwork();
+        GL_PublishLedStatus();
         OS_TaskDelay(10);
     }
     GL_CloseClient();
+    GL.LedNextMonotonic = 0;
+    GL_PublishLedStatus();
+    if (GL.LedFd >= 0)
+        close(GL.LedFd);
     if (GL.Listener >= 0)
         close(GL.Listener);
     CFE_ES_ExitApp(GL.RunStatus);

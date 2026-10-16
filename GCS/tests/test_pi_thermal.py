@@ -16,6 +16,15 @@ spec.loader.exec_module(sensor)
 
 
 class ThermalTests(unittest.IsolatedAsyncioTestCase):
+    async def test_unapproved_peer_receives_no_status(self):
+        server = await asyncio.start_server(sensor.stream,'127.0.0.1',0)
+        try:
+            reader,writer = await asyncio.open_connection('127.0.0.1',server.sockets[0].getsockname()[1],
+                                                         local_addr=('127.0.0.2',0))
+            self.assertEqual(await asyncio.wait_for(reader.read(),1),b'')
+            writer.close();await writer.wait_closed()
+        finally:
+            server.close();await server.wait_closed()
     def test_sysfs_conversion_and_unavailable_sensor(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory)/'temp'

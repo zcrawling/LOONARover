@@ -9,13 +9,12 @@ if [[ $# == 0 && ${LOONAR_FLY_LEGACY_SUPPORT:-0} != 1 ]]; then
 fi
 export PYTHONPATH="$ROOT/platforms/loonar/tools${PYTHONPATH:+:$PYTHONPATH}"
 if [[ ${1:-} == --video ]]; then
-  [[ -n ${SSH_CONNECTION:-} ]] || { echo 'Use --video-ip GCS_IPV4 when not connected over SSH.' >&2; exit 2; }
   shift
-  set -- --video-ip "${SSH_CONNECTION%% *}" "$@"
+  set -- --video-ip 10.254.254.2 "$@"
 fi
 exec python3 -m mcu_v2.motor_bench \
   --ros-samples \
   --registry "$HOME/loonar-motor-bench/control.json" \
-  --payload-device "${PAYLOAD_DEVICE:-/dev/serial/by-id/usb-Teensyduino_USB_Serial_20356570-if00}" \
+  --payload-device "${PAYLOAD_DEVICE:-/dev/serial/by-id/usb-Teensyduino_USB_Serial_21147480-if00}" \
   --gateway-bin "$ROOT/build/gcs-test/host/common/vehicle_gateway/vehicle_gatewayd" \
   --cfs-dir "$ROOT/build/gcs-test/cFS/build-native_std/exe/cpu1" "$@"

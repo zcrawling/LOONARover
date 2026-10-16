@@ -11,11 +11,13 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from backend.config import ROOT, DEFAULT_CONFIG, load
+from backend.json_safe import dumps as json_dumps
 from cli.common import request
 
 STATIC = Path(__file__).parent / 'static'
 COMMANDS = {'STOP', 'MANUAL', 'AUTO', 'PAYLOAD', 'REACTION',
             'PAYLOAD_START', 'PAYLOAD_STOP',
+            'REACTION_LEFT', 'REACTION_RIGHT',
             'FORWARD', 'LEFT', 'REVERSE', 'RIGHT'}
 
 
@@ -34,7 +36,7 @@ class Handler(BaseHTTPRequestHandler):
         return self.headers.get('Host') in {f'127.0.0.1:{self.server.server_port}', f'localhost:{self.server.server_port}'}
 
     def reply(self, status, body, content_type='application/json; charset=utf-8'):
-        data = json.dumps(body, ensure_ascii=False).encode() if isinstance(body, dict) else body
+        data = json_dumps(body).encode() if isinstance(body, dict) else body
         self.send_response(status)
         self.send_header('Content-Type', content_type)
         self.send_header('Content-Length', str(len(data)))
@@ -93,6 +95,8 @@ class Handler(BaseHTTPRequestHandler):
                 local_request['linear_speed_mps'] = body['linear_speed_mps']
             if body.get('angular_speed_radps') is not None:
                 local_request['angular_speed_radps'] = body['angular_speed_radps']
+            if 'reaction_settings' in body:
+                local_request['reaction_settings'] = body['reaction_settings']
             result = request(local_request)
             return self.reply(200, result)
         except (OSError, ValueError):

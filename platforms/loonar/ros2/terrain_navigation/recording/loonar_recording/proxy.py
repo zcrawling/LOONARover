@@ -29,6 +29,11 @@ class Frames:
 
 
 async def bridge(reader, writer):
+    peer=writer.get_extra_info('peername')
+    if not peer or peer[0] not in ('10.254.254.2','127.0.0.1'):
+        writer.close()
+        await writer.wait_closed()
+        return
     identity = str(writer.get_extra_info('peername'))
     remote = None
     tasks = []

@@ -48,11 +48,13 @@ class Gateway:
         self.socket = None
         self.retry = 0
         self.attitude = GyroAttitude()
+        self.reaction_request = None
 
     def close(self):
         if self.socket:
             self.socket.close()
         self.socket = None
+        self.reaction_request = None
 
     def latest(self):
         now = time.monotonic()
@@ -84,6 +86,9 @@ class Gateway:
             if os.environ.get("LOONAR_CAPTURE_SESSION"):
                 from loonar_recording.journal import emit
                 emit('gateway', 'rx', raw)
+            if len(raw) == 53 and GATEWAY_HEADER.unpack_from(raw) == (0x4C4E5247, 1, 10, 41):
+                self.reaction_request = raw[12:]
+                continue
             if len(raw) != 29:
                 continue
             magic, version, kind, size = GATEWAY_HEADER.unpack_from(raw)
@@ -91,12 +96,22 @@ class Gateway:
                 continue
             source, v, w = struct.unpack_from("<Bdd", raw, 12)
             if source == 3:
+                self.reaction_request = None
                 latest = (0.0, 0.0)
             elif source in (1, 2) and math.isfinite(v) and math.isfinite(w):
+                self.reaction_request = None
                 latest = (v, w)
         # A large queued backlog cannot establish command freshness.
         self.close()
         return (0.0, 0.0)
+
+    def reaction_event(self, text):
+        if self.socket:
+            data = text.encode('ascii')[:127]
+            try:
+                self.socket.send(GATEWAY_HEADER.pack(0x4C4E5247,1,11,len(data))+data)
+            except OSError:
+                self.close()
 
     def status(self, frame, geometry):
         if frame.kind == Kind.IMU:
@@ -157,6 +172,8 @@ def serve(device, args, stop, received, monitor=None):
     wheels = geometry(device)
     link = Link(device)
     gateway = Gateway(args.gateway) if device["role"] == "control" else None
+    from .reaction_gateway import ReactionController
+    reaction = ReactionController(link, gateway.reaction_event) if gateway else None
     health, samples = Sink(args.health), Sink(args.samples)
     try:
         received.begin(link.boot, link.oldest)
@@ -178,6 +195,8 @@ def serve(device, args, stop, received, monitor=None):
                 link.timesync()
                 sync = now
             for f in link.poll():
+                if reaction:
+                    reaction.receive(f)
                 if f.kind == Kind.MOTOR and len(f.payload) == 64:
                     motor = decode_motor(f.payload)
                     # Replayed old snapshots are not live readings.
@@ -247,7 +266,14 @@ def serve(device, args, stop, received, monitor=None):
                     )
                     reported_missing, reported_full = received.missing, received.full
             motion = gateway.latest() if gateway else None
+            if reaction and gateway.socket is None and (reaction.pending or reaction.running):
+                link.send(Kind.STOP)
+                reaction.cancel()
             if motion is not None:
+                if reaction:
+                    if reaction.pending or reaction.running:
+                        link.send(Kind.STOP)
+                    reaction.cancel()
                 if motion == (0.0, 0.0):
                     link.send(Kind.STOP)
                 elif wheels:
@@ -261,9 +287,18 @@ def serve(device, args, stop, received, monitor=None):
                         link.send(
                             Kind.MOTION, struct.pack("<IiiI", command, left, right, 200)
                         )
+            if reaction:
+                if gateway.reaction_request is not None:
+                    request, gateway.reaction_request = gateway.reaction_request, None
+                    reaction.request(request)
+                reaction.tick()
             missing = now - (link.last_health or started) >= 1
             if missing and not health_missing:
-                logging.warning("MCU health missing for 1s; reporting only")
+                logging.warning("MCU health missing for 1s; cancelling any active reaction sequence")
+                if reaction and (reaction.running or reaction.pending):
+                    link.send(Kind.STOP)
+                    gateway.reaction_event('ERROR,mcu_health_timeout')
+                    reaction.cancel()
             health_missing = missing
             time.sleep(0.001)
     finally:

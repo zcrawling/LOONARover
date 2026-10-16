@@ -11,6 +11,21 @@ class Writer:
 
 
 class RealBackendTests(unittest.IsolatedAsyncioTestCase):
+    async def test_reaction_tuning_is_validated_and_packed(self):
+        from mcu_v2.reaction_wheel import Settings
+        state = RealState('test'); state.connection = 'CONNECTED'
+        link = GroundLinkConnection('test',7443,state); link.writer = Writer()
+        for name,side in [('REACTION_LEFT',1),('REACTION_RIGHT',2)]:
+            result = await link.command(name, reaction_settings={'left_first_offset':30})
+            self.assertTrue(result['ok'])
+            raw = link.writer.data[-1]
+            self.assertEqual(HEADER.unpack_from(raw)[2],5)
+            self.assertEqual(struct.unpack_from('<HH',raw,HEADER.size+8),(side,40))
+            self.assertEqual(raw[HEADER.size+12:],Settings(left_first_offset=30).encode())
+        count = len(link.writer.data)
+        self.assertFalse((await link.command('REACTION_LEFT',reaction_settings={'servo_left':799}))['ok'])
+        self.assertEqual(len(link.writer.data),count)
+        self.assertTrue((await link.command('STOP'))['ok'])
     async def test_stop_auto_and_safe_manual_frames(self):
         state = RealState("rover.test")
         state.connection = "CONNECTED"

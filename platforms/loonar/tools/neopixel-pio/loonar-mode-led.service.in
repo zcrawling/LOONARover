@@ -1,0 +1,20 @@
+[Unit]
+Description=LOONAR drive and activity mode LEDs
+Requires=loonar-neopixel-pio.service
+After=loonar-neopixel-pio.service
+
+[Service]
+Type=simple
+User=@USER@
+Group=@GROUP@
+RuntimeDirectory=loonar-led
+RuntimeDirectoryMode=0755
+Environment=PYTHONDONTWRITEBYTECODE=1
+EnvironmentFile=-/etc/loonar/mode-led.env
+ExecStart=@PYTHON@ @SCRIPT@
+Restart=on-failure
+RestartSec=2
+TimeoutStopSec=5
+
+[Install]
+WantedBy=multi-user.target

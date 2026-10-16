@@ -25,6 +25,7 @@ mkdir -p "$FLY_DIR/log" "$FLY_DIR/cache"
 # feature packets cross DDS; full depth images stay on the Pi.
 exec docker run --rm --init --network host --name "${LOONAR_FLY_CONTAINER:-loonar-fly-brain}" \
   --user "$(id -u):$(id -g)" -e ROS_LOG_DIR=/fly/log/ros \
-  -e ROS_DOMAIN_ID="${ROS_DOMAIN_ID:-0}" -e ROS_LOCALHOST_ONLY=0 \
+  -e ROS_DOMAIN_ID="${ROS_DOMAIN_ID:-0}" -e ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST \
+  -e ROS_STATIC_PEERS=10.254.254.3 \
   -v "$FLY_DIR:/fly" loonar-fly-brain:783 \
   bash -c 'source /opt/ros/jazzy/setup.bash; exec /opt/fly-env/bin/python -m loonar_fly.brain_node "$@"' bash "${brain_args[@]}"

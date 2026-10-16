@@ -133,3 +133,16 @@ python3 -B -m unittest tests.test_xbox_control tests.test_xbox_terminal tests.te
 유효한 범위 초과 입력은 거부하지 않고 ±0.4 m/s, ±3.8 rad/s로 제한한다.
 B 모드 혼합 입력은 좌우 바퀴 속도의 큰 쪽이 0.4 m/s를 넘으면
 선속도와 각속도를 같은 비율로 줄인다. Pi는 레지스트리의 실제 윤거를 사용해 동일하게 제한한다.
+
+
+## 외부 AprilTag GT와 Pi 전체 bag을 함께 기록
+
+```bash
+bash GCS/scripts/start_controller.sh --record-session --ip 10.254.254.3
+```
+
+이 옵션은 [수동 주행 세션 실행기](../../tools/apriltag_gt/README.md)로 연결한다.
+Pi의 기존 `--record-all`, 외부 카메라 원본·트래킹·궤적 창, 프레임별 Pi 시각 매핑과
+Xbox 명령 로그를 한 세션에 저장한다. 준비 후 기존 RT로 MANUAL을 선택한다.
+C 추정기/자동 주행을 시작하지 않는다. Pi 전체 센서 스택이 이미 실행 중이면
+`--existing-stack`을 추가한다. 기존 `start_controller.sh` 단독 동작은 동일하다.

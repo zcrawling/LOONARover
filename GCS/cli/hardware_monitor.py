@@ -1,4 +1,4 @@
-"""SSH hardware dashboard. Does not open MCU ports or send motion commands."""
+"""UDP receive-only hardware dashboard; legacy formatting/probe helpers retained."""
 import argparse
 from datetime import datetime
 import fcntl
@@ -144,33 +144,13 @@ def run(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--host', required=True)
-    parser.add_argument('--user', default='loonar')
+    from cli.status_udp import run as receive_status
+    parser = argparse.ArgumentParser(description='UDP 수신 전용 온도·전압·MCU 모니터')
+    parser.add_argument('--host', default='10.254.254.3')
     parser.add_argument('--once', action='store_true')
     args = parser.parse_args()
-    if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9.-]*', args.host) or not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_-]*', args.user):
-        parser.error('SSH 주소 형식 오류')
-    runtime = ROOT / '.runtime'
-    runtime.mkdir(exist_ok=True)
-    with (runtime / f'hardware-{args.host}.lock').open('a') as lock:
-        try:
-            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except BlockingIOError:
-            print('하드웨어 모니터가 이미 실행 중입니다.')
-            return
-        terminal = sys.stdout.isatty()
-        try:
-            if terminal:
-                print('\033[?1049h\033[?25l', end='', flush=True)
-            run(args)
-        except KeyboardInterrupt:
-            pass
-        except (OSError, RuntimeError) as exc:
-            parser.exit(1, f'{exc}\n')
-        finally:
-            if terminal:
-                print('\033[?25h\033[?1049l', end='', flush=True)
+    try:receive_status('hardware',args.host,once=args.once)
+    except KeyboardInterrupt:pass
 
 
 if __name__ == '__main__':

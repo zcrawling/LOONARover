@@ -16,6 +16,16 @@ spec.loader.exec_module(module)
 PCA = 'PCA,DEMO_ONLY_260927,1,1000,6000,10,10,1,34.0,27.0,28.0,0.1,0.2,0.3,0,DEMO_ONLY'
 
 class PayloadServiceTests(unittest.TestCase):
+    def test_led_monitor_tracks_live_sequence_and_disconnect(self):
+        self.s.monitor = mock.Mock()
+        self.health('MEASURING')
+        self.assertTrue(self.s.monitor.update.call_args.kwargs['sequence_active'])
+        self.health('IDLE')
+        self.assertFalse(self.s.monitor.update.call_args.kwargs['sequence_active'])
+        self.health('MEASURING')
+        self.s.last_health = time.monotonic()-4
+        self.s.emit_health()
+        self.assertFalse(self.s.monitor.update.call_args.kwargs['sequence_active'])
     def test_optional_mcu_temperature_and_legacy_health(self):
         self.assertIsNone(self.s.health['temperature_c'])
         self.s.polls['99'] = time.monotonic()
@@ -139,6 +149,71 @@ class PayloadServiceTests(unittest.TestCase):
         self.s.next_open=self.s.next_health=float('inf')
         self.s.check_deadline()
         self.assertIn('ERROR,7,STATION,START:result_unknown',self.events)
+
+    def test_sequence_files_and_durable_lifecycle_include_id_and_result_times(self):
+        import json
+        self.s.start(7); self.finish('START')
+        self.s.stop(8); self.s.record(PCA); self.s.handle_line(PCA); self.finish('STOP')
+        capture = next(Path(self.temp.name).glob('*.csv'))
+        self.assertIn('-boot000001-seq000001-', capture.name)
+        events = [json.loads(line) for line in self.s.event_path.read_text().splitlines()]
+        self.assertEqual([e['event'] for e in events], ['START', 'END'])
+        self.assertEqual(events[0]['payload_seq_id'], 1)
+        self.assertEqual(events[0]['sequence_key'], events[1]['sequence_key'])
+        self.assertLessEqual(events[0]['stamp_ns'], events[1]['stamp_ns'])
+        self.assertEqual(events[1]['mcu_start_ms'], 1000)
+        self.assertEqual(events[1]['mcu_end_ms'], 6000)
+        self.assertEqual(events[1]['csv_path'], str(capture))
+        self.assertTrue(events[1]['result_valid'])
+        self.assertTrue(capture.with_suffix('.events.jsonl').is_file())
+
+    def test_reboot_does_not_overwrite_same_sequence_id(self):
+        self.s.start(7); self.finish('START')
+        self.health('IDLE', boot=2); self.finish('RESULT', error='no_result')
+        self.s.start(8); self.finish('START')
+        captures = list(Path(self.temp.name).glob('*.csv'))
+        self.assertEqual(len(captures), 2)
+        self.assertTrue(any('-boot000002-seq000001-' in p.name for p in captures))
+
+    def test_event_tail_replays_and_waits_for_complete_lines(self):
+        import json
+        from mcu_v2.payload_events import EventTail
+        tail = EventTail(Path(self.temp.name)/'events.jsonl')
+        self.assertEqual(tail.read(), [])
+        self.s.start(7); self.finish('START')
+        self.assertEqual(tail.read()[0]['event'], 'START')
+        self.assertEqual(tail.read(), [])
+        with self.s.event_path.open('a') as stream:
+            stream.write('{"schema":1,"stamp_ns":123')
+        self.assertEqual(tail.read(), [])
+        with self.s.event_path.open('a') as stream:
+            stream.write(',"event":"END"}\n')
+        self.assertEqual(tail.read()[0]['event'], 'END')
+
+    def test_recover_old_result_does_not_mix_active_station_file(self):
+        self.s.last_health = None
+        self.s.polls['99'] = time.monotonic()
+        self.s.handle_line('HEALTH,1,99,0000000000000001,1,MEASURING,2,100,5,0,0,payload-1')
+        active = self.s.capture_path
+        self.s.handle_line(PCA); self.finish('RESULT')
+        self.assertNotIn('PCA,', active.read_text())
+        recovered = next(Path(self.temp.name).glob('*seq000001*-recovered.csv'))
+        self.assertIn(PCA, recovered.read_text())
+        self.assertTrue(self.s.running)
+
+    def test_disconnect_marks_interrupted_without_fabricating_end(self):
+        import json
+        self.s.start(7); self.finish('START')
+        self.s.disconnect('health_timeout')
+        events = [json.loads(line) for line in self.s.event_path.read_text().splitlines()]
+        self.assertEqual([e['event'] for e in events], ['START', 'INTERRUPTED'])
+        self.assertFalse(events[-1]['end_confirmed'])
+
+    def test_confirmed_start_id_overrides_cached_health_filename(self):
+        self.s.start(7)
+        self.finish('START', station=2)
+        self.assertIn('-seq000002-', self.s.capture_path.name)
+        self.assertEqual(len(list(Path(self.temp.name).glob('*.csv'))), 1)
 
 class PtyTransportTests(unittest.TestCase):
     def test_absent_device_waits_then_connects_without_restart(self):

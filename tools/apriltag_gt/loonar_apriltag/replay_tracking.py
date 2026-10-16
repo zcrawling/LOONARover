@@ -18,6 +18,8 @@ def main():
     p.add_argument('--detector',choices=['legacy','apriltag'],default='apriltag')
     a=p.parse_args()
     meta=json.loads((a.capture/'capture.json').read_text())
+    if meta.get('archive_all_frames'):
+        p.error('Manual-session video has a separate frame map; use retrack_session.py SESSION instead')
     cal=meta['calibration'];k=np.array(cal['K']);d=np.array(cal['D'])
     with (a.capture/'frames.csv').open() as f:rows=list(csv.DictReader(f))
     detector=TagDetector(meta['tag_id']) if a.detector == 'apriltag' else cv.aruco.ArucoDetector(dictionary(),cv.aruco.DetectorParameters())

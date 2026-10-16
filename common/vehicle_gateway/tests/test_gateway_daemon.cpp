@@ -110,8 +110,16 @@ int main(int argc, char** argv) {
   assert(receive_backend_motion(backend).source == Source::kStop);
   assert(send_packet(cfs, protocol::encode({protocol::Type::kSelectReaction, {}})));
   assert(!receive_packet(backend, 100));
+  std::vector<std::uint8_t> reaction(41, 0);
+  reaction[0] = 2;
+  assert(send_packet(cfs, protocol::encode({protocol::Type::kReactionRun, reaction})));
+  const auto reaction_packet = receive_packet(backend, 1000);
+  assert(reaction_packet && reaction_packet->type == protocol::Type::kReactionRun && reaction_packet->payload == reaction);
+  assert(send_packet(ros, protocol::encode({protocol::Type::kReactionRun, reaction})));
+  assert(!receive_packet(backend, 100));
 
   assert(send_packet(cfs, protocol::encode({protocol::Type::kSelectAuto, {}})));
+  assert(receive_backend_motion(backend).source == Source::kStop);
   assert(send_packet(ros, protocol::encode_motion(protocol::Type::kMotion, {Source::kAuto, 0.2, 0.3})));
   const auto automatic = receive_backend_motion(backend);
   assert(automatic.source == Source::kAuto && automatic.linear_mps == 0.2 && automatic.angular_radps == 0.3);

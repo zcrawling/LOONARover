@@ -32,6 +32,30 @@ class WebInterfaceTests(unittest.TestCase):
                 self.assertTrue(json.load(response)['ok'])
             backend.assert_called_once_with({'action': 'command', 'command': 'STOP'})
 
+    def test_reaction_settings_forwarded_once(self):
+        body = {'command':'REACTION_LEFT','reaction_settings':{'left_first_offset':30}}
+        with patch('webui.server.request',return_value={'ok':True}) as backend:
+            with urllib.request.urlopen(urllib.request.Request(self.url+'/api/command',
+                    data=json.dumps(body).encode(),headers={'Origin':self.url,
+                    'X-GCS-Token':self.server.token,'Content-Type':'application/json'})) as response:
+                self.assertTrue(json.load(response)['ok'])
+            backend.assert_called_once_with(dict(action='command',**body))
+
+    def test_nonfinite_payload_state_remains_readable_and_stop_works(self):
+        state = {'connection': 'CONNECTED', 'payload_sample':
+                 {'values': {'IR': float('nan'), 'novelty': float('inf')}}}
+        def reject_constant(value):
+            raise ValueError(value)
+        with patch('webui.server.request', return_value=state):
+            with urllib.request.urlopen(self.url + '/api/state') as response:
+                data = json.loads(response.read(), parse_constant=reject_constant)
+            self.assertEqual(data['connection'], 'CONNECTED')
+            self.assertIsNone(data['payload_sample']['values']['IR'])
+            self.assertIsNone(data['payload_sample']['values']['novelty'])
+        with patch('webui.server.request', return_value={'ok': True}):
+            with self.post(self.server.token) as response:
+                self.assertTrue(json.load(response)['ok'])
+
     def test_payload_station_buttons_reach_backend(self):
         with patch('webui.server.request', return_value={'ok': True}) as backend:
             for command in ('PAYLOAD_START', 'PAYLOAD_STOP'):

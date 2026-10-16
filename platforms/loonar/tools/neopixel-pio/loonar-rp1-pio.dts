@@ -1,0 +1,51 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "brcm,bcm2712";
+    fragment@0 {
+        target = <&rp1>;
+        __overlay__ {
+            #address-cells = <2>;
+            #size-cells = <2>;
+            // Ubuntu 6.8 exposes the register BAR, but omits RP1 SRAM BAR2.
+            // Keep its existing mapping and add only the already-assigned SRAM BAR.
+            ranges = <0xc0 0x40000000 0x02000000 0 0 0 0x400000>,
+                     <0xc0 0x40400000 0x02000000 0 0x400000 0 0x10000>;
+            loonar_rp1_mbox: mailbox@8000 {
+                compatible = "raspberrypi,rp1-mbox";
+                reg = <0xc0 0x40008000 0 0x4000>;
+                interrupt-parent = <&rp1>;
+                interrupts = <58 4>;
+                #mbox-cells = <1>;
+                status = "okay";
+            };
+            loonar_rp1_shmem: shmem@40ff00 {
+                compatible = "raspberrypi,rp1-shmem";
+                reg = <0xc0 0x4040ff00 0 0x100>;
+            };
+            loonar_pio: pio@178000 {
+                compatible = "raspberrypi,rp1-pio";
+                reg = <0xc0 0x40178000 0 0x20>;
+                firmware = <&loonar_rp1_fw>;
+                dmas = <&rp1_dma 0x38>, <&rp1_dma 0x39>,
+                       <&rp1_dma 0x3a>, <&rp1_dma 0x3b>,
+                       <&rp1_dma 0x3c>, <&rp1_dma 0x3d>,
+                       <&rp1_dma 0x3e>, <&rp1_dma 0x3f>;
+                dma-names = "tx0", "rx0", "tx1", "rx1", "tx2", "rx2", "tx3", "rx3";
+                loonar,pio-id = <0>;
+                status = "okay";
+            };
+        };
+    };
+    fragment@1 {
+        target-path = "/";
+        __overlay__ {
+            loonar_rp1_fw: loonar-rp1-firmware {
+                compatible = "raspberrypi,rp1-firmware";
+                mboxes = <&loonar_rp1_mbox 0>;
+                shmem = <&loonar_rp1_shmem>;
+            };
+        };
+    };
+};

@@ -11,6 +11,12 @@ target_link_libraries(
   PUBLIC loonar_wire_c loonar_project_options loonar_project_warnings)
 
 if(BUILD_TESTING)
+  add_executable(test_reaction_wheel tests/test_reaction_wheel.cpp)
+  target_include_directories(test_reaction_wheel PRIVATE include)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(test_reaction_wheel PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+  endif()
+  add_test(NAME firmware.test_reaction_wheel COMMAND test_reaction_wheel)
   add_executable(test_control_v2 tests/test_v2.cpp)
   target_include_directories(test_control_v2 PRIVATE include)
   if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")

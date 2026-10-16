@@ -1,4 +1,4 @@
-# External AprilTag ground truth — straight runs
+# External AprilTag ground truth — LOONAR manual sessions and experiments
 
 Fixed USB camera on this computer, **AprilTag 36h11 ID 0**, default black outer
 edge **150 mm**. OpenCV supports this family directly. The standalone camera
@@ -6,6 +6,121 @@ commands only measure; the integrated distance test starts a remote ROS command
 publisher. Default experiment speed is **0.05 m/s**.
 At that speed 1 m takes nominally 20 seconds; actual travel is measured, not
 inferred from duration. A single speed validates only that operating condition.
+
+
+## LOONAR: 수동 주행을 먼저 기록하고 사후 분석
+
+새 기본 수집 흐름은 **외부 카메라 원본 저장 + 실시간 AprilTag/궤적 창 + Pi
+`--record-all` + 기존 Xbox 조종**이다. C 추정기나 거리/속도 프로파일은 실행하지
+않으며 태그를 놓치거나 회전해도 기록을 계속한다. 기존 제한된 C/직선 시험은
+아래 별도 명령으로 남아 있다.
+
+노트북의 GNOME Terminal에서 실행한다:
+
+```bash
+cd /home/sb/LOONAR
+bash tools/apriltag_gt/run_manual_session.sh --ip 10.254.254.3
+# 컨트롤러 실행 스크립트에서도 같은 세션 진입 가능:
+bash GCS/scripts/start_controller.sh --record-session --ip 10.254.254.3
+```
+
+위 두 명령 중 하나만 실행한다. 새 수집기는 Pi의 기존
+`start-ground-support.sh --record-all`을 시작한다. 따라서 Pi에 해당 소스와
+빌드 결과, registry, Jazzy/MCAP/ToF 런타임이 준비되어 있어야 한다.
+이미 다른 ground-support가 장치·7443 포트를 소유하고 있다면 중복 실행하지 말고
+아래 attach 모드를 사용한다. 기존 `loonar-video.service`와의 충돌도 기존
+record-all 실행기의 검사대로 처리한다. SSH 비밀번호는
+`~/.config/loonar/loonar-ssh-password`(권한 600)를 사용한다.
+원격 세션 감독 코드는 SSH로 메모리에 전달하므로 새 감독 파일을 Pi에 따로
+설치할 필요는 없다. `--remote-root`로 Pi 소스 위치를 바꿀 수 있다.
+
+1. 노트북↔Pi 시계 차이를 SSH 여러 번 측정해 저장한다.
+2. 외부 카메라 녹화/트래킹과 Pi 전체 토픽 MCAP 기록을 시작한다.
+3. ToF·카메라·IMU·모터 스트림과 실제 MCAP 출력을 확인한 후 조종기를 연다.
+   태그 인식 성공이나 C bias 준비를 기다리지는 않는다.
+4. 기존 GCS가 같은 Pi에 연결되어 있으면 재사용한다. 없으면 LOONAR 실제
+   백엔드를 시작하며 웹 화면은 `http://127.0.0.1:8080`에서 열 수 있다.
+5. 컨트롤러 터미널에 포커스를 두고 기존 RT로 MANUAL을 선택해 수동 주행한다.
+   기존 포커스 이탈/컨트롤러 종료 STOP 동작을 유지한다.
+6. 컨트롤러 q/Ctrl+C, GT 창에서 q 또는 세션 Ctrl+C로 끝낸다. 컨트롤러 STOP,
+   카메라 종료, Pi bag 정리 후 노트북으로 원격 세션을 복사한다.
+
+```bash
+# 이미 Pi에서 모든 센서가 실행 중일 때 새 bag만 추가
+bash tools/apriltag_gt/run_manual_session.sh --existing-stack
+
+# 기존 조종기/GCS를 따로 사용하며 기록만 실행 (Ctrl+C 종료)
+bash tools/apriltag_gt/run_manual_session.sh --existing-stack --no-controller
+
+# Pi FPV도 노트북으로 송신하면서 새 전체 스택 시작
+bash tools/apriltag_gt/run_manual_session.sh --video-ip 10.254.254.2
+
+# 장치 접속 없이 실행 계획 확인
+bash tools/apriltag_gt/run_manual_session.sh --dry-run
+```
+
+`--no-preview`, `--controller-device /dev/input/eventN`, `--duration 120`,
+`--output 경로`, `--no-copy`도 지원한다. `--no-copy`는 bag을 Pi에 보관한다.
+Attach 모드는 센서를 새로 켜지 않으므로 필요한 모든 스트림이 이미 발행 중이어야
+한다. 녹화 준비 후 센서 일부가 끊기면 상태 로그에 표시하면서 다른 데이터를
+계속 보존한다. recorder 자체가 종료되면 세션을 실패로 정리한다.
+SSH 단절/노트북 heartbeat 30초 유실 시 원격 감독이 자신이 시작한 프로세스를
+정리한다. 노트북을 강제 종료하면 컨트롤러 STOP 전달이 보장되는 것은 아니며
+차량의 기존 통신 timeout 동작을 대체하지 않는다.
+
+기본 출력: `data/apriltag_gt/loonar_manual_<timestamp>/`
+
+| 파일 | 의미 |
+| --- | --- |
+| `session.json` | 세션 상태, Pi 원본 경로, 시계 측정, 복사 결과 |
+| `camera/video.avi` | live 트래킹 전에 저장한 원본 영상 |
+| `camera/video_frames.csv` | 저장 영상 **모든 프레임**의 0-based 번호, 노트북 수신 epoch/monotonic 시각 |
+| `camera/frames.csv` | live 트래킹 부분집합의 full camera-to-tag XYZ/회전·품질·누락 사유; `video_frame`으로 원본 연결 |
+| `camera/gt.csv` | 이전 도구와의 호환용 초기 축 투영값; 곡선 경로 길이가 아님 |
+| `timestamps.csv` | 모든 원본 프레임에 대응하는 Pi epoch와 시계 RTT/2, 시계 점프 표시 |
+| `clock_samples.jsonl`, `timing.json` | 시작·약 30초 주기·종료 시계 측정과 시간 정렬 품질 경고 |
+| `controller.jsonl`, `controller_pi.jsonl` | 조종 명령 발행 시도/백엔드 응답과 Pi 시각 매핑; MCU 실행 ACK와는 다름 |
+| `rover/` | Pi 전체 세션 복사본, bag과 런타임 로그 |
+| `remote.log`, `camera.log`, `gcs.log` | 준비/기록 상태와 오류 |
+
+Pi 원본은 기본 `/home/loonar/loonar-bags/<session>/`에 남는다. 새 스택 모드는
+그 안의 `bags/drive_.../`, attach 모드는 `bag/`에 MCAP를 만든다. 복사에 실패해도
+원본을 지우지 않으며 `session.json`의 `remote_path`에서 다시 가져올 수 있다.
+원본 비디오/CSV는 덮어쓰지 않는다.
+
+시각은 **Pi CLOCK_REALTIME**으로 맞춘다:
+`Pi epoch = laptop frame receipt + measured(Pi - laptop) - camera delay`.
+시작/주기/종료 측정 사이의 offset은 선형 보간하며 바깥 구간은 가장 가까운
+측정 offset을 쓴다. bag 분석에는 메시지 `header.stamp` 또는 내장 `stamp_ns`를
+쓰고, bag recorder 수신 시각과 혼동하지 않는다. 원본 메시지 시각을 수정하거나
+Pi/노트북 시스템 시계를 강제 변경하지 않는다. `timing.json`에 시계 점프/offset
+변동 경고가 있으면 정렬을 검토한다.
+
+**하드웨어 노출 동기화는 아니다.** `--camera-delay-s 0.08`은 따로 측정한
+80ms 노출→수신 지연을 빼는 옵션이며 기본 0은 지연 검증 완료를 의미하지 않는다.
+카메라/USB가 전달한 프레임을 저장하는 방식이라 하드웨어/드라이버 드롭까지
+없애지는 않는다. 트래킹보다 원본 저장을 우선하며, MJPEG 인코딩·디스크가 느리면
+취득률도 낮아질 수 있다. AVI 재생 FPS 대신 반드시 프레임 CSV의 실제 시각을 쓴다.
+초점은 기본 현재 설정을 유지한다. 보정 때와 같은 고정 초점/해상도를 쓰고 필요하면
+`--focus 값`으로 지정한다. 자동초점이 켜진 상태에서는 metric scale이 변할 수 있다.
+실시간 궤적 창은 **카메라 좌표계의 tag XY**이며 바닥 지도나 로봇 base pose가 아니다.
+
+### 저장 영상을 사후 전체 재트래킹
+
+```bash
+.venv-apriltag/bin/python tools/apriltag_gt/retrack_session.py \
+  data/apriltag_gt/loonar_manual_YYYYMMDD_HHMMSS_microseconds
+# 창 없이 재분석:
+.venv-apriltag/bin/python tools/apriltag_gt/retrack_session.py SESSION --no-preview
+```
+
+카메라·SSH·조종기를 열지 않고 원본의 모든 프레임을 다시 검출한다. 새로운
+`tracking_<timestamp>/poses.csv`에 Pi 시각, camera-to-tag XYZ/3×3 회전행렬,
+reprojection/decision margin, valid/invalid 사유를 저장한다. missing frame을
+보간하거나 직선 주행 제약을 적용하지 않는다. 원본·시간표의 프레임 수 불일치는
+오류로 처리한다. `tracking.json`의 `complete`로 끝까지 처리했는지 확인한다.
+기존 `replay_tracking.py`는 과거 직선 시험의 gate 비교용이므로 새 수동 세션에는
+이 `retrack_session.py`를 사용한다.
 
 ## Source layout
 

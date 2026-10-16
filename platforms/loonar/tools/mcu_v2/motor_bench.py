@@ -47,6 +47,8 @@ def main():
         raise ValueError(f"Gateway executable not found: {args.gateway_bin}")
     if args.video_ip:
         args.video_ip = str(ipaddress.IPv4Address(args.video_ip))
+        if args.video_ip != '10.254.254.2':
+            raise ValueError('Pi video destination is fixed to the control PC 10.254.254.2')
     if args.video_ip or args.record_video or args.record_all:
         if subprocess.run(["systemctl", "is-active", "--quiet", "loonar-video.service"]).returncode == 0:
             raise ValueError("Stop loonar-video.service before starting this script's video sender")
@@ -105,6 +107,7 @@ def main():
         environment["LOONAR_MCU_HEALTH_SOCKET"] = str(runtime / "cfs-health.sock")
         if args.payload_device:
             environment["LOONAR_PAYLOAD_PCA_SOCKET"] = str(runtime / "payload-pca.sock")
+            environment['LOONAR_PAYLOAD_EVENTS'] = str(runtime / 'payload' / f'events-{time.time_ns()}.jsonl')
         if args.ros_samples:
             from .ros_samples import RosSamples
 

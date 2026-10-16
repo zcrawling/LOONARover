@@ -12,7 +12,7 @@ import time
 def main():
     import rclpy
     from rclpy.node import Node
-    from rclpy.qos import qos_profile_sensor_data
+    from rclpy.qos import qos_profile_sensor_data, QoSProfile, DurabilityPolicy, ReliabilityPolicy
     from sensor_msgs.msg import Imu, MagneticField, BatteryState
     from nav_msgs.msg import Odometry
     from geometry_msgs.msg import Vector3Stamped
@@ -25,6 +25,13 @@ def main():
     class Bridge(Node):
         def __init__(self):
             super().__init__("loonar_mcu_sensors")
+            if os.getenv('LOONAR_PAYLOAD_EVENTS'):
+                from .payload_events import EventTail, TOPIC
+                self.payload_tail = EventTail(os.environ['LOONAR_PAYLOAD_EVENTS'])
+                self.payload_events = self.create_publisher(String, TOPIC,
+                    QoSProfile(depth=1000, reliability=ReliabilityPolicy.RELIABLE,
+                               durability=DurabilityPolicy.TRANSIENT_LOCAL))
+                self.create_timer(.05, self.publish_payload_events)
             defaults = {
                 "registry": "/etc/loonar/mcu-registry.json",
                 "socket": "/run/loonar/mcu/samples.sock",
@@ -94,6 +101,13 @@ def main():
             msg.header.stamp.sec = stamp // 1_000_000_000
             msg.header.stamp.nanosec = stamp % 1_000_000_000
             msg.header.frame_id = frame
+
+        def publish_payload_events(self):
+            try:
+                for event in self.payload_tail.read():
+                    self.payload_events.publish(String(data=json.dumps(event, allow_nan=False)))
+            except (OSError, ValueError) as error:
+                self.get_logger().error(f'Payload event journal: {error}')
 
         def receive(self):
             for _ in range(128):

@@ -1,0 +1,16 @@
+{
+  "esc_neutral": 1488,
+  "servo_neutral": 1500,
+  "left_first_offset": 25,
+  "left_second_offset": 50,
+  "right_first_offset": 25,
+  "right_second_offset": 50,
+  "servo_left": 800,
+  "servo_right": 2200,
+  "left_first_ms": 5000,
+  "right_first_ms": 10000,
+  "second_ms": 10000,
+  "servo_delay_ms": 10,
+  "servo_hold_ms": 3000,
+  "prepare_ms": 5000
+}

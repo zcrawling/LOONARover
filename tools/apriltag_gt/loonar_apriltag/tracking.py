@@ -79,8 +79,9 @@ class TagDetector:
 
 class LatestCapture:
     """Drain V4L2 continuously so detection/encoding cannot queue old camera frames."""
-    def __init__(self, cap):
+    def __init__(self, cap, on_frame=None):
         self.cap = cap
+        self.on_frame = on_frame
         self.condition = threading.Condition()
         self.stopped = False
         self.sample = None
@@ -96,8 +97,11 @@ class LatestCapture:
                 started = time.time()
                 ok, frame = self.cap.read()
                 completed = time.time()
+                receipt_monotonic_ns = time.monotonic_ns()
                 if not ok:
                     raise RuntimeError('Camera read failed')
+                if self.on_frame is not None:
+                    self.on_frame(frame, started, completed, self.sequence, receipt_monotonic_ns)
                 with self.condition:
                     self.sequence += 1
                     self.sample = (frame,started,completed,self.sequence)
@@ -121,3 +125,5 @@ class LatestCapture:
     def close(self):
         self.stopped = True
         self.worker.join(timeout=2)
+        if self.worker.is_alive():
+            raise RuntimeError('Camera capture thread did not stop; capture resources remain in use')

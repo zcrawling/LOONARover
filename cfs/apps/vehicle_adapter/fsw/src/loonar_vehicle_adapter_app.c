@@ -200,11 +200,23 @@ static void
 VA_Activity(
     const LOONAR_ActivityCmd_t *cmd, bool reaction
     ){
-    bool stopped = VA_Stop();
+    if (reaction && (cmd->ParameterLength != 40 || (cmd->Opcode != 1 && cmd->Opcode != 2)))
+    {
+        VA_Result(cmd->GroundSequence, LOONAR_GL_REACTION_COMMAND, false, LOONAR_RESULT_BAD_PAYLOAD);
+        return;
+    }
+    bool stopped = (reaction && VA.Mode == LOONAR_MODE_REACTION) || VA_Stop();
     bool selected = stopped&&VA_Select(reaction?6:5, reaction?LOONAR_MODE_REACTION:LOONAR_MODE_PAYLOAD);
     bool routed = false;
     uint8_t result;
-    if (selected)
+    if (selected && reaction)
+    {
+        uint8_t payload[41];
+        payload[0] = (uint8_t)cmd->Opcode;
+        memcpy(payload + 1, cmd->Parameters, 40);
+        routed = VA_SendPacket(10, payload, sizeof(payload));
+    }
+    else if (selected)
     {
         LOONAR_ActivityCmd_t exec;
         CFE_MSG_Init(CFE_MSG_PTR(exec.CommandHeader), CFE_SB_ValueToMsgId(reaction?LOONAR_REACTION_EXEC_CMD_MID_VALUE:LOONAR_PAYLOAD_EXEC_CMD_MID_VALUE), sizeof(exec));
@@ -220,8 +232,6 @@ VA_Activity(
         result = LOONAR_RESULT_GATEWAY_DISCONNECTED;
     else if (!routed)
         result = LOONAR_RESULT_INTERNAL_ERROR;
-    else if (reaction)
-        result = LOONAR_RESULT_NOT_IMPLEMENTED;
     else result = LOONAR_RESULT_OK;
     VA_Result(cmd->GroundSequence, reaction?LOONAR_GL_REACTION_COMMAND:LOONAR_GL_PAYLOAD_COMMAND, routed, result);
 }
@@ -292,6 +302,19 @@ VA_ReadGateway(
             VA.HasStatus = true;
             VA.StatusTicks = 0;
             VA_PublishStatus();
+        }
+        else if (n > (ssize_t)VA_GATEWAY_HEADER && n <= (ssize_t)(VA_GATEWAY_HEADER + 127U) &&
+                 VA_Get32(bytes) == VA_GATEWAY_MAGIC && VA_Get16(bytes + 4) == VA_GATEWAY_VERSION &&
+                 VA_Get16(bytes + 6) == 11 && VA_Get32(bytes + 8) == (uint32_t)n - VA_GATEWAY_HEADER)
+        {
+            LOONAR_EventTlm_t msg;
+            CFE_TIME_SysTime_t now = CFE_TIME_GetTime();
+            memset(&msg, 0, sizeof(msg));
+            CFE_MSG_Init(CFE_MSG_PTR(msg.TelemetryHeader), CFE_SB_ValueToMsgId(LOONAR_EVENT_TLM_MID_VALUE), sizeof(msg));
+            msg.TimestampMs = (uint64_t)now.Seconds * 1000U + now.Subseconds / 4294967U;
+            strncpy(msg.Source, "reaction", sizeof(msg.Source)-1);
+            memcpy(msg.Text, bytes + VA_GATEWAY_HEADER, (size_t)n - VA_GATEWAY_HEADER);
+            CFE_SB_TransmitMsg(CFE_MSG_PTR(msg.TelemetryHeader), true);
         }
         else if ((size_t)n == VA_GATEWAY_HEADER + 92U&&VA_Get32(bytes) == VA_GATEWAY_MAGIC&&VA_Get16(bytes + 4) == VA_GATEWAY_VERSION&&VA_Get16(bytes + 6) == VA_GATEWAY_VEHICLE_STATUS_TYPE&&VA_Get32(bytes + 8) == 92U)
         {

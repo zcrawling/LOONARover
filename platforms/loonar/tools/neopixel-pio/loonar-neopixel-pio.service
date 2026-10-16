@@ -1,0 +1,12 @@
+[Unit]
+Description=LOONAR RP1 PIO support for GPIO22 NeoPixel
+After=systemd-udev-trigger.service
+ConditionPathExists=/usr/local/lib/loonar-neopixel/activate.sh
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/lib/loonar-neopixel/activate.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

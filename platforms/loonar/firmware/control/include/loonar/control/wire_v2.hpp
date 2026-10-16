@@ -20,6 +20,9 @@ enum class Type : std::uint8_t {
   Result = 10,
   TimeRequest = 11,
   Time = 12,
+  Reaction = 13,
+  ReactionConfigure = 14,
+  ReactionStatus = 15,
   Imu = 32,
   Motor = 33
 };

@@ -6,10 +6,13 @@ namespace loonar::control::pins {
 // Pin 13 is routed to the legacy SPI connector, never a status LED.
 inline constexpr std::uint8_t kRoboClawRx = 7, kRoboClawTx = 8;
 inline constexpr std::uint8_t kBno055Rx = 15, kBno055Tx = 14;
+// J4 pin 4 (B_G431B PWM) and J6 pin 2 (SERVO_PWM), 261004 PCB.
+inline constexpr std::uint8_t kReactionEsc = 2, kReactionServo = 6;
 // Non-USB build: Serial1 through the J2 full-duplex RS-422 transceiver.
 inline constexpr std::uint8_t kPiUartRx = 0, kPiUartTx = 1;
-inline constexpr std::array<std::uint8_t, 6> kAssignedPins = {
-    kRoboClawRx, kRoboClawTx, kPiUartRx, kPiUartTx, kBno055Rx, kBno055Tx};
+inline constexpr std::array<std::uint8_t, 8> kAssignedPins = {
+    kRoboClawRx, kRoboClawTx, kPiUartRx, kPiUartTx, kBno055Rx, kBno055Tx,
+    kReactionEsc, kReactionServo};
 constexpr bool unique() {
   for (unsigned i = 0; i < kAssignedPins.size(); ++i)
     for (unsigned j = i + 1; j < kAssignedPins.size(); ++j)

@@ -2,6 +2,7 @@
 #include "loonar/control/motion_gate.hpp"
 #include "loonar/control/roboclaw.hpp"
 #include "loonar/control/runtime_v2.hpp"
+#include "loonar/control/reaction_wheel.hpp"
 #include "loonar/control/wire_v2.hpp"
 #include "loonar_board_config.h"
 #include "loonar/control/bno055.hpp"
@@ -35,6 +36,21 @@ std::uint8_t uart_rx[8192], uart_tx[2048];
 std::uint64_t uid = 0;
 std::uint32_t boot = 0, session = 0;
 MotionGate gate;
+ReactionWheel reaction;
+std::uint32_t reaction_heartbeat = 0, reaction_cycle = 0;
+bool reaction_heartbeat_seen = false;
+void reaction_outputs() {
+  if (!control || !gate.identity) return;
+  static std::uint16_t previous_esc = 0, previous_servo = 0;
+  if (previous_esc != reaction.esc_us) {
+    analogWrite(pins::kReactionEsc, (std::uint32_t(reaction.esc_us) * 65535U + 10000U) / 20000U);
+    previous_esc = reaction.esc_us;
+  }
+  if (previous_servo != reaction.servo_us) {
+    analogWrite(pins::kReactionServo, (std::uint32_t(reaction.servo_us) * 65535U + 10000U) / 20000U);
+    previous_servo = reaction.servo_us;
+  }
+}
 WDT_T4<WDT1> watchdog;
 Parser parser;
 struct Sample {
@@ -172,6 +188,19 @@ void health(std::uint32_t seq) {
   enqueue(f);
 }
 std::uint32_t last_request_sequence = 0, sent_sample_sequence = 0;
+void reaction_status(std::uint32_t seq) {
+  if (!control) return;
+  auto f = response(Type::ReactionStatus, seq);
+  f.size = 16;
+  f.data[0] = std::uint8_t(reaction.state);
+  f.data[1] = reaction.direction;
+  f.data[2] = reaction.active() ? 1 : 0;
+  put16(f.data.data() + 4, reaction.esc_us);
+  put16(f.data.data() + 6, reaction.servo_us);
+  put32(f.data.data() + 8, millis() - reaction.since);
+  put32(f.data.data() + 12, reaction_cycle);
+  enqueue(f);
+}
 void handle(const Frame &f) {
   if (f.role != role) {
     ++rejected;
@@ -192,6 +221,8 @@ void handle(const Frame &f) {
       return;
     }
     if (f.session != session) {
+      reaction.stop(); reaction_outputs();
+      reaction_heartbeat_seen = false;
       gate.resetSession();
       gate.session = true;
       session = f.session;
@@ -210,7 +241,9 @@ void handle(const Frame &f) {
   case Type::HealthRequest:
     if (f.size != 0)
       break;
+    reaction_heartbeat = millis(); reaction_heartbeat_seen = true;
     health(f.sequence);
+    reaction_status(f.sequence);
     return;
   case Type::TimeRequest: {
     if (f.size != 8)
@@ -223,7 +256,7 @@ void handle(const Frame &f) {
     return;
   }
   case Type::Configure: {
-    if (!control || f.size != 8 || gate.motion_seen)
+    if (!control || f.size != 8 || gate.motion_seen || reaction.active())
       break;
     const auto baud = get32(f.data.data());
     if (f.data[4] < 0x80 || f.data[4] > 0x87 || f.data[5] || f.data[6] ||
@@ -244,6 +277,7 @@ void handle(const Frame &f) {
     const auto l = get32(f.data.data() + 4), r = get32(f.data.data() + 8);
     std::memcpy(&left, &l, 4);
     std::memcpy(&right, &r, 4);
+    if (reaction.active() && (left || right)) break;
     if (gate.motion(get32(f.data.data()), left, right,
                     get32(f.data.data() + 12), millis())) {
       result(f, 0);
@@ -255,8 +289,38 @@ void handle(const Frame &f) {
     if (f.size != 0)
       break;
     gate.stop();
+    reaction.stop(); reaction_outputs();
     result(f, 0);
     return;
+  case Type::Reaction: {
+    if (!control || f.size != 1) break;
+    const auto op = f.data[0];
+    if (op == 0) {
+      reaction.stop(); reaction_outputs(); result(f, 0); return;
+    }
+    if (op != 1 && op != 2) break;
+    if (!gate.identity || !gate.session || gate.left || gate.right ||
+        !std::isfinite(tempmonGetTemp()) || tempmonGetTemp() >= 90.0F ||
+        !reaction_heartbeat_seen || millis() - reaction_heartbeat >= 1000) {
+      result(f, 4); return;
+    }
+    if (!reaction.start(op, millis())) { result(f, 2); return; }
+    gate.stop(); ++reaction_cycle; reaction_outputs();
+    result(f, 0); reaction_status(f.sequence); return;
+  }
+  case Type::ReactionConfigure: {
+    if (!control || f.size != 40 || gate.left || gate.right) break;
+    ReactionConfig c;
+    c.esc_neutral = get16(f.data.data()); c.servo_neutral = get16(f.data.data()+2);
+    c.left_first_offset = get16(f.data.data()+4); c.left_second_offset = get16(f.data.data()+6);
+    c.right_first_offset = get16(f.data.data()+8); c.right_second_offset = get16(f.data.data()+10);
+    c.servo_left = get16(f.data.data()+12); c.servo_right = get16(f.data.data()+14);
+    c.left_first_ms = get32(f.data.data()+16); c.right_first_ms = get32(f.data.data()+20);
+    c.second_ms = get32(f.data.data()+24); c.servo_delay_ms = get32(f.data.data()+28);
+    c.servo_hold_ms = get32(f.data.data()+32); c.prepare_ms = get32(f.data.data()+36);
+    if (!reaction.configure(c)) break;
+    reaction_outputs(); result(f, 0); return;
+  }
   case Type::Ack: {
     if (f.size != 4)
       break;
@@ -436,6 +500,10 @@ void io_task(void *) {
       last_step = now;
     }
     poll_driver(now);
+    const float reaction_temp = tempmonGetTemp();
+    reaction.tick(now, gate.identity && gate.session && reaction_heartbeat_seen &&
+        now - reaction_heartbeat < 1000 && std::isfinite(reaction_temp) && reaction_temp < 90.0F);
+    reaction_outputs();
     transmit();
     vTaskDelayUntil(&wake, pdMS_TO_TICKS(1));
   }
@@ -510,6 +578,14 @@ void imu_task(void *) {
 bool start() {
   uid = (std::uint64_t(HW_OCOTP_MAC1 & 0xffffU) << 32) | HW_OCOTP_MAC0;
   gate.identity = LOONAR_EXPECTED_UID != 0 && uid == LOONAR_EXPECTED_UID;
+  reaction.begin(millis());
+  if (control && gate.identity) {
+    // Independent hardware FlexPWM channels; no Servo/IntervalTimer ISR or RTOS timer conflict.
+    analogWriteResolution(16);
+    analogWriteFrequency(pins::kReactionEsc, 50);
+    analogWriteFrequency(pins::kReactionServo, 50);
+    reaction_outputs();
+  }
   // Boot sequence in EEPROM is diagnostic; session nonce is supplied freshly by
   // the Pi.
   boot = 1;

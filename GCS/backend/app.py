@@ -8,6 +8,7 @@ import os
 from .config import DEFAULT_CONFIG, LOCAL_SOCKET, load
 from .connection import Connection
 from .state import State
+from .json_safe import dumps as json_dumps
 
 
 async def serve(config):
@@ -34,7 +35,7 @@ async def serve(config):
                 response = await connection.command(request["command"])
             else:
                 response = {"ok": False, "text": "Unknown local request"}
-            writer.write(json.dumps(response, ensure_ascii=False).encode() + b"\n")
+            writer.write(json_dumps(response).encode() + b"\n")
             await asyncio.wait_for(writer.drain(), 5)
         except (ValueError, OSError, asyncio.TimeoutError):
             pass

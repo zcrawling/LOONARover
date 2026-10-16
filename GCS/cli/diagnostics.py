@@ -238,16 +238,13 @@ def run(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='별도 터미널 로버 연결 진단')
-    parser.add_argument('--host', help='진단할 로버 IP')
-    parser.add_argument('--target', help='SSH user@host; 기본: 로버 시작에서 저장한 주소')
-    parser.add_argument('--config', type=Path, default=DEFAULT_CONFIG)
-    try:
-        run(parser.parse_args())
-    except KeyboardInterrupt:
-        print('\n진단 종료 · 지상국 통신은 유지됩니다.')
-    except (OSError, ValueError, KeyError) as e:
-        parser.exit(1, f'진단 시작 실패: {e}\n')
+    from cli.status_udp import run as receive_status
+    parser = argparse.ArgumentParser(description='UDP 수신 전용 통신 상태 모니터')
+    parser.add_argument('--host', default='10.254.254.3')
+    parser.add_argument('--once', action='store_true')
+    args = parser.parse_args()
+    try:receive_status('communication',args.host,once=args.once)
+    except KeyboardInterrupt:pass
 
 
 if __name__ == '__main__':

@@ -96,3 +96,72 @@ bash ~/LOONAR/platforms/loonar/tools/start-ground-support.sh --ros-samples
 Pi 콘솔의 `imu`에서 gyro_radps, accel_mps2, quaternion_xyzw 등을 확인한다.
 health의 imu_progress 증가와 gyro_age_ms 최신값을 확인한다. `--record`를 추가하면 ROS 기록도 가능하다.
 실제 하드웨어 수신 성공 여부는 업로드 후 확인해야 한다.
+
+## Reaction wheel (Control MCU)
+
+261004 Control PCB 기준 ESC는 **Teensy 2 → J4-4**, 서보는
+**Teensy 6 → J6-2**다. J4-1/J6-1은 GND다. J4-2/3의 BNO055 UART는 유지한다.
+J4/J6에는 모터 전원 핀이 없으며 공통 GND와 외부 전원을 사용한다.
+PWM은 50 Hz 하드웨어 FlexPWM으로 생성해 FreeRTOS와 Servo ISR의 타이머 공유를 피한다.
+
+| 구간 | 왼쪽 | 오른쪽 |
+|---|---|---|
+| 부팅 준비 (5초) | ESC 1488 / 서보 1500 | 동일 |
+| 1단계 | ESC 1513, 5초 | ESC 1463, 10초 |
+| 2단계 | ESC 1538, 10초 | ESC 1438, 10초 |
+| 중립 대기 | ESC 1488, 10ms | 동일 |
+| 서보 유지 | 800, 3초 | 2200, 3초 |
+| 완료 / STOP | ESC 1488 / 서보 1500 | 동일 |
+
+좌/우는 각각 별도의 1회 실행이다. 참고 스케치의 15초 ramp 대신 위 단계별 고정
+펄스 유지 시간을 사용한다. 10ms는 ESC 중립 **명령 이후**의 시간이며, 20ms PWM
+프레임의 실물 펄스 도착 시각이나 휠 정지를 측정한 시간이 아니다.
+현재 RPM 피드백은 없다. 준비 중·실행 중 재시작/방향 전환은 거부한다.
+비제로 주행 명령과 리액션휠은 동시에 실행하지 않는다.
+STOP, 세션 교체, Pi health 요청 1초 단절, MCU 온도 90°C 이상 또는 비정상 온도는
+리액션휠을 취소하고 두 PWM을 중립으로 돌린다. 통신 복구 후 자동 재시작하지 않는다.
+MCU watchdog reset 후에도 중립 및 부팅 준비부터 다시 시작한다.
+
+### 수치 조정과 수동 실행
+
+PC에서 빌드한 `teensy41_usb` 이미지를 Control UID/tag에 맞춰 업로드해야 한다.
+사용자가 제공한 참고 스케치는 **"Disconnect ESC power during upload."**를 요구한다.
+업로드 전 ESC 전원을 분리한다. 자동 업로드/실기 회전 시험은 하지 않는다.
+
+Pi의 ground-support를 종료한 상태에서 실행한다. 이 도구는 Control USB를 단독
+소유하며 GCS 실행 중의 시리얼 연결을 공유하지 않는다.
+
+```bash
+cd ~/LOONAR
+export PYTHONPATH="$PWD/platforms/loonar/tools${PYTHONPATH:+:$PYTHONPATH}"
+python3 -m mcu_v2.reaction_wheel left
+python3 -m mcu_v2.reaction_wheel right
+python3 -m mcu_v2.reaction_wheel stop
+```
+
+`Ctrl+C` 및 도구 종료도 STOP을 보낸다. 다른 프로세스가 USB를 소유하면 연결이
+거부된다. 도구 실행은 새 세션을 만들므로 기존 동작은 중립으로 취소된다.
+지상국의 ‘리액션휠 시험 설정’에서 같은 수치를 입력하고 좌·우 1회 실행을 사용할 수 있다.
+이때 기존 Control backend가 단독 USB 소유자로 설정/실행을 전달한다.
+MCU 설정 수락 후에만 START를 전송하고, 설정 거부/timeout은 자동 재시도하지 않는다.
+실행 중 중복 요청은 거부하며 STOP, GCS TCP 단절 또는 Gateway 연결 단절은 중립 취소를 전달한다.
+실기 시험은 사용자가 직접 실행한다.
+
+`platforms/loonar/tools/mcu_v2/reaction-wheel.example.json`을 복사해 원하는 항목을
+수정하고 `--config /path/to/settings.json`으로 지정한다. 펄스는 µs, 시간은 ms다.
+설정은 MCU RAM에만 반영되며 재부팅 시 기본값으로 돌아간다. 부팅 기본값은
+`include/loonar/control/reaction_wheel.hpp`의 `ReactionConfig`에서 변경한다.
+
+### LNR2 명령 계약
+
+기존 boot/session/sequence/CRC 검증과 STOP(7)은 유지한다.
+
+- `REACTION(13)`: 1 byte. `0=취소`, `1=왼쪽`, `2=오른쪽`. 정상 세션과 최근 health
+  요청, 중립 주행 상태, 부팅 준비 완료가 필요하다. 요청은 재전송하지 않는다.
+- `REACTION_CONFIGURE(14)`: little endian `<8H6I>`, 40 bytes. JSON 예제 필드 순서와
+  같다. 실행 중에는 거부한다. ESC 범위 1148..1832, 서보 800..2200 µs를 검사한다.
+- `REACTION_STATUS(15)`: health 요청 및 실행 수락 후 송신. `<BBBBHHII>`:
+  state, direction, active, reserved(0), ESC µs, servo µs, phase elapsed ms, cycle counter.
+  state `0..5=PREPARING,READY,FIRST,SECOND,NEUTRAL_WAIT,SERVO_HOLD`.
+- `RESULT(10)`: 기존 8-byte 형식. `code=0` 수락, `1` 잘못된 명령/설정,
+  `2` 준비 중/실행 중, `4` 실행 조건 불충족. 수락은 물리 회전 확인을 뜻하지 않는다.

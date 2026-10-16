@@ -13,7 +13,7 @@
   <a class="skip-link" href="#overview">본문으로 이동</a>
   <header class="shell-header">
     <a class="brand" href="#overview" aria-label="LOONAR 관제 화면"><strong>LOONAR</strong><span>Ground Control</span></a>
-    <nav class="shell-nav" aria-label="화면 내 이동"><a href="#commands">조작</a><a href="#telemetry">측정값</a><a href="#events">이벤트</a></nav>
+    <nav class="shell-nav" aria-label="화면 내 이동"><a href="#commands">조작</a><a href="#telemetry">측정값</a><a href="#reaction">리액션휠</a><a href="#events">이벤트</a></nav>
     <div class="top-status"><span id="connection" class="badge">연결 확인 중</span><time id="clock">—</time></div>
   </header>
   <main id="overview" tabindex="-1">
@@ -39,7 +39,6 @@
             <button class="command" aria-pressed="false" data-command="AUTO" disabled><b>AUTO</b><span>자동 모드</span></button>
             <button class="command" aria-pressed="false" data-command="PAYLOAD_START" disabled><b>PAYLOAD START</b><span>센서 재초기화·지점 측정 시작</span></button>
             <button class="command stop" aria-pressed="false" data-command="PAYLOAD_STOP" disabled><b>PAYLOAD STOP</b><span>5초 이상 측정 후 PCA 확정</span></button>
-            <button class="command" aria-pressed="false" data-command="REACTION" disabled><b>REACTION</b><span>리액션휠 요청</span></button>
           </div>
           <div id="speed-control" class="speed-control" tabindex="0" title="마우스 휠 또는 슬라이더로 선속도 조절">
             <label for="linear-speed">목표 선속도</label><strong id="linear-speed-value">0.10 m/s</strong>
@@ -69,6 +68,37 @@
           <div class="value-labels" aria-hidden="true"><span>항목</span><span>측정값</span></div>
           <div id="ros-values" class="ros-values"><p class="empty-state">차량 측정값을 기다리고 있습니다.</p></div>
         </section>
+      <section id="reaction" class="panel payload-panel" aria-labelledby="reaction-title">
+        <div class="panel-title"><h2 id="reaction-title">리액션휠 시험 설정</h2><span id="reaction-state" class="badge">대기</span></div>
+        <div class="reaction-body">
+          <p>강도는 ESC 중립 대비 PWM 오프셋(µs)으로 조절합니다. RPM·토크 측정값이 아닙니다. 아래 ‘기본’은 현재 펌웨어 기본값입니다.</p>
+          <p class="muted">입력만 바꾸면 동작하지 않습니다. 정차 후 좌·우 실행을 누르면 해당 설정으로 1회 실행합니다. STOP은 ESC·서보를 중립으로 복귀시킵니다.</p>
+          <div class="reaction-settings">
+            <label for="reaction-esc_neutral"><span>ESC 중립 (µs)</span><input id="reaction-esc_neutral" type="number" min="1148" max="1832" step="1" value="1488" required><small>기본 1488 µs</small></label>
+            <label for="reaction-servo_neutral"><span>서보 중립 (µs)</span><input id="reaction-servo_neutral" type="number" min="800" max="2200" step="1" value="1500" required><small>기본 1500 µs</small></label>
+            <label for="reaction-left_first_offset"><span>왼쪽 1단계 오프셋 (µs)</span><input id="reaction-left_first_offset" type="number" min="1" max="344" step="1" value="25" required><small>기본 25 µs</small></label>
+            <label for="reaction-left_second_offset"><span>왼쪽 2단계 오프셋 (µs)</span><input id="reaction-left_second_offset" type="number" min="1" max="344" step="1" value="50" required><small>기본 50 µs</small></label>
+            <label for="reaction-right_first_offset"><span>오른쪽 1단계 오프셋 (µs)</span><input id="reaction-right_first_offset" type="number" min="1" max="340" step="1" value="25" required><small>기본 25 µs</small></label>
+            <label for="reaction-right_second_offset"><span>오른쪽 2단계 오프셋 (µs)</span><input id="reaction-right_second_offset" type="number" min="1" max="340" step="1" value="50" required><small>기본 50 µs</small></label>
+            <label for="reaction-left_first_ms"><span>왼쪽 1단계 유지 (초)</span><input id="reaction-left_first_ms" type="number" min="0.001" max="60" step="0.001" value="5" required><small>기본 5 초</small></label>
+            <label for="reaction-right_first_ms"><span>오른쪽 1단계 유지 (초)</span><input id="reaction-right_first_ms" type="number" min="0.001" max="60" step="0.001" value="10" required><small>기본 10 초</small></label>
+            <label for="reaction-second_ms"><span>2단계 유지 · 양쪽 (초)</span><input id="reaction-second_ms" type="number" min="0.001" max="60" step="0.001" value="10" required><small>기본 10 초</small></label>
+            <label for="reaction-servo_delay_ms"><span>ESC 중립 후 서보 대기 (ms)</span><input id="reaction-servo_delay_ms" type="number" min="10" max="10000" step="1" value="10" required><small>기본 10 ms</small></label>
+            <label for="reaction-servo_left"><span>왼쪽 서보 위치 (µs)</span><input id="reaction-servo_left" type="number" min="800" max="2200" step="1" value="800" required><small>기본 800 µs</small></label>
+            <label for="reaction-servo_right"><span>오른쪽 서보 위치 (µs)</span><input id="reaction-servo_right" type="number" min="800" max="2200" step="1" value="2200" required><small>기본 2200 µs</small></label>
+            <label for="reaction-servo_hold_ms"><span>서보 유지 (초)</span><input id="reaction-servo_hold_ms" type="number" min="0.001" max="10" step="0.001" value="3" required><small>기본 3 초</small></label>
+            <label for="reaction-prepare_ms"><span>부팅 중립 준비 (초)</span><input id="reaction-prepare_ms" type="number" min="5" max="60" step="0.001" value="5" required><small>기본 5 초</small></label>
+          </div>
+          <p id="reaction-preview" class="reaction-preview"></p>
+          <p class="muted">각 방향: ESC 1단계 → 2단계 → 중립 → 서보 대기 → 서보 유지 → ESC·서보 중립. 설정은 이번 실행에 적용되며 MCU 재부팅 시 기본값으로 돌아갑니다.</p>
+          <div class="command-grid">
+            <button class="command" data-command="REACTION_LEFT" disabled><b>왼쪽 1회 실행</b><span>ESC +오프셋 · 서보 왼쪽</span></button>
+            <button class="command" data-command="REACTION_RIGHT" disabled><b>오른쪽 1회 실행</b><span>ESC −오프셋 · 서보 오른쪽</span></button>
+            <button id="reaction-reset" type="button">기본값 불러오기</button>
+          </div>
+          <p id="reaction-detail" role="status">설정 대기 · 아직 실행하지 않음</p>
+        </div>
+      </section>
         <section id="payload" class="panel payload-panel" aria-labelledby="payload-title">
           <div class="panel-title"><h2 id="payload-title">PAYLOAD 측정</h2><span id="payload-state" class="badge">IDLE</span></div>
           <div class="sensor-labels" aria-hidden="true"><span>센서</span><span>측정값</span><span>상태</span></div>

@@ -21,7 +21,7 @@ source "$CONFIG_FILE"
 }
 : "${GROUND_STATION_IP:=}"
 if [[ "$VIDEO_STREAM_ENABLED" == 1 ]]; then
-  : "${GROUND_STATION_IP:?GROUND_STATION_IP is required for streaming}"
+  GROUND_STATION_IP=10.254.254.2
 elif [[ "$VIDEO_STREAM_ENABLED" != 0 || ( -z "$VIDEO_RECORD_PATH" && "$CAMERA_ROS_ENABLED" != 1 ) ]]; then
   echo "Select streaming, VIDEO_RECORD_PATH, or CAMERA_ROS_ENABLED=1" >&2
   exit 2

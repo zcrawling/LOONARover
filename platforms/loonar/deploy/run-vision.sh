@@ -3,7 +3,7 @@ set -euo pipefail
 source /opt/ros/jazzy/setup.bash
 source /opt/loonar/current/ros/install/setup.bash
 source /etc/loonar/video.env
-: "${GROUND_STATION_IP:?GROUND_STATION_IP is required}"
+GROUND_STATION_IP=10.254.254.2
 [[ ${VIDEO_PROFILE:-} == low && ${VISION_ENABLED:-0} == 1 ]] || {
   echo 'Set VIDEO_PROFILE=low and VISION_ENABLED=1 in /etc/loonar/video.env' >&2; exit 2;
 }

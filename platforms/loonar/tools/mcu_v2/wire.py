@@ -21,6 +21,9 @@ class Kind(IntEnum):
     RESULT = 10
     TIME_REQUEST = 11
     TIME = 12
+    REACTION = 13
+    REACTION_CONFIGURE = 14
+    REACTION_STATUS = 15
     IMU = 32
     MOTOR = 33
 

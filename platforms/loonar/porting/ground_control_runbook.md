@@ -204,10 +204,163 @@ GCS STOP 후 Pi 터미널에서 Ctrl+C한다. backend는 STOP을 요청하고 �
 
 ## Payload와 systemd
 
-Payload 서비스는 기본으로 함께 시작하며 `20356570` 보드의 USB by-id 경로를 사용한다.
+Payload 서비스는 기본으로 함께 시작하며 `21147480` 보드의 USB by-id 경로를 사용한다.
 미연결 상태에서는 OFFLINE을 보고하고 1초마다 연결을 재시도한다. 주행·영상은 계속 실행된다.
 다른 보드는 `--payload-device /dev/serial/by-id/...` 또는 `PAYLOAD_DEVICE` 환경변수로 지정한다.
 전체 localization은 별도 실행한다. Payload 설정은 [별도 안내](payload_pca_runbook.md)를 따른다.
 checkout bench를 사용할 때 systemd Payload/gateway/cFS/Control을 중복 실행하지 않는다.
 `loonar-mcu@control.service`가 없으면 systemd runtime이 설치되지 않은 것이다.
 checkout 실행에는 그 unit이 필요하지 않다.
+
+## NeoPixel: BCM GPIO22 / 흰색 / 밝기 30
+
+`platforms/loonar/tools/neopixel.py`는 Pi 5 RP1 PIO 드라이버를 사용한다.
+데이터 DIN은 **BCM GPIO22 = 물리 핀 15번**이다. 물리 핀 22번(GPIO25)이 아니다.
+RGB WS2812/NeoPixel, GRB 순서, **16개**, 밝기 **30/255**가 기본이다.
+흰색의 실제 채널 값은 R=30, G=30, B=30이다.
+[사용자가 지정한 제품](https://www.coupang.com/vp/products/7501017272?itemId=19635286527)은
+상품명 기준 5V WS2812 RGB **12구** 원형 패널이다. 실제 12구이면 `--count 12`로
+맞출 수 있다. 16개 분량을 보내도 체인의 앞 12개는 정상적으로 받는다.
+LED 전원은 해당 스트립의 5V 전원에 연결하고 Pi와 GND를 공통으로 연결한다.
+
+### 최초 준비 / 커널 업데이트 후 재빌드
+
+Pi에서 일반 사용자로 실행한다. 개별 시스템 설치 단계에서 sudo를 사용한다.
+
+```bash
+bash ~/LOONAR/platforms/loonar/tools/setup-neopixel.sh
+```
+
+이 설치기는 **Pi 5 / Ubuntu 6.8.x-raspi 전용**이다. 커널/펌웨어를 교체하거나
+재부팅하지 않는다. 커널에 맞는 헤더로 Raspberry Pi upstream의 RP1 mailbox,
+firmware, PIO 모듈 세 개를 빌드하고 runtime device-tree overlay를 적용한다.
+`/boot/firmware/config.txt`는 수정하지 않는다. 빌드 소스는
+`5d39807272da852e10f3fc4467c33b57f59ecc61`로 고정하고 파일별 SHA256을 검증한다.
+Upstream GPL 라이선스/저작권 헤더는 다운로드된 소스에 보존한다.
+호환 수정은 6.8의 remove_new callback, firmware 초기화 순서의 deferred probe,
+runtime overlay의 명시적 PIO id뿐이다. Overlay는 기존 RP1 레지스터 BAR 매핑을
+유지하면서 이미 할당된 SRAM BAR 매핑과 mailbox/firmware/PIO 노드를 추가한다.
+
+설치 결과:
+
+- 빌드·원본 소스·manifest: `~/.cache/loonar-neopixel/<kernel>/`
+- 모듈: `/lib/modules/<kernel>/updates/loonar-neopixel/`
+- Overlay/활성화 스크립트: `/usr/local/lib/loonar-neopixel/`
+- 부팅 시 PIO 준비: `loonar-neopixel-pio.service` (system service)
+- 장치 권한: `/etc/udev/rules.d/70-loonar-neopixel-pio.rules`, 설치 사용자의 primary group에 rw
+- Python 드라이버: `~/.venvs/loonar-neopixel/`에 `Adafruit-Blinka-Raspberry-Pi5-Neopixel==1.0.0rc2`
+
+서비스는 PIO 장치만 준비한다. 부팅할 때 LED를 자동으로 켜지는 않는다.
+커널 버전이 바뀌면 새 커널에서 설치기를 다시 실행해 해당 버전의 모듈을 만든다.
+6.8 이외의 커널에는 이 backport 설치기를 사용하지 않는다. Native PIO가 있는
+환경은 [Adafruit 안내](https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/using-neopixels-on-the-pi-5)를 따른다.
+
+### 실행
+
+일반 `python3`로 실행하면 필요한 경우 설치한 전용 가상환경으로 자동 전환한다.
+
+```bash
+# 드라이버/권한/라이브러리 확인 (GPIO 출력 없음)
+python3 ~/LOONAR/platforms/loonar/tools/neopixel.py --check
+
+# 모두 흰색으로 켜고 종료: LED는 켜진 상태 유지
+python3 ~/LOONAR/platforms/loonar/tools/neopixel.py
+
+# 모두 끄기
+python3 ~/LOONAR/platforms/loonar/tools/neopixel.py --off
+
+# 실행 유지, Ctrl+C/SIGTERM 시 끄기
+python3 ~/LOONAR/platforms/loonar/tools/neopixel.py --hold
+```
+
+`--dry-run`은 GPIO를 열지 않고 핀/밝기/전송량을 출력한다.
+`--rgb 255 0 0`, `--brightness 30`, `--count 12`, `--gpio 22`로 설정을 바꿀 수 있다.
+`--hold` 실행 중에는 해당 프로세스를 Ctrl+C로 종료해 끈다.
+단발 실행도 전송 후 PIO state machine을 해제하므로 반복 실행할 수 있다.
+
+2026-10-16, `6.8.0-1065-raspi`에서 `/dev/pio0` 생성, 사용자 권한 전송을 확인했고,
+사용자가 연결한 링의 모든 LED가 흰색으로 켜졌음을 확인했다.
+
+### 주행 모드 자동 LED (부팅 자동 실행)
+
+Pi에 PIO 준비가 끝난 뒤 모드 표시 서비스를 설치한다:
+
+```bash
+bash ~/LOONAR/platforms/loonar/tools/setup-mode-led.sh
+```
+
+`loonar-mode-led.service`는 부팅 시 흰색으로 시작한다. BCM GPIO22 / 16개 / 밝기
+30/255를 유지한다. 다음 주행부터 새로 빌드한 `lnr_ground.so`가 LED 전용 Unix
+데이터그램(`/run/loonar-led/status.sock`)으로 모드/지상국 연결을 10Hz 발행한다.
+배포 시 cFS `loonar_ground_link`도 재빌드해야 하며 기존 cFS는 재실행 때 반영된다.
+LED는 제어 소켓이나 GroundLink TCP 클라이언트에 접속하지 않고 명령을 보내지 않는다.
+LED 서비스가 없거나 실패해도 cFS 명령 처리는 그대로 진행한다.
+
+| 조건 | 표시 |
+| --- | --- |
+| 부팅 직후 / 지상국 미연결 / 기본 대기 | 흰색 고정 |
+| MANUAL 모드 | 파랑 고정 |
+| AUTO 모드 | 노랑 고정 |
+| 사용자가 명시적으로 STOP 선택 | 빨강 고정 |
+| 실제 payload sequence 실행 중 | 초록 2Hz 점멸 |
+| REACTION 모드 | 인접한 빨간 LED 2개가 시계방향으로 이동 (0.1초/스텝) |
+
+링 앞면 기준 시계방향이며, 실제 연결에서 방향을 확인했다. 기본 STOP 모드만
+있는 부팅 직후와 사용자가 선택한 STOP을 구분한다. 지상국 연결이 끊기거나 cFS
+텔레메트리가 1초 이상 없거나 gateway 상태가 2초 이상 갱신되지 않으면 흰색이다.
+동시 상태 우선순위는 미연결/오래된 상태→흰색, REACTION, 명시적 STOP,
+실행 중 payload, MANUAL/AUTO, 기본 흰색 순서다.
+
+Payload는 `mcu_v2.monitor.StatusPublisher`의 `payload.json`에서 현재 부팅의
+유효한 `online && sequence_active`를 확인한다. 단순 PAYLOAD 모드 선택만으로
+점멸하지 않으며 완료/실패/MCU 연결 유실/오래된 상태에서는 점멸을 끝낸다.
+Payload 서비스 수정도 다음 ground-support 실행 시 적용된다.
+리액션휠의 기존 실제 구동 명령은 아직 미구현이며 LED 표시가 그 기능을 활성화하지 않는다.
+
+```bash
+systemctl status loonar-mode-led.service
+journalctl -u loonar-mode-led.service -n 30
+cat /run/loonar-led/status.json
+```
+
+단발 `neopixel.py`와 모드 서비스는 GPIO 소유권 lock을 공유한다. 수동 색상 시험은
+먼저 서비스를 정지하고 실행한 후 자동 표시를 다시 시작한다:
+
+```bash
+sudo systemctl stop loonar-mode-led.service
+python3 ~/LOONAR/platforms/loonar/tools/neopixel.py --rgb 0 0 255
+sudo systemctl start loonar-mode-led.service
+```
+
+다른 링/배선의 주소 증가 방향이 반대이면 `/etc/loonar/mode-led.env`에
+`LOONAR_LED_REVERSE=1`을 저장하고 `sudo systemctl restart loonar-mode-led.service`로
+방향을 반전할 수 있다. `mode_led.py --count N --chase-step 초 --blink-hz Hz`도 지원한다.
+
+장치 없는 검증:
+
+```bash
+python3 -m unittest discover -s platforms/loonar/tools/tests -p test_mode_led.py
+python3 -m unittest discover -s platforms/loonar/tools/tests -p test_payload_pca_service.py
+# 빌드된 cFS + 모터 backend가 없는 격리 gateway로 텔레메트리 경로 검증
+python3 platforms/loonar/tools/tests/mode_led_telemetry_smoke.py
+```
+
+### 리액션휠 시험 설정
+
+지상국의 ‘리액션휠 시험 설정’ 패널에서 ESC 중립·방향별 1/2단계 오프셋과
+유지시간, 서보 중립·좌/우 위치·유지시간·ESC 중립 이후 대기시간을 입력한다.
+각 입력 아래에는 펌웨어 기본값을 표시하며 아래쪽에서 실제 PWM 순서를 미리 보여준다.
+입력/기본값 복원만으로는 실행하지 않는다. ‘왼쪽 1회 실행’ 또는 ‘오른쪽 1회 실행’으로
+선택값 전체를 전송한다. 요청 이력에는 `reaction_settings`가 함께 남는다.
+
+기본값: ESC 중립1488 µs, 서보 중립1500 µs. 왼쪽+25 µs 5초 → +50 µs 10초,
+오른쪽−25 µs 10초 → −50 µs 10초. ESC 중립 후10ms 대기, 왼쪽서보800 /
+오른쪽서보2200 µs로3초 유지 후 중립. 부팅 준비는 중립5초다.
+
+GCS → cFS → Gateway → 기존 Control backend가 설정을 전달한다. USB 소유자는
+추가하지 않는다. MCU가 설정을 수락한 뒤에만 실행 명령을 보내며 실패/timeout은
+자동 재전송하지 않는다. 동작 중 재실행은 거부한다. MCU의 실제 수락·단계·오류가
+지상국에 표시되며, 완료는 STOP 모드로 돌아간다. STOP, 다른 주행 명령/모드 전환,
+GCS TCP 또는 Gateway 단절은 리액션휠 취소를 전달한다.
+설정은 RAM에 유지되고 재부팅 시 기본값으로 돌아간다. 강도 입력은 PWM 오프셋이며
+RPM·토크 또는 측정된 정지 상태를 의미하지 않는다.

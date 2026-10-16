@@ -18,6 +18,11 @@ def read_temperature(path=SENSOR):
 
 
 async def stream(reader, writer):
+    peer=writer.get_extra_info('peername')
+    if not peer or peer[0] not in ('10.254.254.2','127.0.0.1'):
+        writer.close()
+        await writer.wait_closed()
+        return
     try:
         while not reader.at_eof():
             packet = dict(cpu_temperature_c=read_temperature())

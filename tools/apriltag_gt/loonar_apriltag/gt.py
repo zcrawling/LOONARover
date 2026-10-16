@@ -8,6 +8,8 @@ import time
 import cv2 as cv
 import numpy as np
 from .tracking import TagDetector, LatestCapture
+from .video_archive import VideoArchive
+from .trajectory import Trajectory
 
 
 def dictionary():
@@ -210,25 +212,32 @@ def track(a):
     focus_since = None
     last_focus = None
     focus_locked = getattr(a, "focus", None) is not None or getattr(a, "focus_mode", "keep") == "keep"
-    capture = LatestCapture(cap)
+    archive = None
+    if getattr(a, 'archive_all_frames', False):
+        archive = VideoArchive(out, calibration['width'], calibration['height'], a.fps)
+        meta['video_frame_mapping'] = 'video_frames.csv; frames.csv contains a live subset indexed by video_frame'
+        (out/'capture.json').write_text(json.dumps(meta, indent=2))
+    capture = LatestCapture(cap, on_frame=archive) if archive else LatestCapture(cap)
     last_s = 0.
     writer_video = None
+    trajectory = Trajectory() if getattr(a, 'free_motion', False) and not a.no_preview else None
     began = time.monotonic()
     try:
         with (out/'gt.csv').open('w') as f, (out/'frames.csv').open('w') as log:
             gt = csv.writer(f); gt.writerow(['t','s_m'])
-            rows = csv.writer(log); rows.writerow(['frame','t','valid','reason','x','y','z','s_m','reprojection_px','heading_change_deg','read_started_epoch','read_completed_epoch','detection_completed_epoch','skipped_capture_frames','decision_margin','hamming',*[f'r{i}{j}' for i in range(3) for j in range(3)]])
+            rows = csv.writer(log); rows.writerow(['frame','t','valid','reason','x','y','z','s_m','reprojection_px','heading_change_deg','read_started_epoch','read_completed_epoch','detection_completed_epoch','skipped_capture_frames','decision_margin','hamming',*[f'r{i}{j}' for i in range(3) for j in range(3)],'video_frame'])
             index = 0
             while not a.duration or time.monotonic()-began < a.duration:
                 frame, read_started, read_completed, skipped = capture.read()
                 timestamp = read_completed+a.time_offset_s
                 if frame.shape[:2] != (calibration['height'],calibration['width']):
                     raise ValueError('Capture resolution differs from calibration; recalibrate at this resolution')
-                if writer_video is None:
+                if archive is None and writer_video is None:
                     writer_video = cv.VideoWriter(str(out/'video.avi'),cv.VideoWriter_fourcc(*'MJPG'),a.fps,(frame.shape[1],frame.shape[0]))
                     if not writer_video.isOpened():
                         raise ValueError('Cannot create video')
-                writer_video.write(frame)  # Unannotated video, exact frame-to-time mapping in frames.csv.
+                if archive is None:
+                    writer_video.write(frame)  # Legacy: one video frame per tracking row.
                 corners,ids,rejected = detector.detectMarkers(frame)
                 result = None
                 reason = 'tag_missing'
@@ -285,18 +294,26 @@ def track(a):
                     origin = axis = rotation0 = previous_rotation = None
                     valid = False
                     reason = 'focus_settling'
-                rows.writerow([index,f'{timestamp:.9f}',int(valid),reason,*values,read_started,read_completed,time.time(),skipped,detector.margin,detector.hamming,*rotation_values]); log.flush()
+                rows.writerow([index,f'{timestamp:.9f}',int(valid),reason,*values,read_started,read_completed,time.time(),skipped,detector.margin,detector.hamming,*rotation_values,capture.consumed-1 if archive else index]); log.flush()
                 index += 1
                 if not a.no_preview:
-                    cv.putText(frame,f'{reason} | signed distance {last_s:.3f} m',(10,30),cv.FONT_HERSHEY_SIMPLEX,.6,(0,255,0),2)
+                    if getattr(a, 'free_motion', False):
+                        label = reason if result is None else f'{reason} | camera XYZ '+', '.join(f'{v:+.3f}' for v in result[1])+' m'
+                    else:
+                        label = f'{reason} | signed distance {last_s:.3f} m'
+                    cv.putText(frame,label,(10,30),cv.FONT_HERSHEY_SIMPLEX,.6,(0,255,0),2)
                     cv.putText(frame,f'{frame.shape[1]}x{frame.shape[0]} | IDs={[] if ids is None else ids.ravel().tolist()} | margin={detector.margin} | bit corrections={detector.hamming}',(10,65),cv.FONT_HERSHEY_SIMPLEX,.6,(0,255,0),2)
                     show_preview('AprilTag GT - q to finish',frame)
+                    if trajectory is not None:
+                        trajectory.show(result[1] if result is not None else None, valid)
                     if cv.waitKey(1)&255 == ord('q'):
                         break
     except KeyboardInterrupt:
         pass
     finally:
         capture.close()
+        if archive is not None:
+            archive.close()
         cap.release()
         if writer_video is not None:
             writer_video.release()
@@ -337,6 +354,7 @@ def main():
     q.add_argument('--duration',type=float,default=0,help='Seconds; 0 until Ctrl+C or q')
     q.add_argument('--max-reprojection-px',type=float,default=2)
     q.add_argument('--free-motion',action='store_true',help='Record full pose without straight-run rotation/lateral gate; GT only')
+    q.add_argument('--archive-all-frames',action='store_true',help='Archive every delivered camera frame before live detection; video_frames.csv maps video indices to receipt timestamps')
     q.add_argument('--max-rotation-deg',type=float,default=10)
     q.add_argument('--max-lateral-m',type=float,default=.1)
     q.add_argument('--nominal-speed',type=float,default=.05,help='Metadata only, never a motion command')

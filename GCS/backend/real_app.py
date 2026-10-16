@@ -19,12 +19,17 @@ from datetime import datetime, timezone
 
 from backend.pi_thermal import receive as receive_pi_temperature
 from backend.config import DEFAULT_CONFIG, LOCAL_SOCKET, load_manual_control
+from backend.json_safe import dumps as json_dumps
 from cli.groundlink_monitor import FrameParser, ProtocolError, decode_payload
+sys.path.append(str(Path(__file__).resolve().parents[2] / 'platforms/loonar/tools'))
+from mcu_v2.reaction_wheel import Settings as ReactionSettings
+from dataclasses import asdict
 
 
 HEADER = struct.Struct("<4sHHII")
 COMMAND_TYPES = {"STOP": 0x0001, "MANUAL": 0x0002, "AUTO": 0x0003,
-                 "PAYLOAD_START": 0x0004, "PAYLOAD_STOP": 0x0004}
+                 "PAYLOAD_START": 0x0004, "PAYLOAD_STOP": 0x0004,
+                 "REACTION_LEFT": 0x0005, "REACTION_RIGHT": 0x0005}
 MOTION_NAMES = {"FORWARD", "LEFT", "REVERSE", "RIGHT"}
 
 
@@ -62,6 +67,7 @@ class RealState:
         self.payload_ascii = False
         self.pi_temperature = None
         self.pi_temperature_at = None
+        self.reaction = {'state': 'UNKNOWN'}
 
     def event(self, text, request_id=None):
         self.event_sequence += 1
@@ -82,6 +88,8 @@ class RealState:
             "error": self.error,
             "status": {"mode": self.mode, "values": dict(self.values), "value_sources": dict(self.value_sources), "payload": dict(self.payload)},
             "payload_sample": self.payload_sample,
+            "reaction": dict(self.reaction),
+            "reaction_defaults": asdict(ReactionSettings()),
             "status_age": age(self.last_status),
             "sample_age": age(self.last_sample),
             "last_rx_age": age(self.last_rx),
@@ -129,18 +137,29 @@ class GroundLinkConnection:
                     self.state.event(f'Fly brain 시작 실패: {error}')
                     return {'ok':False,'text':str(error)}
             result=await self._command(name,*args,**kwargs)
-            if self.fly is not None and (name in ({'STOP','MANUAL','PAYLOAD_START'} | MOTION_NAMES)
+            if self.fly is not None and (name in ({'STOP','MANUAL','PAYLOAD_START','REACTION_LEFT','REACTION_RIGHT'} | MOTION_NAMES)
                                           or (name=='AUTO' and not result['ok'])):
                 await self.fly.stop()
             return result
 
     async def _command(self, name, linear_speed_mps=None, angular_speed_radps=None,
-                      *, linear_mps=None, angular_radps=None):
+                      *, linear_mps=None, angular_radps=None, reaction_settings=None):
         name = name.upper()
         if name == "REACTION":
             return {"ok": False, "text": f'"{name}" Not Sent — opcode 명세가 필요합니다.'}
         if name not in COMMAND_TYPES and name not in MOTION_NAMES:
             return {"ok": False, "text": f'"{name}" NOT_SUPPORTED'}
+        reaction_payload = None
+        if name in {'REACTION_LEFT','REACTION_RIGHT'}:
+            try:
+                if reaction_settings is not None and not isinstance(reaction_settings, dict):
+                    raise ValueError('settings must be an object')
+                settings = ReactionSettings(**(reaction_settings or {}))
+                encoded_settings = settings.encode()
+                reaction_payload = struct.pack('<QHH', secrets.randbits(64),
+                    1 if name == 'REACTION_LEFT' else 2, len(encoded_settings)) + encoded_settings
+            except (ValueError, TypeError) as error:
+                return {'ok':False, 'text':f'리액션휠 설정 오류: {error}'}
         vector = linear_mps is not None or angular_radps is not None
         if vector and (name != "MANUAL" or any(
                 type(value) not in (int, float) or not math.isfinite(value)
@@ -168,12 +187,16 @@ class GroundLinkConnection:
         if name in {"PAYLOAD_START", "PAYLOAD_STOP"}:
             payload = struct.pack("<QHH", secrets.randbits(64),
                                   1 if name == "PAYLOAD_START" else 2, 0)
+        if reaction_payload is not None:
+            payload = reaction_payload
         if vector:
             payload = struct.pack("<dd", *normalize_motion(linear_mps, angular_radps))
         frame = HEADER.pack(b"LNK1", 1, COMMAND_TYPES[wire_name], sequence, len(payload)) + payload
         request_id = str(sequence)
         entry = {"request_id": request_id, "command": name, "state": "Pending",
                  "sent_at": time.monotonic()}
+        if reaction_payload is not None:
+            entry['reaction_settings'] = asdict(settings)
         self.state.pending[request_id] = entry
         while len(self.state.pending) > self.state.event_limit:
             self.state.pending.popitem(last=False)
@@ -246,6 +269,12 @@ class GroundLinkConnection:
                 self.state.values[f"{device['name']} 연결"] = device["state"]
             self.state.last_status = t
         elif frame_type == 0x8006:
+            if data['source'] == 'reaction':
+                fields = data['text'].split(',')
+                active = fields[0] in {'CONFIGURING','ACCEPTED','FIRST','SECOND','NEUTRAL_WAIT','SERVO_HOLD'}
+                if fields[:2] == ['ERROR','busy']:
+                    active = self.state.reaction.get('active',False)
+                self.state.reaction = {'state':fields[0], 'detail':data['text'], 'active':active}
             if data["source"] != "payload-health":
                 self.state.event(f"[{data['source']}] {data['text']}")
             if data["source"] == "payload-health":
@@ -290,21 +319,28 @@ class GroundLinkConnection:
                     self.state.last_status = t
                 elif len(fields) == 11 and fields[0] == "PCA":
                     try:
+                        def reading(index, unit, sensor=False):
+                            value = float(fields[index])
+                            valid = math.isfinite(value)
+                            return {"value": value if valid else None, "unit": unit,
+                                    "status": ("측정 오류" if not valid else
+                                               "정상" if sensor and fields[9] != "INVALID_STATION"
+                                               else fields[9])}
                         self.state.payload_sample = {
                             "request_id": self.state.payload.get("request_id"),
                             "sample": int(fields[1]),
                             "time": data["timestamp_ms"],
                             "values": {
-                                "비접촉 표면온도계": {"value": float(fields[3]), "unit": "°C", "status": "정상"},
-                                "접촉식 표면온도계": {"value": float(fields[4]), "unit": "°C", "status": "정상"},
-                                "자기상센서": {"value": float(fields[2]), "unit": "µT", "status": "정상"},
-                                "PCA novelty": {"value": float(fields[7]), "unit": "", "status": fields[9]},
+                                "비접촉 표면온도계": reading(3, "°C", sensor=True),
+                                "접촉식 표면온도계": reading(4, "°C", sensor=True),
+                                "자기상센서": reading(2, "µT", sensor=True),
+                                "PCA novelty": reading(7, ""),
                                 "PCA candidate": {"value": int(fields[8]), "unit": "", "status": fields[9]},
                                 "PCA model": {"value": fields[10], "unit": "", "status": fields[9]},
                             },
                         }
                         self.state.last_sample = t
-                    except (ValueError, IndexError):
+                    except (ValueError, IndexError, OverflowError):
                         self.state.event("[payload-pca] malformed PCA event")
         elif frame_type == 0x8007:
             if data["role"] == "payload" and self.state.payload_ascii:
@@ -404,10 +440,11 @@ async def serve(host, port, config_path=DEFAULT_CONFIG, local_socket=LOCAL_SOCKE
                     request["command"], request.get("linear_speed_mps"),
                     request.get("angular_speed_radps"),
                     linear_mps=request.get("linear_mps"),
-                    angular_radps=request.get("angular_radps"))
+                    angular_radps=request.get("angular_radps"),
+                    reaction_settings=request.get('reaction_settings'))
             else:
                 response = {"ok": False, "text": "Unknown local request"}
-            writer.write(json.dumps(response, ensure_ascii=False).encode() + b"\n")
+            writer.write(json_dumps(response).encode() + b"\n")
             await asyncio.wait_for(writer.drain(), 5)
         except (ValueError, OSError, asyncio.TimeoutError, AttributeError):
             pass

@@ -17,7 +17,7 @@ constexpr std::size_t kMaxPacketSize = 256;
 enum class Type : std::uint16_t {
   kHello = 1, kMotion = 2, kStop = 3, kSelectAuto = 4,
   kSelectPayload = 5, kSelectReaction = 6, kStatus = 7,
-  kBackendMotion = 8, kBackendStatus = 9
+  kBackendMotion = 8, kBackendStatus = 9, kReactionRun = 10, kReactionEvent = 11
 };
 
 struct Packet { Type type{}; std::vector<std::uint8_t> payload{}; };

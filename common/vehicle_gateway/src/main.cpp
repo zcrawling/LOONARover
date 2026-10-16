@@ -52,6 +52,8 @@ const char* packet_name(protocol::Type type) {
     case protocol::Type::kStatus: return "STATUS";
     case protocol::Type::kBackendMotion: return "BACKEND_MOTION";
     case protocol::Type::kBackendStatus: return "BACKEND_STATUS";
+    case protocol::Type::kReactionRun: return "REACTION_RUN";
+    case protocol::Type::kReactionEvent: return "REACTION_EVENT";
   }
   return "UNKNOWN";
 }
@@ -129,6 +131,15 @@ void process_peer(Peer& peer, bool is_backend, GatewayCore& core, const Peer& cf
     peer.hello = true; send_status(peer, core.status()); return;
   }
   if (is_backend) {
+    if (packet->type == protocol::Type::kReactionEvent && !packet->payload.empty() &&
+        packet->payload.size() <= 127 && cfs.hello) {
+      (void)send_bytes(cfs.fd, protocol::encode(*packet));
+      const std::string event(packet->payload.begin(), packet->payload.end());
+      if (core.status().mode == loonar::gateway::Mode::kReaction &&
+          (event == "END" || event == "INTERRUPTED" ||
+           (event.starts_with("ERROR,") && event != "ERROR,busy")))
+        distribute(cfs, ros, backend, core.stop());
+    }
     if (packet->type == protocol::Type::kBackendStatus && protocol::decode_vehicle_status(*packet) && cfs.hello) {
       (void)send_bytes(cfs.fd, protocol::encode(*packet));
     }
@@ -139,15 +150,31 @@ void process_peer(Peer& peer, bool is_backend, GatewayCore& core, const Peer& cf
     return;
   }
   if (peer.source == Source::kManual && packet->type == protocol::Type::kSelectAuto && packet->payload.empty()) {
+    if (core.status().mode == loonar::gateway::Mode::kReaction)
+      distribute(cfs, ros, backend, core.stop());
     distribute(cfs, ros, backend, core.select_auto());
     return;
   }
   if (peer.source == Source::kManual && packet->type == protocol::Type::kSelectPayload && packet->payload.empty()) {
+    if (core.status().mode == loonar::gateway::Mode::kReaction)
+      distribute(cfs, ros, backend, core.stop());
     distribute(cfs, ros, backend, core.select_payload());
     return;
   }
   if (peer.source == Source::kManual && packet->type == protocol::Type::kSelectReaction && packet->payload.empty()) {
     distribute(cfs, ros, backend, core.select_reaction());
+    return;
+  }
+  if (peer.source == Source::kManual && packet->type == protocol::Type::kReactionRun &&
+      packet->payload.size() == 41 && (packet->payload[0] == 1 || packet->payload[0] == 2) &&
+      core.status().mode == loonar::gateway::Mode::kReaction) {
+    if (!backend.hello) {
+      const std::string error = "ERROR,backend_offline";
+      (void)send_bytes(cfs.fd, protocol::encode({protocol::Type::kReactionEvent,
+          {error.begin(), error.end()}}));
+      distribute(cfs, ros, backend, core.stop());
+    } else if (!send_bytes(backend.fd, protocol::encode(*packet)))
+      distribute(cfs, ros, backend, core.stop());
     return;
   }
   const auto motion = protocol::decode_motion(*packet);
@@ -175,7 +202,10 @@ int main(int argc, char** argv) {
     if ((fds[0].revents & POLLIN) != 0) accept_peer(cfs_listener, cfs, Source::kManual, core);
     if ((fds[1].revents & POLLIN) != 0) accept_peer(ros_listener, ros, Source::kAuto, core);
     if ((fds[2].revents & POLLIN) != 0) accept_peer(backend_listener, backend, Source::kStop, core);
+    const bool cfs_was_connected = cfs.hello;
     if (cfs.fd >= 0 && fds[3].revents != 0) process_peer(cfs, false, core, cfs, ros, backend);
+    if (cfs_was_connected && !cfs.hello && core.status().mode == loonar::gateway::Mode::kReaction)
+      distribute(cfs, ros, backend, core.stop());
     if (ros.fd >= 0 && fds[4].revents != 0) process_peer(ros, false, core, cfs, ros, backend);
     if (backend.fd >= 0 && fds[5].revents != 0) process_peer(backend, true, core, cfs, ros, backend);
     const auto now = std::chrono::steady_clock::now();

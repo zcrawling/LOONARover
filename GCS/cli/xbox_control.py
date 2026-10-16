@@ -2,6 +2,7 @@
 from motion_limits import MAX_LINEAR, MAX_ANGULAR, TRACK_M, normalize_motion
 import argparse
 import fcntl
+import json
 import math
 import os
 from pathlib import Path
@@ -231,8 +232,9 @@ class TerminalInput:
 
 
 class Output:
-    def __init__(self, dry_run=False):
+    def __init__(self, dry_run=False, event_log=None):
         self.dry_run = dry_run
+        self.event_log = event_log
         self.active = False
         self.last = '대기'
 
@@ -243,7 +245,20 @@ class Output:
         # Mark before writing: an uncertain write still needs a best-effort STOP.
         if command == 'MANUAL':
             self.active = True
+        issued_ns, issued_mono = time.time_ns(), time.monotonic_ns()
+        def record(**fields):
+            if self.event_log is not None:
+                try:
+                    self.event_log.write(json.dumps(dict(laptop_epoch_ns=issued_ns,
+                        monotonic_ns=issued_mono, command=body, dry_run=self.dry_run, **fields))+'\n')
+                    self.event_log.flush()
+                except OSError as exc:
+                    # Storage failure must never prevent the normal STOP path.
+                    self.event_log = None
+                    print(f'\r\n명령 로그 저장 실패: {safe(exc)}', file=sys.stderr)
+        record(event='issued')
         result = {'ok': True, 'text': 'DRY RUN / 로버 전송 없음'} if self.dry_run else request(body, timeout=.5)
+        record(event='response', response_epoch_ns=time.time_ns(), response=result)
         if not result.get('ok'):
             raise RuntimeError(result.get('text', '명령 전송 실패'))
         if command == 'STOP':
@@ -283,7 +298,11 @@ def run(args):
         except BlockingIOError:
             raise RuntimeError('Xbox 조종기가 이미 실행 중입니다') from None
         device = XboxDevice(args.device or discover())
-        output = Output(args.dry_run)
+        event_log = None
+        if getattr(args, 'event_log', None):
+            args.event_log.parent.mkdir(parents=True, exist_ok=True)
+            event_log = args.event_log.open('x')
+        output = Output(args.dry_run, event_log)
         fd = sys.stdin.fileno()
         previous = termios.tcgetattr(fd)
         controls = Controls(device.normalized(), args.deadzone)
@@ -330,6 +349,9 @@ def run(args):
                     next_send = now + .1
                 render(device, controls, output, rover, now)
         finally:
+            # A second Ctrl+C during cleanup must not interrupt the STOP request.
+            for sig in old_handlers:
+                signal.signal(sig, signal.SIG_IGN)
             try:
                 output.stop()
             except (OSError, ValueError, RuntimeError) as exc:
@@ -339,6 +361,8 @@ def run(args):
             for sig, handler in old_handlers.items():
                 signal.signal(sig, handler)
             device.close()
+            if event_log is not None:
+                event_log.close()
 
 
 def main():
@@ -347,6 +371,7 @@ def main():
     parser.add_argument('--deadzone', type=float, default=.08, help='스틱 중심 무입력 범위 (기본 0.08)')
     parser.add_argument('--dry-run', action='store_true', help='로버/백엔드 없이 입력과 속도 표시만')
     parser.add_argument('--inspect', action='store_true', help='장치/축 범위 확인만 하고 종료')
+    parser.add_argument('--event-log', type=Path, help='세션 분석용 명령 시각/응답 JSONL (새 파일)')
     args = parser.parse_args()
     if not 0 <= args.deadzone < 1:
         parser.error('--deadzone은 0 이상 1 미만이어야 합니다')

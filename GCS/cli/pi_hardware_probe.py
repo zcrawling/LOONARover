@@ -88,7 +88,7 @@ def collect():
     now = time.monotonic()
     control = read_status('control', now, boot)
     payload = read_status('payload', now, boot)
-    for data, serial in ((control, '19971280'), (payload, '20356570')):
+    for data, serial in ((control, '19971280'), (payload, '21147480')):
         data['usb_present'] = Path(f'/dev/serial/by-id/usb-Teensyduino_USB_Serial_{serial}-if00').exists()
     return dict(sample_ns=time.time_ns(), cpu_temperature_c=float(match[1]) if match else None,
                 input_voltage_v=pmic.get('EXT5V_V', {}).get('value'),

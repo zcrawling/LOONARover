@@ -16,7 +16,7 @@ function browser() {
     });
     return nodes.get(id);
   }
-  const buttons = ['STOP', 'AUTO', 'MANUAL', 'PAYLOAD_START', 'PAYLOAD_STOP'].map(node);
+  const buttons = ['STOP', 'AUTO', 'MANUAL', 'PAYLOAD_START', 'PAYLOAD_STOP','REACTION_LEFT','REACTION_RIGHT'].map(node);
   const context = vm.createContext({
     document: {getElementById: node, querySelectorAll: () => buttons,
                createElement: () => node(Symbol())},
@@ -159,4 +159,41 @@ test('Payload STOP remains available during initialization', () => {
   assert.equal(b.node('PAYLOAD_START').disabled, true);
   b.draw({connection: 'CONNECTED', status: {values: {}, payload: {state: 'STOPPING'}}});
   assert.equal(b.node('PAYLOAD_STOP').disabled, true);
+});
+
+test('invalid payload measurement keeps rover controls available', () => {
+  const b = browser();
+  const values = Object.fromEntries(['비접촉 표면온도계', '접촉식 표면온도계', '자기상센서', 'PCA novelty']
+    .map(name => [name, {value:null, unit:'', status:'측정 오류'}]));
+  values['PCA candidate'] = {value:0, status:'INVALID_STATION'};
+  values['PCA model'] = {value:'DEMO_ONLY'};
+  b.draw({connection:'CONNECTED', status:{values:{}, payload:{state:'IDLE',request_id:'8'}},
+          payload_sample:{request_id:'8',sample:1,time:1000,values}, events:[]});
+  assert.equal(b.node('sensor-0').textContent, '—');
+  assert.equal(b.node('sensor-status-0').textContent, '측정 오류');
+  for (const command of ['STOP','MANUAL','AUTO','PAYLOAD_START']) {
+    assert.equal(b.node(command).disabled, false, command);
+  }
+});
+
+test('reaction defaults and tuned settings reach the command without executing while editing', async () => {
+  const b=browser();
+  assert.equal(b.node('reaction-esc_neutral').value,1488);
+  assert.equal(b.node('reaction-left_first_ms').value,5);
+  b.node('reaction-left_first_offset').value='30';
+  b.node('reaction-left_first_offset').input();
+  assert.equal(b.requests.length,0);
+  assert.match(b.node('reaction-preview').textContent,/1518 µs × 5초/);
+  b.node('REACTION_LEFT').click(); await tick();
+  assert.equal(b.requests[0].body.reaction_settings.left_first_offset,30);
+  assert.equal(b.requests[0].body.reaction_settings.left_first_ms,5000);
+  const defaults=JSON.parse(fs.readFileSync(path.join(__dirname,'../../platforms/loonar/tools/mcu_v2/reaction-wheel.example.json'),'utf8'));
+  assert.deepEqual(b.requests[0].body.reaction_settings,{...defaults,left_first_offset:30});
+  b.requests[0].finish(); await tick();
+  b.node('reaction-reset').click();
+  assert.equal(b.node('reaction-left_first_offset').value,25);
+  assert.equal(b.requests.length,1);
+  b.draw({connection:'CONNECTED',status:{values:{},payload:{}},reaction:{state:'FIRST'}});
+  assert.equal(b.node('REACTION_LEFT').disabled,true);
+  assert.equal(b.node('STOP').disabled,false);
 });

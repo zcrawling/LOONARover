@@ -46,11 +46,26 @@ class Recorder(Node):
         self.types, self.subs, self.readers = {}, {}, {}
         self.counts, self.lost, self.journal_counts = Counter(), Counter(), Counter()
         self.errors, self.last_receive = {}, {}
+        payload_topic = '/payload/sequence_events'
+        self.register(payload_topic, 'std_msgs/msg/String', transient=True)
+        self.subs[payload_topic] = self.create_subscription(String, payload_topic,
+            self.payload_event, QoSProfile(depth=1000, reliability=ReliabilityPolicy.RELIABLE,
+                                          durability=DurabilityPolicy.TRANSIENT_LOCAL))
         self.journal_pending = 0
         self.create_timer(.5, self.discover)
         self.create_timer(.02, self.drain)
         self.create_timer(3., self.report)
         (session/'recorder.ready').touch()
+
+    def payload_event(self, msg):
+        try:
+            meta = json.loads(msg.data)
+            stamp = meta['stamp_ns']
+            if type(stamp) is not int or stamp <= 0:
+                raise ValueError('invalid payload timestamp')
+            self.write('/payload/sequence_events', serialize_message(msg), stamp)
+        except (ValueError, KeyError, TypeError) as error:
+            self.errors['/payload/sequence_events'] = str(error)
 
     def register(self, topic, kind, transient=False):
         if topic in self.types:
