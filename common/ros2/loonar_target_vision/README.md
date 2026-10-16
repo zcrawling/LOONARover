@@ -1,7 +1,8 @@
 # Pi RGB detector contract
 
 The Pi camera owner sends 640x360 NV12 to the original H.264 encoder and a
-bounded 10 fps BGR branch to `/run/loonar/vision.sock`. This ROS 2 node reads
+bounded 10 fps BGR branch to a shared-memory socket (`/run/loonar/vision.sock`
+for systemd, a per-run temporary path for the manual GCS launcher). This node reads
 that branch, rotates frames 90° counterclockwise and infers on portrait camera
 content using the CPU. The model sees 360x640 source pixels letterboxed to its
 configured input size; published boxes refer to the 360x640 portrait source.
@@ -32,15 +33,22 @@ the Ultralytics wrapper still uses CPU PyTorch for preprocessing/results.
 `cpu_threads` controls the NCNN network before weights load; default is 2.
 The source rotation, ROS/UDP contracts, confidence and stale policy are unchanged.
 
-After pulling/building this ROS package on the Pi, explicitly install a model:
+After pulling this package on the Pi, explicitly install a model:
 
 ```bash
 # Public COCO demo, NOT trained target recognition:
 sudo platforms/loonar/deploy/install-vision-runtime.sh GCS/models/mission02/best_ncnn_model
 # Later: run the same command with your exported target_ncnn_model directory.
-sudo systemctl restart loonar-vision.service
-journalctl -u loonar-vision.service -n 40 --no-pager
+# Then start/restart the usual manual GCS stack:
+bash platforms/loonar/tools/start-ground-support.sh
+# Detector log: platforms/loonar/ros2/terrain_navigation/fly_brain/log/vision.log
 ```
+
+The default no-argument launcher starts the camera branch and detector together
+using the current checkout source. Do not also start the systemd camera services.
+Installed systemd deployments instead restart `loonar-vision.service` and read
+`journalctl -u loonar-vision.service`. See the
+[bring-up guide](../../../GCS/docs/mission02-object-detection.md) for both workflows.
 
 The installer uses binary wheels only, rejects CUDA/TensorRT dependencies before
 installation, validates/warmups the model, installs a content-addressed model

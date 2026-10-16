@@ -3,6 +3,11 @@
 set -euo pipefail
 [[ $EUID == 0 ]] || { echo 'Run with sudo on the Pi.' >&2; exit 2; }
 [[ $(uname -m) == aarch64 ]] || { echo 'Use the ARM64 Raspberry Pi.' >&2; exit 2; }
+# sudo does not retain the caller's ROS Python path. The rclpy import check
+# below must run in the same ROS environment as run-vision.sh.
+set +u
+source /opt/ros/jazzy/setup.bash
+set -u
 VENV=/opt/loonar/vision-venv
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 MODEL_SOURCE=${1:-}

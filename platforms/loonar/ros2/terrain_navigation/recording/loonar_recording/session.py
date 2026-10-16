@@ -151,7 +151,8 @@ def main():
         runtime=Path.home()/'loonar-motor-bench/runtime'
         for path in runtime.glob('*.log'):
             shutil.copy2(path,session/'logs'/('runtime-'+path.name))
-        for path in (NAV/'fly_brain/log/camera.log',NAV/'fly_brain/log/camera.env'):
+        for path in (NAV/'fly_brain/log/camera.log', NAV/'fly_brain/log/camera.env',
+                     NAV/'fly_brain/log/vision.log'):
             if path.exists():
                 shutil.copy2(path,session/'logs'/path.name)
         snapshot(session,final=True)
