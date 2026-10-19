@@ -17,21 +17,31 @@ if [[ ! -e $VENV/bin/python ]]; then
   python3 -m venv --system-site-packages "$VENV"
 fi
 # Binary wheels only: do not compile torch/OpenCV/CUDA on the Pi.
+# PyPI's newer ARM64 torch wheels pull CUDA dependencies. Install the CPU
+# build explicitly and constrain later resolution so it cannot replace it.
+TORCH_PACKAGES=('torch==2.8.0+cpu' 'torchvision==0.23.0')
+"$VENV/bin/python" -m pip install --only-binary=:all: \
+  --index-url https://download.pytorch.org/whl/cpu "${TORCH_PACKAGES[@]}"
+VISION_PACKAGES=('ultralytics==8.4.145' 'ncnn==1.0.20260526'
+  'numpy<2' 'opencv-python<4.12' "${TORCH_PACKAGES[@]}")
 REPORT=$(mktemp)
 trap 'rm -f -- "$REPORT"' EXIT
 "$VENV/bin/python" -m pip install --dry-run --report "$REPORT" --only-binary=:all: \
-  'ultralytics==8.4.145' 'ncnn==1.0.20260526'
+  "${VISION_PACKAGES[@]}"
 "$VENV/bin/python" - "$REPORT" <<'PY'
 import importlib.metadata
 import json
 import sys
 planned = [p['metadata']['name'] for p in json.load(open(sys.argv[1]))['install']]
 present = [d.metadata['Name'] or '' for d in importlib.metadata.distributions()]
-bad = [n for n in planned + present if n.lower().replace('_', '-').startswith(('nvidia-', 'cuda-', 'tensorrt'))]
+# Ultralytics depends on the small Python NVML binding even on CPU hosts.
+# It does not ship CUDA libraries; allow that binding, not GPU runtimes.
+bad = [n for n in planned + present if n.lower().replace('_', '-') != 'nvidia-ml-py'
+       and n.lower().replace('_', '-').startswith(('nvidia-', 'cuda-', 'tensorrt'))]
 if bad:
     raise SystemExit('CUDA/TensorRT dependencies rejected before installation: ' + ', '.join(bad))
 PY
-"$VENV/bin/python" -m pip install --only-binary=:all: 'ultralytics==8.4.145' 'ncnn==1.0.20260526'
+"$VENV/bin/python" -m pip install --only-binary=:all: "${VISION_PACKAGES[@]}"
 "$VENV/bin/python" - <<'PY'
 import gi
 gi.require_version('Gst', '1.0')
@@ -42,11 +52,12 @@ import rclpy
 import torch
 import ultralytics
 import ncnn
+assert torch.version.cuda is None, 'Expected a CPU-only torch build'
 print('Pi vision runtime:', 'torch', torch.__version__,
       'ultralytics', ultralytics.__version__, 'ncnn', ncnn.__version__,
       'CUDA available', torch.cuda.is_available())
 PY
-if "$VENV/bin/python" -m pip list --format=freeze | grep -Eiq '^(nvidia-|cuda-|tensorrt)'; then
+if "$VENV/bin/python" -m pip list --format=freeze | grep -Eiv '^nvidia-ml-py==' | grep -Eiq '^(nvidia-|cuda-|tensorrt)'; then
   echo 'Unexpected CUDA package in Pi vision environment.' >&2
   exit 1
 fi

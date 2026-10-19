@@ -13,23 +13,24 @@
   <a class="skip-link" href="#overview">본문으로 이동</a>
   <header class="shell-header">
     <a class="brand" href="#overview" aria-label="LOONAR 관제 화면"><strong>LOONAR</strong><span>Ground Control</span></a>
-    <nav class="shell-nav" aria-label="화면 내 이동"><a href="#commands">조작</a><a href="#telemetry">측정값</a><a href="#reaction">리액션휠</a><a href="#events">이벤트</a></nav>
+    <nav class="shell-nav" aria-label="표시할 기능 선택" aria-describedby="visibility-help">
+      <button type="button" data-panel="commands" aria-controls="commands" aria-pressed="true">주행조작</button>
+      <button type="button" data-panel="reaction" aria-controls="reaction" aria-pressed="true">리액션휠</button>
+      <button type="button" data-panel="payload" aria-controls="payload" aria-pressed="true">Payload</button>
+      <button type="button" data-panel="monitoring" aria-controls="monitoring" aria-pressed="true">모니터링</button>
+      <button type="button" data-panel="events" aria-controls="events" aria-pressed="true">이벤트</button>
+    </nav>
     <div class="top-status"><span id="connection" class="badge">연결 확인 중</span><time id="clock">—</time></div>
   </header>
   <main id="overview" tabindex="-1">
     <div class="page-heading">
-      <div><p class="section-path">LOONAR / 운용</p><h1>로버 관제</h1></div>
+      <div><h1>로버 관제</h1><p id="visibility-help" class="muted">기능 버튼: <span class="visible-key">빨강 · 표시</span> / 흰색 · 숨김</p></div>
       <div class="mode-display"><span>현재 모드</span><strong id="mode">—</strong></div>
     </div>
     <div id="notice" class="notice" role="status">백엔드 연결을 확인하고 있습니다.</div>
-    <section class="metrics" aria-label="통신 요약">
-      <div><span>통신 상태</span><strong id="health">—</strong><small>PONG · 로버 상태 기준</small></div>
-      <div><span>마지막 수신</span><strong id="age">—</strong><small>마지막 메시지 이후 경과</small></div>
-      <div><span>메시지 <abbr title="수신 / 송신">RX / TX</abbr></span><strong id="counts">—</strong><small>현재 백엔드 누적</small></div>
-      <div><span>데이터 누락 구간</span><strong id="gaps">0</strong><small>과거 데이터 복구 미지원</small></div>
-    </section>
     <div class="main-grid">
-      <section id="commands" class="panel command-panel" aria-labelledby="commands-title">
+      <div class="panel-stack control-stack">
+        <section id="commands" class="panel command-panel" aria-labelledby="commands-title">
         <div class="panel-title"><h2 id="commands-title">주행 조작</h2><span class="panel-caption">명령 전송</span></div>
         <div class="command-body">
           <button class="command stop" aria-pressed="false" data-command="STOP" disabled><span class="button-copy"><b>STOP</b><span>정지 요청</span></span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4h8v8H4z" fill="currentColor"/></svg></button>
@@ -37,8 +38,6 @@
           <div class="command-grid">
             <button class="command" aria-pressed="false" data-command="MANUAL" disabled><b>MANUAL</b><span>수동 모드</span></button>
             <button class="command" aria-pressed="false" data-command="AUTO" disabled><b>AUTO</b><span>자동 모드</span></button>
-            <button class="command" aria-pressed="false" data-command="PAYLOAD_START" disabled><b>PAYLOAD START</b><span>센서 재초기화·지점 측정 시작</span></button>
-            <button class="command stop" aria-pressed="false" data-command="PAYLOAD_STOP" disabled><b>PAYLOAD STOP</b><span>5초 이상 측정 후 PCA 확정</span></button>
           </div>
           <div id="speed-control" class="speed-control" tabindex="0" title="마우스 휠 또는 슬라이더로 선속도 조절">
             <label for="linear-speed">목표 선속도</label><strong id="linear-speed-value">0.10 m/s</strong>
@@ -53,26 +52,14 @@
           <div class="keyboard-guide"><div class="key-map" aria-hidden="true"><kbd>↑</kbd><div><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd></div></div><p>방향키로 주행<br><span>↑ 전진 · ↓ 후진 · ← → 회전</span></p></div>
           <p class="note">키를 놓으면 속도 0을 전송합니다.<br>STOP 모드 전환은 위 정지 버튼을 사용하세요.</p>
         </div>
-        <div class="command-result" aria-live="polite"><span class="field-label">마지막 명령 응답</span><p id="command-message">아직 전송한 명령이 없습니다.</p><code id="request-id">—</code></div>
+
       </section>
-      <div class="status-stack">
-        <section id="telemetry" class="panel" aria-labelledby="telemetry-title">
-          <div class="panel-title"><h2 id="telemetry-title">시스템 상태</h2><span id="stale" class="badge">대기</span></div>
-          <div class="telemetry-primary">
-            <div id="battery-summary"><span id="battery-label">배터리 잔량</span><strong id="battery">—</strong><div class="battery-track"><div id="battery-fill"></div></div></div>
-          </div>
-          <div id="devices" class="device-list"><p class="empty-state">로버 상태를 기다리고 있습니다.</p></div>
-        </section>
-        <section id="ros-telemetry" class="panel ros-panel" aria-labelledby="vehicle-title">
-          <div class="panel-title"><h2 id="vehicle-title">차량 측정값</h2><span id="ros-stale" class="badge">대기</span></div>
-          <div class="value-labels" aria-hidden="true"><span>항목</span><span>측정값</span></div>
-          <div id="ros-values" class="ros-values"><p class="empty-state">차량 측정값을 기다리고 있습니다.</p></div>
-        </section>
-      <section id="reaction" class="panel payload-panel" aria-labelledby="reaction-title">
+        <section id="reaction" class="panel reaction-panel" aria-labelledby="reaction-title">
         <div class="panel-title"><h2 id="reaction-title">리액션휠 시험 설정</h2><span id="reaction-state" class="badge">대기</span></div>
         <div class="reaction-body">
           <p>강도는 ESC 중립 대비 PWM 오프셋(µs)으로 조절합니다. RPM·토크 측정값이 아닙니다. 아래 ‘기본’은 현재 펌웨어 기본값입니다.</p>
           <p class="muted">입력만 바꾸면 동작하지 않습니다. 정차 후 좌·우 실행을 누르면 해당 설정으로 1회 실행합니다. STOP은 ESC·서보를 중립으로 복귀시킵니다.</p>
+          <details class="reaction-options"><summary>시험 설정 · PWM / 시간</summary>
           <div class="reaction-settings">
             <label for="reaction-esc_neutral"><span>ESC 중립 (µs)</span><input id="reaction-esc_neutral" type="number" min="1148" max="1832" step="1" value="1488" required><small>기본 1488 µs</small></label>
             <label for="reaction-servo_neutral"><span>서보 중립 (µs)</span><input id="reaction-servo_neutral" type="number" min="800" max="2200" step="1" value="1500" required><small>기본 1500 µs</small></label>
@@ -91,25 +78,82 @@
           </div>
           <p id="reaction-preview" class="reaction-preview"></p>
           <p class="muted">각 방향: ESC 1단계 → 2단계 → 중립 → 서보 대기 → 서보 유지 → ESC·서보 중립. 설정은 이번 실행에 적용되며 MCU 재부팅 시 기본값으로 돌아갑니다.</p>
+          </details>
           <div class="command-grid">
             <button class="command" data-command="REACTION_LEFT" disabled><b>왼쪽 1회 실행</b><span>ESC +오프셋 · 서보 왼쪽</span></button>
             <button class="command" data-command="REACTION_RIGHT" disabled><b>오른쪽 1회 실행</b><span>ESC −오프셋 · 서보 오른쪽</span></button>
+            <button class="command stop" data-command="STOP" disabled><b>STOP</b><span>ESC·서보 중립</span></button>
             <button id="reaction-reset" type="button">기본값 불러오기</button>
           </div>
           <p id="reaction-detail" role="status">설정 대기 · 아직 실행하지 않음</p>
         </div>
       </section>
+      </div>
+      <div class="panel-stack data-stack">
+        <section id="monitoring" class="panel monitoring-panel" aria-labelledby="monitoring-title">
+        <div class="panel-title"><h2 id="monitoring-title">모니터링</h2><span id="stale" class="badge">대기</span></div>
+        <div class="chart-grid">
+          <article class="chart-card">
+            <h3>Pi CPU 온도 <span class="muted">°C</span></h3>
+            <div class="chart-reading"><strong id="temperature-reading">—</strong><span id="temperature-quality" class="muted">수신 대기</span></div>
+            <svg id="temperature-chart" viewBox="0 0 320 130" role="img" aria-label="Pi CPU 온도, 최근 60초"><g class="chart-gridlines"><path d="M38 12H308 M38 60H308 M38 108H308"/></g><text id="temperature-max" x="32" y="16" text-anchor="end"></text><text id="temperature-min" x="32" y="111" text-anchor="end"></text><path id="temperature-line" class="chart-line"/><text x="38" y="127">−60초</text><text x="173" y="127" text-anchor="middle">−30초</text><text x="308" y="127" text-anchor="end">현재</text></svg>
+          </article>
+          <article class="chart-card">
+            <h3>배터리 전압 <span class="muted">V</span></h3>
+            <div class="chart-reading"><strong id="battery-reading">—</strong><span id="battery-quality" class="muted">수신 대기</span></div>
+            <svg id="battery-chart" viewBox="0 0 320 130" role="img" aria-label="배터리 전압, 최근 60초"><g class="chart-gridlines"><path d="M38 12H308 M38 60H308 M38 108H308"/></g><text id="battery-max" x="32" y="16" text-anchor="end"></text><text id="battery-min" x="32" y="111" text-anchor="end"></text><path id="battery-line" class="chart-line"/><text x="38" y="127">−60초</text><text x="173" y="127" text-anchor="middle">−30초</text><text x="308" y="127" text-anchor="end">현재</text></svg>
+          </article>
+          <article class="chart-card">
+            <h3>Wi-Fi 신호 <span class="muted">dBm</span></h3>
+            <div class="chart-reading"><strong id="wifi-reading">—</strong><span id="wifi-quality" class="muted">수신 대기</span></div>
+            <svg id="wifi-chart" viewBox="0 0 320 130" role="img" aria-label="Wi-Fi 신호, 최근 60초"><g class="chart-gridlines"><path d="M38 12H308 M38 60H308 M38 108H308"/></g><text id="wifi-max" x="32" y="16" text-anchor="end"></text><text id="wifi-min" x="32" y="111" text-anchor="end"></text><path id="wifi-line" class="chart-line"/><text x="38" y="127">−60초</text><text x="173" y="127" text-anchor="middle">−30초</text><text x="308" y="127" text-anchor="end">현재</text></svg>
+          </article>
+        </div>
+        <div class="monitor-details">
+          <div><span>Pi 입력 전압</span><strong id="pi-input">—</strong></div>
+          <div><span>Control MCU</span><strong id="control-state">수신 대기</strong></div>
+          <div><span>Payload MCU</span><strong id="payload-mcu-state">수신 대기</strong></div>
+        </div>
+    <section class="metrics" aria-label="통신 요약">
+      <div><span>통신 상태</span><strong id="health">—</strong><small>PONG · 로버 상태 기준</small></div>
+      <div><span>마지막 수신</span><strong id="age">—</strong><small>마지막 메시지 이후 경과</small></div>
+      <div><span>메시지 <abbr title="수신 / 송신">RX / TX</abbr></span><strong id="counts">—</strong><small>현재 백엔드 누적</small></div>
+      <div><span>데이터 누락 구간</span><strong id="gaps">0</strong><small>과거 데이터 복구 미지원</small></div>
+    </section>
+      </section>
         <section id="payload" class="panel payload-panel" aria-labelledby="payload-title">
           <div class="panel-title"><h2 id="payload-title">PAYLOAD 측정</h2><span id="payload-state" class="badge">IDLE</span></div>
-          <div class="sensor-labels" aria-hidden="true"><span>센서</span><span>측정값</span><span>상태</span></div>
-          <div class="sensor-grid">
-            <article><h3>비접촉 표면온도계</h3><strong id="sensor-0">—</strong><span id="sensor-status-0" class="muted">수신 대기</span></article>
-            <article><h3>접촉식 표면온도계</h3><strong id="sensor-1">—</strong><span id="sensor-status-1" class="muted">수신 대기</span></article>
-            <article><h3>자기상센서</h3><strong id="sensor-2">—</strong><span id="sensor-status-2" class="muted">수신 대기</span></article>
-            <article><h3>PCA novelty</h3><strong id="pca-novelty">—</strong><span id="pca-model" class="muted">모델 대기</span></article>
-            <article><h3>PCA candidate</h3><strong id="pca-candidate">—</strong><span id="pca-status" class="muted">판정 대기</span></article>
+          <div class="payload-sequence"><strong id="sample-number">SEQ —</strong><span id="sample-freshness">완료된 측정 대기</span><span id="payload-csv-state" class="muted">시계열 수신 대기</span></div>
+          <div class="chart-grid payload-charts">
+            <article class="chart-card">
+              <h3>비접촉 표면온도계 <span class="muted">°C</span></h3>
+              <div class="chart-reading"><strong id="sensor-0">—</strong><span class="muted">시퀀스 중앙값</span></div>
+              <svg viewBox="0 0 320 130" role="img" aria-label="비접촉 표면온도계, 직전 완료 시퀀스 시간 변화"><g class="chart-gridlines"><path d="M38 12H308 M38 60H308 M38 108H308"/></g><text id="payload-0-max" x="32" y="16" text-anchor="end"></text><text id="payload-0-min" x="32" y="111" text-anchor="end"></text><path id="payload-0-line" class="chart-line"/><text x="38" y="127">0초</text><text id="payload-0-end" x="308" y="127" text-anchor="end">—</text></svg>
+              <span id="sensor-status-0" class="muted">수신 대기</span>
+            </article>
+            <article class="chart-card">
+              <h3>접촉식 온도계 <span class="muted">°C</span></h3>
+              <div class="chart-reading"><strong id="sensor-1">—</strong><span class="muted">시퀀스 중앙값</span></div>
+              <svg viewBox="0 0 320 130" role="img" aria-label="접촉식 온도계, 직전 완료 시퀀스 시간 변화"><g class="chart-gridlines"><path d="M38 12H308 M38 60H308 M38 108H308"/></g><text id="payload-1-max" x="32" y="16" text-anchor="end"></text><text id="payload-1-min" x="32" y="111" text-anchor="end"></text><path id="payload-1-line" class="chart-line"/><text x="38" y="127">0초</text><text id="payload-1-end" x="308" y="127" text-anchor="end">—</text></svg>
+              <span id="sensor-status-1" class="muted">수신 대기</span>
+            </article>
+            <article class="chart-card">
+              <h3>자기상센서 <span class="muted">µT</span></h3>
+              <div class="chart-reading"><strong id="sensor-2">—</strong><span class="muted">시퀀스 중앙값</span></div>
+              <svg viewBox="0 0 320 130" role="img" aria-label="자기상센서, 직전 완료 시퀀스 시간 변화"><g class="chart-gridlines"><path d="M38 12H308 M38 60H308 M38 108H308"/></g><text id="payload-2-max" x="32" y="16" text-anchor="end"></text><text id="payload-2-min" x="32" y="111" text-anchor="end"></text><path id="payload-2-line" class="chart-line"/><text x="38" y="127">0초</text><text id="payload-2-end" x="308" y="127" text-anchor="end">—</text></svg>
+              <span id="sensor-status-2" class="muted">수신 대기</span>
+            </article>
           </div>
-          <div class="payload-meta"><div class="sample-meta"><span id="sample-time">측정값 수신 대기</span><span id="sample-number">지점 —</span></div><div class="sample-meta"><code id="payload-id">요청 —</code><span id="sample-freshness">—</span></div></div>
+          <div id="pca-result" class="pca-result" data-result="waiting" role="status">
+            <div class="pca-verdict"><span class="field-label">PCA 판정</span><strong id="pca-candidate">판정 대기</strong><span id="pca-status">측정 종료 후 표시됩니다.</span></div>
+            <div class="pca-score"><span class="field-label">모델 이탈 점수</span><strong id="pca-novelty">—</strong><span class="muted">확률이 아닌 모델 기준 점수</span></div>
+            <div class="pca-model"><span class="field-label">적용 모델</span><code id="pca-model">—</code></div>
+          </div>
+          <div class="payload-meta"><div class="sample-meta"><span id="sample-time">측정값 수신 대기</span><code id="payload-id">요청 —</code></div></div>
+          <div class="command-grid payload-actions">
+            <button class="command" aria-pressed="false" data-command="PAYLOAD_START" disabled><b>PAYLOAD START</b><span>센서 재초기화·지점 측정 시작</span></button>
+            <button class="command stop" aria-pressed="false" data-command="PAYLOAD_STOP" disabled><b>PAYLOAD STOP</b><span>5초 이상 측정 후 PCA 확정</span></button>
+          </div>
         </section>
       </div>
     </div>
@@ -118,6 +162,7 @@
       <div class="event-labels" aria-hidden="true"><span>시간</span><span>내용</span><span>요청 ID</span></div>
       <div id="event-list" class="event-list" tabindex="0" aria-label="이벤트 기록"><p class="empty-state">이벤트를 기다리고 있습니다.</p></div>
     </section>
+        <div class="command-result" aria-live="polite"><span class="field-label">마지막 명령 응답</span><p id="command-message">아직 전송한 명령이 없습니다.</p><code id="request-id">—</code></div>
     <footer><span id="environment">데이터 출처 확인 중</span><span id="updated">—</span></footer>
   </main>
 </body>

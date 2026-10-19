@@ -55,6 +55,9 @@ class RealState:
         self.value_sources = {}
         self.payload = {"state": "—", "request_id": None}
         self.payload_sample = None
+        self.payload_trace = None
+        self.payload_trace_status = {"state": "waiting"}
+        self.payload_boot = None
         self.last_sample = None
         self.pending = OrderedDict()
         self.events = deque(maxlen=event_limit)
@@ -65,6 +68,7 @@ class RealState:
         self.last_imu = None
         self.payload_health_at = None
         self.payload_ascii = False
+        self.hardware_receiver = None
         self.pi_temperature = None
         self.pi_temperature_at = None
         self.reaction = {'state': 'UNKNOWN'}
@@ -88,6 +92,8 @@ class RealState:
             "error": self.error,
             "status": {"mode": self.mode, "values": dict(self.values), "value_sources": dict(self.value_sources), "payload": dict(self.payload)},
             "payload_sample": self.payload_sample,
+            "payload_trace": self.payload_trace,
+            "payload_trace_status": self.payload_trace_status,
             "reaction": dict(self.reaction),
             "reaction_defaults": asdict(ReactionSettings()),
             "status_age": age(self.last_status),
@@ -103,6 +109,7 @@ class RealState:
             "events": list(self.events),
             "manual_control": dict(self.manual_control),
             "mcu": {role: dict(values) for role, values in self.mcu.items()},
+            "hardware": self.hardware_receiver.snapshot() if self.hardware_receiver else None,
             "pi_temperature": {
                 "celsius": self.pi_temperature if self.pi_temperature_at is not None and t-self.pi_temperature_at < 3 else None,
                 "age_s": age(self.pi_temperature_at),
@@ -291,6 +298,7 @@ class GroundLinkConnection:
                     int(fields[10], 16)
                     values = self.state.values
                     self.state.payload_ascii = True
+                    self.state.payload_boot = boot
                     self.state.payload_health_at = t
                     values["Payload 서비스"] = "OFFLINE" if fields[4] == "UNAVAILABLE" else "ONLINE"
                     values["Payload MCU 연결"] = "ONLINE" if online and age < 3000 else "OFFLINE"
@@ -329,6 +337,8 @@ class GroundLinkConnection:
                         self.state.payload_sample = {
                             "request_id": self.state.payload.get("request_id"),
                             "sample": int(fields[1]),
+                            "mcu_uid": self.state.values.get("Payload MCU UID"),
+                            "mcu_boot": self.state.payload_boot,
                             "time": data["timestamp_ms"],
                             "values": {
                                 "비접촉 표면온도계": reading(3, "°C", sensor=True),
@@ -460,12 +470,28 @@ async def serve(host, port, config_path=DEFAULT_CONFIG, local_socket=LOCAL_SOCKE
     task = asyncio.create_task(connection.run())
     brain_watch = asyncio.create_task(watch_brain())
     thermal_task = asyncio.create_task(receive_pi_temperature(state, host))
+    from backend.hardware_status import HardwareStatus
+    state.hardware_receiver = HardwareStatus(host)
+
+    async def watch_hardware():
+        while True:
+            state.hardware_receiver.poll()
+            await asyncio.sleep(.2)
+
+    hardware_task = asyncio.create_task(watch_hardware())
+    from backend.payload_csv import watch as watch_payload_csv
+    payload_csv_task = asyncio.create_task(watch_payload_csv(state))
     print(f"GCS backend | REAL ROVER | {host}:{port}", flush=True)
     print(f"Local API: {local_socket}", flush=True)
     try:
         async with server:
             await server.serve_forever()
     finally:
+        payload_csv_task.cancel()
+        await asyncio.gather(payload_csv_task, return_exceptions=True)
+        hardware_task.cancel()
+        await asyncio.gather(hardware_task, return_exceptions=True)
+        state.hardware_receiver.close()
         thermal_task.cancel()
         await asyncio.gather(thermal_task, return_exceptions=True)
         brain_watch.cancel()

@@ -37,6 +37,28 @@ Xbox 터미널에 포커스가 있을 때만 입력한다. [상세 조작](docs/
 Payload 버튼은 [별도 Pi 서비스](../platforms/loonar/porting/payload_pca_runbook.md)가 필요하다.
 영상 탐지는 [Mission02 안내](docs/mission02-object-detection.md)를 참고한다.
 
+## Payload 시퀀스 그래프
+
+Payload 패널은 직전 완료 시퀀스의 세 센서 원시값을 시간축으로 표시한다.
+큰 숫자는 해당 시퀀스의 중앙값이다. PCA 결과는 후보 / 후보 아님 / 판정 불가로
+구분하며, 점수는 확률이 아니다. START/STOP 버튼은 패널 하단에 있다.
+
+GCS는 PCA 완료 결과를 받으면 SSH로 해당 CSV를 읽어 메모리에 캐시한다.
+MCU UID·부팅 ID·시퀀스 번호, 완료 기록과 모델을 확인한다. MCU 식별 정보가
+없는 경우 요청 ID까지 일치해야 한다.
+새 측정을 시작해도 직전 결과는 유지하며, 가져오기 실패는 10초 간격으로 재시도한다.
+MCU 펌웨어나 Pi 프로그램을 배포할 필요는 없다.
+
+기본 검색 위치는 Pi의 `/var/lib/loonar/payload`와
+`~/loonar-motor-bench/runtime/payload`다. 사용자 지정 위치는 지상국 실행 전에
+`LOONAR_PAYLOAD_CSV_DIR` 환경변수로 지정한다. SSH 사용자는 `loonar`이며
+`LOONAR_SSH_USER`로 변경할 수 있다. 기존 SSH 키 또는 sshpass와
+`LOONAR_SSH_PASSWORD`를 사용한다. 인증 기본값은 기존 지상국 SSH 설정을 따른다.
+
+완료 메타데이터(`.events.jsonl`)가 없는 옛 CSV는 다른 시퀀스와 혼동할 수 있어
+자동으로 선택하지 않는다. 파일 크기·표본 수·측정 시간은 패널 상단에 표시한다.
+2 MB 초과 CSV는 자동으로 가져오지 않으며, 긴 기록은 표시 점 수를 줄여 전송한다.
+
 ## 개별 실행
 
 ```bash

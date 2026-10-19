@@ -158,8 +158,10 @@ def main():
                 f"fp16_storage={opt.use_fp16_storage},fp16_arithmetic={opt.use_fp16_arithmetic}")
 
         def _image(self, sample):
-            info = GstVideo.VideoInfo()
-            if not info.from_caps(sample.get_caps()) or str(info.finfo.name) != "BGR":
+            # GI's from_caps returns a new info in a tuple; it does not mutate
+            # an instance. Use the constructor so dimensions/stride are set.
+            info = GstVideo.VideoInfo.new_from_caps(sample.get_caps())
+            if info is None or str(info.finfo.name) != "BGR":
                 raise ValueError("shared camera frame is not BGR")
             buffer = sample.get_buffer()
             ok, mapped = buffer.map(Gst.MapFlags.READ)

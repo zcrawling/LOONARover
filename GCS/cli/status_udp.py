@@ -74,6 +74,25 @@ def render(kind, packet, age, gaps):
 
 
 def run(kind, host='10.254.254.3', bind='0.0.0.0', once=False):
+    if kind == 'hardware':
+        # Import lazily: this file remains a standalone UDP viewer on the second PC.
+        try:
+            from backend.hardware_status import HardwareStatus
+        except ModuleNotFoundError:
+            pass
+        else:
+            receiver = HardwareStatus(host, bind)
+            try:
+                while True:
+                    packet, age, gaps = receiver.poll()
+                    rows = render(kind, packet, age, gaps)
+                    if sys.stdout.isatty() and os.name != 'nt': print('\033[2J\033[H', end='')
+                    print('\n'.join(''.join(c if c.isprintable() else ' ' for c in row) for row in rows), flush=True)
+                    if once and packet is not None and age <= 4: return packet
+                    time.sleep(1)
+            finally:
+                receiver.close()
+            return
     packet = None; received = 0; sequence = 0; boot = None; gaps = 0
     with socket.socket(socket.AF_INET,socket.SOCK_DGRAM) as sock:
         # Deliberately no SO_REUSEPORT: a duplicate viewer must not steal packets.

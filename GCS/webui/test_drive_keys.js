@@ -12,13 +12,13 @@ function browser() {
     if (!nodes.has(id)) nodes.set(id, {
       dataset: {command: id}, classList: {toggle() {}, add() {}}, style: {},
       parentElement: {}, replaceChildren() {}, append() {},
-      setAttribute() {}, addEventListener(name, fn) {this[name] = fn;},
+      attributes: {}, setAttribute(name,value) {this.attributes[name]=value;}, addEventListener(name, fn) {this[name] = fn;},
     });
     return nodes.get(id);
   }
   const buttons = ['STOP', 'AUTO', 'MANUAL', 'PAYLOAD_START', 'PAYLOAD_STOP','REACTION_LEFT','REACTION_RIGHT'].map(node);
   const context = vm.createContext({
-    document: {getElementById: node, querySelectorAll: () => buttons,
+    document: {getElementById: node, querySelectorAll: selector => selector === '[data-command]' ? buttons : [],
                createElement: () => node(Symbol())},
     window: {addEventListener: (name, fn) => events.set(name, fn)},
     setInterval(fn) {timers.set(++timerId, fn); return timerId;},
@@ -35,7 +35,7 @@ function browser() {
   });
   vm.runInContext(fs.readFileSync(path.join(__dirname, 'static/app.js'), 'utf8'), context);
   vm.runInContext("current={connection:'CONNECTED',manual_control:{repeat_interval_ms:50}};token='test';", context);
-  return {requests, buttons, events, timers, node,
+  return {requests, buttons, events, timers, node, evaluate: code=>vm.runInContext(code, context),
           draw(state) {context.state = state; vm.runInContext('draw(state)', context);}};
 }
 const tick = () => new Promise(resolve => setImmediate(resolve));
@@ -122,13 +122,10 @@ test('real rover battery summary shows voltage without an invented percentage', 
     status:{values:{'배터리 전압 (V)':16.7,'배터리 잔량 (%)':null},
             value_sources:{'배터리 전압 (V)':'VEHICLE'}},events:[],requests:[]};
   b.draw(state);
-  assert.equal(b.node('battery-label').textContent, '배터리 전압');
-  assert.equal(b.node('battery').textContent, '16.7 V');
-  assert.equal(b.node('battery-fill').parentElement.hidden, true);
+  assert.equal(b.node('battery-reading').textContent, '16.70 V');
   state.status.values['배터리 전압 (V)'] = null;
   b.draw(state);
-  assert.equal(b.node('battery-label').textContent, '배터리 전압');
-  assert.equal(b.node('battery').textContent, '—');
+  assert.equal(b.node('battery-reading').textContent, '—');
 });
 
 test('linear slider and wheel stop at 0.40 m/s', async () => {
@@ -196,4 +193,83 @@ test('reaction defaults and tuned settings reach the command without executing w
   b.draw({connection:'CONNECTED',status:{values:{},payload:{}},reaction:{state:'FIRST'}});
   assert.equal(b.node('REACTION_LEFT').disabled,true);
   assert.equal(b.node('STOP').disabled,false);
+});
+
+
+test('hardware telemetry supplies graphs and text without GroundLink', () => {
+  const b = browser();
+  b.draw({connection:'DISCONNECTED', status_stale:true,
+    hardware:{age_s:0.5,data:{cpu_temperature_c:52.5,input_voltage_v:5.05,
+      wireless:[{interface:'wlan0',signal_dbm:-63}],
+      control:{online:true,battery_v:16.2},payload:{online:false}}}});
+  assert.equal(b.node('temperature-reading').textContent, '52.5 °C');
+  assert.equal(b.node('battery-reading').textContent, '16.20 V');
+  assert.equal(b.node('wifi-reading').textContent, '-63 dBm');
+  assert.equal(b.node('pi-input').textContent, '5.05 V');
+  assert.equal(b.node('control-state').textContent, 'ONLINE');
+  assert.equal(b.node('payload-mcu-state').textContent, 'OFFLINE');
+  b.draw({connection:'DISCONNECTED',hardware:{age_s:5,data:{input_voltage_v:5.05}}});
+  for (const id of ['temperature','battery','wifi']) assert.equal(b.node(id+'-reading').textContent,'—');
+  assert.equal(b.node('pi-input').textContent, '— · 데이터 없음');
+});
+
+test('hidden drive panel and editing reaction inputs do not drive', async () => {
+  const b = browser();
+  b.node('commands').hidden = true;
+  b.events.get('keydown')(key);
+  b.node('commands').hidden = false;
+  b.events.get('keydown')({...key,target:{closest:()=>b.node('reaction-esc_neutral')}});
+  await tick();
+  assert.equal(b.requests.length,0);
+});
+
+
+test('monitor history keeps only 60 seconds and breaks lines on missing samples', () => {
+  const b = browser();
+  b.evaluate(`{
+    const now=Date.now();
+    monitorHistory.battery.push({time:now-61000,value:15},
+      {time:now-2000,value:16}, {time:now-1500,value:null}, {time:now-1000,value:16.1});
+    renderMonitoring(now);
+  }`);
+  assert.equal(b.evaluate('monitorHistory.battery.length'),3);
+  assert.equal((b.node('battery-line').attributes.d.match(/M/g)||[]).length,2);
+  assert.equal(b.node('battery-line').attributes.d.includes('NaN'),false);
+  b.evaluate('renderMonitoring(Date.now()+61000)');
+  assert.equal(b.evaluate('monitorHistory.battery.length'),0);
+  assert.equal(b.node('battery-line').attributes.d,'');
+});
+
+function payloadSample(candidate=1,status='DEMO_ONLY') {
+ return {request_id:'8',sample:1,time:1000,values:{
+  '비접촉 표면온도계':{value:27,unit:'°C',status:'정상'},
+  '접촉식 표면온도계':{value:28,unit:'°C',status:'정상'},
+  '자기상센서':{value:34,unit:'µT',status:'정상'},
+  'PCA novelty':{value:10},'PCA candidate':{value:candidate,status},
+  'PCA model':{value:'DEMO_ONLY'}}};
+}
+
+test('payload keeps last completed sequence while next one measures, uses matching CSV only', () => {
+ const b=browser();
+ const sample=payloadSample();
+ const state={connection:'CONNECTED',status:{payload:{state:'MEASURING',request_id:'9'}},payload_sample:sample,
+  payload_trace:{key:'["8",1,1000,null,null]',sample:1,duration_s:5,bytes:1500,sample_count:3,
+   points:[{t:.5,values:[26,28,34]},{t:1,values:[null,28,34]},{t:1.5,values:[27,28,34]}]}};
+ b.draw(state);
+ assert.equal(b.node('sensor-0').textContent,'27.00 °C');
+ assert.equal(b.node('sample-number').textContent,'SEQ 001');
+ assert.match(b.node('sample-freshness').textContent,/직전 결과/);
+ assert.equal((b.node('payload-0-line').attributes.d.match(/M/g)||[]).length,2);
+ state.payload_trace.key='different';
+ b.draw(state);
+ assert.equal(b.node('payload-0-line').attributes.d,'');
+});
+
+test('PCA verdict distinguishes candidates, non-candidates and invalid results', () => {
+ const b=browser();
+ for (const [candidate,status,expected] of [[1,'DEMO_ONLY','추가 확인 후보'],[0,'DEMO_ONLY','후보 아님'],[0,'INVALID_STATION','판정 불가']]) {
+  b.draw({connection:'CONNECTED',status:{},payload_sample:payloadSample(candidate,status)});
+  assert.equal(b.node('pca-candidate').textContent,expected);
+  assert.equal(b.node('pca-model').textContent,'DEMO_ONLY');
+ }
 });

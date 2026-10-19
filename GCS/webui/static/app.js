@@ -27,30 +27,13 @@ function draw(s){
  set('health',connectionLabels[s.connection]||s.connection);set('mode',s.status?.mode||'—');set('age',s.last_rx_age==null?'—':`${s.last_rx_age.toFixed(1)}초`);set('counts',`${s.rx_messages} / ${s.tx_messages}`);set('gaps',s.data_gaps);
  const notice=el('notice');notice.hidden=good;notice.className='notice'+(good?'':' error');notice.textContent=good?'로버가 연결되었습니다.':`TCP ${s.connection} · 현재 상태를 확인할 수 없습니다. 명령 전송을 사용할 수 없습니다.`;
  badge('stale',s.status_stale?'이전 상태':'갱신 중',s.status_stale?'warn':'good');
- const sources=s.status?.value_sources||{};
- const v=s.status?.values||{},voltage=v['배터리 전압 (V)'],percent=v['배터리 잔량 (%)'];
- const showVoltage=sources['배터리 전압 (V)']==='VEHICLE'||Number.isFinite(voltage);
- el('battery-summary').hidden=!showVoltage&&sources['배터리 잔량 (%)']==='ROS';
- set('battery-label',showVoltage?'배터리 전압':'배터리 잔량');set('battery',showVoltage?number(voltage,' V'):number(percent,'%'));
- el('battery-fill').parentElement.hidden=showVoltage||!Number.isFinite(percent);
- el('battery-fill').style.width=Number.isFinite(percent)?Math.max(0,Math.min(100,percent))+'%':'0%';
- el('devices').replaceChildren();el('ros-values').replaceChildren();let rosCount=0;
- for(const key of Object.keys(v)){
-  if(['라즈베리파이 내부 온도 (°C)','Control MCU 온도 (°C)','MCU 온도 (°C)'].includes(key))continue;
-  const ros=['ROS','VEHICLE'].includes(sources[key]);
-  if(!ros&&['배터리 잔량 (%)','라즈베리파이 내부 온도 (°C)','Control MCU 온도 (°C)','MCU 온도 (°C)'].includes(key))continue;
-  const row=document.createElement('div');row.className='device';const label=document.createElement('span');label.textContent=key;const value=document.createElement('span');value.className='value';value.textContent=v[key]??'—';if(v[key]==='ONLINE')value.classList.add('value-online');if(v[key]==='OFFLINE')value.classList.add('value-offline');row.append(label,value);el(ros?'ros-values':'devices').append(row);if(ros)rosCount++;
- }
- if(!rosCount){const message=document.createElement('p');message.className='muted';message.textContent='차량 측정값 수신 대기';el('ros-values').append(message);}
- badge('ros-stale',rosCount?(s.status_stale?'이전 상태':'수신 중'):'대기',rosCount?(s.status_stale?'warn':'good'):'');
+ updateMonitoring(s);
  const p=s.status?.payload||{};badge('payload-state',p.state||'IDLE',p.state==='MEASURING'?'good':'');
- const sample=s.payload_sample;const same=sample&&sample.request_id===p.request_id;const keys=['비접촉 표면온도계','접촉식 표면온도계','자기상센서'];keys.forEach((key,i)=>{const reading=same?sample.values[key]:null;set('sensor-'+i,reading?number(reading.value,reading.unit==='TBD'?'':' '+reading.unit):'—');set('sensor-status-'+i,reading?.status||'수신 대기');});
- const novelty=same?sample.values['PCA novelty']:null,candidate=same?sample.values['PCA candidate']:null,model=same?sample.values['PCA model']:null;set('pca-novelty',novelty?number(novelty.value):'—');set('pca-candidate',candidate?String(candidate.value):'—');set('pca-model',model?.value||'모델 대기');set('pca-status',candidate?.status||'판정 대기');
- set('sample-time',same?`측정 시각 ${sample.time}`:'측정값 수신 대기');const station=same?sample.sample:p.station;set('sample-number',station?`STATION${String(station).padStart(2,'0')}`:'지점 —');set('payload-id',`요청 ${p.request_id||'—'}`);set('sample-freshness',same?(p.state==='IDLE'?'측정 완료':s.sample_stale?'이전 측정값':'실시간 갱신'):'—');
+ drawPayload(s);
  if(latestRequest){const r=s.requests.find(r=>r.request_id===latestRequest);if(r&&r.state!=='Pending')set('command-message',`"${r.command}" ${r.state}`);}
  set('updated','갱신 '+clockTime());controls();drawEvents();
 }
-async function poll(){try{const response=await fetch('/api/state',{cache:'no-store',signal:AbortSignal.timeout(9000)});if(!response.ok)throw Error('backend unavailable');draw(await response.json());}catch(error){current=null;token='';badge('connection','백엔드 연결 끊김','bad');el('connection').title='BACKEND OFFLINE';set('health','OFFLINE');el('notice').hidden=false;el('notice').className='notice error';set('notice','백엔드에 연결할 수 없습니다. 마지막 표시값은 이전 데이터입니다. 자동으로 다시 확인합니다.');badge('stale','이전 상태','warn');badge('ros-stale','이전 상태','warn');set('sample-freshness','이전 측정값');controls();}finally{setTimeout(poll,700);}}
+async function poll(){try{const response=await fetch('/api/state',{cache:'no-store',signal:AbortSignal.timeout(9000)});if(!response.ok)throw Error('backend unavailable');draw(await response.json());}catch(error){current=null;token='';badge('connection','백엔드 연결 끊김','bad');el('connection').title='BACKEND OFFLINE';set('health','OFFLINE');el('notice').hidden=false;el('notice').className='notice error';set('notice','백엔드에 연결할 수 없습니다. 마지막 표시값은 이전 데이터입니다. 자동으로 다시 확인합니다.');badge('stale','이전 상태','warn');updateMonitoring(null);set('sample-freshness','이전 측정값');controls();}finally{setTimeout(poll,700);}}
 async function send(command,select=true){if(!current||current.connection!=='CONNECTED')return;if(select)selectCommand(command);busy=true;controls();set('command-message',`"${command}" 전송 중`);set('request-id','—');latestRequest=null;const body={command};if(command==='FORWARD'||command==='REVERSE')body.linear_speed_mps=linearSpeed;if(command==='LEFT'||command==='RIGHT')body.angular_speed_radps=angularSpeed;try{if(command.startsWith('REACTION_'))body.reaction_settings=readReactionSettings();const response=await fetch('/api/command',{method:'POST',headers:{'Content-Type':'application/json','X-GCS-Token':token},body:JSON.stringify(body),signal:AbortSignal.timeout(10000)});const result=await response.json();if(!response.ok)throw Error(result.error||'전송 결과 확인 불가');latestRequest=result.request_id||null;set('command-message',result.text);set('request-id',latestRequest||'—');}catch(error){set('command-message',`${error.message} · 자동 재전송하지 않습니다.`);}finally{busy=false;controls();}}
 function enqueue(command,select=true){commandQueue=commandQueue.then(()=>send(command,select));return commandQueue;}
 document.querySelectorAll('[data-command]').forEach(button=>button.addEventListener('click',()=>{cancelDrive();enqueue(button.dataset.command);}));
@@ -72,11 +55,11 @@ let activeDriveKey=null,driveTimer=null,driveSending=false,driveEpoch=0;
 function cancelDrive(){const held=activeDriveKey!==null;if(driveTimer!==null){clearInterval(driveTimer);driveTimer=null;}activeDriveKey=null;driveEpoch++;return held;}
 async function drivePulse(){if(!activeDriveKey||driveSending)return;const key=activeDriveKey,epoch=driveEpoch;driveSending=true;try{commandQueue=commandQueue.then(()=>{if(activeDriveKey===key&&driveEpoch===epoch)return send(driveKeys[key],false);});await commandQueue;}finally{driveSending=false;}}
 function stopDrive(){if(cancelDrive())enqueue('MANUAL',false);}
-window.addEventListener('keydown',event=>{if(event.target?.closest?.('.speed-control'))return;const command=driveKeys[event.key];if(!command)return;event.preventDefault();if(event.repeat||activeDriveKey!==null||!current||current.connection!=='CONNECTED')return;activeDriveKey=event.key;drivePulse();const interval=current.manual_control?.repeat_interval_ms||100;driveTimer=setInterval(drivePulse,interval);});
+window.addEventListener('keydown',event=>{if(el('commands').hidden||event.target?.closest?.('input, select, textarea, [contenteditable], .speed-control'))return;const command=driveKeys[event.key];if(!command)return;event.preventDefault();if(event.repeat||activeDriveKey!==null||!current||current.connection!=='CONNECTED')return;activeDriveKey=event.key;drivePulse();const interval=current.manual_control?.repeat_interval_ms||100;driveTimer=setInterval(drivePulse,interval);});
 window.addEventListener('keyup',event=>{if(!driveKeys[event.key])return;event.preventDefault();if(event.key!==activeDriveKey)return;stopDrive();});
 window.addEventListener('blur',stopDrive);
 el('event-filter').addEventListener('change',drawEvents);
-setInterval(()=>set('clock',clockTime()),1000);
+setInterval(()=>{set('clock',clockTime());renderMonitoring();},1000);
 
 const reactionDefaults={esc_neutral:1488,servo_neutral:1500,left_first_offset:25,left_second_offset:50,right_first_offset:25,right_second_offset:50,servo_left:800,servo_right:2200,left_first_ms:5000,right_first_ms:10000,second_ms:10000,servo_delay_ms:10,servo_hold_ms:3000,prepare_ms:5000};
 function reactionScale(key){return key.endsWith('_ms')&&key!=='servo_delay_ms'?1000:1;}
@@ -86,4 +69,150 @@ function resetReaction(){for(const [key,value] of Object.entries(reactionDefault
 for(const key of Object.keys(reactionDefaults))el('reaction-'+key).addEventListener('input',reactionPreview);
 el('reaction-reset').addEventListener('click',resetReaction);
 resetReaction();
+// UI history is bounded to one minute and is never filled with invented samples.
+const chartSpecs = {
+ temperature: {unit:'°C', digits:1, range:[30, 90]},
+ battery: {unit:'V', digits:2, range:[10, 18]},
+ wifi: {unit:'dBm', digits:0, range:[-100, -30]},
+};
+const monitorHistory = Object.fromEntries(Object.keys(chartSpecs).map(key=>[key, []]));
+let lastMonitorState = null, lastMonitorAt = 0;
+function initPanels() {
+ let saved = {};
+ try { saved = JSON.parse(localStorage.getItem('loonar.visiblePanels') || '{}') || {}; } catch (_) {}
+ for (const button of document.querySelectorAll('[data-panel]')) {
+  const id = button.dataset.panel;
+  const apply = visible => {
+   el(id).hidden = !visible;
+   button.setAttribute('aria-pressed', String(visible));
+   button.title = visible ? '표시 중 · 클릭하여 숨김' : '숨김 · 클릭하여 표시';
+  };
+  apply(saved[id] !== false);
+  button.addEventListener('click', () => {
+   const visible = el(id).hidden;
+   if (id === 'commands' && !visible) stopDrive();
+   apply(visible);
+   saved[id] = visible;
+   try { localStorage.setItem('loonar.visiblePanels', JSON.stringify(saved)); } catch (_) {}
+  });
+ }
+}
+function monitorValues(s) {
+ const v = s?.status?.values || {};
+ const live = s?.connection === 'CONNECTED' && !s.status_stale;
+ const hardware = s?.hardware?.age_s != null && s.hardware.age_s <= 4 ? s.hardware.data : null;
+ const wifi = (Array.isArray(hardware?.wireless) ? hardware.wireless : []).find(item=>Number.isFinite(item?.signal_dbm));
+ return {
+  temperature: hardware ? hardware.cpu_temperature_c : s?.pi_temperature ? (s.pi_temperature.age_s != null && s.pi_temperature.age_s < 3 ? s.pi_temperature.celsius : null) : (live ? v['라즈베리파이 내부 온도 (°C)'] : null),
+  battery: hardware ? (hardware.control?.online && !hardware.control.stale ? hardware.control.battery_v : null) : live ? v['배터리 전압 (V)'] : null,
+  wifi: wifi?.signal_dbm ?? null,
+ };
+}
+function updateMonitoring(s) {
+ const now = Date.now();
+ lastMonitorState = s;
+ lastMonitorAt = now;
+ const values = monitorValues(s);
+ for (const key of Object.keys(chartSpecs)) {
+  const history = monitorHistory[key];
+  history.push({time:now, value:Number.isFinite(values[key]) ? values[key] : null});
+ }
+ renderMonitoring(now);
+}
+function renderMonitoring(now = Date.now()) {
+ const s = now - lastMonitorAt < 3000 ? lastMonitorState : null;
+ const values = monitorValues(s);
+ for (const [key, spec] of Object.entries(chartSpecs)) {
+  const history = monitorHistory[key];
+  while (history.length && history[0].time < now - 60000) history.shift();
+  const valid = history.filter(point=>Number.isFinite(point.value));
+  const low = Math.min(spec.range[0], ...valid.map(point=>point.value));
+  const high = Math.max(spec.range[1], ...valid.map(point=>point.value));
+  const value = values[key];
+  set(key+'-reading', Number.isFinite(value) ? `${value.toFixed(spec.digits)} ${spec.unit}` : '—');
+  set(key+'-quality', Number.isFinite(value) ? '최근 60초' : (valid.length ? '수신 끊김 · 이전 기록' : '데이터 없음'));
+  set(key+'-max', high.toFixed(spec.digits === 2 ? 1 : 0));
+  set(key+'-min', low.toFixed(spec.digits === 2 ? 1 : 0));
+  let path = '', previous = null;
+  for (const point of history) {
+   if (!Number.isFinite(point.value)) {previous = null; continue;}
+   const x = 38 + (point.time - now + 60000) / 60000 * 270;
+   const y = 108 - (point.value - low) / (high - low) * 96;
+   const connected = previous && point.time - previous.time < 3000;
+   path += `${connected ? 'L' : 'M'}${x.toFixed(2)},${y.toFixed(2)} `;
+   // A single sample is visible too; gaps remain unconnected.
+   if (!connected) path += `l0.1,0 `;
+   previous = point;
+  }
+  el(key+'-line').setAttribute('d', path);
+ }
+ const live = s?.connection === 'CONNECTED' && !s.status_stale;
+ const v = s?.status?.values || {};
+ const hardware = s?.hardware?.age_s != null && s.hardware.age_s <= 4 ? s.hardware.data : null;
+ set('pi-input', Number.isFinite(hardware?.input_voltage_v) ? `${hardware.input_voltage_v.toFixed(2)} V` : '— · 데이터 없음');
+ el('wifi-reading').title = (Array.isArray(hardware?.wireless) ? hardware.wireless : []).find(item=>Number.isFinite(item?.signal_dbm))?.interface || '';
+ for (const [role, id, label] of [['control','control-state','Control'],['payload','payload-mcu-state','Payload']]) {
+  const mcu = s?.mcu?.[role];
+  const status = hardware?.[role];
+  const state = status ? (status.stale ? '수신 끊김' : status.online ? 'ONLINE' : 'OFFLINE') : !live ? '수신 끊김' : mcu ? (mcu.online && mcu.health_age_ms < 3000 ? 'ONLINE' : 'OFFLINE') : (v[label+' MCU 연결'] || '수신 대기');
+  set(id, state);
+  el(id).className = state === 'ONLINE' ? 'value-online' : state === 'OFFLINE' ? 'value-offline' : 'muted';
+ }
+}
+
+function payloadKey(sample) {
+ return JSON.stringify(['request_id','sample','time','mcu_uid','mcu_boot'].map(key=>sample[key] ?? null));
+}
+function drawPayload(s) {
+ const sample = s.payload_sample;
+ const readings = sample?.values || {};
+ const trace = sample && s.payload_trace?.key === payloadKey(sample) ? s.payload_trace : null;
+ const transfer = sample && s.payload_trace_status?.key === payloadKey(sample) ? s.payload_trace_status : null;
+ const state = s.status?.payload?.state;
+ set('sample-number', sample ? `SEQ ${String(sample.sample).padStart(3,'0')}` : 'SEQ —');
+ set('sample-freshness', !sample ? '완료된 측정 대기' : ['STARTING','MEASURING','STOPPING'].includes(state) ? '직전 결과 보관 · 새 측정 진행 중' : '최근 완료 시퀀스');
+ set('payload-csv-state', trace ? `${trace.sample_count}표본 · ${trace.duration_s.toFixed(1)}초 · ${(trace.bytes/1024).toFixed(1)} KiB` : transfer?.state === 'error' ? transfer.message+' · 재시도 중' : sample ? '시계열 CSV 가져오는 중' : '시계열 수신 대기');
+ const keys = ['비접촉 표면온도계','접촉식 표면온도계','자기상센서'];
+ keys.forEach((key, i) => {
+  const reading = readings[key];
+  set('sensor-'+i, Number.isFinite(reading?.value) ? `${reading.value.toFixed(2)} ${reading.unit === 'TBD' ? '' : reading.unit || ''}` : '—');
+  set('sensor-status-'+i, reading?.status || '수신 대기');
+  const points = trace?.points || [];
+  const values = points.map(point=>point.values[i]).filter(Number.isFinite);
+  const minimum = values.length ? Math.min(...values) : 0;
+  const maximum = values.length ? Math.max(...values) : 1;
+  const pad = Math.max((maximum-minimum)*.15, i===2 ? .5 : .2);
+  const low = minimum-pad, high = maximum+pad;
+  set(`payload-${i}-max`, values.length ? high.toFixed(1) : '—');
+  set(`payload-${i}-min`, values.length ? low.toFixed(1) : '—');
+  set(`payload-${i}-end`, trace ? trace.duration_s.toFixed(1)+'초' : '—');
+  let path = '', connected = false;
+  for (const point of points) {
+   const value = point.values[i];
+   if (!Number.isFinite(value)) {connected=false; continue;}
+   const x = 38 + point.t / Math.max(trace.duration_s, .001) * 270;
+   const y = 108 - (value-low)/(high-low)*96;
+   if (point.gap_before) connected = false;
+   path += `${connected ? 'L' : 'M'}${x.toFixed(2)},${y.toFixed(2)} `;
+   if (!connected) path += 'l0.1,0 ';
+   connected = true;
+  }
+  el(`payload-${i}-line`).setAttribute('d', path);
+ });
+ const candidate = readings['PCA candidate'];
+ const score = readings['PCA novelty']?.value;
+ const model = readings['PCA model']?.value;
+ const status = candidate?.status;
+ const valid = Number.isFinite(score) && [0,1].includes(candidate?.value) && ['TRAINED_MODEL','DEMO_ONLY'].includes(status);
+ const result = !sample ? 'waiting' : valid ? (candidate.value === 1 ? 'candidate' : 'within') : 'invalid';
+ el('pca-result').setAttribute('data-result', result);
+ set('pca-candidate', {waiting:'판정 대기',candidate:'추가 확인 후보',within:'후보 아님',invalid:'판정 불가'}[result]);
+ set('pca-status', {waiting:'측정 종료 후 표시됩니다.',candidate:'모델 기준을 초과한 측정입니다.',within:'모델 기준 이내의 측정입니다.',invalid:'측정 품질 또는 결과 상태를 확인하세요.'}[result]);
+ set('pca-novelty', Number.isFinite(score) ? score.toFixed(3) : '—');
+ set('pca-model', model || '—');
+ set('sample-time', trace ? '시퀀스 시작부터 종료까지 · 원시 측정값' : sample ? '센서 중앙값 수신 · 시계열 미수신' : '측정값 수신 대기');
+ set('payload-id', sample ? `요청 ${sample.request_id ?? '—'}` : '요청 —');
+}
+
+initPanels();
 poll();

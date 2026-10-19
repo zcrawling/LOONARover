@@ -46,6 +46,10 @@ bash platforms/loonar/tools/start-ground-support.sh
 
 The default no-argument launcher starts the camera branch and detector together
 using the current checkout source. Do not also start the systemd camera services.
+The explicit `start-ground-support.sh --video` bench path also starts detection;
+its detector log is `~/loonar-motor-bench/runtime/vision.log`. Missing runtime,
+model config or shmsink leaves video running; detector failure leaves control
+running. `LOONAR_FLY_VISION=0` disables detection in either launcher.
 Installed systemd deployments instead restart `loonar-vision.service` and read
 `journalctl -u loonar-vision.service`. See the
 [bring-up guide](../../../GCS/docs/mission02-object-detection.md) for both workflows.
@@ -53,6 +57,9 @@ Installed systemd deployments instead restart `loonar-vision.service` and read
 The installer uses binary wheels only, rejects CUDA/TensorRT dependencies before
 installation, validates/warmups the model, installs a content-addressed model
 directory and updates only model_path/model_sha256 in `/etc/loonar/vision.yaml`.
+PyTorch is pinned to the official CPU build 2.8.0+cpu with torchvision 0.23.0;
+NumPy stays below 2 and OpenCV below 4.12 for the system ROS environment.
+Ultralytics' Python-only `nvidia-ml-py` dependency is allowed; CUDA runtimes are not.
 Other configured values are retained. The first config is backed up as
 `vision.yaml.before-ncnn`. It never starts or restarts services. Without MODEL_DIR,
 it installs/checks the runtime only and leaves the current model/config untouched.

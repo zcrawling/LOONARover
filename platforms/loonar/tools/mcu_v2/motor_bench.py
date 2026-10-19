@@ -13,6 +13,7 @@ import socket
 import struct
 import subprocess
 import sys
+import tempfile
 import time
 
 from .config import load, geometry
@@ -83,6 +84,7 @@ def main():
     ros_samples = None
     encoder_verify = None
     recorder = None
+    vision_runtime = None
     stop = [False]
     for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
         signal.signal(sig, lambda *_: stop.__setitem__(0, True))
@@ -148,7 +150,28 @@ def main():
                 environment["VIDEO_RECORD_PATH"] = str(recording)
                 print(f"Camera recording path: {recording}; status: {runtime}/video.log", flush=True)
             video_script = Path(__file__).resolve().parents[2] / "deploy/run-video.sh"
+            # The legacy --video path needs the same shared-frame detector as
+            # the default GCS launcher. Detection failure is optional to driving.
+            vision_enabled = bool(args.video_ip) and os.environ.get("LOONAR_FLY_VISION", "1") == "1"
+            if vision_enabled:
+                config = Path(environment.get("LOONAR_VISION_CONFIG", "/etc/loonar/vision.yaml"))
+                python = Path(environment.get("LOONAR_VISION_PYTHON", "/opt/loonar/vision-venv/bin/python"))
+                plugin = subprocess.run([
+                    "bash", "-c", 'source "$1" && gst-inspect-1.0 shmsink >/dev/null',
+                    "bash", str(video_script.with_name("loonar-camera-env.sh"))],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                if not config.is_file() or not os.access(python, os.X_OK) or plugin.returncode:
+                    logging.warning("RGB detection unavailable: install vision runtime/model and shmsink; video continues")
+                    vision_enabled = False
+            environment["VISION_ENABLED"] = "1" if vision_enabled else "0"
+            if vision_enabled:
+                vision_runtime = tempfile.TemporaryDirectory(prefix="loonar-vision-")
+                environment["VISION_SOCKET"] = str(Path(vision_runtime.name) / "frames.sock")
+                environment["VISION_FPS"] = "10"
             commands.append(("video", ["bash", str(video_script)], None))
+            if vision_enabled:
+                commands.append(("vision", ["bash", str(video_script.with_name("run-vision.sh"))], None))
+                print(f"Pi NCNN detection starting; log: {runtime}/vision.log", flush=True)
         if args.record:
             tools = Path(__file__).resolve().parents[1]
             bag_dir = args.bag_dir.expanduser().resolve()
@@ -193,7 +216,7 @@ def main():
                 if code is None or name in reported_exits:
                     continue
                 reported_exits.add(name)
-                if name in ("video", "record", "payload", "tof", "recording-monitor"):
+                if name in ("video", "vision", "record", "payload", "tof", "recording-monitor"):
                     logging.error("%s exited (code=%s); inspect %s/%s.log. "
                                   "Control continues; this optional output is unavailable.", name, code, runtime, name)
                 else:
@@ -289,6 +312,8 @@ def main():
                     recorder.wait()
         if ros_samples:
             ros_samples.close()
+        if vision_runtime is not None:
+            vision_runtime.cleanup()
         if encoder_verify:
             encoder_verify.close()
         for sock in sockets:
