@@ -136,10 +136,10 @@ class Player:
                         color = '#59ef9b' if detection['class_name'] == 'target_rover' else '#ffb454'
                         coordinates = canvas_box(detection['xyxy'], result['width'],
                                                  result['height'], box)
-                        self.canvas.create_rectangle(*coordinates, outline=color, width=2, tags='vision')
+                        self.canvas.create_rectangle(*coordinates, outline=color, width=4, tags='vision')
                         self.canvas.create_text(coordinates[0], coordinates[1],
                             text=f"{detection['class_name']} {detection['confidence']:.2f}",
-                            anchor='sw', fill=color, tags='vision')
+                            anchor='sw', fill=color, font=('DejaVu Sans', 12, 'bold'), tags='vision')
                     labels = {'LEFT': '좌', 'CENTER': '중앙', 'RIGHT': '우'}
                     vision_text = (f"{mode} · 목표: {labels.get(result['direction'], '미검출')} · "
                                    f"결과 나이 {age_ms:.0f}ms")
