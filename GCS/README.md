@@ -25,7 +25,9 @@ Python 3.11 이상, SSH, ffmpeg/ffplay, gnome-terminal, xdg-open이 필요하다
 | PC 영상 수신 | UDP 5600, H.264/MPEG-TS |
 | PC backend | `GCS/.runtime/backend.sock` |
 
-방향키로 주행하며 키 해제·포커스 상실 시 속도 0을 요청한다.
+WASD로 주행한다(W 전진, S 후진, A/D 좌·우 회전). 키 해제·포커스 상실 시
+속도 0을 요청한다. 방향키는 슬라이더 조절에 사용하며, 슬라이더에 포커스가
+있어도 WASD로 주행할 수 있다. 숫자·텍스트 입력 중에는 주행 키가 동작하지 않는다.
 STOP은 별도 모드 명령이다. Xbox LT는 A/B, RT는 STOP/MANUAL을 전환하며
 Xbox 터미널에 포커스가 있을 때만 입력한다. [상세 조작](docs/xbox-controller.md).
 종료 전 STOP을 누르고 PC와 Pi의 실행 터미널에서 Ctrl+C한다.

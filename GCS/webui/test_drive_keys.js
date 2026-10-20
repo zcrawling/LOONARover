@@ -39,7 +39,7 @@ function browser() {
           draw(state) {context.state = state; vm.runInContext('draw(state)', context);}};
 }
 const tick = () => new Promise(resolve => setImmediate(resolve));
-const key = {key: 'ArrowUp', repeat: false, preventDefault() {}};
+const key = {key: 'w', code:'KeyW', repeat: false, preventDefault() {}};
 
 test('key release queues zero after an in-flight motion request', async () => {
   const b = browser();
@@ -81,7 +81,7 @@ test('angular slider uses config initially and updates held turn commands withou
   b.draw(state); // Polling must not overwrite the user's selection.
   assert.equal(b.node('angular-speed-value').textContent, '0.37 rad/s');
   assert.equal(b.requests.length, 0);
-  const left = {...key, key:'ArrowLeft'};
+  const left = {...key, key:'a', code:'KeyA'};
   b.events.get('keydown')(left);
   await tick();
   assert.deepEqual(b.requests[0].body, {command:'LEFT', angular_speed_radps:0.37});
@@ -97,7 +97,7 @@ test('angular slider uses config initially and updates held turn commands withou
   assert.deepEqual(b.requests[2].body, {command:'MANUAL'});
   b.requests[2].finish();
   await tick();
-  const right = {...key, key:'ArrowRight'};
+  const right = {...key, key:'d', code:'KeyD'};
   b.events.get('keydown')(right);
   await tick();
   assert.deepEqual(b.requests[3].body, {command:'RIGHT', angular_speed_radps:0.38});
@@ -110,7 +110,7 @@ test('angular slider uses config initially and updates held turn commands withou
 
 test('arrow keys editing a speed slider do not issue driving commands', async () => {
   const b = browser();
-  b.events.get('keydown')({...key, target:{closest:()=>b.node('angular-speed-control')},
+  b.events.get('keydown')({...key, key:'ArrowUp', code:'ArrowUp', target:{closest:()=>null},
     preventDefault(){assert.fail('slider keyboard input must keep its native behavior');}});
   await tick();
   assert.equal(b.requests.length, 0);
@@ -272,4 +272,33 @@ test('PCA verdict distinguishes candidates, non-candidates and invalid results',
   assert.equal(b.node('pca-candidate').textContent,expected);
   assert.equal(b.node('pca-model').textContent,'DEMO_ONLY');
  }
+});
+
+
+test('arrows and old navigation keys retain native behavior without driving', async () => {
+ const b=browser();
+ for(const code of ['ArrowUp','ArrowLeft','ArrowDown','ArrowRight','PageUp','Home','PageDown','End']) {
+  const event={code,key:code,preventDefault(){assert.fail('native key intercepted');}};
+  b.events.get('keydown')(event);b.events.get('keyup')(event);
+ }
+ await tick();assert.equal(b.requests.length,0);
+});
+
+test('physical WASD works with uppercase and Korean layout; release still stops', async () => {
+ const b=browser();
+ b.events.get('keydown')({...key,key:'ㅈ'});
+ await tick();assert.equal(b.requests[0].command,'FORWARD');
+ b.events.get('keyup')({...key,key:'W'});
+ b.requests[0].finish();await tick();
+ assert.equal(b.requests[1].command,'MANUAL');b.requests[1].finish();await tick();
+ b.events.get('keydown')({...key,code:'KeyS',key:'S'});
+ await tick();assert.equal(b.requests[2].command,'REVERSE');
+});
+
+test('browser shortcuts do not start driving', async () => {
+ const b=browser();
+ for(const modifier of ['ctrlKey','altKey','metaKey','isComposing']) {
+  b.events.get('keydown')({...key,[modifier]:true,preventDefault(){assert.fail('shortcut intercepted');}});
+ }
+ await tick();assert.equal(b.requests.length,0);
 });

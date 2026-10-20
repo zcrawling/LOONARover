@@ -38,8 +38,7 @@ async function send(command,select=true){if(!current||current.connection!=='CONN
 function enqueue(command,select=true){commandQueue=commandQueue.then(()=>send(command,select));return commandQueue;}
 document.querySelectorAll('[data-command]').forEach(button=>button.addEventListener('click',()=>{cancelDrive();enqueue(button.dataset.command);}));
 const driveKeys={
- ArrowUp:'FORWARD',ArrowLeft:'LEFT',ArrowDown:'REVERSE',ArrowRight:'RIGHT',
- PageUp:'FORWARD',Home:'LEFT',PageDown:'REVERSE',End:'RIGHT'
+ KeyW:'FORWARD',KeyA:'LEFT',KeyS:'REVERSE',KeyD:'RIGHT'
 };
 const speedInput=el('linear-speed');
 function updateSpeedDisplay(){linearSpeed=Math.max(0.01,Math.min(0.4,Math.round(linearSpeed*100)/100));speedInput.value=linearSpeed.toFixed(2);set('linear-speed-value',linearSpeed.toFixed(2)+' m/s');}
@@ -55,8 +54,22 @@ let activeDriveKey=null,driveTimer=null,driveSending=false,driveEpoch=0;
 function cancelDrive(){const held=activeDriveKey!==null;if(driveTimer!==null){clearInterval(driveTimer);driveTimer=null;}activeDriveKey=null;driveEpoch++;return held;}
 async function drivePulse(){if(!activeDriveKey||driveSending)return;const key=activeDriveKey,epoch=driveEpoch;driveSending=true;try{commandQueue=commandQueue.then(()=>{if(activeDriveKey===key&&driveEpoch===epoch)return send(driveKeys[key],false);});await commandQueue;}finally{driveSending=false;}}
 function stopDrive(){if(cancelDrive())enqueue('MANUAL',false);}
-window.addEventListener('keydown',event=>{if(el('commands').hidden||event.target?.closest?.('input, select, textarea, [contenteditable], .speed-control'))return;const command=driveKeys[event.key];if(!command)return;event.preventDefault();if(event.repeat||activeDriveKey!==null||!current||current.connection!=='CONNECTED')return;activeDriveKey=event.key;drivePulse();const interval=current.manual_control?.repeat_interval_ms||100;driveTimer=setInterval(drivePulse,interval);});
-window.addEventListener('keyup',event=>{if(!driveKeys[event.key])return;event.preventDefault();if(event.key!==activeDriveKey)return;stopDrive();});
+// Physical keys keep the same controls with Shift/Caps Lock or Korean input.
+window.addEventListener('keydown',event=>{
+ if(el('commands').hidden||event.ctrlKey||event.altKey||event.metaKey||event.isComposing)return;
+ if(event.target?.closest?.('input:not([type="range"]), select, textarea, [contenteditable]'))return;
+ const key=event.code;
+ if(!driveKeys[key])return;
+ event.preventDefault();
+ if(event.repeat||activeDriveKey!==null||!current||current.connection!=='CONNECTED')return;
+ activeDriveKey=key;drivePulse();
+ const interval=current.manual_control?.repeat_interval_ms||100;
+ driveTimer=setInterval(drivePulse,interval);
+});
+window.addEventListener('keyup',event=>{
+ if(event.code!==activeDriveKey)return;
+ event.preventDefault();stopDrive();
+});
 window.addEventListener('blur',stopDrive);
 el('event-filter').addEventListener('change',drawEvents);
 setInterval(()=>{set('clock',clockTime());renderMonitoring();},1000);
