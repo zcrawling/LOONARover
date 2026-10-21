@@ -208,9 +208,10 @@ class GroundLinkConnection:
         if vector:
             payload = struct.pack("<dd", *normalize_motion(linear_mps, angular_radps))
         if wire_name == 'MANUAL' and self.state.flipped:
-            # Operator-selected inversion applies once to every manual client.
+            # Reverse translation and correct the previous flip steering
+            # direction for both web and Xbox commands: (-v, -w) -> (-v, w).
             v, w = struct.unpack('<dd', payload)
-            payload = struct.pack('<dd', -v, -w)
+            payload = struct.pack('<dd', -v, w)
         frame = HEADER.pack(b"LNK1", 1, COMMAND_TYPES[wire_name], sequence, len(payload)) + payload
         request_id = str(sequence)
         entry = {"request_id": request_id, "command": name, "state": "Pending",
@@ -229,7 +230,12 @@ class GroundLinkConnection:
                 writer.write(frame)
                 await asyncio.wait_for(writer.drain(), 3.0)
             self.state.tx += 1
-            return {"ok": True, "request_id": request_id, "text": f'"{name}" Sent'}
+            result = {"ok": True, "request_id": request_id, "text": f'"{name}" Sent'}
+            if wire_name == 'MANUAL':
+                sent_v, sent_w = struct.unpack('<dd', payload)
+                result['sent_motion'] = {'linear_mps': sent_v, 'angular_radps': sent_w,
+                                         'flipped': self.state.flipped}
+            return result
         except (OSError, ConnectionError, asyncio.TimeoutError):
             entry["state"] = "Result Unknown"
             self.state.event(f'"{name}" Result Unknown — 전송 중 연결 오류', request_id)

@@ -11,7 +11,7 @@ class Writer:
 
 
 class RealBackendTests(unittest.IsolatedAsyncioTestCase):
-    async def test_flip_reverses_web_and_controller_motion_and_restores(self):
+    async def test_flip_corrects_web_and_controller_steering_and_restores(self):
         state = RealState('test')
         state.connection = 'CONNECTED'
         link = GroundLinkConnection('test', 7443, state)
@@ -27,10 +27,10 @@ class RealBackendTests(unittest.IsolatedAsyncioTestCase):
                                ('LEFT', 0, .6), ('RIGHT', 0, -.6)]:
                 self.assertTrue((await link.command(name, .2, .6))['ok'])
                 self.assertEqual(struct.unpack('<dd', link.writer.data[-1][HEADER.size:]),
-                                 (sign*v, sign*w))
+                                 (sign*v, w))
             self.assertTrue((await link.command('MANUAL', linear_mps=.1, angular_radps=-.4))['ok'])
             self.assertEqual(struct.unpack('<dd', link.writer.data[-1][HEADER.size:]),
-                             (sign*.1, sign*-.4))
+                             (sign*.1, -.4))
             await link.command('MANUAL', linear_mps=0, angular_radps=0)
             self.assertEqual(struct.unpack('<dd', link.writer.data[-1][HEADER.size:]), (0, 0))
             for name in ('STOP', 'AUTO'):

@@ -7,6 +7,7 @@ import tempfile
 import unittest
 
 from backend.real_app import serve, HEADER
+from cli.xbox_control import Controls, LX, LY, RX, RY, LT, RT
 
 
 class ControllerApiTests(unittest.IsolatedAsyncioTestCase):
@@ -54,6 +55,35 @@ class ControllerApiTests(unittest.IsolatedAsyncioTestCase):
                         else:
                             self.assertEqual(header[2], 2)
                             self.assertEqual(struct.unpack('<dd', payload), values or (.1, 0))
+                    # Feed real Xbox A/B mappings through the Unix API and TCP,
+                    # including flip on/off and both directions on each stick.
+                    controls = Controls({axis:0.0 for axis in (LX,LY,RX,RY,LT,RT)})
+                    controls.focus(True)
+                    controls.manual = True
+                    for flipped in (False, True, False):
+                        if (await local({'action':'state'}))['flipped'] != flipped:
+                            self.assertEqual((await local({'action':'flip'}))['flipped'], flipped)
+                        for mode in ('A', 'B'):
+                            controls.mode = mode
+                            for direction in (-1, 1):
+                                controls.axes = {axis:0.0 for axis in (LX,LY,RX,RY,LT,RT)}
+                                if mode == 'A':
+                                    controls.axes[RX] = direction
+                                else:
+                                    controls.axes[LY] = -.5
+                                    controls.axes[LX] = direction * .5
+                                v, w = controls.motion()
+                                result = await local(dict(action='command', command='MANUAL',
+                                                          linear_mps=v, angular_radps=w))
+                                self.assertTrue(result['ok'])
+                                header, payload = await frames.get()
+                                self.assertEqual(header[2], 2)
+                                actual = struct.unpack('<dd', payload)
+                                sign = -1 if flipped else 1
+                                self.assertAlmostEqual(actual[0], sign*v)
+                                self.assertAlmostEqual(actual[1], w)
+                                self.assertEqual(result['sent_motion'], dict(
+                                    linear_mps=actual[0], angular_radps=actual[1], flipped=flipped))
                     self.assertEqual(len(peers), 1)
             finally:
                 task.cancel()

@@ -237,6 +237,7 @@ class Output:
         self.event_log = event_log
         self.active = False
         self.last = '대기'
+        self.sent_motion = None
 
     def send(self, command, motion=None):
         body = {'action': 'command', 'command': command}
@@ -264,6 +265,7 @@ class Output:
         if command == 'STOP':
             self.active = False
         self.last = result.get('text', command)
+        self.sent_motion = result.get('sent_motion')
 
     def stop(self):
         if self.active:
@@ -272,9 +274,15 @@ class Output:
 
 def render(device, controls, output, rover, now=None):
     v, w = controls.motion(now)
+    sent = output.sent_motion
+    sent_text = (f'TCP 전송값: 선속도 {sent["linear_mps"]:+.3f} m/s | '
+                 f'각속도 {sent["angular_radps"]:+.3f} rad/s | '
+                 f'FLIP {"ON" if sent["flipped"] else "OFF"}' if sent else
+                 'TCP 전송값: —')
     lines = [f'XBOX | 주행모드: {controls.mode} | 조종: {"MANUAL" if controls.manual else "STOP"} | k={controls.k:.1f} | c={controls.phase_deg}° | f={controls.f:.1f}Hz',
              f'터미널 포커스: {"ON" if controls.focused else "OFF / 다른 창으로 전환 후 돌아오세요"}',
-             f'로버 상태: {rover}', f'선속도 {v:+.3f} m/s | 각속도 {w:+.3f} rad/s',
+             f'로버 상태: {rover}', f'스틱 입력: 선속도 {v:+.3f} m/s | 각속도 {w:+.3f} rad/s',
+             sent_text,
              'LT: A/B 전환  RT: STOP/MANUAL 전환  Q/Ctrl+C: 정지 후 종료',
              'A: 왼쪽 전후 직진 / 오른쪽 좌우 제자리 회전 (회전 우선)',
              'B: 왼쪽 전후 + 좌우 조향 / 오른쪽 상하: f Hz 좌우 속도 변조 (우선)',
