@@ -1,5 +1,36 @@
 # LIMO I200DK / STOP-to-STOP ICP test
 
+## Shared bridge recovery and timestamp diagnostics
+
+The bridge is also used by LOONAR's `platforms/loonar/deploy/run-tof.sh`.
+It restarts its owned SDK helper on EOF, helper exit, or missing frames:
+`--startup-timeout 20`, `--frame-timeout 3`, `--retry-delay 2` (seconds).
+Retries continue until shutdown; a missing/disconnected camera is not reported
+as healthy. Each new helper has an independent reader and frame buffer, so frames
+from the previous session are not replayed. Recovery necessarily leaves a gap.
+
+`/tof/status` includes `state`, `restarts`, and fault reasons. Frame records also
+include `host_callback_ns`, `host_receive_ns`, `host_publish_ns` (after publish
+returns), and the unconverted `device_timestamp`. Waiting/restart records do not
+contain a frame timestamp. Consumers should check for that field before treating
+a status record as a frame.
+
+PointCloud2 headers remain host SDK callback time, **not calibrated exposure
+time**. The publisher checks for frames every 5 ms, publishes the latest frame at
+at most `--hz`, and deliberately skips excess SDK frames. Callback-to-recording
+delay is not an exposure-time correction. The SDK helper's pipe write remains
+blocking; receive/publish diagnostics make that downstream delay inspectable.
+
+SDK error 3 is `NoSuchDevice`. Restarting fixes the former silent, permanent
+stream stall when the device becomes available again; it cannot recover missing
+frames or guarantee a physically disconnected device returns.
+
+Synthetic recovery tests (source the installed ROS distribution first):
+
+```bash
+/usr/bin/python3 tools/cubeeye_ros/test_bridge_recovery.py
+```
+
 Deployed on wego@172.20.10.12. SDK lives outside the repository at ~/cubeeye_sdk
 (vendor Ubuntu22 SDK v2.5.11). Source bridge compiles its SDK helper into
 ~/.cache/loonar/cubeeye, leaving ROS Python separate from SDK native libraries.

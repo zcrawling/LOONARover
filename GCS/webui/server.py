@@ -1,5 +1,6 @@
 import argparse
 import json
+import math
 import secrets
 import signal
 import socket
@@ -13,6 +14,7 @@ from urllib.parse import urlparse
 from backend.config import ROOT, DEFAULT_CONFIG, load
 from backend.json_safe import dumps as json_dumps
 from cli.common import request
+from motion_limits import MAX_LINEAR, MAX_ANGULAR
 
 STATIC = Path(__file__).parent / 'static'
 COMMANDS = {'STOP', 'MANUAL', 'AUTO', 'PAYLOAD', 'REACTION',
@@ -81,12 +83,13 @@ class Handler(BaseHTTPRequestHandler):
             body = json.loads(self.rfile.read(length))
             if not isinstance(body, dict) or body.get('command') not in COMMANDS:
                 raise ValueError('지원하지 않는 명령입니다.')
-            speed = body.get('linear_speed_mps')
-            if speed is not None and (type(speed) not in (int, float) or not 0.01 <= speed <= 1.0):
-                raise ValueError('선속도 범위 오류')
-            angular = body.get('angular_speed_radps')
-            if angular is not None and (type(angular) not in (int, float) or not 0.01 <= angular <= 1.0):
-                raise ValueError('각속도 범위 오류')
+            for field, maximum in (('linear_speed_mps', MAX_LINEAR),
+                                   ('angular_speed_radps', MAX_ANGULAR)):
+                value = body.get(field)
+                if value is not None:
+                    if type(value) not in (int, float) or not math.isfinite(value):
+                        raise ValueError('속도는 유한한 숫자여야 합니다.')
+                    body[field] = max(0.0, min(maximum, value))
         except (ValueError, OSError, TypeError):
             return self.reply(400, {'error': '명령 형식이 올바르지 않습니다.'})
         try:

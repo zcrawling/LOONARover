@@ -20,7 +20,7 @@ Eon 공개 저장소의 원본 Shiu Brian2 모델과 FlyWire 783 데이터를 �
 # PC: 변경 파일 복사 + Pi ROS 빌드 (처음/업데이트 때)
 bash /home/sb/LOONAR/platforms/loonar/ros2/terrain_navigation/fly_brain/deploy_pi.sh 10.254.254.3
 
-# Pi: 센서·MCU·cFS·bag 기록 + AUTO 대기
+# Pi: 센서·MCU·cFS + AUTO 대기 (녹화 없음)
 bash ~/LOONAR/platforms/loonar/tools/start-ground-support.sh
 
 # PC: 기존 지상국
@@ -28,14 +28,26 @@ bash /home/sb/LOONAR/GCS/scripts/start_loonar_gcs.sh 10.254.254.3
 ```
 
 **AUTO**를 누르면 새 GNOME 터미널에서 `run_pc.sh --drive`가 실행된다.
-Pi는 cFS의 AUTO 선택을 받아 주행 노드를 시작하고, 유효한 신경망 결과가
+Pi는 cFS의 AUTO 선택을 받아 ToF SDK/ROS 어댑터, TF, 지형 처리,
+안전·정지 상태 감시를 시작한다. 유효한 heading을 받으면 주행 노드를 시작하고, 유효한 신경망 결과가
 도착하면 주행한다. 로딩/컴파일 중에는 전진하지 않는다. 중복 AUTO는
 터미널을 더 열거나 목표 heading을 초기화하지 않는다.
 
 **STOP**은 먼저 로버에 STOP을 보내고 PC 신경망 컨테이너와 Pi 주행 노드를
 종료한다. 수동주행 전환도 PC 신경망을 종료한다. 신경망 터미널 Ctrl+C/닫기는
-GCS STOP으로 이어진다. Pi 센서·지형 전처리·bag 기록·AUTO 감시는 남는다.
-Pi 명령의 Ctrl+C로 이 지원 스택과 기록까지 종료한다.
+GCS STOP으로 이어진다. STOP·수동·Payload 등 AUTO 이외 모드에서는
+Pi의 ToF·TF·지형 처리·안전/정지 감시·주행 노드와 그 하위 프로세스를 종료한다.
+모드 정보가 1초 넘게 끊겨도 종료한다. MCU 통신과 ROS base 상태·IMU 전달,
+AUTO supervisor, 기존 영상 송출은 계속 실행한다. 객체인식은 지상국 PC의
+영상 수신 창에서 실행하며, Pi 인식과 전용 BGR 변환은 기본으로 꺼진다.
+종료 중 새 AUTO가 들어오면 이전 프로세스 종료 후 시작하며, 같은 AUTO 명령으로 중복 실행하지 않는다.
+Pi 명령의 Ctrl+C로 이 지원 스택을 종료한다.
+`start-ground-support.sh --video`도 인자 없는 실행과 동일한 AUTO 지원 스택을 시작한다.
+기본 실행과 `--video`는 bag/원시 journal 녹화를 시작하지 않는다.
+`--record`는 기존 bench의 발행 중인 ROS 토픽 기록,
+`--record-all`은 기존 bench의 ToF·카메라 수집 및 전체 기록으로 유지한다.
+`--encoder-verify`, `--record`, `--record-all` 등 별도 bench 옵션이나 `LOONAR_FLY_LEGACY_SUPPORT=1`은
+기존 bench 경로를 사용하므로 AUTO 주행을 지원하지 않는다.
 기존 별도 `recording/run_pi.sh --mode fly` 또는 수동 `fly_brain/run_pc.sh`는
 이 모드와 동시에 실행하지 않는다. GCS 실행 전 Docker 모델 준비가 필요하다.
 
@@ -46,7 +58,9 @@ AUTO 시점의 `/imu/orientation_raw` yaw를 세션 목표로 저장한다. 아�
 제자리 회전으로 먼저 복구한다. 최대 전진 0.2 m/s, 회전 0.4 rad/s는 유지한다.
 이 기준은 절대 방위/경로 계획이 아닌 시작 방향 유지이며 IMU drift는 누적된다.
 
-bag은 Pi `~/loonar-bags/capture_*`에 생성한다. 기존 입력·출력 외에도
+AUTO와 전체 녹화를 함께 사용할 때는 Pi에서
+`bash ~/LOONAR/platforms/loonar/ros2/terrain_navigation/recording/run_pi.sh --mode gcs`를 명시적으로 실행한다.
+이 별도 녹화 실행기의 bag은 Pi `~/loonar-bags/capture_*`에 생성한다. 기존 입력·출력 외에도
 `/loonar/fly/status`의 `heading`과 `/loonar/fly/lifecycle`의 시작 목표·실행 상태를
 저장한다. 지상국은 기존 TCP **7443**을 사용한다.
 

@@ -71,6 +71,11 @@ run_case() {
 }
 
 export DETECTOR_FAIL=0 PLUGIN_STATUS=0
+run_case gcs_detection_default
+! grep -q '^vision ' "$TRACE"
+! grep -q shmsink "$TRACE.pipeline"
+
+export LOONAR_FLY_VISION=1
 run_case normal
 grep -q shmsink "$TRACE.pipeline"
 grep -q vision-stopped "$TRACE"

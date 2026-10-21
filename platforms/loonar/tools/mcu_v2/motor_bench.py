@@ -150,9 +150,9 @@ def main():
                 environment["VIDEO_RECORD_PATH"] = str(recording)
                 print(f"Camera recording path: {recording}; status: {runtime}/video.log", flush=True)
             video_script = Path(__file__).resolve().parents[2] / "deploy/run-video.sh"
-            # The legacy --video path needs the same shared-frame detector as
-            # the default GCS launcher. Detection failure is optional to driving.
-            vision_enabled = bool(args.video_ip) and os.environ.get("LOONAR_FLY_VISION", "1") == "1"
+            # Detection runs on decoded GCS video by default; explicit Pi
+            # inference retains the shared camera branch for diagnostics.
+            vision_enabled = bool(args.video_ip) and os.environ.get("LOONAR_FLY_VISION", "0") == "1"
             if vision_enabled:
                 config = Path(environment.get("LOONAR_VISION_CONFIG", "/etc/loonar/vision.yaml"))
                 python = Path(environment.get("LOONAR_VISION_PYTHON", "/opt/loonar/vision-venv/bin/python"))

@@ -36,7 +36,9 @@ class BenchVisionTests(unittest.TestCase):
                 return subprocess.CompletedProcess(command, 1 if command[0] == 'systemctl' else 0)
 
             env = {'LOONAR_VISION_CONFIG': str(config), 'LOONAR_VISION_PYTHON': sys.executable,
-                   'LOONAR_FLY_VISION': str(int(enabled))}
+                   'LOONAR_FLY_VISION': str(int(bool(enabled)))}
+            if enabled is None:
+                del env["LOONAR_FLY_VISION"]
             args = ['motor_bench', '--registry', str(root/'registry'), '--runtime', str(root/'runtime'),
                     '--gateway-bin', str(gateway), '--video-ip', '10.254.254.2']
             with patch.dict(os.environ, env), patch.object(sys, 'argv', args), \
@@ -45,6 +47,8 @@ class BenchVisionTests(unittest.TestCase):
                  patch.object(motor_bench.signal, 'signal'), \
                  patch.object(motor_bench.subprocess, 'run', side_effect=fake_run), \
                  patch.object(motor_bench.subprocess, 'Popen', side_effect=fake_child):
+                if enabled is None:
+                    os.environ.pop("LOONAR_FLY_VISION", None)
                 with self.assertRaisesRegex(RuntimeError, 'gateway exited'):
                     motor_bench.main()
             video = next(env for name, env in launched if name == 'video')
@@ -62,6 +66,9 @@ class BenchVisionTests(unittest.TestCase):
 
     def test_explicit_opt_out(self):
         self.run_bench(False)
+
+    def test_default_uses_gcs_detection(self):
+        self.run_bench(None)
 
 
 if __name__ == '__main__':

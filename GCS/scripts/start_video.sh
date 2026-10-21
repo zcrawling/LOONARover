@@ -40,7 +40,7 @@ fi
 printf '[LOONAR] UDP 5600 영상 수신을 기다립니다. 종료: Ctrl+C\n'
 printf '[LOONAR] 영상이 나오지 않으면 로버의 송신 대상 IP를 확인하세요.\n'
 if [[ $COMPASS == 1 ]]; then
-    printf '[LOONAR] Pi 인식 결과 UDP 5601 수신; 모델은 Pi에서 실행됩니다.\n'
+    printf '[LOONAR] 지상국 PC에서 수신 영상 객체인식 실행 (CPU, 최대 10 Hz).\n'
 fi
 if [[ $RECORD == 0 && $COMPASS == 0 ]]; then
     exec ffplay -hide_banner -loglevel warning -fflags nobuffer -flags low_delay \
@@ -54,8 +54,10 @@ fi
 PLAYER=(ffplay -hide_banner -loglevel warning -fflags nobuffer -flags low_delay
         -framedrop -probesize 32 -analyzeduration 0 "${VIDEO_FILTER[@]}" -i pipe:0)
 if [[ $COMPASS == 1 ]]; then
-    # Inference runs on the Pi; this viewer only needs Tk/Pillow and UDP metadata.
-    VIDEO_PYTHON=${LOONAR_VIDEO_PYTHON:-/usr/bin/python3}
+    VIDEO_PYTHON=${LOONAR_VIDEO_PYTHON:-"$GCS_ROOT/.venv-vision/bin/python"}
+    if [[ ! -x $VIDEO_PYTHON && -z ${LOONAR_VIDEO_PYTHON:-} ]]; then
+        VIDEO_PYTHON=/usr/bin/python3
+    fi
     printf '[LOONAR] 영상 Python: %s\n' "$VIDEO_PYTHON"
     if ! "$VIDEO_PYTHON" -c 'import tkinter; from PIL import Image, ImageTk' 2>/dev/null; then
         show_error "방위 표시: sudo apt install python3-tk python3-pil python3-pil.imagetk"
@@ -64,7 +66,9 @@ if [[ $COMPASS == 1 ]]; then
     export PYTHONPATH="$GCS_ROOT${PYTHONPATH:+:$PYTHONPATH}"
     PLAYER=("$VIDEO_PYTHON" -m cli.video_compass)
     if [[ $ROTATE_LEFT == 1 ]]; then PLAYER+=(--rotate-left); fi
-    if [[ -n ${LOONAR_VISION_SENDER_IP:-} ]]; then PLAYER+=(--vision-sender "$LOONAR_VISION_SENDER_IP"); fi
+    if ! "$VIDEO_PYTHON" -c 'import torch, ultralytics' 2>/dev/null; then
+        printf '[LOONAR] PC 인식 의존성 없음: %s -m pip install ultralytics\n' "$VIDEO_PYTHON" >&2
+    fi
 fi
 RECORD_OUTPUT=()
 if [[ $RECORD == 1 ]]; then
@@ -93,7 +97,7 @@ trap 'exit 130' INT
 trap 'exit 143' TERM
 trap 'exit 129' HUP
 mkfifo "$PREVIEW_DIR/stream.ts"
-printf '[LOONAR] 영상 창을 닫거나 Ctrl+C를 누르면 녹화가 종료됩니다.\n'
+printf '[LOONAR] 영상 창을 닫거나 Ctrl+C를 누르면 종료됩니다.\n'
 # One UDP receiver; copy the encoded video to disk and the local preview.
 # MPEG-TS stays readable without the finalization required by ordinary MP4.
 ffmpeg -hide_banner -loglevel warning -nostdin -n \

@@ -1,0 +1,42 @@
+Oct 21 14:32:18 sb-ThinkPad-X1-Carbon-Gen-9 kernel: [0;1;31m[0;1;39m[0;1;31mKHO: Failed to reserve lowmem scratch buffer[0m
+Oct 21 14:32:18 sb-ThinkPad-X1-Carbon-Gen-9 kernel: [0;1;31m[0;1;39m[0;1;31mkobject: kobject_add_internal failed for printer (error: -2 parent: parport_pc.632)[0m
+Oct 21 14:32:20 sb-ThinkPad-X1-Carbon-Gen-9 kernel: [0;1;31m[0;1;39m[0;1;31mi801_smbus 0000:00:1f.4: SMBus is busy, can't use it![0m
+Oct 21 14:32:20 sb-ThinkPad-X1-Carbon-Gen-9 kernel: [0;1;31m[0;1;39m[0;1;31mi801_smbus 0000:00:1f.4: SMBus is busy, can't use it![0m
+Oct 21 14:32:20 sb-ThinkPad-X1-Carbon-Gen-9 kernel: [0;1;31m[0;1;39m[0;1;31mi801_smbus 0000:00:1f.4: SMBus is busy, can't use it![0m
+Oct 21 14:32:20 sb-ThinkPad-X1-Carbon-Gen-9 kernel: [0;1;31m[0;1;39m[0;1;31mi801_smbus 0000:00:1f.4: SMBus is busy, can't use it![0m
+Oct 21 14:32:20 sb-ThinkPad-X1-Carbon-Gen-9 kernel: [0;1;31m[0;1;39m[0;1;31mi801_smbus 0000:00:1f.4: SMBus is busy, can't use it![0m
+Oct 21 14:32:20 sb-ThinkPad-X1-Carbon-Gen-9 kernel: [0;1;31m[0;1;39m[0;1;31mi801_smbus 0000:00:1f.4: SMBus is busy, can't use it![0m
+Oct 21 14:32:20 sb-ThinkPad-X1-Carbon-Gen-9 kernel: [0;1;31m[0;1;39m[0;1;31mi801_smbus 0000:00:1f.4: SMBus is busy, can't use it![0m
+Oct 21 14:32:21 sb-ThinkPad-X1-Carbon-Gen-9 (daqnavi_daemon)[1950]: [0;1;31m[0;1;39m[0;1;31mdaqnavi_daemon.service: Failed at step EXEC spawning /opt/advantech/daqnavi_daemon/daqnavi_daemon: No such file or directory[0m
+[0;38:5:245m░░ [0m[0;32mSubject: Process /opt/advantech/daqnavi_daemon/daqnavi_daemon could not be executed[0m
+[0;38:5:245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38:5:245m░░[0m [0;32mSupport: http://www.ubuntu.com/support[0m
+[0;38:5:245m░░[0m [0;32m[0m
+[0;38:5:245m░░[0m [0;32mThe process /opt/advantech/daqnavi_daemon/daqnavi_daemon could not be executed and failed.[0m
+[0;38:5:245m░░[0m [0;32m[0m
+[0;38:5:245m░░[0m [0;32mThe error number returned by this process is 2.[0m
+Oct 21 14:32:21 sb-ThinkPad-X1-Carbon-Gen-9 (kingservice_start.sh)[2360]: [0;1;31m[0;1;39m[0;1;31mdaqnavi_kingservice.service: Failed at step EXEC spawning /opt/advantech/edge_core/king_service/kingservice_start.sh: No such file or directory[0m
+[0;38:5:245m░░ [0m[0;32mSubject: Process /opt/advantech/edge_core/king_service/kingservice_start.sh could not be executed[0m
+[0;38:5:245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38:5:245m░░[0m [0;32mSupport: http://www.ubuntu.com/support[0m
+[0;38:5:245m░░[0m [0;32m[0m
+[0;38:5:245m░░[0m [0;32mThe process /opt/advantech/edge_core/king_service/kingservice_start.sh could not be executed and failed.[0m
+[0;38:5:245m░░[0m [0;32m[0m
+[0;38:5:245m░░[0m [0;32mThe error number returned by this process is 2.[0m
+Oct 21 14:32:27 sb-ThinkPad-X1-Carbon-Gen-9 systemd[2880]: [0;1;31m[0;1;39m[0;1;31mFailed to start ydotool.service - Starts ydotoold service.[0m
+[0;38:5:245m░░ [0m[0;32mSubject: A start job for unit UNIT has failed[0m
+[0;38:5:245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38:5:245m░░[0m [0;32mSupport: http://www.ubuntu.com/support[0m
+[0;38:5:245m░░[0m [0;32m[0m
+[0;38:5:245m░░[0m [0;32mA start job for unit UNIT has finished with a failure.[0m
+[0;38:5:245m░░[0m [0;32m[0m
+[0;38:5:245m░░[0m [0;32mThe job identifier is 389 and the job result is failed.[0m
+Oct 21 14:32:34 sb-ThinkPad-X1-Carbon-Gen-9 gdm-password][4721]: [0;1;31m[0;1;39m[0;1;31mgkr-pam: unable to locate daemon control file[0m
+Oct 21 14:32:43 sb-ThinkPad-X1-Carbon-Gen-9 systemd[2743]: [0;1;31m[0;1;39m[0;1;31mFailed to start org.freedesktop.IBus.session.GNOME.service - IBus Daemon for GNOME.[0m
+[0;38:5:245m░░ [0m[0;32mSubject: A start job for unit UNIT has failed[0m
+[0;38:5:245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38:5:245m░░[0m [0;32mSupport: http://www.ubuntu.com/support[0m
+[0;38:5:245m░░[0m [0;32m[0m
+[0;38:5:245m░░[0m [0;32mA start job for unit UNIT has finished with a failure.[0m
+[0;38:5:245m░░[0m [0;32m[0m
+[0;38:5:245m░░[0m [0;32mThe job identifier is 834 and the job result is failed.[0m

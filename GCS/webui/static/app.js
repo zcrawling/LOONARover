@@ -27,6 +27,7 @@ function draw(s){
  set('health',connectionLabels[s.connection]||s.connection);set('mode',s.status?.mode||'—');set('age',s.last_rx_age==null?'—':`${s.last_rx_age.toFixed(1)}초`);set('counts',`${s.rx_messages} / ${s.tx_messages}`);set('gaps',s.data_gaps);
  const notice=el('notice');notice.hidden=good;notice.className='notice'+(good?'':' error');notice.textContent=good?'로버가 연결되었습니다.':`TCP ${s.connection} · 현재 상태를 확인할 수 없습니다. 명령 전송을 사용할 수 없습니다.`;
  badge('stale',s.status_stale?'이전 상태':'갱신 중',s.status_stale?'warn':'good');
+ badge('flip-state',s.flipped?'FLIP ON · 뒤집힘 보정':'FLIP OFF · 정상 방향',s.flipped?'warn':'');
  updateMonitoring(s);
  const p=s.status?.payload||{};badge('payload-state',p.state||'IDLE',p.state==='MEASURING'?'good':'');
  drawPayload(s);
@@ -51,8 +52,23 @@ angularSpeedInput.addEventListener('input',()=>{angularSpeed=Number(angularSpeed
 el('angular-speed-control').addEventListener('wheel',event=>{event.preventDefault();angularSpeed+=event.deltaY<0?0.01:-0.01;angularSpeedInitialized=true;updateAngularSpeedDisplay();},{passive:false});
 updateAngularSpeedDisplay();
 let activeDriveKey=null,driveTimer=null,driveSending=false,driveEpoch=0;
-function cancelDrive(){const held=activeDriveKey!==null;if(driveTimer!==null){clearInterval(driveTimer);driveTimer=null;}activeDriveKey=null;driveEpoch++;return held;}
-async function drivePulse(){if(!activeDriveKey||driveSending)return;const key=activeDriveKey,epoch=driveEpoch;driveSending=true;try{commandQueue=commandQueue.then(()=>{if(activeDriveKey===key&&driveEpoch===epoch)return send(driveKeys[key],false);});await commandQueue;}finally{driveSending=false;}}
+const heldDriveKeys=new Set();
+function cancelDrive(){const held=activeDriveKey!==null;if(driveTimer!==null){clearInterval(driveTimer);driveTimer=null;}heldDriveKeys.clear();activeDriveKey=null;driveEpoch++;return held;}
+async function drivePulse(){
+ if(!activeDriveKey||driveSending)return;
+ const key=activeDriveKey,epoch=driveEpoch;
+ driveSending=true;
+ try{
+  commandQueue=commandQueue.then(()=>{
+   if(activeDriveKey===key&&driveEpoch===epoch)return send(driveKeys[key],false);
+  });
+  await commandQueue;
+ }finally{
+  driveSending=false;
+  // A direction change during an HTTP request takes effect as soon as it ends.
+  if(activeDriveKey&&driveEpoch!==epoch)drivePulse();
+ }
+}
 function stopDrive(){if(cancelDrive())enqueue('MANUAL',false);}
 // Physical keys keep the same controls with Shift/Caps Lock or Korean input.
 window.addEventListener('keydown',event=>{
@@ -61,14 +77,21 @@ window.addEventListener('keydown',event=>{
  const key=event.code;
  if(!driveKeys[key])return;
  event.preventDefault();
- if(event.repeat||activeDriveKey!==null||!current||current.connection!=='CONNECTED')return;
- activeDriveKey=key;drivePulse();
- const interval=current.manual_control?.repeat_interval_ms||100;
- driveTimer=setInterval(drivePulse,interval);
+ if(event.repeat||heldDriveKeys.has(key)||!current||current.connection!=='CONNECTED')return;
+ heldDriveKeys.add(key);
+ activeDriveKey=key;driveEpoch++;drivePulse();
+ if(driveTimer===null){
+  const interval=current.manual_control?.repeat_interval_ms||100;
+  driveTimer=setInterval(drivePulse,interval);
+ }
 });
 window.addEventListener('keyup',event=>{
+ if(!heldDriveKeys.delete(event.code))return;
+ event.preventDefault();
  if(event.code!==activeDriveKey)return;
- event.preventDefault();stopDrive();
+ const remaining=[...heldDriveKeys];
+ if(!remaining.length){stopDrive();return;}
+ activeDriveKey=remaining[remaining.length-1];driveEpoch++;drivePulse();
 });
 window.addEventListener('blur',stopDrive);
 el('event-filter').addEventListener('change',drawEvents);
@@ -85,7 +108,7 @@ resetReaction();
 // UI history is bounded to one minute and is never filled with invented samples.
 const chartSpecs = {
  temperature: {unit:'°C', digits:1, range:[30, 90]},
- battery: {unit:'V', digits:2, range:[10, 18]},
+ battery: {unit:'V', digits:2, range:[10, 13], fixedRange:true},
  wifi: {unit:'dBm', digits:0, range:[-100, -30]},
 };
 const monitorHistory = Object.fromEntries(Object.keys(chartSpecs).map(key=>[key, []]));
@@ -139,8 +162,8 @@ function renderMonitoring(now = Date.now()) {
   const history = monitorHistory[key];
   while (history.length && history[0].time < now - 60000) history.shift();
   const valid = history.filter(point=>Number.isFinite(point.value));
-  const low = Math.min(spec.range[0], ...valid.map(point=>point.value));
-  const high = Math.max(spec.range[1], ...valid.map(point=>point.value));
+  const low = spec.fixedRange ? spec.range[0] : Math.min(spec.range[0], ...valid.map(point=>point.value));
+  const high = spec.fixedRange ? spec.range[1] : Math.max(spec.range[1], ...valid.map(point=>point.value));
   const value = values[key];
   set(key+'-reading', Number.isFinite(value) ? `${value.toFixed(spec.digits)} ${spec.unit}` : '—');
   set(key+'-quality', Number.isFinite(value) ? '최근 60초' : (valid.length ? '수신 끊김 · 이전 기록' : '데이터 없음'));
@@ -150,7 +173,7 @@ function renderMonitoring(now = Date.now()) {
   for (const point of history) {
    if (!Number.isFinite(point.value)) {previous = null; continue;}
    const x = 38 + (point.time - now + 60000) / 60000 * 270;
-   const y = 108 - (point.value - low) / (high - low) * 96;
+   const y = 108 - (Math.max(low, Math.min(high, point.value)) - low) / (high - low) * 96;
    const connected = previous && point.time - previous.time < 3000;
    path += `${connected ? 'L' : 'M'}${x.toFixed(2)},${y.toFixed(2)} `;
    // A single sample is visible too; gaps remain unconnected.

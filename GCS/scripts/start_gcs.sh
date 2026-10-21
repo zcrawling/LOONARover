@@ -69,6 +69,7 @@ if [[ -n $RUNNING_SOURCE ]]; then
     if [[ $RUNNING_SOURCE == "REAL ROVER / $ROVER_IP" ]]; then
         printf '[LOONAR] 같은 로버의 지상국이 이미 실행 중입니다. 기존 화면을 엽니다.\n'
         open_gcs_windows
+        python3 -B -m cli.session_console
         exit 0
     fi
     show_error "8080 포트에서 다른 지상국이 실행 중입니다: $RUNNING_SOURCE"
@@ -110,4 +111,5 @@ else
 fi
 
 printf '[LOONAR] 실행 중입니다. 종료하려면 Ctrl+C를 누르세요.\n'
+python3 -B -m cli.session_console --server-pid "$SERVER_PID"
 wait "$SERVER_PID"

@@ -11,6 +11,39 @@ class Writer:
 
 
 class RealBackendTests(unittest.IsolatedAsyncioTestCase):
+    async def test_flip_reverses_web_and_controller_motion_and_restores(self):
+        state = RealState('test')
+        state.connection = 'CONNECTED'
+        link = GroundLinkConnection('test', 7443, state)
+        link.writer = Writer()
+        for flipped in (False, True, False):
+            if state.flipped != flipped:
+                before = len(link.writer.data)
+                self.assertEqual((await link.toggle_flip())['flipped'], flipped)
+                self.assertEqual(len(link.writer.data), before)
+            self.assertEqual(state.snapshot()['flipped'], flipped)
+            sign = -1 if flipped else 1
+            for name, v, w in [('FORWARD', .2, 0), ('REVERSE', -.2, 0),
+                               ('LEFT', 0, .6), ('RIGHT', 0, -.6)]:
+                self.assertTrue((await link.command(name, .2, .6))['ok'])
+                self.assertEqual(struct.unpack('<dd', link.writer.data[-1][HEADER.size:]),
+                                 (sign*v, sign*w))
+            self.assertTrue((await link.command('MANUAL', linear_mps=.1, angular_radps=-.4))['ok'])
+            self.assertEqual(struct.unpack('<dd', link.writer.data[-1][HEADER.size:]),
+                             (sign*.1, sign*-.4))
+            await link.command('MANUAL', linear_mps=0, angular_radps=0)
+            self.assertEqual(struct.unpack('<dd', link.writer.data[-1][HEADER.size:]), (0, 0))
+            for name in ('STOP', 'AUTO'):
+                await link.command(name)
+                self.assertEqual(link.writer.data[-1][HEADER.size:], b'')
+
+    async def test_flip_works_offline_without_sending_commands(self):
+        state = RealState('test')
+        link = GroundLinkConnection('test', 7443, state)
+        self.assertTrue((await link.toggle_flip())['flipped'])
+        self.assertFalse((await link.toggle_flip())['flipped'])
+        self.assertEqual(state.tx, 0)
+
     async def test_reaction_tuning_is_validated_and_packed(self):
         from mcu_v2.reaction_wheel import Settings
         state = RealState('test'); state.connection = 'CONNECTED'

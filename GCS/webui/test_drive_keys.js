@@ -41,6 +41,44 @@ function browser() {
 const tick = () => new Promise(resolve => setImmediate(resolve));
 const key = {key: 'w', code:'KeyW', repeat: false, preventDefault() {}};
 
+test('overlapping W/A/D switches immediately after in-flight request and resumes held key', async () => {
+  const b=browser(), left={...key,code:'KeyA'}, right={...key,code:'KeyD'};
+  b.events.get('keydown')(key); await tick();
+  b.events.get('keydown')(left);
+  b.requests[0].finish(); await tick();
+  assert.deepEqual(b.requests.map(r=>r.command),['FORWARD','LEFT']);
+  b.events.get('keydown')(right);
+  b.requests[1].finish(); await tick();
+  assert.equal(b.requests[2].command,'RIGHT');
+  b.events.get('keyup')(right);
+  b.requests[2].finish(); await tick();
+  assert.equal(b.requests[3].command,'LEFT');
+  b.events.get('keyup')(key); // Releasing an older key must not cancel the turn.
+  b.requests[3].finish(); await tick();
+  assert.equal(b.requests.length,4);
+  b.events.get('keyup')(left); await tick();
+  assert.equal(b.requests[4].command,'MANUAL');
+  b.requests[4].finish(); await tick();
+});
+
+test('release or STOP or blur discards an unsent overlapping turn', async () => {
+  for(const ending of ['release','STOP','blur']){
+    const b=browser(), left={...key,code:'KeyA'};
+    b.events.get('keydown')(key); await tick();
+    b.events.get('keydown')(left);
+    if(ending==='release'){
+      b.events.get('keyup')(key); b.events.get('keyup')(left);
+    }else if(ending==='STOP')b.node('STOP').click();
+    else b.events.get('blur')();
+    b.requests[0].finish(); await tick();
+    assert.deepEqual(b.requests.map(r=>r.command),['FORWARD',ending==='STOP'?'STOP':'MANUAL']);
+    b.requests[1].finish(); await tick();
+    b.events.get('keyup')(left); b.events.get('keyup')(key);
+    for(const timer of b.timers.values())timer();
+    await tick();assert.equal(b.requests.length,2);
+  }
+});
+
 test('key release queues zero after an in-flight motion request', async () => {
   const b = browser();
   b.events.get('keydown')(key);

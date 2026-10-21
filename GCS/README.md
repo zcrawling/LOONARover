@@ -25,19 +25,29 @@ Python 3.11 이상, SSH, ffmpeg/ffplay, gnome-terminal, xdg-open이 필요하다
 | PC 영상 수신 | UDP 5600, H.264/MPEG-TS |
 | PC backend | `GCS/.runtime/backend.sock` |
 
-WASD로 주행한다(W 전진, S 후진, A/D 좌·우 회전). 키 해제·포커스 상실 시
-속도 0을 요청한다. 방향키는 슬라이더 조절에 사용하며, 슬라이더에 포커스가
+WASD로 주행한다(W 전진, S 후진, A/D 좌·우 회전). 여러 키를 누르면 마지막으로
+누른 방향을 우선하고, 그 키를 놓으면 아직 누르고 있는 이전 방향으로 돌아간다.
+모든 주행 키 해제·포커스 상실 시 속도 0을 요청한다. 방향키는 슬라이더 조절에 사용하며, 슬라이더에 포커스가
 있어도 WASD로 주행할 수 있다. 숫자·텍스트 입력 중에는 주행 키가 동작하지 않는다.
 STOP은 별도 모드 명령이다. Xbox LT는 A/B, RT는 STOP/MANUAL을 전환하며
 Xbox 터미널에 포커스가 있을 때만 입력한다. [상세 조작](docs/xbox-controller.md).
 종료 전 STOP을 누르고 PC와 Pi의 실행 터미널에서 Ctrl+C한다.
 
+지상국 실행 터미널에서 `flip` 입력 후 Enter를 누르면 뒤집힘 보정을 전환한다.
+ON에서는 영상이 180° 회전하고 웹 WASD·Xbox의 선속도와 각속도 부호가 모두 반전된다
+(전진↔후진, 좌회전↔우회전). 다시 `flip`을 입력하면 원상 복구된다.
+상태는 웹·영상·Xbox 창에 표시되며 백엔드 재시작 시 OFF로 초기화된다.
+이 설정은 지상국 수동주행에 적용되며 Pi AUTO 알고리즘이나 저장되는 원본 영상은 바꾸지 않는다.
+
 선속도 상한은 0.4m/s, 회전 상한은 3.8rad/s다. 혼합 주행은 바퀴 속도가
-0.4m/s를 넘지 않도록 정규화한다. **남은 불일치:** 웹 HTTP 입력 검사는 아직
-각속도 1.0rad/s 초과를 거부한다(`webui/server.py`). 이 문서 정리에서 코드는 수정하지 않았다.
+0.4m/s를 넘지 않도록 정규화한다. 웹 HTTP 속도 입력도 같은 상한으로 제한하며,
+범위를 넘는 유한한 숫자는 거부하지 않고 0부터 해당 상한 사이로 맞춘다.
 
 Payload 버튼은 [별도 Pi 서비스](../platforms/loonar/porting/payload_pca_runbook.md)가 필요하다.
 영상 탐지는 [Mission02 안내](docs/mission02-object-detection.md)를 참고한다.
+기본 영상 창은 지상국 PC CPU에서 객체인식을 실행한다. 기존
+`GCS/.venv-vision`과 `GCS/models/mission02/best.pt`를 사용하며,
+Pi의 객체인식 및 인식 전용 영상 변환은 기본 비활성화된다.
 
 ## Payload 시퀀스 그래프
 

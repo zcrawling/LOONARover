@@ -93,7 +93,14 @@ def main(gcs=False):
             pubs['result'].publish(String(data=json.dumps(packet)))
         node.create_subscription(String, '/loonar/fly/input', input_message, qos_profile_sensor_data)
         log = (root/('log/gcs-ros-process.log' if gcs else 'log/drive-ros-process.log')).open('w')
-        process = subprocess.Popen(([sys.executable, '-m', 'loonar_fly.supervisor'] if gcs else
+        # Exercise production group ownership without opening physical ToF/MCU.
+        worker = [sys.executable, '-c', 'import time; time.sleep(300)']
+        supervisor_code = (
+            'from loonar_fly import supervisor; '
+            f'supervisor.sensor_commands=lambda _: {dict(sensors=worker, terrain=worker)!r}; '
+            'supervisor.main()'
+        )
+        process = subprocess.Popen(([sys.executable, '-c', supervisor_code, '--params-file', '/unused/test.yaml'] if gcs else
                                     [sys.executable, '-m', 'loonar_fly.drive_node', '--gateway-socket', path]),
                                    stdout=log, stderr=subprocess.STDOUT)
 

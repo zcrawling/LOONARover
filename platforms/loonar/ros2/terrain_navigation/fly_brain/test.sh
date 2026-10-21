@@ -5,7 +5,7 @@ ROOT=$(cd -- "$FLY_DIR/../../../../.." && pwd)
 case "${1:-unit}" in
   unit)
     exec docker run --rm --user "$(id -u):$(id -g)" -v "$FLY_DIR:/fly" \
-      loonar-fly-brain:783 /opt/fly-env/bin/python -m pytest tests/test_interface.py tests/test_drive.py tests/test_avoidance.py tests/test_vision.py tests/test_heading.py tests/test_gcs_pc.py -q ;;
+      loonar-fly-brain:783 /opt/fly-env/bin/python -m pytest tests/test_interface.py tests/test_drive.py tests/test_avoidance.py tests/test_vision.py tests/test_heading.py tests/test_gcs_pc.py tests/test_auto_processes.py -q ;;
   parity)
     exec docker run --rm --user "$(id -u):$(id -g)" -v "$FLY_DIR:/fly" \
       -e PYTHONPATH=/fly loonar-fly-brain:783 \

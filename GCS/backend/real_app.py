@@ -72,6 +72,7 @@ class RealState:
         self.pi_temperature = None
         self.pi_temperature_at = None
         self.reaction = {'state': 'UNKNOWN'}
+        self.flipped = False
 
     def event(self, text, request_id=None):
         self.event_sequence += 1
@@ -88,6 +89,7 @@ class RealState:
         active = self.connection == "CONNECTED"
         return {
             "source": f"REAL ROVER / {self.host}",
+            "flipped": self.flipped,
             "connection": self.connection,
             "error": self.error,
             "status": {"mode": self.mode, "values": dict(self.values), "value_sources": dict(self.value_sources), "payload": dict(self.payload)},
@@ -133,6 +135,13 @@ class GroundLinkConnection:
     def next_sequence(self):
         self.state.sequence = 1 if self.state.sequence >= 0xFFFFFFFF else self.state.sequence + 1
         return self.state.sequence
+
+    async def toggle_flip(self):
+        async with self.command_lock:
+            self.state.flipped = not self.state.flipped
+            text = 'FLIP ON · 뒤집힘 보정' if self.state.flipped else 'FLIP OFF · 정상 방향'
+            self.state.event(text)
+            return {'ok': True, 'flipped': self.state.flipped, 'text': text}
 
     async def command(self, name, *args, **kwargs):
         async with self.command_lock:
@@ -198,6 +207,10 @@ class GroundLinkConnection:
             payload = reaction_payload
         if vector:
             payload = struct.pack("<dd", *normalize_motion(linear_mps, angular_radps))
+        if wire_name == 'MANUAL' and self.state.flipped:
+            # Operator-selected inversion applies once to every manual client.
+            v, w = struct.unpack('<dd', payload)
+            payload = struct.pack('<dd', -v, -w)
         frame = HEADER.pack(b"LNK1", 1, COMMAND_TYPES[wire_name], sequence, len(payload)) + payload
         request_id = str(sequence)
         entry = {"request_id": request_id, "command": name, "state": "Pending",
@@ -445,6 +458,8 @@ async def serve(host, port, config_path=DEFAULT_CONFIG, local_socket=LOCAL_SOCKE
             request = json.loads(await asyncio.wait_for(reader.readline(), 5))
             if request.get("action") == "state":
                 response = state.snapshot()
+            elif request.get("action") == "flip":
+                response = await connection.toggle_flip()
             elif request.get("action") == "command" and isinstance(request.get("command"), str):
                 response = await connection.command(
                     request["command"], request.get("linear_speed_mps"),

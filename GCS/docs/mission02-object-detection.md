@@ -1,112 +1,58 @@
-# Mission 02: Raspberry Pi RGB detection
+# 지상국 PC 객체인식
 
-## Data path
+## 실행
+
+Pi에서 영상 지원 프로그램을 실행한다:
+
+```bash
+bash ~/LOONAR/platforms/loonar/tools/start-ground-support.sh --video
+```
+
+PC에서는 기존 영상 창을 닫고 실행한다:
+
+```bash
+bash ~/LOONAR/GCS/scripts/start_video.sh
+```
+
+기본 실행은 방위 표시·왼쪽 90도 회전·PC 객체인식을 켠다. 옵션을 명시할 때는
+`--compass --rotate-left`를 넣는다. `--compass` 없는 ffplay 경로는 영상만 표시한다.
+PC 영상 녹화는 `--record`를 명시해야 켜지며, Pi의 `--record`/`--record-all`과 별개다.
+
+## 처리 경로
 
 ```text
-Camera Module 3 Wide (Pi, 640x360 at 30 fps)
-  └─ one loonar-video-stream capture
-       ├─ unchanged H.264 MPEG-TS → UDP 5600 → GCS portrait viewer
-       └─ leaky one-frame branch → shared memory → Pi ROS 2 YOLO node
-            └─ 90° counterclockwise, 360x640 detection coordinates
-                 ├─ /vision/detections and /vision/target_cue (JSON String)
-                 └─ UDP 5601 metadata → boxes/direction in that same GCS viewer
+Pi 카메라 → H.264/MPEG-TS → UDP 5600 → PC FFmpeg 디코딩·회전
+                                           ├─ 영상 표시
+                                           └─ 최신 프레임 1개 → PC YOLO → 박스 표시
 ```
 
-Video display never waits for the detector. The GCS does not run YOLO or need
-Ultralytics, PyTorch, or CUDA. Recording stays in the original 640x360 encoded
-format. ToF and motor commands are not part of this path.
+별도 작업 스레드가 CPU 2개 스레드로 최대 10 Hz 추론한다. 추론 중 들어온 프레임은
+최신 1개만 유지하고, 영상 표시는 추론 완료를 기다리지 않는다. 디코딩 이후 대기·추론·표시
+경과 시간이 500 ms를 넘은 결과는 박스를 숨긴다. 이 시간은 카메라 촬영부터 표시까지의
+전체 지연 측정값이 아니다. 인식 결과는 표시용이며 주행 명령을 보내지 않는다.
 
-The Pi reads a validated NCNN model directory named in `/etc/loonar/vision.yaml`.
-The public COCO demo can draw generic object boxes (`obstacle`) but cannot
-identify the target rover. The status bar says `범용 모델 데모`. After training
-and field validation, install an exported NCNN model with exactly the classes
-`target_rover`, `obstacle`. The status bar then says `목표 모델`; boxes remain advisory.
+Pi의 일반 지원 실행에서는 인식 노드와 BGR 공유 메모리 변환을 시작하지 않는다.
+UDP 5601은 PC 인식에 필요하지 않으며 `/vision/detections`, `/vision/target_cue`를
+Pi ROS에 발행하지 않는다. ToF 지형 기반 AUTO 경로는 이 객체인식과 별개다.
+
+## 모델과 Python
+
+기본 Python은 `GCS/.venv-vision/bin/python`, 모델은
+`GCS/models/mission02/best.pt`다. `LOONAR_VIDEO_PYTHON`으로 Python을 지정할 수 있다.
+Tk, Pillow, PyTorch, Ultralytics가 필요하다. 모델이나 추론 의존성이 없으면
+영상은 계속 표시하고 영상 터미널에 인식 오류를 출력한다.
+새 PC에 환경을 만들 때:
 
 ```bash
-# One-time Pi setup, from the repository root (or use your trained NCNN folder):
-sudo bash platforms/loonar/deploy/install-vision-runtime.sh GCS/models/mission02/best_ncnn_model
+sudo apt install python3-venv python3-tk ffmpeg
+python3 -m venv ~/LOONAR/GCS/.venv-vision
+~/LOONAR/GCS/.venv-vision/bin/python -m pip install ultralytics pillow
 ```
 
-This installs the pinned CPU runtime and validates/copies the model, updating its
-path and hash in the config. It does not launch a camera or service. `.pt` and
-`.onnx` files are not accepted by the NCNN runtime. A git pull alone does not
-install the Python runtime or deployed model. Training tools/CUDA are not needed.
+현재 모델은 COCO YOLO26n 범용 모델이다. 일반 객체를 `obstacle`로 표시하며,
+임무 로버를 식별하도록 학습된 모델은 아니다. 검증된 `target_rover`, `obstacle`
+두 클래스 모델로 `best.pt`를 교체하고 영상 창을 다시 실행하면 목표 모델로 표시한다.
 
-The node accepts `/etc/loonar/vision.yaml` for confidence, input size, model
-path and optional SHA-256 gate. Set `model_sha256` only if a pinned artifact is
-desired; an empty value allows a weight swap at the same path. The GCS scales
-portrait source-pixel boxes onto the shown frame and hides them when the known
-processing plus GCS arrival age exceeds 500 ms. This is not a measured optical
-capture-to-display delay, and rapid motion may misalign boxes.
-
-## Bring-up and checks
-
-### Normal checkout launcher
-
-After the one-time runtime/model setup above, run the usual Pi command:
-
-```bash
-bash platforms/loonar/tools/start-ground-support.sh
-```
-
-The default GCS recording session now starts the existing NCNN node alongside
-its single camera owner. The camera publishes video to GCS UDP 5600, recording
-JPEG frames, and a separate 10 fps BGR shared-memory branch. Both camera and
-detector use the same per-run socket under `$XDG_RUNTIME_DIR` (or `/tmp`), so no
-root-owned `/run/loonar` directory is required. The detector waits up to 30 seconds
-for camera startup. It uses the pulled Python source, without requiring another
-colcon build for this pure Python package. The existing terrain workspace is
-still required as before.
-
-Check these logs from the repository root:
-
-```bash
-tail -n 60 platforms/loonar/ros2/terrain_navigation/fly_brain/log/vision.log
-tail -n 40 platforms/loonar/ros2/terrain_navigation/fly_brain/log/camera.log
-pgrep -af loonar_target_vision.node
-```
-
-`NCNN / CPU / ... threads=...` confirms model loading. `vision model unavailable`
-reports missing/incompatible models or runtime versions. `Camera frame socket
-unavailable` reports camera startup failure. Missing `shmsink` disables only the
-recognition branch; camera/recording remain available. Detector exit is reported
-in `~/loonar-motor-bench/runtime/sensors.log`, without stopping video or control.
-The recording session copies `vision.log` into its `logs/` directory on exit.
-Ctrl+C stops the detector with its camera and removes the per-run socket directory.
-
-Restart the manual launcher after model installation. Do not simultaneously start
-`loonar-video.service`/`loonar-vision.service`: those are an alternative camera
-owner. `LOONAR_FLY_VISION=0` explicitly disables detection for comparison runs.
-This automatic wiring applies to the no-argument GCS launcher; legacy explicit
-bench options retain their existing separate startup procedure.
-
-### Alternative installed systemd deployment
-
-Follow [Pi deployment](../../platforms/loonar/deploy/README.md). With the manual
-launcher stopped, the installed-service workflow remains:
-
-```bash
-sudo systemctl enable --now loonar-video.service loonar-vision.service
-systemctl status loonar-video.service loonar-vision.service
-journalctl -u loonar-vision.service -f
-source /opt/ros/jazzy/setup.bash
-source /opt/loonar/current/ros/install/setup.bash
-ros2 topic echo /vision/target_cue
-```
-
-On the GCS, the existing `bash scripts/start_video.sh --compass --rotate-left`
-receives UDP 5600 and 5601. Set `LOONAR_VISION_SENDER_IP` to the Pi's IPv4
-address to accept detection packets only from that host. Allow inbound UDP
-5601 through the GCS firewall. The camera/compass viewer needs only system
-Tk, Pillow and FFmpeg. The launcher defaults to `/usr/bin/python3`; an old
-`.venv-vision` is not selected automatically. `LOONAR_VIDEO_PYTHON` can override
-the viewer's Python. Close the existing video window before changing it.
-
-For a replay of the supplied `.ts` file, FFmpeg can send its video to UDP
-5600, but Pi detection requires a live shared-memory branch or a separate
-Pi-side replay harness. A video-only replay therefore shows `인식 갱신 지연`.
-
-Measure Pi CPU and memory during video plus vision with `htop` or
-`pidstat -u -r -p $(pgrep -f loonar_target_vision.node | head -n 1) 1`.
-No FPS, latency, target accuracy, or Pi hardware result is claimed from code
-tests alone.
+기존 Pi NCNN 진단 경로는 `LOONAR_FLY_VISION=1`을 명시한 경우에만 실행한다.
+Pi 전용 런타임 설치는 [Pi 인식 패키지](../../common/ros2/loonar_target_vision/README.md)를
+참고한다. PC 영상 창은 이 경우에도 자체 추론한다.

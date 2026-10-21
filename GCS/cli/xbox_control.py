@@ -339,6 +339,7 @@ def run(args):
                     if not str(state.get('source', '')).startswith('REAL ROVER / '):
                         raise RuntimeError('실제 GroundLink 백엔드가 필요합니다. 장치만 테스트하려면 --dry-run')
                     rover = f'{state.get("connection")} / {state.get("status", {}).get("mode", "—")}'
+                    rover += ' / FLIP ON · 뒤집힘 보정' if state.get('flipped') else ' / FLIP OFF · 정상 방향'
                     if state.get('connection') != 'CONNECTED':
                         controls.manual = False
                         # No queued motion is replayed after reconnect.

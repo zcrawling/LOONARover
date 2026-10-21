@@ -25,7 +25,7 @@
   <main id="overview" tabindex="-1">
     <div class="page-heading">
       <div><h1>로버 관제</h1><p id="visibility-help" class="muted">기능 버튼: <span class="visible-key">빨강 · 표시</span> / 흰색 · 숨김</p></div>
-      <div class="mode-display"><span>현재 모드</span><strong id="mode">—</strong></div>
+      <div class="mode-display"><span id="flip-state" class="badge">FLIP OFF · 정상 방향</span><span>현재 모드</span><strong id="mode">—</strong></div>
     </div>
     <div id="notice" class="notice" role="status">백엔드 연결을 확인하고 있습니다.</div>
     <div class="main-grid">
@@ -50,7 +50,7 @@
             <small id="angular-speed-help">좌·우 회전 · 마우스 휠로 ±0.01 rad/s 조절</small>
           </div>
           <div class="keyboard-guide"><div class="key-map" aria-hidden="true"><kbd>W</kbd><div><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></div></div><p>WASD로 주행<br><span>W 전진 · S 후진 · A/D 회전</span></p></div>
-          <p class="note">키를 놓으면 속도 0을 전송합니다.<br>STOP 모드 전환은 위 정지 버튼을 사용하세요.</p>
+          <p class="note">동시 입력은 마지막으로 누른 방향이 우선합니다.<br>주행 키를 모두 놓으면 속도 0을 전송합니다.<br>STOP 모드 전환은 위 정지 버튼을 사용하세요.</p>
         </div>
 
       </section>

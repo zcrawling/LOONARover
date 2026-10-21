@@ -24,13 +24,19 @@ cleanup() {
 trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
+# Only MCU/base state is needed to observe cFS mode and keep manual telemetry.
+# The supervisor owns ToF, TF, terrain, and monitoring nodes during AUTO.
+sensor_nodes=true
+[[ ${LOONAR_FLY_GCS:-0} != 1 ]] || sensor_nodes=false
 ros2 launch loonar_bringup terrain.launch.py \
   params_file:="$LOONAR_NAV_WS/log/auto-runtime.yaml" \
-  publish_tf:=true run_base_io:=true enable_motion:="${LOONAR_FLY_DRIVE:-false}" \
+  publish_tf:="$sensor_nodes" run_adapter:="$sensor_nodes" \
+  run_stationary:="$sensor_nodes" run_safety:="$sensor_nodes" \
+  run_base_io:=true enable_motion:="${LOONAR_FLY_DRIVE:-false}" \
   run_motion:=false run_navigator:=false run_perception:=false run_planner:=false &
 children+=("$!")
 if [[ ${LOONAR_FLY_GCS:-0} == 1 ]]; then
-  python3 -m loonar_fly.supervisor &
+  python3 -m loonar_fly.supervisor --params-file "$LOONAR_NAV_WS/log/auto-runtime.yaml" &
 elif [[ ${LOONAR_FLY_DRIVE:-false} == true ]]; then
   python3 -m loonar_fly.drive_node \
     --gateway-socket "$(dirname -- "$2")/gateway/cfs.sock" \
@@ -41,15 +47,18 @@ else
 fi
 children+=("$!")
 critical=("${children[@]}")
-python3 -m loonar_fly.terrain_node --ros-args --params-file "$LOONAR_NAV_WS/log/auto-runtime.yaml" &
-children+=("$!")
-critical+=("$!")
+if [[ ${LOONAR_FLY_GCS:-0} != 1 ]]; then
+  python3 -m loonar_fly.terrain_node --ros-args --params-file "$LOONAR_NAV_WS/log/auto-runtime.yaml" &
+  children+=("$!")
+  critical+=("$!")
+fi
 if [[ ${LOONAR_FLY_CAMERA:-1} == 1 ]]; then
   mkdir -p "$FLY_DIR/log"
   root=$(cd -- "$LOONAR_NAV_WS/../../../.." && pwd)
   # Each manual launch owns its socket; no root-owned /run directory or
   # second systemd camera process is needed.
-  vision_enabled=${LOONAR_FLY_VISION:-1}
+  # GCS detects objects in its decoded video; Pi inference is opt-in.
+  vision_enabled=${LOONAR_FLY_VISION:-0}
   [[ $vision_enabled == 0 || $vision_enabled == 1 ]] || {
     echo 'LOONAR_FLY_VISION must be 0 or 1' >&2; exit 2;
   }

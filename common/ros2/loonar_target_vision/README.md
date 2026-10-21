@@ -1,5 +1,9 @@
 # Pi RGB detector contract
 
+This is the optional Pi diagnostic path. Normal GCS operation runs detection
+on the PC; see [PC setup](../../../GCS/docs/mission02-object-detection.md).
+The PC viewer no longer consumes UDP 5601.
+
 The Pi camera owner sends 640x360 NV12 to the original H.264 encoder and a
 bounded 10 fps BGR branch to a shared-memory socket (`/run/loonar/vision.sock`
 for systemd, a per-run temporary path for the manual GCS launcher). This node reads
@@ -40,16 +44,14 @@ After pulling this package on the Pi, explicitly install a model:
 sudo platforms/loonar/deploy/install-vision-runtime.sh GCS/models/mission02/best_ncnn_model
 # Later: run the same command with your exported target_ncnn_model directory.
 # Then start/restart the usual manual GCS stack:
-bash platforms/loonar/tools/start-ground-support.sh
+LOONAR_FLY_VISION=1 bash platforms/loonar/tools/start-ground-support.sh
 # Detector log: platforms/loonar/ros2/terrain_navigation/fly_brain/log/vision.log
 ```
 
-The default no-argument launcher starts the camera branch and detector together
-using the current checkout source. Do not also start the systemd camera services.
-The explicit `start-ground-support.sh --video` bench path also starts detection;
-its detector log is `~/loonar-motor-bench/runtime/vision.log`. Missing runtime,
-model config or shmsink leaves video running; detector failure leaves control
-running. `LOONAR_FLY_VISION=0` disables detection in either launcher.
+Both normal and legacy bench launchers default to PC detection. Explicit
+`LOONAR_FLY_VISION=1` starts this Pi branch using the current checkout source.
+Do not also start the systemd camera services. Missing runtime, model config or
+shmsink leaves video running; detector failure leaves control running.
 Installed systemd deployments instead restart `loonar-vision.service` and read
 `journalctl -u loonar-vision.service`. See the
 [bring-up guide](../../../GCS/docs/mission02-object-detection.md) for both workflows.
