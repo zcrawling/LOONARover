@@ -6,8 +6,15 @@ CONFIG_FILE="${LOONAR_VIDEO_CONFIG:-/etc/loonar/video.env}"
   echo "video configuration is not readable: $CONFIG_FILE" >&2
   exit 2
 }
+selected_gcs_ip=${GROUND_STATION_IP:-}
+if [[ ${1:-} == --gcs-ip ]]; then
+  selected_gcs_ip=${2:?Missing receiving PC IPv4 address}
+  shift 2
+fi
+[[ $# == 0 ]] || { echo 'Usage: --gcs-ip PC_IP' >&2; exit 2; }
 # shellcheck disable=SC1090
 source "$CONFIG_FILE"
+if [[ -n $selected_gcs_ip ]]; then GROUND_STATION_IP=$selected_gcs_ip; fi
 
 : "${VIDEO_STREAM_ENABLED:=1}"
 : "${VIDEO_RECORD_PATH:=}"
@@ -21,7 +28,7 @@ source "$CONFIG_FILE"
 }
 : "${GROUND_STATION_IP:=}"
 if [[ "$VIDEO_STREAM_ENABLED" == 1 ]]; then
-  GROUND_STATION_IP=10.254.254.2
+  : "${GROUND_STATION_IP:?Set GROUND_STATION_IP to the receiving PC IPv4 address}"
 elif [[ "$VIDEO_STREAM_ENABLED" != 0 || ( -z "$VIDEO_RECORD_PATH" && "$CAMERA_ROS_ENABLED" != 1 ) ]]; then
   echo "Select streaming, VIDEO_RECORD_PATH, or CAMERA_ROS_ENABLED=1" >&2
   exit 2
@@ -72,7 +79,7 @@ SOURCE_PIPELINE=()
 case "$VIDEO_SOURCE" in
   libcamera)
     : "${LIBCAMERA_CAMERA_NAME:=}"
-    SOURCE_PIPELINE=(libcamerasrc)
+    SOURCE_PIPELINE=(libcamerasrc name=loonar_camera)
     if [[ -n "$LIBCAMERA_CAMERA_NAME" ]]; then
       SOURCE_PIPELINE+=("camera-name=$LIBCAMERA_CAMERA_NAME")
     fi
@@ -224,5 +231,8 @@ if [[ "$CAMERA_ROS_ENABLED" == 1 ]]; then
     set -a; source /etc/loonar/ros.env; set +a
   fi
   exec /usr/bin/python3 "$(dirname -- "${BASH_SOURCE[0]}")/camera_ros.py" "${PIPELINE[@]}"
+fi
+if [[ "$VIDEO_SOURCE" == libcamera ]]; then
+  exec /usr/bin/python3 "$(dirname -- "${BASH_SOURCE[0]}")/camera_stream.py" "${PIPELINE[@]}"
 fi
 exec gst-launch-1.0 -e "${PIPELINE[@]}"

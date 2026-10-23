@@ -79,6 +79,7 @@ if [[ ${LOONAR_FLY_CAMERA:-1} == 1 ]]; then
   # second sensor launcher. This process is the single physical camera owner.
   printf '%s\n' 'VIDEO_SOURCE=libcamera' 'VIDEO_PROFILE=low' \
     'VIDEO_ENCODER_THREADS=1' 'VIDEO_PORT=5600' \
+    "GROUND_STATION_IP=${LOONAR_FLY_VIDEO_IP:-${GROUND_STATION_IP:-}}" \
     "VISION_ENABLED=$vision_enabled" 'VISION_FPS=10' > "$FLY_DIR/log/camera.env"
   if [[ $vision_enabled == 1 ]]; then
     printf 'VISION_SOCKET=%q\n' "$vision_runtime/frames.sock" >> "$FLY_DIR/log/camera.env"
@@ -86,7 +87,7 @@ if [[ ${LOONAR_FLY_CAMERA:-1} == 1 ]]; then
   LOONAR_VIDEO_CONFIG="$FLY_DIR/log/camera.env" \
     CAMERA_ROS_ENABLED=1 CAMERA_ROS_FPS="${LOONAR_FLY_CAMERA_FPS:-5}" \
     VIDEO_STREAM_ENABLED="$([[ ${LOONAR_FLY_GCS:-0} == 1 || -n ${LOONAR_FLY_VIDEO_IP:-} ]] && echo 1 || echo 0)" \
-    GROUND_STATION_IP="${LOONAR_FLY_VIDEO_IP:-}" \
+    GROUND_STATION_IP="${LOONAR_FLY_VIDEO_IP:-${GROUND_STATION_IP:-}}" \
     bash "$root/platforms/loonar/deploy/run-video.sh" > "$FLY_DIR/log/camera.log" 2>&1 &
   children+=("$!")
   if [[ $vision_enabled == 1 ]]; then

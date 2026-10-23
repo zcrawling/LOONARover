@@ -148,7 +148,7 @@ def write_frame(encoder, frame, stop):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('destination', nargs='?', default='10.254.25.3')
+    parser.add_argument('destination', help='Receiving PC IPv4 address')
     parser.add_argument('--port', type=int, default=5602)
     parser.add_argument('--fps', type=int, default=15)
     parser.add_argument('--bitrate', type=int, default=1000, help='H.264 kbit/s')

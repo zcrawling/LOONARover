@@ -44,6 +44,14 @@ class ControllerApiTests(unittest.IsolatedAsyncioTestCase):
                         await asyncio.sleep(.01)
                     while (await local({'action': 'state'}))['connection'] != 'CONNECTED':
                         await asyncio.sleep(.01)
+                    self.assertTrue((await local({'action':'state'}))['object_detection_enabled'])
+                    for enabled in (False, True):
+                        response = await local({'action':'obj'})
+                        self.assertEqual(response['object_detection_enabled'], enabled)
+                        snapshot = await local({'action':'state'})
+                        self.assertEqual(snapshot['object_detection_enabled'], enabled)
+                        self.assertFalse(snapshot['flipped'])
+                        self.assertTrue(frames.empty())  # No command sent to the rover.
                     for command, values in [('MANUAL', (-.25, .75)), ('FORWARD', None), ('STOP', None)]:
                         body = {'action': 'command', 'command': command}
                         if values:

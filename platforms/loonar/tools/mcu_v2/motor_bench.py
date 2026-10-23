@@ -26,6 +26,7 @@ def main():
     parser.add_argument("--runtime", type=Path, default=Path.home() / "loonar-motor-bench/runtime")
     parser.add_argument("--gateway-bin", type=Path, default=Path("/opt/loonar/current/bin/vehicle_gatewayd"))
     parser.add_argument("--cfs-dir", type=Path, help="Start real cFS from this prepared cpu1 directory")
+    parser.add_argument("--gcs-ip", type=ipaddress.IPv4Address, help="Allowed control PC; launch wrapper also configures firewall/status")
     parser.add_argument("--video-ip", help="Also stream camera video to this GCS IPv4 address")
     parser.add_argument("--ros-samples", action="store_true", help="Publish MCU samples to ROS (no recording)")
     parser.add_argument("--encoder-verify", action="store_true", help="Compare and record command/encoder feedback without sending motion")
@@ -37,6 +38,8 @@ def main():
     parser.add_argument("--video-record-dir", type=Path, default=Path.home() / "loonar-videos")
     parser.add_argument("--payload-device", type=Path, help="Run Payload ASCII service for this USB by-id device")
     args = parser.parse_args()
+    if args.gcs_ip:
+        os.environ["GROUND_STATION_IP"] = str(args.gcs_ip)
     if args.record_all:
         args.record = True
     if args.record:
@@ -48,8 +51,6 @@ def main():
         raise ValueError(f"Gateway executable not found: {args.gateway_bin}")
     if args.video_ip:
         args.video_ip = str(ipaddress.IPv4Address(args.video_ip))
-        if args.video_ip != '10.254.254.2':
-            raise ValueError('Pi video destination is fixed to the control PC 10.254.254.2')
     if args.video_ip or args.record_video or args.record_all:
         if subprocess.run(["systemctl", "is-active", "--quiet", "loonar-video.service"]).returncode == 0:
             raise ValueError("Stop loonar-video.service before starting this script's video sender")

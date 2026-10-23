@@ -15,7 +15,7 @@ from cli.status_udp import decode
 
 class HardwareStatus:
     def __init__(self, host, bind='0.0.0.0', port=6101, cache=None):
-        self.host, self.bind, self.port = host, bind, port
+        self.host, self.bind, self.port = socket.gethostbyname(host), bind, port
         self.cache = Path(cache) if cache else ROOT / '.runtime' / 'hardware-status.json'
         self.sock = None
         self.packet = None

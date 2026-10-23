@@ -1,4 +1,7 @@
 """Read-only Pi CPU temperature stream, independent of motion and ROS load."""
+import argparse
+import os
+import ipaddress
 import asyncio
 import json
 import math
@@ -19,7 +22,7 @@ def read_temperature(path=SENSOR):
 
 async def stream(reader, writer):
     peer=writer.get_extra_info('peername')
-    if not peer or peer[0] not in ('10.254.254.2','127.0.0.1'):
+    if not peer or peer[0] not in (os.environ.get('GROUND_STATION_IP'), '127.0.0.1'):
         writer.close()
         await writer.wait_closed()
         return
@@ -46,6 +49,10 @@ async def serve():
 
 
 def main():
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--gcs-ip', type=ipaddress.IPv4Address, default=os.environ.get('GROUND_STATION_IP'))
+    args=parser.parse_args()
+    if args.gcs_ip:os.environ['GROUND_STATION_IP']=str(args.gcs_ip)
     def stop(*_):
         raise KeyboardInterrupt
     signal.signal(signal.SIGTERM, stop)

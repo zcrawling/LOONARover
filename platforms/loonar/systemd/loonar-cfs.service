@@ -4,6 +4,7 @@ Wants=vehicle_gatewayd.service
 After=vehicle_gatewayd.service network.target
 
 [Service]
+EnvironmentFile=-/etc/loonar/network.env
 Type=simple
 User=loonar
 Group=loonar

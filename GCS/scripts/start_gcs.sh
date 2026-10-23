@@ -4,7 +4,7 @@ set -euo pipefail
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/common.sh"
 
 LAST_IP_FILE="$RUNTIME_DIR/last_rover_ip"
-DEFAULT_IP="192.168.1.50"
+DEFAULT_IP="${LOONAR_ROVER_IP:-}"
 if [[ -s $LAST_IP_FILE ]]; then
     DEFAULT_IP=$(<"$LAST_IP_FILE")
 elif [[ -s $RUNTIME_DIR/last_ssh_target ]]; then
@@ -12,6 +12,14 @@ elif [[ -s $RUNTIME_DIR/last_ssh_target ]]; then
     DEFAULT_IP=${DEFAULT_IP#*@}
 fi
 
+if [[ ${1:-} == --rover-ip ]]; then
+    [[ $# == 2 ]] || { echo 'Usage: start_gcs.sh --rover-ip PI_IP' >&2; exit 2; }
+    shift
+fi
+if [[ ${1:-} == --help || ${1:-} == -h ]]; then
+    echo 'Usage: start_gcs.sh [--rover-ip] PI_IP (omit to choose interactively)'
+    exit 0
+fi
 if [[ $# -gt 1 ]]; then
     echo 'Usage: start_gcs.sh [ROVER_IP]' >&2
     exit 2
@@ -27,6 +35,8 @@ if ! valid_host "$ROVER_IP"; then
     exit 1
 fi
 printf '%s\n' "$ROVER_IP" > "$LAST_IP_FILE"
+export LOONAR_ROVER_IP="$ROVER_IP"
+export LOONAR_VISION_SENDER_IP="$ROVER_IP"
 
 cd "$GCS_ROOT"
 URL="http://127.0.0.1:8080"

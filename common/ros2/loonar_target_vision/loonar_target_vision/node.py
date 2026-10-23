@@ -92,7 +92,7 @@ def main():
                 "model_sha256": "", "input_height": 640, "input_width": 384,
                 "confidence": 0.35, "max_result_age_ms": 500.0,
                 "cpu_threads": 2,
-                "ground_station_ip": "10.254.254.2", "udp_port": 5601,
+                "ground_station_ip": "", "udp_port": 5601,
             }
             for name, value in defaults.items():
                 self.declare_parameter(name, value)
@@ -107,7 +107,7 @@ def main():
             if int(self.cfg["udp_port"]) not in range(1, 65536):
                 raise ValueError("invalid UDP port")
             ipaddress.IPv4Address(str(self.cfg["ground_station_ip"]))
-            self.destination = ('10.254.254.2', int(self.cfg["udp_port"]))
+            self.destination = (str(self.cfg['ground_station_ip']), int(self.cfg["udp_port"]))
             self.udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             self.udp.setblocking(False)
             self.detection_pub = self.create_publisher(String, "/vision/detections", 1)

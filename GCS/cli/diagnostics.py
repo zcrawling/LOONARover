@@ -240,7 +240,7 @@ def run(args):
 def main():
     from cli.status_udp import run as receive_status
     parser = argparse.ArgumentParser(description='UDP 수신 전용 통신 상태 모니터')
-    parser.add_argument('--host', default='10.254.254.3')
+    parser.add_argument('--host', '--rover-ip', required=True)
     parser.add_argument('--once', action='store_true')
     args = parser.parse_args()
     try:receive_status('communication',args.host,once=args.once)

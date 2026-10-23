@@ -74,3 +74,8 @@ for element in appsink filesink udpsink shmsink; do grep -q "$element" <<<"$BAG_
 [[ $(grep -o 'libcamerasrc' <<<"$BAG_BOTH" | wc -l) == 1 ]]
 [[ $(grep -o 'x264enc' <<<"$BAG_BOTH" | wc -l) == 1 ]]
 if CAMERA_ROS_FPS=0 LOONAR_VIDEO_CONFIG="$TMP_DIR/pi.env" LOONAR_VIDEO_DRY_RUN=1 bash "$STREAM" >/dev/null 2>&1; then exit 1; fi
+# Both file configuration and runtime selection must reach the UDP sink.
+grep -q 'host=192.0.2.1' <<<"$PI_PIPELINE"
+SELECTED="$(LOONAR_VIDEO_CONFIG="$TMP_DIR/pi.env" LOONAR_VIDEO_DRY_RUN=1 bash "$STREAM" --gcs-ip 192.0.2.91)"
+grep -q 'host=192.0.2.91' <<<"$SELECTED"
+if grep -q 'host=192.0.2.1' <<<"$SELECTED"; then exit 1; fi

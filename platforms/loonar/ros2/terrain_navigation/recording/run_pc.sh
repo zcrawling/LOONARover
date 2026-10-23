@@ -15,7 +15,7 @@ cleanup() {
 trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
-python3 -B -m backend.real_app --host "${1:-10.254.254.3}" --port 7444 --config "$RECORD_DIR/gcs.toml" &
+python3 -B -m backend.real_app --host "${1:?Usage: run_pc.sh PI_IP}" --port 7444 --config "$RECORD_DIR/gcs.toml" &
 children+=("$!")
 sleep 1
 kill -0 "${children[0]}"

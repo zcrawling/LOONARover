@@ -67,7 +67,7 @@ if ! start_component core-cpu1 \
     exit 1
 fi
 
-GCS_IP=10.254.254.2
+GCS_IP=${GROUND_STATION_IP:-${SSH_CONNECTION%% *}}
 if [[ $GCS_IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     current_ip=$(sed -n 's/^GROUND_STATION_IP=//p' /etc/loonar/video.env 2>/dev/null | head -n 1)
     if [[ $current_ip != "$GCS_IP" ]]; then

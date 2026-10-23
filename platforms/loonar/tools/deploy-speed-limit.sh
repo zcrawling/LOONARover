@@ -2,7 +2,7 @@
 # Run on the development PC. Does not restart services or send motion.
 set -euo pipefail
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-TARGET=${1:-loonar@192.168.0.14}
+TARGET=${1:?Usage: deploy-speed-limit.sh USER@PI_IP}
 ssh -o ConnectTimeout=5 "$TARGET" 'set -eu
 base="$HOME/LOONAR/platforms/loonar/tools/mcu_v2"
 backup="$HOME/loonar-motor-bench/speed-limit-backup-$(date +%Y%m%d-%H%M%S)"

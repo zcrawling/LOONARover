@@ -61,7 +61,12 @@ class Player:
         self.samples = deque(maxlen=1)
         self.frames = deque(maxlen=1)
         self.vision = VisionCache()
-        self.detector = LocalVision(self.vision)
+        try:
+            initial_state = request({'action': 'state'}, timeout=0.3)
+        except (OSError, ValueError):
+            initial_state = {}
+        enabled = initial_state.get('object_detection_enabled', True) is not False
+        self.detector = LocalVision(self.vision, enabled=enabled)
         self.detector.start()
         self.frame = self.photo = None
         self.last_size = None
@@ -96,7 +101,8 @@ class Player:
                     break
                 self.frames.append(frame)
                 flipped = self.flipped
-                self.detector.submit(orient_frame(frame, flipped), flipped=flipped)
+                if self.detector.enabled:
+                    self.detector.submit(orient_frame(frame, flipped), flipped=flipped)
         except (OSError, ValueError) as error:
             print(f'Video decode: {error}', file=sys.stderr)
         finally:
@@ -110,6 +116,8 @@ class Player:
                 state = {}
             if type(state.get('flipped')) is bool:
                 self.flipped = state['flipped']
+            if type(state.get('object_detection_enabled')) is bool:
+                self.detector.set_enabled(state['object_detection_enabled'])
             self.samples.append((time.monotonic(), state))
             self.stop.wait(0.05)
 
@@ -138,7 +146,7 @@ class Player:
             self.canvas.create_image(x, y, image=self.photo, anchor='nw', tags='video')
         self.canvas.delete('compass')
         self.canvas.delete('vision')
-        snapshot = self.vision.snapshot()
+        snapshot = self.vision.snapshot() if self.detector.enabled else None
         if snapshot is not None and snapshot[0].get('flipped', False) != flipped:
             snapshot = None  # Never overlay boxes inferred in the old orientation.
         vision_text = self.detector.status
@@ -156,7 +164,7 @@ class Player:
                             text=f"{detection['class_name']} {detection['confidence']:.2f}",
                             anchor='sw', fill=color, font=('DejaVu Sans', 12, 'bold'), tags='vision')
                     labels = {'LEFT': '좌', 'CENTER': '중앙', 'RIGHT': '우'}
-                    vision_text = (f"PC 인식 · {mode} · 목표: {labels.get(result['direction'], '미검출')} · "
+                    vision_text = (f"OBJ ON · PC 인식 · {mode} · 목표: {labels.get(result['direction'], '미검출')} · "
                                    f"결과 나이 {age_ms:.0f}ms")
                 else:
                     vision_text = 'PC 인식 영상 크기 불일치'

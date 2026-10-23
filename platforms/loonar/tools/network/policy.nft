@@ -2,17 +2,17 @@ table inet loonar_link_policy {
     chain input {
         type filter hook input priority -10; policy accept;
         iifname "lo" return
-        ip saddr != 10.254.254.2 tcp dport { 7443, 7444, 7445 } counter drop
+        ip saddr != @GCS_IP@ tcp dport { 7443, 7444, 7445 } counter drop
         meta nfproto ipv6 tcp dport { 7443, 7444, 7445 } counter drop
-        ip saddr != 10.254.254.2 udp dport 7400-7649 counter drop
-        ip saddr != 10.254.254.3 udp dport { 6101, 6102 } counter drop
+        ip saddr != @GCS_IP@ udp dport 7400-7649 counter drop
+        udp dport { 6101, 6102 } counter drop
     }
     chain output {
         type filter hook output priority -10; policy accept;
         oifname "lo" return
-        ip daddr != 10.254.254.2 tcp sport { 7443, 7444, 7445 } counter drop
-        ip daddr != 10.254.254.2 udp dport { 5600, 5601 } counter drop
-        ip daddr != 10.254.254.2 udp dport 7400-7649 counter drop
-        ip daddr != { 10.254.254.2, 10.254.254.4 } udp dport { 6101, 6102 } counter drop
+        ip daddr != @GCS_IP@ tcp sport { 7443, 7444, 7445 } counter drop
+        ip daddr != @GCS_IP@ udp dport { 5600, 5601 } counter drop
+        ip daddr != @GCS_IP@ udp dport 7400-7649 counter drop
+        ip daddr != { @STATUS_IPS@ } udp dport { 6101, 6102 } counter drop
     }
 }

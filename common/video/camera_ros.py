@@ -19,6 +19,7 @@ def frame_stamp(wall_ns, clock_ns, base_ns, running_ns):
 
 
 def main():
+    from camera_control import ControlServer
     import gi
     gi.require_version("Gst", "1.0")
     gi.require_version("GstApp", "1.0")
@@ -48,11 +49,13 @@ def main():
 
     for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
         signal.signal(sig, stop)
+    controls = ControlServer(pipeline.get_by_name("loonar_camera"))
     frames = 0
     try:
         if pipeline.set_state(Gst.State.PLAYING) == Gst.StateChangeReturn.FAILURE:
             raise RuntimeError("camera pipeline could not start")
         while not stopping and rclpy.ok():
+            controls.poll()
             rclpy.spin_once(node, timeout_sec=0)
             event = bus.timed_pop_filtered(0, Gst.MessageType.ERROR | Gst.MessageType.EOS)
             if event is not None:
@@ -92,6 +95,7 @@ def main():
         pipeline.send_event(Gst.Event.new_eos())
         bus.timed_pop_filtered(2 * Gst.SECOND, Gst.MessageType.EOS | Gst.MessageType.ERROR)
         pipeline.set_state(Gst.State.NULL)
+        controls.close()
         node.destroy_node()
         if rclpy.ok():
             rclpy.shutdown()

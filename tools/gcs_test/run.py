@@ -111,7 +111,7 @@ def main():
     runtime.mkdir(mode=0o700, exist_ok=True)
     if runtime.is_symlink() or runtime.stat().st_uid != os.getuid():
         raise RuntimeError(f'Invalid runtime directory: {runtime}')
-    env = dict(os.environ, LOONAR_GATEWAY_SOCKET=str(runtime / 'cfs.sock'),
+    env = dict(os.environ, GROUND_STATION_IP=args.gcs_ip or '127.0.0.1', LOONAR_GATEWAY_SOCKET=str(runtime / 'cfs.sock'),
                LOONAR_MCU_HEALTH_SOCKET=str(runtime / 'mcu-health.sock'))
     processes = []
     logs = []

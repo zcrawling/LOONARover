@@ -4,7 +4,7 @@ set -euo pipefail
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/common.sh"
 
 LAST_TARGET_FILE="$RUNTIME_DIR/last_ssh_target"
-DEFAULT_TARGET="rover@192.168.1.50"
+DEFAULT_TARGET=""
 [[ -s $LAST_TARGET_FILE ]] && DEFAULT_TARGET=$(<"$LAST_TARGET_FILE")
 
 if command -v zenity >/dev/null 2>&1 && [[ -n "${DISPLAY:-}" ]]; then
@@ -13,8 +13,12 @@ if command -v zenity >/dev/null 2>&1 && [[ -n "${DISPLAY:-}" ]]; then
         --ok-label="종료" --cancel-label="취소" 2>/dev/null || exit 0
 fi
 
-TARGET=$(prompt_text "LOONAR 로버 종료" \
+if [[ $# -gt 0 ]]; then
+    TARGET=$1
+else
+    TARGET=$(prompt_text "LOONAR 로버 종료" \
     "종료할 로버의 SSH 주소를 입력하세요." "$DEFAULT_TARGET") || exit 0
+fi
 if ! valid_ssh_target "$TARGET"; then
     show_error "주소 형식이 올바르지 않습니다. rover@192.168.1.50 형식으로 입력하세요."
     exit 1

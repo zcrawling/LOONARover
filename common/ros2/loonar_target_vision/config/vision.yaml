@@ -13,5 +13,5 @@ loonar_target_vision:
     confidence: 0.35
     cpu_threads: 2
     max_result_age_ms: 500.0
-    ground_station_ip: 10.254.254.2
+    ground_station_ip: ""  # Supplied by run-vision.sh from video.env
     udp_port: 5601

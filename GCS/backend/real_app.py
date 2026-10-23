@@ -73,6 +73,7 @@ class RealState:
         self.pi_temperature_at = None
         self.reaction = {'state': 'UNKNOWN'}
         self.flipped = False
+        self.object_detection_enabled = True
 
     def event(self, text, request_id=None):
         self.event_sequence += 1
@@ -90,6 +91,7 @@ class RealState:
         return {
             "source": f"REAL ROVER / {self.host}",
             "flipped": self.flipped,
+            "object_detection_enabled": self.object_detection_enabled,
             "connection": self.connection,
             "error": self.error,
             "status": {"mode": self.mode, "values": dict(self.values), "value_sources": dict(self.value_sources), "payload": dict(self.payload)},
@@ -142,6 +144,13 @@ class GroundLinkConnection:
             text = 'FLIP ON · 뒤집힘 보정' if self.state.flipped else 'FLIP OFF · 정상 방향'
             self.state.event(text)
             return {'ok': True, 'flipped': self.state.flipped, 'text': text}
+
+    def toggle_object_detection(self):
+        self.state.object_detection_enabled = not self.state.object_detection_enabled
+        enabled = self.state.object_detection_enabled
+        text = 'OBJ ON · 객체인식 실행' if enabled else 'OBJ OFF · 객체인식 중지'
+        self.state.event(text)
+        return {'ok': True, 'object_detection_enabled': enabled, 'text': text}
 
     async def command(self, name, *args, **kwargs):
         async with self.command_lock:
@@ -450,7 +459,7 @@ async def serve(host, port, config_path=DEFAULT_CONFIG, local_socket=LOCAL_SOCKE
     fly_dir=Path(__file__).resolve().parents[2]/'platforms/loonar/ros2/terrain_navigation/fly_brain'
     sys.path.insert(0,str(fly_dir))
     from gcs_pc import BrainTerminal
-    connection.fly=BrainTerminal(state.event)
+    connection.fly=BrainTerminal(state.event, host=host)
 
     async def watch_brain():
         while True:
@@ -466,6 +475,11 @@ async def serve(host, port, config_path=DEFAULT_CONFIG, local_socket=LOCAL_SOCKE
                 response = state.snapshot()
             elif request.get("action") == "flip":
                 response = await connection.toggle_flip()
+            elif request.get("action") == "obj":
+                response = connection.toggle_object_detection()
+            elif request.get("action") == "camera":
+                from backend.camera import control
+                response = await control(host, request)
             elif request.get("action") == "command" and isinstance(request.get("command"), str):
                 response = await connection.command(
                     request["command"], request.get("linear_speed_mps"),

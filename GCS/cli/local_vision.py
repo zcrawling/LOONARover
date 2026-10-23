@@ -48,21 +48,36 @@ class Detector:
 
 class LocalVision:
     """One in-flight inference plus one replaceable frame; no growing queue."""
-    def __init__(self, cache, loader=Detector):
+    def __init__(self, cache, loader=Detector, *, enabled=True):
         self.cache = cache
         self.loader = loader
         self.condition = threading.Condition()
         self.pending = None
         self.stopped = False
-        self.status = "PC 인식 모델 로딩 중"
+        self.enabled = enabled
+        self.generation = 0
+        self._status = "PC 인식 모델 로딩 중"
         self.thread = threading.Thread(target=self.run, name="gcs-vision", daemon=True)
 
     def start(self):
         self.thread.start()
 
+    @property
+    def status(self):
+        return self._status if self.enabled else 'OBJ OFF · 객체인식 중지'
+
+    def set_enabled(self, enabled):
+        with self.condition:
+            if self.enabled != enabled:
+                self.enabled = enabled
+                self.generation += 1
+                self.pending = None
+                self.cache.clear()
+                self.condition.notify()
+
     def submit(self, frame, received=None, *, flipped=False):
         with self.condition:
-            if not self.stopped:
+            if not self.stopped and self.enabled:
                 self.pending = (frame, time.monotonic() if received is None else received, flipped)
                 self.condition.notify()
 
@@ -76,19 +91,25 @@ class LocalVision:
     def run(self):
         sequence = 0
         try:
+            with self.condition:
+                while not self.stopped and not self.enabled:
+                    self.condition.wait()
+                if self.stopped:
+                    return
             detect = self.loader()
-            self.status = "PC 인식 영상 대기/갱신 지연"
+            self._status = "OBJ ON · PC 인식 영상 대기/갱신 지연"
             next_frame = 0.0
             while True:
                 with self.condition:
                     while not self.stopped:
                         delay = max(0.0, next_frame - time.monotonic())
-                        if self.pending is not None and delay == 0:
+                        if self.enabled and self.pending is not None and delay == 0:
                             break
-                        self.condition.wait(timeout=delay if delay else None)
+                        self.condition.wait(timeout=delay if self.enabled and delay else None)
                     if self.stopped:
                         return
                     frame, received, flipped = self.pending
+                    generation = self.generation
                     self.pending = None
                 if time.monotonic() - received > 0.5:
                     continue
@@ -101,9 +122,11 @@ class LocalVision:
                 with self.condition:
                     if self.stopped:
                         return
-                self.cache.update(json.dumps(packet).encode())
+                    if not self.enabled or generation != self.generation:
+                        continue
+                    self.cache.update(json.dumps(packet).encode())
                 sequence += 1
                 next_frame = started + 0.1  # At most 10 Hz; display runs independently.
         except Exception as error:
-            self.status = "PC 인식 사용 불가 (영상 터미널 오류 확인)"
+            self._status = "PC 인식 사용 불가 (영상 터미널 오류 확인)"
             print(f"GCS object detection unavailable: {error}", file=sys.stderr)

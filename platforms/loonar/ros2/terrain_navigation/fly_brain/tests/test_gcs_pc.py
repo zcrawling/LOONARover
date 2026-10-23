@@ -10,12 +10,12 @@ def test_duplicate_auto_and_stop_marker(tmp_path):
         docker = Mock(returncode=0, wait=AsyncMock(return_value=0))
         with patch.object(gcs_pc.shutil, 'which', return_value='/bin/gnome-terminal'), \
              patch.object(gcs_pc.asyncio, 'create_subprocess_exec', AsyncMock(side_effect=[process,docker])) as spawn:
-            manager = gcs_pc.BrainTerminal(Mock(), tmp_path)
+            manager = gcs_pc.BrainTerminal(Mock(), tmp_path, host="192.0.2.91")
             await manager.start()
             session = manager.session
             await manager.start()
             assert spawn.await_count == 1
-            assert (session/'owner.json').exists()
+            assert json.loads((session/'owner.json').read_text())['host'] == '192.0.2.91'
             (session/'exited').touch()
             await manager.stop()
             assert (session/'stop').exists()

@@ -71,6 +71,12 @@ class VisionCache:
         self.arrival = 0.0
         self.sequence = -1
 
+    def clear(self):
+        with self.lock:
+            self.packet = None
+            self.sequence = -1
+            self.arrival = 0.0
+
     def update(self, raw: bytes, now=None):
         packet = parse_packet(raw)
         sequence = packet.get("sequence")

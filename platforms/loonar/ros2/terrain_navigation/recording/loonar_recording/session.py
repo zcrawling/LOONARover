@@ -1,5 +1,6 @@
 """Start recording before producers; stop producers before final MCAP flush."""
 import argparse
+import ipaddress
 from datetime import datetime
 import hashlib
 import json
@@ -43,10 +44,13 @@ def snapshot(session, final=False):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--gcs-ip', type=ipaddress.IPv4Address, help='Control/video/ROS PC IPv4; configure firewall with setup-network.sh first')
     parser.add_argument('--mode', choices=('manual','fly','observe','gcs'), default='manual')
     parser.add_argument('--seconds', type=float, default=0, help='Optional bounded capture; zero means Ctrl+C')
     parser.add_argument('--output', type=Path, help='New session directory')
     args = parser.parse_args()
+    if args.gcs_ip:
+        os.environ.update(GROUND_STATION_IP=str(args.gcs_ip), LOONAR_FLY_VIDEO_IP=str(args.gcs_ip), ROS_STATIC_PEERS=str(args.gcs_ip))
     if args.seconds < 0:
         parser.error('seconds must be nonnegative')
     session = (args.output or Path.home()/'loonar-bags'/('capture_'+datetime.now().strftime('%Y%m%d_%H%M%S_%f'))).resolve()

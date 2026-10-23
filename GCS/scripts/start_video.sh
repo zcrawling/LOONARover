@@ -40,7 +40,7 @@ fi
 printf '[LOONAR] UDP 5600 영상 수신을 기다립니다. 종료: Ctrl+C\n'
 printf '[LOONAR] 영상이 나오지 않으면 로버의 송신 대상 IP를 확인하세요.\n'
 if [[ $COMPASS == 1 ]]; then
-    printf '[LOONAR] 지상국 PC에서 수신 영상 객체인식 실행 (CPU, 최대 10 Hz).\n'
+    printf '[LOONAR] PC 객체인식: CPU, 최대 10 Hz. 지상국 실행 터미널에서 obj로 ON/OFF 전환.\n'
 fi
 if [[ $RECORD == 0 && $COMPASS == 0 ]]; then
     exec ffplay -hide_banner -loglevel warning -fflags nobuffer -flags low_delay \

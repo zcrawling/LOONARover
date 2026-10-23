@@ -42,6 +42,17 @@ rsync -az -e "$RSYNC_RSH" "$ROOT/platforms/loonar/tools/mcu_v2/ros_samples.py" \
   "$TARGET:LOONAR/platforms/loonar/tools/mcu_v2/"
 rsync -az -e "$RSYNC_RSH" "$ROOT/platforms/loonar/tools/start-ground-support.sh" \
   "$TARGET:LOONAR/platforms/loonar/tools/"
+rsync -az -e "$RSYNC_RSH" --relative \
+  "$ROOT/./platforms/loonar/tools/setup-network.sh" \
+  "$ROOT/./platforms/loonar/tools/pi_status_broadcast.py" \
+  "$ROOT/./platforms/loonar/tools/network/" \
+  "$ROOT/./common/video/loonar-video-stream" \
+  "$ROOT/./common/video/camera_ros.py" \
+  "$ROOT/./common/video/camera_stream.py" \
+  "$ROOT/./common/video/camera_control.py" \
+  "$ROOT/./cfs/apps/ground_link/fsw/src/loonar_ground_link_app.c" \
+  "$TARGET:LOONAR/"
+ssh "${SSH_OPTS[@]}" "$TARGET" 'bash ~/LOONAR/platforms/loonar/deploy/prepare-ground-control.sh'
 ssh "${SSH_OPTS[@]}" "$TARGET" 'bash -s' <<'REMOTE'
 set -eo pipefail
 source /opt/ros/jazzy/setup.bash

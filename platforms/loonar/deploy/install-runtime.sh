@@ -41,7 +41,7 @@ cp -a "$SDK/." /opt/loonar/vendor/cubeeye/2.5.9/release/
 cp -a "$CAM_WORK/stage$CAM_PREFIX/." "$CAM_PREFIX/"
 install -m 755 "$DEPLOY"/run-*.sh "$DEPLOY/loonar-camera" "$DEPLOY/loonar-camera-env.sh" "$DEST/lib/"
 install -m 755 "$ROOT/common/video/loonar-video-stream" "$DEST/lib/"
-install -m 644 "$ROOT/common/video/camera_ros.py" "$DEST/lib/"
+install -m 644 "$ROOT/common/video/"{camera_ros,camera_stream,camera_control}.py "$DEST/lib/"
 install -m 644 "$ROOT/tools/cubeeye_ros/bridge.py" "$DEST/lib/cubeeye/"
 install -m 755 "$ROOT/platforms/loonar/tools/payload_pca_service.py" "$DEST/tools/"
 install -m 644 "$DEPLOY"/*.env.example /etc/loonar/
@@ -54,7 +54,7 @@ install -m 644 "$ROOT/platforms/loonar/config/mcu-registry.example.json" "$ROOT/
 if [[ ! -e /etc/loonar/video.env ]]; then
   cat > /etc/loonar/video.env <<'EOF'
 # Development computer address observed during preparation; change for another GCS.
-GROUND_STATION_IP=10.42.0.1
+GROUND_STATION_IP=
 VIDEO_PORT=5600
 VIDEO_SOURCE=libcamera
 VIDEO_PROFILE=low

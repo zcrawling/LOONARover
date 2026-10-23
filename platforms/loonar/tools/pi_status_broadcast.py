@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """Pi local observations -> two UDP viewers. Never receives network commands."""
+import argparse
+import ipaddress
 import json
 import os
 from pathlib import Path
@@ -12,7 +14,6 @@ ROOT=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(ROOT/'GCS'))
 from cli.pi_hardware_probe import collect
 
-DESTINATIONS=('10.254.254.2','10.254.254.4')
 PORTS={'hardware':6101,'communication':6102}
 
 
@@ -37,7 +38,7 @@ def communication(hardware):
 
 
 class Broadcast:
-    def __init__(self, destinations=DESTINATIONS, ports=PORTS, source='10.254.254.3'):
+    def __init__(self, destinations, ports=PORTS, source=None):
         self.destinations,self.ports,self.source=destinations,ports,source
         self.socket=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         self.socket.setblocking(False)
@@ -51,15 +52,28 @@ class Broadcast:
         for kind,data in [('hardware',hardware),('communication',comm)]:
             packet=dict(schema=1,kind=kind,source=self.source,seq=self.sequence,
                 stamp_ns=time.time_ns(),pi_boot_id=self.boot,publisher_session=self.session,data=data)
-            raw=json.dumps(packet,allow_nan=False,separators=(',',':')).encode()
-            if len(raw)>32768:raise ValueError('status packet too large')
             for host in self.destinations:
-                try:self.socket.sendto(raw,(host,self.ports[kind]))
+                try:
+                    # Route lookup only; connect() on UDP sends no packet.
+                    with socket.socket(socket.AF_INET,socket.SOCK_DGRAM) as route:
+                        route.connect((host,self.ports[kind]))
+                        packet['source']=self.source or route.getsockname()[0]
+                    raw=json.dumps(packet,allow_nan=False,separators=(',',':')).encode()
+                    if len(raw)>32768:raise ValueError('status packet too large')
+                    self.socket.sendto(raw,(host,self.ports[kind]))
                 except OSError:self.dropped+=1
 
 
 def main():
-    sender=Broadcast(); stopped=False
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--gcs-ip', action='append', type=ipaddress.IPv4Address,
+                        help='Destination PC; repeat for additional status viewers')
+    parser.add_argument('--source-ip', type=ipaddress.IPv4Address,
+                        help='Packet source label; defaults to the selected route address')
+    args=parser.parse_args()
+    peers=args.gcs_ip or [ipaddress.IPv4Address(x) for x in os.environ.get('LOONAR_STATUS_DESTINATIONS','').split(',') if x]
+    if not peers:parser.error('Specify --gcs-ip or LOONAR_STATUS_DESTINATIONS')
+    sender=Broadcast(tuple(map(str,peers)),source=str(args.source_ip) if args.source_ip else None); stopped=False
     def stop(*_):
         nonlocal stopped
         stopped=True

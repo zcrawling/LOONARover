@@ -14,7 +14,7 @@ import time
 PORTS = {'hardware':6101, 'communication':6102}
 
 
-def decode(raw, peer, expected='10.254.254.3'):
+def decode(raw, peer, expected):
     if peer[0] != expected or len(raw) > 32768:
         raise ValueError('unexpected status sender')
     packet = json.loads(raw)
@@ -36,11 +36,11 @@ def io_line(status, direction, elapsed):
     return datetime.fromtimestamp(stamp/1e9).strftime('%H:%M:%S') + f' ({age+elapsed:.1f}초 전)'
 
 
-def render(kind, packet, age, gaps):
+def render(kind, packet, age, gaps, host=None):
     stale = packet is None or age > 4
     data = {} if stale else packet['data']
     title = '온도·전압·MCU 상태' if kind=='hardware' else '통신 상태'
-    rows = [f'LOONAR {title} | Pi 10.254.254.3 | {datetime.now():%H:%M:%S}',
+    rows = [f'LOONAR {title} | Pi {host or (packet or {}).get("source", "—")} | {datetime.now():%H:%M:%S}',
             f'UDP 수신 전용 · {"수신 대기/갱신 지연" if stale else "수신 정상"} · 누락 {gaps}', '']
     if kind == 'hardware':
         rows += [f"Pi CPU 온도       {number(data.get('cpu_temperature_c'),' °C')}",
@@ -59,8 +59,7 @@ def render(kind, packet, age, gaps):
     else:
         ground = data.get('groundlink',{})
         connected = ground.get('gcs_connected')
-        rows += ['영상·조종·지상국 허용 PC: 10.254.254.2',
-                 '상태 전송 대상: 10.254.254.2 / 10.254.254.4',
+        rows += [
                  f"GCS TCP 연결      {'연결됨' if connected is True else '끊김' if connected is False else '확인 불가'}",
                  f"운용 모드         {ground.get('mode') or '확인 불가'}"]
         for name, value in data.get('components',{}).items():
@@ -73,7 +72,8 @@ def render(kind, packet, age, gaps):
     return rows
 
 
-def run(kind, host='10.254.254.3', bind='0.0.0.0', once=False):
+def run(kind, host, bind='0.0.0.0', once=False):
+    host = socket.gethostbyname(host)
     if kind == 'hardware':
         # Import lazily: this file remains a standalone UDP viewer on the second PC.
         try:
@@ -85,7 +85,7 @@ def run(kind, host='10.254.254.3', bind='0.0.0.0', once=False):
             try:
                 while True:
                     packet, age, gaps = receiver.poll()
-                    rows = render(kind, packet, age, gaps)
+                    rows = render(kind, packet, age, gaps, host)
                     if sys.stdout.isatty() and os.name != 'nt': print('\033[2J\033[H', end='')
                     print('\n'.join(''.join(c if c.isprintable() else ' ' for c in row) for row in rows), flush=True)
                     if once and packet is not None and age <= 4: return packet
@@ -112,7 +112,7 @@ def run(kind, host='10.254.254.3', bind='0.0.0.0', once=False):
                 pass
             except (ValueError,TypeError,KeyError):
                 continue
-            rows = render(kind,packet,time.monotonic()-received,gaps)
+            rows = render(kind,packet,time.monotonic()-received,gaps,host)
             if sys.stdout.isatty() and os.name != 'nt': print('\033[2J\033[H',end='')
             print('\n'.join(''.join(c if c.isprintable() else ' ' for c in row) for row in rows),flush=True)
             if once and packet is not None:return packet
@@ -121,7 +121,7 @@ def run(kind, host='10.254.254.3', bind='0.0.0.0', once=False):
 def main():
     parser=argparse.ArgumentParser(__doc__)
     parser.add_argument('kind',choices=PORTS)
-    parser.add_argument('--host',default='10.254.254.3')
+    parser.add_argument('--host', '--rover-ip', required=True)
     parser.add_argument('--bind',default='0.0.0.0')
     parser.add_argument('--once',action='store_true')
     args=parser.parse_args()

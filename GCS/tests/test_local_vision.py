@@ -25,6 +25,67 @@ def wait_for(predicate):
 
 
 class LocalVisionTests(unittest.TestCase):
+    def test_off_skips_loading_and_resume_keeps_one_model(self):
+        loaded, seen = [], []
+        def loader():
+            loaded.append(True)
+            return lambda frame: (seen.append(frame) or result())
+        cache = VisionCache()
+        worker = LocalVision(cache, loader, enabled=False)
+        worker.start()
+        try:
+            worker.submit('disabled')
+            time.sleep(.03)
+            self.assertEqual(loaded, [])
+            self.assertIsNone(worker.pending)
+            self.assertIn('OBJ OFF', worker.status)
+            worker.set_enabled(True)
+            worker.submit('first')
+            wait_for(lambda: cache.sequence == 0)
+            worker.set_enabled(False)
+            self.assertIsNone(cache.snapshot())
+            worker.submit('disabled again')
+            time.sleep(.15)
+            self.assertEqual(seen, ['first'])
+            worker.set_enabled(True)
+            worker.submit('second')
+            wait_for(lambda: cache.sequence == 1)
+            self.assertEqual(seen, ['first', 'second'])
+            self.assertEqual(len(loaded), 1)
+        finally:
+            worker.close()
+
+    def test_off_on_discards_inflight_result_and_pending_frame(self):
+        entered, release, finished = threading.Event(), threading.Event(), threading.Event()
+        seen = []
+        def detect(frame):
+            seen.append(frame)
+            if frame == 'old':
+                entered.set()
+                release.wait(2)
+                finished.set()
+            return result()
+        cache = VisionCache()
+        worker = LocalVision(cache, lambda: detect)
+        worker.start()
+        try:
+            worker.submit('old')
+            self.assertTrue(entered.wait(2))
+            worker.submit('queued')
+            worker.set_enabled(False)
+            worker.set_enabled(True)
+            release.set()
+            self.assertTrue(finished.wait(2))
+            time.sleep(.05)
+            self.assertIsNone(cache.snapshot())
+            self.assertEqual(seen, ['old'])
+            worker.submit('new')
+            wait_for(lambda: cache.snapshot() is not None)
+            self.assertEqual(seen, ['old', 'new'])
+        finally:
+            release.set()
+            worker.close()
+
     def test_inference_does_not_block_submit_and_only_newest_frame_survives(self):
         entered, release = threading.Event(), threading.Event()
         seen = []

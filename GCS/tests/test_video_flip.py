@@ -26,7 +26,7 @@ class VideoFlipTests(unittest.TestCase):
         player.samples = deque()
         player.frame = player.photo = player.last_size = player.last_flip = None
         player.status = Mock()
-        player.detector = SimpleNamespace(status='ready')
+        player.detector = SimpleNamespace(status='ready', enabled=True)
         player.vision = VisionCache()
         player.vision.update(json.dumps(dict(schema=1, sequence=0, state='NOT_DETECTED',
             direction=None, width=8, height=4, flipped=False, processing_ms=0,
@@ -40,3 +40,9 @@ class VideoFlipTests(unittest.TestCase):
                 player.draw()
                 self.assertEqual(player.photo.getpixel((0,0)), expected)
                 self.assertEqual(player.canvas.create_rectangle.call_count, rectangles)
+            player.detector.enabled = False
+            player.canvas.reset_mock()
+            player.draw()
+            self.assertEqual(player.photo.getpixel((0,0)), (255,0,0))
+            self.assertEqual(player.canvas.create_image.call_count, 1)
+            self.assertEqual(player.canvas.create_rectangle.call_count, 1)

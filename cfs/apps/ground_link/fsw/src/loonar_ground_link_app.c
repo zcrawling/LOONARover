@@ -200,8 +200,11 @@ GL_ServiceNetwork(
         GL.Client = accept(GL.Listener, (struct sockaddr *)&peer, &length);
         if (GL.Client >= 0)
         {
-            if (peer.sin_addr.s_addr != inet_addr("10.254.254.2") &&
-                peer.sin_addr.s_addr != htonl(INADDR_LOOPBACK))
+            const char *allowed = getenv("GROUND_STATION_IP");
+            struct in_addr allowed_addr;
+            if (peer.sin_addr.s_addr != htonl(INADDR_LOOPBACK) &&
+                (!allowed || inet_pton(AF_INET, allowed, &allowed_addr) != 1 ||
+                 peer.sin_addr.s_addr != allowed_addr.s_addr))
             {
                 close(GL.Client);
                 GL.Client = -1;

@@ -2,6 +2,9 @@
 
 Does not generate, resend, interpret for control, or modify commands.
 """
+import argparse
+import os
+import ipaddress
 import asyncio
 import struct
 from .journal import emit
@@ -30,7 +33,7 @@ class Frames:
 
 async def bridge(reader, writer):
     peer=writer.get_extra_info('peername')
-    if not peer or peer[0] not in ('10.254.254.2','127.0.0.1'):
+    if not peer or peer[0] not in (os.environ.get('GROUND_STATION_IP'), '127.0.0.1'):
         writer.close()
         await writer.wait_closed()
         return
@@ -84,6 +87,10 @@ async def main():
 
 
 if __name__ == '__main__':
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--gcs-ip', type=ipaddress.IPv4Address, default=os.environ.get('GROUND_STATION_IP'))
+    args=parser.parse_args()
+    if args.gcs_ip:os.environ['GROUND_STATION_IP']=str(args.gcs_ip)
     try:
         asyncio.run(main())
     except KeyboardInterrupt:

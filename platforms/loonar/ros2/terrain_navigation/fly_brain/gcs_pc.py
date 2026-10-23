@@ -14,8 +14,9 @@ HERE=Path(__file__).resolve().parent
 
 
 class BrainTerminal:
-    def __init__(self, event, runtime=None):
+    def __init__(self, event, runtime=None, host=None):
         self.event=event
+        self.host=host or os.environ.get("LOONAR_ROVER_IP", "")
         self.runtime=Path(runtime or HERE/'log/gcs')
         self.session=None
         self.process=None
@@ -31,7 +32,7 @@ class BrainTerminal:
             self.session=self.runtime/uuid.uuid4().hex
             self.session.mkdir()
             self.container='loonar-gcs-fly-'+self.session.name[:12]
-            (self.session/'owner.json').write_text(json.dumps({'pid':os.getpid(),'container':self.container}))
+            (self.session/'owner.json').write_text(json.dumps({'pid':os.getpid(),'container':self.container,'host':self.host}))
             self.process=await asyncio.create_subprocess_exec('gnome-terminal','--wait','--title=LOONAR Fly Brain',
                 '--',sys.executable,str(HERE/'gcs_pc.py'),'--terminal',str(self.session))
             self.event('Fly brain 시작 요청 — 새 터미널에서 준비 중')
@@ -83,7 +84,7 @@ def terminal(session):
     try:
         if cancelled():
             return
-        env = dict(os.environ,LOONAR_FLY_CONTAINER=container)
+        env = dict(os.environ,LOONAR_FLY_CONTAINER=container,LOONAR_ROVER_IP=owner.get("host", ""))
         child = subprocess.Popen(['bash',str(HERE/'run_pc.sh'),'--drive'],env=env,start_new_session=True)
         while child.poll() is None and not cancelled():
             time.sleep(.1)

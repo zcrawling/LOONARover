@@ -18,6 +18,11 @@ bash ~/LOONAR/GCS/scripts/start_video.sh
 `--compass --rotate-left`를 넣는다. `--compass` 없는 ffplay 경로는 영상만 표시한다.
 PC 영상 녹화는 `--record`를 명시해야 켜지며, Pi의 `--record`/`--record-all`과 별개다.
 
+지상국 `start_gcs.sh` 실행 터미널에서 `obj` + Enter를 누르면 객체인식을
+ON/OFF 전환한다(백엔드 시작 시 기본 ON). OFF에서도 영상 표시와 녹화는 계속되며,
+진행 중인 초기 로딩 또는 추론을 마친 뒤 인식 작업은 대기한다. 모델은 메모리에
+유지하므로 다시 ON으로 바꾸면 최신 영상으로 재개한다. 영상 하단에 ON/OFF가 표시된다.
+
 ## 처리 경로
 
 ```text

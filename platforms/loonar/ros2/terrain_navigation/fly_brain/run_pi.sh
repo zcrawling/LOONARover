@@ -26,9 +26,10 @@ while [[ $# -gt 0 ]]; do
       export LOONAR_FLY_DRIVE_SECONDS="${2:?missing seconds}"
       python3 -c 'import math,sys; n=float(sys.argv[1]); assert math.isfinite(n) and n>0' "$2"
       shift 2 ;;
-    --video-ip)
+    --gcs-ip|--video-ip)
       export LOONAR_FLY_VIDEO_IP="${2:?missing PC IP}"
       python3 -c 'import ipaddress,sys; ipaddress.IPv4Address(sys.argv[1])' "$2"
+      export GROUND_STATION_IP="$LOONAR_FLY_VIDEO_IP" ROS_STATIC_PEERS="$LOONAR_FLY_VIDEO_IP"
       shift 2 ;;
     --no-camera) export LOONAR_FLY_CAMERA=0; shift ;;
     --record-all|--record-video|--video)

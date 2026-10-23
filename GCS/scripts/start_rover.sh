@@ -4,11 +4,15 @@ set -euo pipefail
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/common.sh"
 
 LAST_TARGET_FILE="$RUNTIME_DIR/last_ssh_target"
-DEFAULT_TARGET="rover@192.168.1.50"
+DEFAULT_TARGET=""
 [[ -s $LAST_TARGET_FILE ]] && DEFAULT_TARGET=$(<"$LAST_TARGET_FILE")
 
-TARGET=$(prompt_text "LOONAR 로버 실행" \
+if [[ $# -gt 0 ]]; then
+    TARGET=$1
+else
+    TARGET=$(prompt_text "LOONAR 로버 실행" \
     "SSH 접속 주소를 입력하세요. 예: rover@192.168.1.50" "$DEFAULT_TARGET") || exit 0
+fi
 if ! valid_ssh_target "$TARGET"; then
     show_error "주소 형식이 올바르지 않습니다. rover@192.168.1.50 형식으로 입력하세요."
     exit 1

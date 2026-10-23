@@ -14,8 +14,15 @@ VISION_CONFIG=${LOONAR_VISION_CONFIG:-/etc/loonar/vision.yaml}
 [[ -r $VISION_CONFIG ]] || {
   echo "Missing vision config: $VISION_CONFIG. Run install-vision-runtime.sh MODEL_DIR on the Pi." >&2; exit 2;
 }
+selected_gcs_ip=${GROUND_STATION_IP:-}
+if [[ ${1:-} == --gcs-ip ]]; then
+  selected_gcs_ip=${2:?Missing receiving PC IPv4 address}
+  shift 2
+fi
+[[ $# == 0 ]] || { echo 'Usage: --gcs-ip PC_IP' >&2; exit 2; }
 source "$VIDEO_CONFIG"
-GROUND_STATION_IP=10.254.254.2
+if [[ -n $selected_gcs_ip ]]; then GROUND_STATION_IP=$selected_gcs_ip; fi
+: "${GROUND_STATION_IP:?Set GROUND_STATION_IP in the video configuration}"
 [[ ${VIDEO_PROFILE:-} == low && ${VISION_ENABLED:-0} == 1 ]] || {
   echo "Set VIDEO_PROFILE=low and VISION_ENABLED=1 in $VIDEO_CONFIG" >&2; exit 2;
 }
