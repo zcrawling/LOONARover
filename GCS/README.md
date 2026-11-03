@@ -52,7 +52,7 @@ OFF에서는 박스를 숨기고 진행 중인 추론이 끝나면 대기하며 
 Payload 버튼은 [별도 Pi 서비스](../platforms/loonar/porting/payload_pca_runbook.md)가 필요하다.
 영상 탐지는 [Mission02 안내](docs/mission02-object-detection.md)를 참고한다.
 기본 영상 창은 지상국 PC CPU에서 객체인식을 실행한다. 기존
-`GCS/.venv-vision`과 `GCS/models/mission02/best.pt`를 사용하며,
+`GCS/.venv-vision`과 `GCS/models/mission02/best_ncnn_model/`의 NCNN 모델을 사용하며,
 Pi의 객체인식 및 인식 전용 영상 변환은 기본 비활성화된다.
 
 ## Payload 시퀀스 그래프

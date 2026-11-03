@@ -6,26 +6,35 @@ import threading
 import time
 
 REPO = Path(__file__).resolve().parents[2]
-DEFAULT_MODEL = REPO / "GCS/models/mission02/best.pt"
+DEFAULT_MODEL = REPO / "GCS/models/mission02/best_ncnn_model"
 sys.path.insert(0, str(REPO / "common/ros2/loonar_target_vision"))
 from loonar_target_vision.contract import class_mapping, cue_from_detections, make_detection
+from loonar_target_vision.node import load_ncnn
+
+
+def display_label(class_name):
+    """Keep the wire contract unchanged while using short operator labels."""
+    return {"target_rover": "rover", "obstacle": "obstacle"}[class_name]
 
 
 class Detector:
     def __init__(self, model_path=DEFAULT_MODEL):
-        # Never download a missing model while the operator is waiting for video.
-        if not Path(model_path).is_file():
+        # Reuse the pinned NCNN loader; it imports no ROS/camera runtime.
+        model_path = Path(model_path)
+        if not model_path.is_dir():
             raise FileNotFoundError(model_path)
-        import torch
-        import numpy as np
-        from ultralytics import YOLO
-        torch.set_num_threads(2)
-        self.model = YOLO(str(model_path), task="detect")
-        self.mapping, self.mode = class_mapping(self.model.names)
-        # Ultralytics changes Torch's thread count during first predictor setup.
-        # Warm up off the display thread, then restore our CPU budget.
-        self.predict(np.zeros((640, 360, 3), dtype=np.uint8))
-        torch.set_num_threads(2)
+        import hashlib
+        deployment = json.loads((model_path / "deployment.json").read_text(encoding="utf-8"))
+        for name in ("model.ncnn.param", "model.ncnn.bin", "metadata.yaml"):
+            actual = hashlib.sha256((model_path / name).read_bytes()).hexdigest()
+            if actual != deployment.get("artifacts", {}).get(name):
+                raise ValueError(f"NCNN artifact hash mismatch: {name}")
+        self.model, digest, self.mapping, self.mode = load_ncnn(model_path, 640, 384, 2)
+        mapping, mode = class_mapping(self.model.names)
+        if self.mode != "MISSION" or mode != "MISSION" or mapping != self.mapping:
+            raise ValueError("NCNN requires target_rover and obstacle mission classes")
+        print(f"GCS vision: NCNN / CPU / {model_path} / threads=2 / "
+              f"input=640x384 / labels=rover,obstacle / sha256={digest}", flush=True)
 
     def predict(self, bgr):
         return self.model.predict(bgr, device="cpu", imgsz=(640, 384),

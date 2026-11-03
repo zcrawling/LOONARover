@@ -4,9 +4,14 @@ from pathlib import Path
 import threading
 import time
 import unittest
+import hashlib
+import json
+import tempfile
+from types import SimpleNamespace
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from cli.local_vision import LocalVision
+from cli.local_vision import LocalVision, Detector, display_label
 from cli.vision_overlay import VisionCache
 
 
@@ -22,6 +27,47 @@ def wait_for(predicate):
             return
         time.sleep(.005)
     raise AssertionError("worker did not reach expected state")
+
+
+class NcnnDetectorTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.path = Path(self.temp.name) / 'test_ncnn_model'
+        self.path.mkdir()
+        hashes = {}
+        for name in ('model.ncnn.param', 'model.ncnn.bin', 'metadata.yaml'):
+            content = name.encode()
+            (self.path / name).write_bytes(content)
+            hashes[name] = hashlib.sha256(content).hexdigest()
+        (self.path / 'deployment.json').write_text(json.dumps({'artifacts': hashes}))
+
+    def test_loads_ncnn_mission_with_two_threads_and_display_alias(self):
+        model = SimpleNamespace(names={0: 'target_rover', 1: 'obstacle'})
+        with patch('cli.local_vision.load_ncnn', return_value=(model, 'hash', {0: 0, 1: 1}, 'MISSION')) as load:
+            detector = Detector(self.path)
+        load.assert_called_once_with(self.path, 640, 384, 2)
+        self.assertIs(detector.model, model)
+        self.assertEqual(detector.mapping, {0: 0, 1: 1})
+        self.assertEqual(display_label('target_rover'), 'rover')
+        self.assertEqual(display_label('obstacle'), 'obstacle')
+
+    def test_corrupted_artifact_is_rejected_before_loading(self):
+        (self.path / 'model.ncnn.bin').write_bytes(b'corrupted')
+        with patch('cli.local_vision.load_ncnn') as load:
+            with self.assertRaisesRegex(ValueError, 'hash mismatch'):
+                Detector(self.path)
+            load.assert_not_called()
+
+    def test_coco_is_rejected_instead_of_mapped_to_obstacles(self):
+        model = SimpleNamespace(names={0: 'person', 1: 'car'})
+        with patch('cli.local_vision.load_ncnn', return_value=(model, 'hash', {0: 1, 1: 1}, 'DEMO')):
+            with self.assertRaisesRegex(ValueError, 'mission classes'):
+                Detector(self.path)
+
+    def test_missing_model_has_no_pt_fallback(self):
+        with self.assertRaises(FileNotFoundError):
+            Detector(self.path / 'missing')
 
 
 class LocalVisionTests(unittest.TestCase):
@@ -140,7 +186,7 @@ class LocalVisionTests(unittest.TestCase):
     def test_slow_result_does_not_draw_old_boxes(self):
         cache = VisionCache()
         def slow(frame):
-            time.sleep(.51)
+            time.sleep(.60)  # Clear margin above 500 ms on coarse Windows clocks.
             return result()
         worker = LocalVision(cache, lambda: slow)
         worker.start()

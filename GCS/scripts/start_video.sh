@@ -40,7 +40,7 @@ fi
 printf '[LOONAR] UDP 5600 영상 수신을 기다립니다. 종료: Ctrl+C\n'
 printf '[LOONAR] 영상이 나오지 않으면 로버의 송신 대상 IP를 확인하세요.\n'
 if [[ $COMPASS == 1 ]]; then
-    printf '[LOONAR] PC 객체인식: CPU, 최대 10 Hz. 지상국 실행 터미널에서 obj로 ON/OFF 전환.\n'
+    printf '[LOONAR] PC 객체인식: NCNN CPU, 최대 10 Hz. 지상국 실행 터미널에서 obj로 ON/OFF 전환.\n'
 fi
 if [[ $RECORD == 0 && $COMPASS == 0 ]]; then
     exec ffplay -hide_banner -loglevel warning -fflags nobuffer -flags low_delay \
@@ -66,8 +66,8 @@ if [[ $COMPASS == 1 ]]; then
     export PYTHONPATH="$GCS_ROOT${PYTHONPATH:+:$PYTHONPATH}"
     PLAYER=("$VIDEO_PYTHON" -m cli.video_compass)
     if [[ $ROTATE_LEFT == 1 ]]; then PLAYER+=(--rotate-left); fi
-    if ! "$VIDEO_PYTHON" -c 'import torch, ultralytics' 2>/dev/null; then
-        printf '[LOONAR] PC 인식 의존성 없음: %s -m pip install ultralytics\n' "$VIDEO_PYTHON" >&2
+    if ! "$VIDEO_PYTHON" -c 'import torch, ultralytics, ncnn; assert ultralytics.__version__ == "8.4.145"; assert ncnn.__version__ == "1.0.20260526"' 2>/dev/null; then
+        printf '[LOONAR] NCNN 인식 의존성 확인 필요: %s -m pip install --only-binary=:all: -r "%s/requirements-vision.txt"\n' "$VIDEO_PYTHON" "$GCS_ROOT" >&2
     fi
 fi
 RECORD_OUTPUT=()

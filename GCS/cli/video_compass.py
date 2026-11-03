@@ -13,7 +13,7 @@ from PIL import Image, ImageTk
 from cli.common import request
 from cli.compass import Heading, border_positions
 from cli.vision_overlay import VisionCache, canvas_box
-from cli.local_vision import LocalVision
+from cli.local_vision import LocalVision, display_label
 
 
 def read_ppm(stream):
@@ -161,7 +161,7 @@ class Player:
                                                  result['height'], box)
                         self.canvas.create_rectangle(*coordinates, outline=color, width=4, tags='vision')
                         self.canvas.create_text(coordinates[0], coordinates[1],
-                            text=f"{detection['class_name']} {detection['confidence']:.2f}",
+                            text=f"{display_label(detection['class_name'])} {detection['confidence']:.2f}",
                             anchor='sw', fill=color, font=('DejaVu Sans', 12, 'bold'), tags='vision')
                     labels = {'LEFT': '좌', 'CENTER': '중앙', 'RIGHT': '우'}
                     vision_text = (f"OBJ ON · PC 인식 · {mode} · 목표: {labels.get(result['direction'], '미검출')} · "

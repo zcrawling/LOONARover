@@ -1,0 +1,5 @@
+# Optional camera viewer inference runtime, separate from the GCS backend.
+# Install CPU-only torch/torchvision first; see docs/mission02-object-detection.md.
+ultralytics==8.4.145
+ncnn==1.0.20260526
+pillow>=10

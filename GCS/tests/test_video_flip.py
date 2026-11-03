@@ -28,18 +28,22 @@ class VideoFlipTests(unittest.TestCase):
         player.status = Mock()
         player.detector = SimpleNamespace(status='ready', enabled=True)
         player.vision = VisionCache()
-        player.vision.update(json.dumps(dict(schema=1, sequence=0, state='NOT_DETECTED',
-            direction=None, width=8, height=4, flipped=False, processing_ms=0,
-            detections=[dict(class_id=1, class_name='obstacle', confidence=.9, xyxy=[0,0,2,2])])).encode())
+        player.vision.update(json.dumps(dict(schema=1, sequence=0, state='DETECTED',
+            direction='CENTER', width=8, height=4, flipped=False, processing_ms=0,
+            detections=[dict(class_id=1, class_name='obstacle', confidence=.9, xyxy=[0,0,2,2]),
+                        dict(class_id=0, class_name='target_rover', confidence=.8, xyxy=[3,0,5,2])])).encode())
         with patch('cli.video_compass.ImageTk.PhotoImage', side_effect=lambda image: image):
-            for flipped, expected, rectangles in ((False,(255,0,0),2),
+            for flipped, expected, rectangles in ((False,(255,0,0),3),
                                                   (True,(0,255,0),1),
-                                                  (False,(255,0,0),2)):
+                                                  (False,(255,0,0),3)):
                 player.flipped = flipped
                 player.canvas.reset_mock()
                 player.draw()
                 self.assertEqual(player.photo.getpixel((0,0)), expected)
                 self.assertEqual(player.canvas.create_rectangle.call_count, rectangles)
+                if not flipped:
+                    self.assertEqual([call.kwargs['text'] for call in player.canvas.create_text.call_args_list],
+                                     ['obstacle 0.90', 'rover 0.80'])
             player.detector.enabled = False
             player.canvas.reset_mock()
             player.draw()
